@@ -1,0 +1,71 @@
+export interface TemplateMetadata {
+  name: string;
+  displayName: string;
+  description: string;
+  tags: string[];
+  defaultPackageManager: 'pnpm' | 'npm' | 'yarn';
+  features: string[];
+}
+
+export interface ModuleMetadata {
+  name: string;
+  displayName: string;
+  description: string;
+  category: 'auth' | 'database' | 'ui' | 'other';
+  supportedFrameworks: string[];
+  dependencies: Record<string, string>;
+  devDependencies?: Record<string, string>;
+  envVars: EnvVar[];
+  patches: ModulePatch[];
+}
+
+export interface EnvVar {
+  key: string;
+  value?: string;
+  description: string;
+  required: boolean;
+}
+
+export interface ModulePatch {
+  type: 'create-file' | 'modify-json' | 'append-env' | 'inject-code';
+  description: string;
+  [key: string]: any;
+}
+
+export interface CreateFilePatch extends ModulePatch {
+  type: 'create-file';
+  source: string;
+  destination: string;
+  condition?: {
+    router?: 'app' | 'pages';
+    language?: 'ts' | 'js';
+  };
+}
+
+export interface ModifyJsonPatch extends ModulePatch {
+  type: 'modify-json';
+  file: string;
+  operations: {
+    path: string;
+    value: any;
+    merge?: boolean;
+  }[];
+}
+
+export interface ProjectInfo {
+  framework: 'nextjs' | 'unknown';
+  router: 'app' | 'pages' | 'unknown';
+  language: 'ts' | 'js';
+  packageManager: 'npm' | 'yarn' | 'pnpm';
+  hasAuth: boolean;
+  hasPrisma: boolean;
+  rootDir: string;
+}
+
+export interface CLIOptions {
+  force?: boolean;
+  dryRun?: boolean;
+  yes?: boolean;
+  noInstall?: boolean;
+  pm?: 'npm' | 'yarn' | 'pnpm';
+}

@@ -1,0 +1,32 @@
+{
+  "name": "create-stackkit",
+  "version": "0.1.0",
+  "description": "Create a new StackKit project",
+  "main": "dist/index.js",
+  "bin": {
+    "create-stackkit": "./bin/create-stackkit.js"
+  },
+  "type": "commonjs",
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "create",
+    "stackkit",
+    "generator",
+    "nextjs",
+    "template"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "execa": "^5.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3"
+  }
+}

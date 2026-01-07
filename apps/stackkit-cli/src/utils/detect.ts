@@ -1,0 +1,89 @@
+import fs from 'fs-extra';
+import path from 'path';
+import { ProjectInfo } from '../types';
+
+export async function detectProjectInfo(targetDir: string): Promise<ProjectInfo> {
+  const packageJsonPath = path.join(targetDir, 'package.json');
+  
+  if (!await fs.pathExists(packageJsonPath)) {
+    throw new Error('No package.json found. This does not appear to be a Node.js project.');
+  }
+
+  const packageJson = await fs.readJSON(packageJsonPath);
+  
+  // Detect framework
+  const isNextJs = packageJson.dependencies?.next || packageJson.devDependencies?.next;
+  const framework = isNextJs ? 'nextjs' : 'unknown';
+  
+  if (framework === 'unknown') {
+    throw new Error('Only Next.js projects are currently supported.');
+  }
+
+  // Detect router type
+  const appDirExists = await fs.pathExists(path.join(targetDir, 'app'));
+  const pagesDirExists = await fs.pathExists(path.join(targetDir, 'pages'));
+  const srcAppDirExists = await fs.pathExists(path.join(targetDir, 'src', 'app'));
+  const srcPagesDirExists = await fs.pathExists(path.join(targetDir, 'src', 'pages'));
+  
+  let router: 'app' | 'pages' | 'unknown' = 'unknown';
+  if (appDirExists || srcAppDirExists) {
+    router = 'app';
+  } else if (pagesDirExists || srcPagesDirExists) {
+    router = 'pages';
+  }
+
+  // Detect TypeScript vs JavaScript
+  const tsconfigExists = await fs.pathExists(path.join(targetDir, 'tsconfig.json'));
+  const language = tsconfigExists ? 'ts' : 'js';
+
+  // Detect package manager
+  const yarnLockExists = await fs.pathExists(path.join(targetDir, 'yarn.lock'));
+  const pnpmLockExists = await fs.pathExists(path.join(targetDir, 'pnpm-lock.yaml'));
+  let packageManager: 'npm' | 'yarn' | 'pnpm' = 'npm';
+  
+  if (pnpmLockExists) {
+    packageManager = 'pnpm';
+  } else if (yarnLockExists) {
+    packageManager = 'yarn';
+  }
+
+  // Check for existing integrations
+  const hasAuth = !!(
+    packageJson.dependencies?.['next-auth'] ||
+    packageJson.dependencies?.['@auth/core'] ||
+    packageJson.dependencies?.['@clerk/nextjs'] ||
+    packageJson.dependencies?.['@kinde-oss/kinde-auth-nextjs']
+  );
+
+  const hasPrisma = !!(
+    packageJson.dependencies?.['@prisma/client'] ||
+    packageJson.devDependencies?.['prisma']
+  );
+
+  return {
+    framework,
+    router,
+    language,
+    packageManager,
+    hasAuth,
+    hasPrisma,
+    rootDir: targetDir,
+  };
+}
+
+export function getRouterBasePath(projectInfo: ProjectInfo): string {
+  const srcExists = fs.existsSync(path.join(projectInfo.rootDir, 'src'));
+  
+  if (projectInfo.router === 'app') {
+    return srcExists ? 'src/app' : 'app';
+  } else if (projectInfo.router === 'pages') {
+    return srcExists ? 'src/pages' : 'pages';
+  }
+  
+  throw new Error('Unknown router type');
+}
+
+export function getLibPath(projectInfo: ProjectInfo): string {
+  const srcExists = fs.existsSync(path.join(projectInfo.rootDir, 'src'));
+  return srcExists ? 'src/lib' : 'lib';
+}
