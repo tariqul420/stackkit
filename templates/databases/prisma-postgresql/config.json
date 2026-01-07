@@ -1,0 +1,22 @@
+{
+  "name": "prisma-postgresql",
+  "displayName": "Prisma + PostgreSQL",
+  "database": "prisma-postgresql",
+  "compatibleWith": ["nextjs", "express"],
+  "dependencies": {
+    "@prisma/client": "^6.2.0"
+  },
+  "devDependencies": {
+    "prisma": "^6.2.0"
+  },
+  "scripts": {
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio"
+  },
+  "env": {
+    "DATABASE_URL": "postgresql://user:password@localhost:5432/mydb"
+  },
+  "files": ["prisma/schema.prisma", "lib/db.ts"]
+}

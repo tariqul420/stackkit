@@ -1,0 +1,7 @@
+{
+  "name": "express-base",
+  "displayName": "Express.js",
+  "framework": "express",
+  "description": "Express.js REST API with TypeScript",
+  "files": ["src/", "tsconfig.json", "package.json"]
+}

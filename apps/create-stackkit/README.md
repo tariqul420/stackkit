@@ -1,6 +1,6 @@
 # create-stackkit-app
 
-Quick project scaffolder for StackKit - create production-ready Next.js projects instantly.
+Production-ready project generator with interactive wizard setup.
 
 [![npm](https://img.shields.io/npm/v/create-stackkit-app)](https://www.npmjs.com/package/create-stackkit-app)
 
@@ -20,42 +20,59 @@ yarn dlx create-stackkit-app@latest my-app
 bunx create-stackkit-app@latest my-app
 ```
 
-## What It Does
+## Interactive Wizard
 
-`create-stackkit-app` is a thin wrapper around `stackkit-cli` that provides quick project initialization without global installation.
+The wizard guides you through project setup:
 
-It automatically:
-1. Installs `stackkit-cli` temporarily
-2. Runs `stackkit init` with your options
-3. Creates a production-ready Next.js project
+1. **Framework Selection**
+   - Next.js
+   - Express.js
+   - React (Vite)
+   - Astro
 
-## Options
+2. **Database/ORM**
+   - Prisma + PostgreSQL
+   - Prisma + MongoDB
+   - Mongoose + MongoDB
+   - Drizzle + PostgreSQL
+   - None
 
-All `stackkit-cli init` options are supported:
+3. **Authentication**
+   - Auth.js (NextAuth)
+   - Better Auth
+   - Clerk
+   - None
 
-```bash
-npx create-stackkit-app my-app --template next-prisma-postgres-shadcn --pm pnpm
+4. **Language**
+   - TypeScript *(recommended)*
+   - JavaScript
 
-npx create-stackkit-app my-app --no-install --no-git --yes
-```
+5. **Package Manager**
+   - pnpm *(recommended)*
+   - npm
+   - yarn
 
-**Available options:**
-- `--template <name>` - Template to use
-- `--pm <npm|yarn|pnpm>` - Package manager
-- `--no-install` - Skip dependency installation
-- `--no-git` - Skip git initialization
-- `--yes` - Skip all prompts
+## Automatic Setup
+
+After answering questions, the tool automatically:
+
+✅ Creates project files  
+✅ Installs dependencies  
+✅ Initializes git repository
+
+No manual `npm install` or `git init` needed.
 
 ## What's Included
 
-The default template includes:
-- ✅ Next.js 15 with App Router
-- ✅ TypeScript
-- ✅ Prisma ORM + PostgreSQL
-- ✅ shadcn/ui components
-- ✅ Tailwind CSS
+Default Next.js + Prisma + PostgreSQL template:
+
+- ⚡ Next.js 15 with App Router
+- 🛡️ TypeScript
+- 🗄️ Prisma ORM + PostgreSQL
+- 🎨 shadcn/ui components
+- 💅 Tailwind CSS
 - ✅ Zod validation
-- ✅ ESLint + Prettier
+- 🔧 ESLint + Prettier
 
 ## Next Steps
 
@@ -63,11 +80,10 @@ After creating your project:
 
 ```bash
 cd my-app
-pnpm install
 pnpm dev
 ```
 
-Add features with modules:
+Add modules to existing projects:
 
 ```bash
 npx stackkit-cli add auth
@@ -75,13 +91,12 @@ npx stackkit-cli add auth
 
 ## Full CLI
 
-For more features, use the full CLI:
+For advanced features:
 
 ```bash
 npm install -g stackkit-cli
 
-stackkit init my-app
-stackkit list
+stackkit list    # View all templates/modules
 stackkit add auth
 ```
 

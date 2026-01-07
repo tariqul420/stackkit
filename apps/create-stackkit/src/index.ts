@@ -1,19 +1,14 @@
 #!/usr/bin/env node
-import execa from 'execa';
+import { createProject } from './lib/create-project';
 
-/**
- * Thin wrapper that calls `stackkit init` with arguments
- * This allows users to run `npx create-stackkit@latest my-app`
- */
 async function main() {
   const args = process.argv.slice(2);
-  
+  const projectName = args[0];
+
   try {
-    // Call stackkit init with forwarded arguments
-    await execa('npx', ['stackkit-cli@latest', 'init', ...args], {
-      stdio: 'inherit',
-    });
+    await createProject(projectName);
   } catch (error) {
+    console.error('Error:', (error as Error).message);
     process.exit(1);
   }
 }

@@ -1,21 +1,14 @@
 # Contributing to StackKit
 
-Thanks for your interest in contributing! 
+Thanks for your interest! 
 
 ## Development Setup
 
 ```bash
-# Clone and install
 git clone https://github.com/tariqul420/stackkit.git
 cd stackkit
 pnpm install
-
-# Build packages
 pnpm build
-
-# Link CLI locally
-cd apps/stackkit-cli
-pnpm link --global
 ```
 
 ## Project Structure
@@ -23,31 +16,116 @@ pnpm link --global
 ```
 stackkit/
 ├── apps/
-│   ├── stackkit-cli/      # Main CLI package
-│   └── create-stackkit/   # NPX wrapper
-├── templates/             # Project templates
-├── modules/               # Feature modules
-└── pnpm-workspace.yaml
+│   ├── stackkit-cli/        # CLI package
+│   └── create-stackkit/     # NPX wrapper
+└── templates/
+    ├── bases/               # Framework base templates
+    ├── databases/           # Database modules
+    └── auth/                # Auth modules
+```
+
+## Modular Template System
+
+Templates are composed of 3 parts:
+1. **Base** - Framework (Next.js, Express, etc.)
+2. **Database** - Prisma, Mongoose, etc.
+3. **Auth** - NextAuth, Better Auth, etc.
+
+### Adding a Base Template
+
+```bash
+templates/bases/framework-base/
+├── template.json      # Metadata
+├── package.json       # Dependencies
+├── tsconfig.json
+└── app/ or src/       # Source files
+```
+
+**template.json:**
+```json
+{
+  "name": "framework-base",
+  "displayName": "Framework Name",
+  "framework": "framework"
+}
+```
+
+### Adding a Database Module
+
+```bash
+templates/databases/db-name/
+├── config.json        # Dependencies, env, scripts
+├── prisma/
+│   └── schema.prisma
+└── lib/
+    └── db.ts
+```
+
+**config.json:**
+```json
+{
+  "name": "db-name",
+  "compatibleWith": ["framework1", "framework2"],
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {},
+  "env": {}
+}
+```
+
+### Adding an Auth Module
+
+```bash
+templates/auth/auth-name/
+├── config.json
+├── lib/
+│   └── auth.ts
+└── app/ or src/       # Routes
+```
+
+**compatibleWith:**
+```json
+{
+  "compatibleWith": {
+    "frameworks": ["nextjs"],
+    "databases": ["prisma-postgresql"]
+  }
+}
 ```
 
 ## Testing Changes
 
 ```bash
-# Test init
-stackkit init test-app --no-install --no-git
+cd apps/create-stackkit
+pnpm build && cp -r ../../templates .
+node dist/index.js test-project
 
-# Test add
-cd test-app
-stackkit add auth --dry-run
-
-# Test list
-stackkit list
+cd test-project
+pnpm install
+pnpm dev
 ```
 
-## Adding Templates
+## Guidelines
 
-1. Create folder in `templates/`
-2. Add `template.json`:
+- ✅ Use TypeScript (JavaScript auto-converts)
+- ✅ Keep templates minimal
+- ✅ Test all combinations
+- ✅ Document env variables
+- ✅ Follow existing patterns
+
+## Publishing
+
+Only maintainers can publish:
+
+```bash
+# Bump version in package.json files
+cd apps/stackkit-cli && npm publish
+cd apps/create-stackkit && npm publish
+```
+
+## License
+
+MIT
 ```json
 {
   "name": "template-name",

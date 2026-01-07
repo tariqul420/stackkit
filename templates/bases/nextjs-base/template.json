@@ -1,0 +1,7 @@
+{
+  "name": "nextjs-base",
+  "displayName": "Next.js",
+  "framework": "nextjs",
+  "description": "Next.js 15 App Router with TypeScript",
+  "files": ["app/", "public/", "next.config.ts", "tsconfig.json", "package.json"]
+}

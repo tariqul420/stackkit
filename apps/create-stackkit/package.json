@@ -1,12 +1,17 @@
 {
   "name": "create-stackkit-app",
-  "version": "0.1.5",
-  "description": "Create a new StackKit project",
+  "version": "0.3.0",
+  "description": "Create a new StackKit project with modular composition",
   "main": "dist/index.js",
   "bin": {
     "create-stackkit": "./bin/create-stackkit.js"
   },
   "type": "commonjs",
+  "files": [
+    "dist",
+    "bin",
+    "templates"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/tariqul420/stackkit.git",
@@ -20,7 +25,8 @@
     "dev": "tsc --watch",
     "build": "tsc",
     "clean": "rm -rf dist",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build && cp -r ../../templates ."
   },
   "keywords": [
     "create",
@@ -32,11 +38,17 @@
   "author": "Your Name",
   "license": "MIT",
   "dependencies": {
-    "execa": "^5.1.1",
-    "stackkit-cli": "^0.1.5"
+    "chalk": "^4.1.2",
+    "fs-extra": "^11.2.0",
+    "inquirer": "^9.3.8",
+    "ora": "^5.4.1",
+    "validate-npm-package-name": "^5.0.1"
   },
   "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/inquirer": "^9.0.7",
     "@types/node": "^20.11.0",
+    "@types/validate-npm-package-name": "^4.0.2",
     "typescript": "^5.3.3"
   }
 }

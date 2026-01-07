@@ -1,27 +1,34 @@
 # StackKit
 
-⚡ **Production-ready project generator with modular architecture**
+⚡ **Production-ready project generator with modular composition**
 
 [![npm](https://img.shields.io/npm/v/stackkit-cli)](https://www.npmjs.com/package/stackkit-cli)
+[![npm](https://img.shields.io/npm/v/create-stackkit-app)](https://www.npmjs.com/package/create-stackkit-app)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ## Quick Start
 
 ```bash
-# Create new project
 npx create-stackkit-app my-app
-
-# Add modules to existing project
-npx stackkit-cli add auth
 ```
+
+Interactive wizard guides you through:
+- **Framework**: Next.js, Express, React (Vite), Astro
+- **Database**: Prisma + PostgreSQL/MongoDB, Mongoose, Drizzle, None
+- **Auth**: Auth.js, Better Auth, Clerk, None
+- **Language**: TypeScript or JavaScript
+- **Package Manager**: pnpm, npm, yarn
+
+Automatically installs dependencies and initializes git.
 
 ## Features
 
-- 🎯 Production-ready templates with best practices
-- 🔧 Add modules to existing projects
-- 🛡️ TypeScript support
-- ⚡ Fast setup with multiple package managers
-- 🔄 Idempotent operations
+- 🧙 **Wizard-style setup** - Interactive project creation
+- 🔧 **Modular composition** - Mix and match framework, database, auth
+- 🛡️ **TypeScript & JavaScript** - Auto-converts based on selection
+- ⚡ **Fast setup** - Dependencies auto-installed
+- 📦 **Add modules** - Extend existing projects
+- ✅ **Production-ready** - Best practices built-in
 
 ## Commands
 
@@ -31,63 +38,32 @@ npx stackkit-cli add auth
 npx create-stackkit-app my-app
 ```
 
-Options:
-- `--template <name>` - Choose template (default: next-prisma-postgres-shadcn)
-- `--pm <npm|yarn|pnpm>` - Package manager
-- `--no-install` - Skip dependency installation
-- `--no-git` - Skip git initialization
-
-### List Resources
+### Add Modules to Existing Project
 
 ```bash
-npx stackkit-cli list                # All templates and modules
-npx stackkit-cli list --templates    # Templates only
-npx stackkit-cli list --modules      # Modules only
+npx stackkit-cli add auth
 ```
 
-### Add Modules
+### List Available Templates/Modules
 
 ```bash
-npx stackkit-cli add auth            # Add authentication
-npx stackkit-cli add auth --dry-run  # Preview changes
-npx stackkit-cli add auth --force    # Overwrite existing files
+npx stackkit-cli list
 ```
-
-## Available Templates
-
-**next-prisma-postgres-shadcn**
-- Next.js 15 App Router
-- Prisma ORM + PostgreSQL
-- shadcn/ui components
-- TypeScript, Tailwind CSS
-- Zod validation, ESLint + Prettier
-
-## Available Modules
-
-**auth** - NextAuth.js authentication
-- Multiple providers
-- App Router & Pages Router support
-- Session management
 
 ## Development
 
 ```bash
-# Install dependencies
+git clone https://github.com/tariqul420/stackkit.git
+cd stackkit
 pnpm install
-
-# Build packages
 pnpm build
-
-# Test locally
-cd apps/stackkit-cli && pnpm link --global
-stackkit init test-app
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ## License
 
-MIT © [StackKit](https://github.com/tariqul420/stackkit)
+MIT © [Tariqul Islam](https://github.com/tariqul420)
 
 ### `stackkit init`
 

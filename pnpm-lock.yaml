@@ -20,13 +20,34 @@ importers:
 
   apps/create-stackkit:
     dependencies:
-      execa:
-        specifier: ^5.1.1
-        version: 5.1.1
+      chalk:
+        specifier: ^4.1.2
+        version: 4.1.2
+      fs-extra:
+        specifier: ^11.2.0
+        version: 11.3.3
+      inquirer:
+        specifier: ^9.3.8
+        version: 9.3.8(@types/node@20.19.27)
+      ora:
+        specifier: ^5.4.1
+        version: 5.4.1
+      validate-npm-package-name:
+        specifier: ^5.0.1
+        version: 5.0.1
     devDependencies:
+      '@types/fs-extra':
+        specifier: ^11.0.4
+        version: 11.0.4
+      '@types/inquirer':
+        specifier: ^9.0.7
+        version: 9.0.9
       '@types/node':
         specifier: ^20.11.0
         version: 20.19.27
+      '@types/validate-npm-package-name':
+        specifier: ^4.0.2
+        version: 4.0.2
       typescript:
         specifier: ^5.3.3
         version: 5.9.3
