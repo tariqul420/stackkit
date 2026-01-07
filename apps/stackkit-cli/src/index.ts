@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-import { Command } from 'commander';
 import chalk from 'chalk';
+import { Command } from 'commander';
+import { addCommand } from './commands/add';
 import { initCommand } from './commands/init';
 import { listCommand } from './commands/list';
-import { addCommand } from './commands/add';
 
 const program = new Command();
 

@@ -51,14 +51,10 @@ export class Logger {
   }
 
   header(text: string): void {
-    console.log();
-    console.log(chalk.bold.cyan(`╭─ ${text}`));
-    console.log(chalk.cyan('│'));
+    console.log(chalk.bold.cyan(text));
   }
 
   footer(): void {
-    console.log(chalk.cyan('│'));
-    console.log(chalk.cyan('╰─'));
     console.log();
   }
 }

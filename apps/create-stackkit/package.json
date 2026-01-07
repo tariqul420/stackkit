@@ -7,6 +7,15 @@
     "create-stackkit": "./bin/create-stackkit.js"
   },
   "type": "commonjs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/stackkit.git",
+    "directory": "apps/create-stackkit"
+  },
+  "homepage": "https://github.com/yourusername/stackkit#readme",
+  "bugs": {
+    "url": "https://github.com/yourusername/stackkit/issues"
+  },
   "scripts": {
     "dev": "tsc --watch",
     "build": "tsc",

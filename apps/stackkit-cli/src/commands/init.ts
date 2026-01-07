@@ -1,16 +1,12 @@
-import path from 'path';
+import chalk from 'chalk';
 import fs from 'fs-extra';
 import inquirer from 'inquirer';
+import path from 'path';
 import validateNpmPackageName from 'validate-npm-package-name';
-import { logger } from '../utils/logger';
-import { copyTemplate } from '../utils/files';
-import {
-  detectPackageManager,
-  installDependencies,
-  initGit,
-  PackageManager,
-} from '../utils/package-manager';
 import { TemplateMetadata } from '../types';
+import { copyTemplate } from '../utils/files';
+import { logger } from '../utils/logger';
+import { initGit, installDependencies, PackageManager } from '../utils/package-manager';
 
 interface InitOptions {
   template?: string;
@@ -24,9 +20,13 @@ export async function initCommand(
   projectName: string | undefined,
   options: InitOptions
 ): Promise<void> {
-  logger.header('StackKit - Project Generator');
-
   try {
+    // Validate package manager option
+    if (options.pm && !['npm', 'yarn', 'pnpm'].includes(options.pm)) {
+      logger.error(`Invalid package manager: ${options.pm}. Use npm, yarn, or pnpm.`);
+      process.exit(1);
+    }
+
     // Get available templates
     const templatesDir = path.join(__dirname, '..', '..', '..', '..', 'templates');
     const templates = await getAvailableTemplates(templatesDir);
@@ -116,14 +116,19 @@ export async function initCommand(
 
     // Check if directory exists
     if (await fs.pathExists(targetDir)) {
-      logger.error(`Directory ${answers.projectName} already exists`);
+      logger.error(`Directory "${answers.projectName}" already exists`);
+      logger.info('Please choose a different name or remove the existing directory.');
+      process.exit(1);
+    }
+
+    // Validate template exists
+    const selectedTemplate = templates.find((t) => t.name === answers.template);
+    if (!selectedTemplate) {
+      logger.error(`Template "${answers.template}" not found`);
       process.exit(1);
     }
 
     logger.newLine();
-    logger.info(`Creating project: ${answers.projectName}`);
-    logger.info(`Template: ${answers.template}`);
-    logger.info(`Package manager: ${answers.packageManager}`);
 
     // Copy template
     const templatePath = path.join(templatesDir, answers.template);
@@ -140,15 +145,17 @@ export async function initCommand(
     }
 
     logger.newLine();
-    logger.success('Project created successfully!');
+    logger.success(`Created ${chalk.bold(answers.projectName)}`);
     logger.newLine();
-    logger.info('Next steps:');
-    logger.log(`  cd ${answers.projectName}`);
+    logger.log(`Next steps:`);
+    logger.log(`  ${chalk.cyan('cd')} ${answers.projectName}`);
     if (!answers.install) {
-      logger.log(`  ${answers.packageManager} install`);
+      logger.log(`  ${chalk.cyan(answers.packageManager)} install`);
     }
-    logger.log(`  ${answers.packageManager} ${answers.packageManager === 'npm' ? 'run ' : ''}dev`);
-    logger.footer();
+    logger.log(
+      `  ${chalk.cyan(answers.packageManager)} ${answers.packageManager === 'npm' ? 'run ' : ''}dev`
+    );
+    logger.newLine();
   } catch (error) {
     logger.error(`Failed to create project: ${(error as Error).message}`);
     process.exit(1);
@@ -156,7 +163,7 @@ export async function initCommand(
 }
 
 async function getAvailableTemplates(templatesDir: string): Promise<TemplateMetadata[]> {
-  if (!await fs.pathExists(templatesDir)) {
+  if (!(await fs.pathExists(templatesDir))) {
     return [];
   }
 

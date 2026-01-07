@@ -1,5 +1,5 @@
-import { execa } from 'execa';
 import { detect } from 'detect-package-manager';
+import execa from 'execa';
 import { logger } from './logger';
 
 export type PackageManager = 'npm' | 'yarn' | 'pnpm';
@@ -22,7 +22,7 @@ export async function installDependencies(
 
   try {
     const args: string[] = [];
-    
+
     if (pm === 'npm') {
       args.push('install');
     } else if (pm === 'yarn') {

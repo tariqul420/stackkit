@@ -1,14 +1,13 @@
-import path from 'path';
+import chalk from 'chalk';
 import fs from 'fs-extra';
 import inquirer from 'inquirer';
-import chalk from 'chalk';
-import { logger } from '../utils/logger';
-import { detectProjectInfo, getRouterBasePath, getLibPath } from '../utils/detect';
-import { addDependencies } from '../utils/package-manager';
-import { addToPackageJson } from '../utils/json-editor';
+import path from 'path';
+import { CreateFilePatch, ModuleMetadata } from '../types';
+import { detectProjectInfo, getLibPath, getRouterBasePath } from '../utils/detect';
 import { addEnvVariables } from '../utils/env-editor';
 import { createFile, fileExists } from '../utils/files';
-import { ModuleMetadata, CreateFilePatch } from '../types';
+import { logger } from '../utils/logger';
+import { addDependencies } from '../utils/package-manager';
 
 interface AddOptions {
   provider?: string;
@@ -18,17 +17,14 @@ interface AddOptions {
 }
 
 export async function addCommand(module: string, options: AddOptions): Promise<void> {
-  logger.header(`StackKit - Add Module: ${module}`);
-
   try {
     const projectRoot = process.cwd();
 
     // Detect project info
-    logger.info('Detecting project configuration...');
+    const spinner = logger.startSpinner('Detecting project...');
     const projectInfo = await detectProjectInfo(projectRoot);
-
-    logger.success(
-      `Detected: ${projectInfo.framework} (${projectInfo.router} router, ${projectInfo.language})`
+    spinner.succeed(
+      `Detected ${projectInfo.framework} (${projectInfo.router} router, ${projectInfo.language})`
     );
 
     // Load module metadata
@@ -66,23 +62,13 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
       }
     }
 
-    logger.newLine();
-    logger.info(`Adding ${moduleMetadata.displayName}...`);
-
     if (options.dryRun) {
-      logger.warn('DRY RUN MODE - No changes will be made');
+      logger.warn('Dry run mode - no changes will be made');
       logger.newLine();
     }
 
     // Apply module patches
-    await applyModulePatches(
-      projectRoot,
-      projectInfo,
-      moduleMetadata,
-      modulesDir,
-      module,
-      options
-    );
+    await applyModulePatches(projectRoot, projectInfo, moduleMetadata, modulesDir, module, options);
 
     // Add dependencies
     if (Object.keys(moduleMetadata.dependencies).length > 0 && options.install !== false) {
@@ -98,7 +84,11 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
     }
 
     // Add dev dependencies
-    if (moduleMetadata.devDependencies && Object.keys(moduleMetadata.devDependencies).length > 0 && options.install !== false) {
+    if (
+      moduleMetadata.devDependencies &&
+      Object.keys(moduleMetadata.devDependencies).length > 0 &&
+      options.install !== false
+    ) {
       const devDeps = Object.entries(moduleMetadata.devDependencies).map(
         ([name, version]) => `${name}@${version}`
       );
@@ -115,25 +105,19 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
       if (!options.dryRun) {
         await addEnvVariables(projectRoot, moduleMetadata.envVars, { force: options.force });
       } else {
-        logger.info('Would add environment variables:');
-        moduleMetadata.envVars.forEach((v) => {
-          logger.log(`  ${v.key}=${v.value || ''} # ${v.description}`);
-        });
+        logger.log(`  ${chalk.dim('~')} .env.example`);
       }
     }
 
     logger.newLine();
-    logger.success(`${moduleMetadata.displayName} added successfully!`);
+    logger.success(`Added ${chalk.bold(moduleMetadata.displayName)}`);
     logger.newLine();
 
     // Print next steps
-    logger.info('Next steps:');
     if (moduleMetadata.envVars.some((v) => v.required)) {
-      logger.log('  1. Fill in required environment variables in .env');
+      logger.log('Next: Fill in environment variables in .env');
     }
-    logger.log(`  2. Run ${projectInfo.packageManager} ${projectInfo.packageManager === 'npm' ? 'run ' : ''}dev`);
-    logger.log(`  3. Visit the authentication routes in your browser`);
-    logger.footer();
+    logger.newLine();
   } catch (error) {
     logger.error(`Failed to add module: ${(error as Error).message}`);
     if (error instanceof Error && error.stack) {
@@ -148,7 +132,7 @@ async function loadModuleMetadata(
   moduleName: string,
   provider?: string
 ): Promise<ModuleMetadata | null> {
-  if (!await fs.pathExists(modulesDir)) {
+  if (!(await fs.pathExists(modulesDir))) {
     return null;
   }
 
@@ -158,16 +142,28 @@ async function loadModuleMetadata(
   for (const category of categories) {
     const categoryPath = path.join(modulesDir, category);
     const stat = await fs.stat(categoryPath);
-    
+
     if (!stat.isDirectory()) continue;
 
-    // Check if module exists in this category
-    const modulePath = path.join(categoryPath, provider || moduleName);
-    const metadataPath = path.join(modulePath, 'module.json');
+    // Get all modules in this category
+    const moduleDirs = await fs.readdir(categoryPath);
 
-    if (await fs.pathExists(metadataPath)) {
-      const metadata = await fs.readJSON(metadataPath);
-      return metadata;
+    for (const moduleDir of moduleDirs) {
+      const modulePath = path.join(categoryPath, moduleDir);
+      const moduleStat = await fs.stat(modulePath);
+
+      if (!moduleStat.isDirectory()) continue;
+
+      const metadataPath = path.join(modulePath, 'module.json');
+
+      if (await fs.pathExists(metadataPath)) {
+        const metadata = await fs.readJSON(metadataPath);
+
+        // Match by module name or provider
+        if (metadata.name === moduleName || (provider && moduleDir === provider)) {
+          return metadata;
+        }
+      }
     }
   }
 
@@ -197,10 +193,7 @@ async function applyModulePatches(
         if (filePatch.condition.router && filePatch.condition.router !== projectInfo.router) {
           continue; // Skip this patch
         }
-        if (
-          filePatch.condition.language &&
-          filePatch.condition.language !== projectInfo.language
-        ) {
+        if (filePatch.condition.language && filePatch.condition.language !== projectInfo.language) {
           continue; // Skip this patch
         }
       }
@@ -217,12 +210,14 @@ async function applyModulePatches(
         if (await fileExists(sourceFile)) {
           const content = await fs.readFile(sourceFile, 'utf-8');
           await createFile(destFile, content, { force: options.force });
-          logger.success(`Created: ${path.relative(projectRoot, destFile)}`);
+          const relativePath = path.relative(projectRoot, destFile);
+          logger.log(`  ${chalk.green('+')} ${relativePath}`);
         } else {
           logger.warn(`Source file not found: ${filePatch.source}`);
         }
       } else {
-        logger.info(`Would create: ${path.relative(projectRoot, destFile)}`);
+        const relativePath = path.relative(projectRoot, destFile);
+        logger.log(`  ${chalk.dim('+')} ${relativePath}`);
       }
     }
   }
@@ -238,13 +233,27 @@ async function findModulePath(
   for (const category of categories) {
     const categoryPath = path.join(modulesDir, category);
     const stat = await fs.stat(categoryPath);
-    
+
     if (!stat.isDirectory()) continue;
 
-    const modulePath = path.join(categoryPath, provider || moduleName);
-    
-    if (await fs.pathExists(modulePath)) {
-      return modulePath;
+    const moduleDirs = await fs.readdir(categoryPath);
+
+    for (const moduleDir of moduleDirs) {
+      const modulePath = path.join(categoryPath, moduleDir);
+      const moduleStat = await fs.stat(modulePath);
+
+      if (!moduleStat.isDirectory()) continue;
+
+      const metadataPath = path.join(modulePath, 'module.json');
+
+      if (await fs.pathExists(metadataPath)) {
+        const metadata = await fs.readJSON(metadataPath);
+
+        // Match by module name or provider
+        if (metadata.name === moduleName || (provider && moduleDir === provider)) {
+          return modulePath;
+        }
+      }
     }
   }
 

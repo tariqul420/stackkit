@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { execa } from 'execa';
+import execa from 'execa';
 
 /**
  * Thin wrapper that calls `stackkit init` with arguments
