@@ -9,12 +9,12 @@
   "type": "commonjs",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/stackkit.git",
+    "url": "https://github.com/tariqul420/stackkit.git",
     "directory": "apps/stackkit-cli"
   },
-  "homepage": "https://github.com/yourusername/stackkit#readme",
+  "homepage": "https://github.com/tariqul420/stackkit#readme",
   "bugs": {
-    "url": "https://github.com/yourusername/stackkit/issues"
+    "url": "https://github.com/tariqul420/stackkit/issues"
   },
   "scripts": {
     "dev": "tsc --watch",
