@@ -52,7 +52,7 @@ export async function setJsonValue(
     }
 
     const lastKey = keys[keys.length - 1];
-    
+
     if (options.merge && typeof current[lastKey] === 'object' && typeof value === 'object') {
       current[lastKey] = { ...current[lastKey], ...value };
     } else {

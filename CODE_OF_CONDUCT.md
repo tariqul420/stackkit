@@ -7,11 +7,13 @@ We pledge to make participation in our community a harassment-free experience fo
 ## Our Standards
 
 **Positive behavior:**
+
 - Be respectful and kind
 - Accept constructive feedback gracefully
 - Focus on what's best for the community
 
 **Unacceptable behavior:**
+
 - Harassment or discriminatory comments
 - Trolling or personal attacks
 - Publishing private information without consent

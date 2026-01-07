@@ -39,7 +39,7 @@ async function appendToEnvFile(
   options: { force?: boolean } = {}
 ): Promise<void> {
   let content = '';
-  
+
   if (await fs.pathExists(filePath)) {
     content = await fs.readFile(filePath, 'utf-8');
   }
@@ -47,7 +47,7 @@ async function appendToEnvFile(
   // Check if variables already exist
   const existingKeys = new Set<string>();
   const lines = content.split('\n');
-  
+
   for (const line of lines) {
     const match = line.match(/^([A-Z_][A-Z0-9_]*)=/);
     if (match) {
@@ -77,37 +77,34 @@ async function appendToEnvFile(
   // Add marker and variables
   content += '\n';
   content += `${ENV_MARKER_START} Added by StackKit\n`;
-  
+
   for (const variable of newVariables) {
     if (variable.description) {
       content += `# ${variable.description}\n`;
     }
-    
-    const value = fileType === 'example' ? (variable.value || '') : (variable.value || '');
+
+    const value = fileType === 'example' ? variable.value || '' : variable.value || '';
     content += `${variable.key}=${value}\n`;
   }
-  
+
   content += `${ENV_MARKER_END}\n`;
 
   await fs.writeFile(filePath, content, 'utf-8');
 }
 
-export async function removeEnvVariables(
-  projectRoot: string,
-  keys: string[]
-): Promise<void> {
+export async function removeEnvVariables(projectRoot: string, keys: string[]): Promise<void> {
   const envExamplePath = path.join(projectRoot, '.env.example');
   const envPath = path.join(projectRoot, '.env');
 
   await removeFromEnvFile(envExamplePath, keys);
-  
+
   if (await fs.pathExists(envPath)) {
     await removeFromEnvFile(envPath, keys);
   }
 }
 
 async function removeFromEnvFile(filePath: string, keys: string[]): Promise<void> {
-  if (!await fs.pathExists(filePath)) {
+  if (!(await fs.pathExists(filePath))) {
     return;
   }
 

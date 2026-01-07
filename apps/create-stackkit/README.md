@@ -44,11 +44,11 @@ The wizard guides you through project setup:
    - None
 
 4. **Language**
-   - TypeScript *(recommended)*
+   - TypeScript _(recommended)_
    - JavaScript
 
 5. **Package Manager**
-   - pnpm *(recommended)*
+   - pnpm _(recommended)_
    - npm
    - yarn
 

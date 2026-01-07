@@ -34,6 +34,7 @@ npx stackkit-cli add auth
 Create a new project from a template.
 
 **Options:**
+
 - `--template <name>` - Template to use
 - `--pm <npm|yarn|pnpm>` - Package manager (default: auto-detect)
 - `--no-install` - Skip dependency installation
@@ -41,6 +42,7 @@ Create a new project from a template.
 - `--yes` - Skip all prompts
 
 **Examples:**
+
 ```bash
 npx stackkit-cli init my-app
 npx stackkit-cli init my-app --template next-prisma-postgres-shadcn --pm pnpm
@@ -52,10 +54,12 @@ npx stackkit-cli init my-app --no-install --no-git --yes
 List available templates and modules.
 
 **Options:**
+
 - `--templates` - Show templates only
 - `--modules` - Show modules only
 
 **Examples:**
+
 ```bash
 npx stackkit-cli list
 npx stackkit-cli list --templates
@@ -67,11 +71,13 @@ npx stackkit-cli list --modules
 Add a module to your existing project.
 
 **Options:**
+
 - `--dry-run` - Preview changes without applying
 - `--force` - Overwrite existing files
 - `--no-install` - Skip dependency installation
 
 **Examples:**
+
 ```bash
 npx stackkit-cli add auth
 npx stackkit-cli add auth --dry-run

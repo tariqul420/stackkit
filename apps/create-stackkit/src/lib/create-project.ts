@@ -15,7 +15,15 @@ interface ProjectConfig {
     | 'mongoose-mongodb'
     | 'drizzle-postgresql'
     | 'none';
-  auth: 'nextauth' | 'better-auth' | 'clerk' | 'none';
+  auth:
+    | 'nextauth'
+    | 'authjs-nextjs'
+    | 'authjs-express'
+    | 'better-auth-nextjs'
+    | 'better-auth-express'
+    | 'better-auth-react'
+    | 'clerk'
+    | 'none';
   language: 'typescript' | 'javascript';
   packageManager: 'pnpm' | 'npm' | 'yarn';
 }
@@ -75,34 +83,56 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
       type: 'list',
       name: 'database',
       message: 'Select database/ORM:',
-      choices: [
-        { name: 'Prisma + PostgreSQL', value: 'prisma-postgresql' },
-        { name: 'Prisma + MongoDB', value: 'prisma-mongodb' },
-        { name: 'Mongoose + MongoDB', value: 'mongoose-mongodb' },
-        { name: 'Drizzle + PostgreSQL', value: 'drizzle-postgresql' },
-        { name: 'None', value: 'none' },
-      ],
+      choices: (answers: any) => {
+        // React apps don't need server-side database
+        if (answers.framework === 'react-vite') {
+          return [{ name: 'None', value: 'none' }];
+        }
+
+        return [
+          { name: 'Prisma + PostgreSQL', value: 'prisma-postgresql' },
+          { name: 'Prisma + MongoDB', value: 'prisma-mongodb' },
+          { name: 'Mongoose + MongoDB', value: 'mongoose-mongodb' },
+          { name: 'Drizzle + PostgreSQL', value: 'drizzle-postgresql' },
+          { name: 'None', value: 'none' },
+        ];
+      },
     },
     {
       type: 'list',
       name: 'auth',
       message: 'Select authentication:',
       choices: (answers: any) => {
-        const baseChoices = [
-          { name: 'Auth.js (NextAuth)', value: 'nextauth' },
-          { name: 'Better Auth', value: 'better-auth' },
-          { name: 'Clerk', value: 'clerk' },
-          { name: 'None', value: 'none' },
-        ];
-
-        // Filter choices based on framework compatibility
-        if (answers.framework === 'nextjs') {
-          return baseChoices;
-        } else if (answers.framework === 'express') {
-          return baseChoices.filter((c) => ['better-auth', 'none'].includes(c.value));
-        } else {
-          return [{ name: 'None', value: 'none' }];
+        // React apps - client-side only
+        if (answers.framework === 'react-vite') {
+          return [
+            { name: 'Better Auth (React)', value: 'better-auth-react' },
+            { name: 'None', value: 'none' },
+          ];
         }
+
+        // Next.js apps
+        if (answers.framework === 'nextjs') {
+          return [
+            { name: 'Auth.js v5', value: 'authjs-nextjs' },
+            { name: 'NextAuth.js', value: 'nextauth' },
+            { name: 'Better Auth', value: 'better-auth-nextjs' },
+            { name: 'Clerk', value: 'clerk' },
+            { name: 'None', value: 'none' },
+          ];
+        }
+
+        // Express apps
+        if (answers.framework === 'express') {
+          return [
+            { name: 'Auth.js', value: 'authjs-express' },
+            { name: 'Better Auth', value: 'better-auth-express' },
+            { name: 'None', value: 'none' },
+          ];
+        }
+
+        // Default - no auth
+        return [{ name: 'None', value: 'none' }];
       },
     },
     {
@@ -268,14 +298,17 @@ async function mergeAuthConfig(
   framework: string,
   auth: string
 ): Promise<void> {
-  // Map auth selection to template directory
+  // Auth modules are now named with framework suffix
+  // e.g., better-auth-nextjs, authjs-express, better-auth-react
+  // If auth already has framework suffix, use it directly
+  // Otherwise, map old names to new ones
   const authMap: Record<string, string> = {
-    'nextjs-nextauth': 'nextauth',
-    'nextjs-better-auth': 'better-auth-nextjs',
-    'express-better-auth': 'better-auth-express',
+    nextauth: 'nextauth',
+    'better-auth': framework === 'nextjs' ? 'better-auth-nextjs' : 'better-auth-express',
+    clerk: 'clerk',
   };
 
-  const authKey = authMap[`${framework}-${auth}`] || auth;
+  const authKey = auth.includes('-') ? auth : authMap[auth] || auth;
   const authDir = path.join(templatesDir, 'auth', authKey);
 
   if (!(await fs.pathExists(authDir))) {

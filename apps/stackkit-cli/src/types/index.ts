@@ -53,12 +53,13 @@ export interface ModifyJsonPatch extends ModulePatch {
 }
 
 export interface ProjectInfo {
-  framework: 'nextjs' | 'unknown';
+  framework: 'nextjs' | 'express' | 'react' | 'react-vite' | 'unknown';
   router: 'app' | 'pages' | 'unknown';
   language: 'ts' | 'js';
   packageManager: 'npm' | 'yarn' | 'pnpm';
   hasAuth: boolean;
   hasPrisma: boolean;
+  hasDatabase: boolean;
   rootDir: string;
 }
 

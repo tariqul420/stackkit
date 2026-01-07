@@ -159,8 +159,13 @@ async function loadModuleMetadata(
       if (await fs.pathExists(metadataPath)) {
         const metadata = await fs.readJSON(metadataPath);
 
-        // Match by module name or provider
-        if (metadata.name === moduleName || (provider && moduleDir === provider)) {
+        // If provider is specified, match by directory name (exact match)
+        if (provider && moduleDir === provider) {
+          return metadata;
+        }
+
+        // Otherwise, match by module name (category)
+        if (!provider && metadata.name === moduleName) {
           return metadata;
         }
       }
@@ -249,8 +254,13 @@ async function findModulePath(
       if (await fs.pathExists(metadataPath)) {
         const metadata = await fs.readJSON(metadataPath);
 
-        // Match by module name or provider
-        if (metadata.name === moduleName || (provider && moduleDir === provider)) {
+        // If provider is specified, match by directory name (exact match)
+        if (provider && moduleDir === provider) {
+          return modulePath;
+        }
+
+        // Otherwise, match by module name (category)
+        if (!provider && metadata.name === moduleName) {
           return modulePath;
         }
       }

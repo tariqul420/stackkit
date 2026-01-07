@@ -1,0 +1,19 @@
+{
+  "name": "authjs-nextjs",
+  "displayName": "Auth.js v5 (Next.js)",
+  "description": "Modern authentication with Auth.js v5 (NextAuth successor)",
+  "frameworks": ["nextjs"],
+  "dependencies": {
+    "next-auth": "^5.0.0-beta.25"
+  },
+  "envVars": {
+    "AUTH_SECRET": {
+      "value": "",
+      "description": "Secret for encrypting tokens. Generate with: openssl rand -base64 32"
+    },
+    "AUTH_URL": {
+      "value": "http://localhost:3000",
+      "description": "Canonical URL of your site (change in production)"
+    }
+  }
+}

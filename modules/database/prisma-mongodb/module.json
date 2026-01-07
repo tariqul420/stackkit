@@ -1,0 +1,36 @@
+{
+  "name": "database",
+  "displayName": "Prisma + MongoDB",
+  "description": "Add Prisma ORM with MongoDB database",
+  "category": "database",
+  "supportedFrameworks": ["nextjs", "express"],
+  "dependencies": {
+    "@prisma/client": "^6.1.0"
+  },
+  "devDependencies": {
+    "prisma": "^6.1.0"
+  },
+  "envVars": [
+    {
+      "key": "DATABASE_URL",
+      "value": "mongodb://localhost:27017/mydb",
+      "description": "MongoDB connection URL",
+      "required": true
+    }
+  ],
+  "patches": [
+    {
+      "type": "create-file",
+      "description": "Create Prisma schema for MongoDB",
+      "source": "prisma/schema.prisma",
+      "destination": "prisma/schema.prisma"
+    },
+    {
+      "type": "create-file",
+      "description": "Create Prisma client singleton",
+      "source": "lib/db.ts",
+      "destination": "{{lib}}/db.ts"
+    }
+  ],
+  "postInstall": ["npx prisma generate"]
+}

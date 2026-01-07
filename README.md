@@ -13,6 +13,7 @@ npx create-stackkit-app my-app
 ```
 
 Interactive wizard guides you through:
+
 - **Framework**: Next.js, Express, React (Vite), Astro
 - **Database**: Prisma + PostgreSQL/MongoDB, Mongoose, Drizzle, None
 - **Auth**: Auth.js, Better Auth, Clerk, None
@@ -74,6 +75,7 @@ stackkit init [project-name] [options]
 ```
 
 Options:
+
 - `-t, --template <template>` - Template to use
 - `--pm <pm>` - Package manager (npm, yarn, pnpm)
 - `--no-install` - Skip installing dependencies
@@ -89,6 +91,7 @@ stackkit add <module> [options]
 ```
 
 Options:
+
 - `--provider <provider>` - Specific provider/variant
 - `--force` - Overwrite existing files
 - `--dry-run` - Show what would be changed
@@ -103,6 +106,7 @@ stackkit list [options]
 ```
 
 Options:
+
 - `-t, --templates` - List only templates
 - `-m, --modules` - List only modules
 
@@ -139,6 +143,7 @@ MIT © [Your Name](LICENSE)
 ## 🙏 Acknowledgments
 
 Built with:
+
 - [Next.js](https://nextjs.org)
 - [Prisma](https://www.prisma.io)
 - [NextAuth.js](https://next-auth.js.org)
@@ -166,4 +171,3 @@ Built with:
 <div align="center">
   Made with ❤️ by the StackKit team
 </div>
-

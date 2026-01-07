@@ -1,0 +1,38 @@
+{
+  "name": "auth",
+  "displayName": "Better Auth (Next.js)",
+  "description": "Modern authentication with Better Auth for Next.js",
+  "category": "auth",
+  "supportedFrameworks": ["nextjs"],
+  "dependencies": {
+    "better-auth": "^1.0.0"
+  },
+  "envVars": [
+    {
+      "key": "BETTER_AUTH_SECRET",
+      "value": "",
+      "description": "Secret key for Better Auth. Generate with: openssl rand -base64 32",
+      "required": true
+    },
+    {
+      "key": "BETTER_AUTH_URL",
+      "value": "http://localhost:3000",
+      "description": "Base URL of your application (change in production)",
+      "required": true
+    }
+  ],
+  "patches": [
+    {
+      "type": "create-file",
+      "description": "Create Better Auth configuration",
+      "source": "lib/auth.ts",
+      "destination": "{{lib}}/auth.ts"
+    },
+    {
+      "type": "create-file",
+      "description": "Create Better Auth API route",
+      "source": "api/auth/[...all]/route.ts",
+      "destination": "{{router}}/api/auth/[...all]/route.ts"
+    }
+  ]
+}

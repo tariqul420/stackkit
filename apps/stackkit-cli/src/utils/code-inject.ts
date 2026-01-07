@@ -16,12 +16,12 @@ export async function injectCode(
   position: 'append' | 'prepend' | { after: string } | { before: string },
   options: { force?: boolean } = {}
 ): Promise<void> {
-  if (!await fs.pathExists(filePath)) {
+  if (!(await fs.pathExists(filePath))) {
     throw new Error(`File not found: ${filePath}`);
   }
 
   let content = await fs.readFile(filePath, 'utf-8');
-  
+
   // Check if already injected
   const startMarker = CODE_MARKER_START(injection.id);
   if (content.includes(startMarker) && !options.force) {
@@ -62,21 +62,21 @@ export async function injectCode(
 export function removeInjection(content: string, id: string): string {
   const startMarker = CODE_MARKER_START(id);
   const endMarker = CODE_MARKER_END(id);
-  
+
   const startIndex = content.indexOf(startMarker);
   if (startIndex === -1) {
     return content;
   }
-  
+
   const endIndex = content.indexOf(endMarker, startIndex);
   if (endIndex === -1) {
     return content;
   }
-  
+
   // Remove everything from start marker to end marker (inclusive)
   const before = content.slice(0, startIndex);
   const after = content.slice(endIndex + endMarker.length);
-  
+
   return before + after;
 }
 

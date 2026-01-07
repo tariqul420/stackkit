@@ -1,0 +1,38 @@
+{
+  "name": "auth",
+  "displayName": "Auth.js v5 (Next.js)",
+  "description": "Modern authentication with Auth.js v5 (NextAuth successor)",
+  "category": "auth",
+  "supportedFrameworks": ["nextjs"],
+  "dependencies": {
+    "next-auth": "^5.0.0-beta.25"
+  },
+  "envVars": [
+    {
+      "key": "AUTH_SECRET",
+      "value": "",
+      "description": "Secret for encrypting tokens. Generate with: openssl rand -base64 32",
+      "required": true
+    },
+    {
+      "key": "AUTH_URL",
+      "value": "http://localhost:3000",
+      "description": "Canonical URL of your site (change in production)",
+      "required": false
+    }
+  ],
+  "patches": [
+    {
+      "type": "create-file",
+      "description": "Create Auth.js configuration",
+      "source": "lib/auth.ts",
+      "destination": "{{lib}}/auth.ts"
+    },
+    {
+      "type": "create-file",
+      "description": "Create Auth.js API route",
+      "source": "api/auth/[...nextauth]/route.ts",
+      "destination": "{{router}}/api/auth/[...nextauth]/route.ts"
+    }
+  ]
+}

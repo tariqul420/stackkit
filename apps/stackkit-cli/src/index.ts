@@ -43,9 +43,7 @@ program
 
 // Error handling
 program.on('command:*', () => {
-  console.error(
-    chalk.red(`\nInvalid command: ${program.args.join(' ')}\n`)
-  );
+  console.error(chalk.red(`\nInvalid command: ${program.args.join(' ')}\n`));
   console.log(chalk.yellow('Run stackkit --help for a list of available commands.\n'));
   process.exit(1);
 });

@@ -7,7 +7,7 @@ export async function copyTemplate(
   targetPath: string,
   projectName: string
 ): Promise<void> {
-  if (!await fs.pathExists(templatePath)) {
+  if (!(await fs.pathExists(templatePath))) {
     throw new Error(`Template not found: ${templatePath}`);
   }
 
@@ -40,7 +40,7 @@ export async function createFile(
   options: { force?: boolean } = {}
 ): Promise<void> {
   const exists = await fs.pathExists(targetPath);
-  
+
   if (exists && !options.force) {
     logger.warn(`File already exists: ${targetPath} (use --force to overwrite)`);
     return;

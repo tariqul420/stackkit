@@ -1,0 +1,36 @@
+{
+  "name": "database",
+  "displayName": "Prisma + PostgreSQL",
+  "description": "Add Prisma ORM with PostgreSQL database",
+  "category": "database",
+  "supportedFrameworks": ["nextjs", "express"],
+  "dependencies": {
+    "@prisma/client": "^6.1.0"
+  },
+  "devDependencies": {
+    "prisma": "^6.1.0"
+  },
+  "envVars": [
+    {
+      "key": "DATABASE_URL",
+      "value": "postgresql://user:password@localhost:5432/mydb?schema=public",
+      "description": "PostgreSQL database connection URL",
+      "required": true
+    }
+  ],
+  "patches": [
+    {
+      "type": "create-file",
+      "description": "Create Prisma schema",
+      "source": "prisma/schema.prisma",
+      "destination": "prisma/schema.prisma"
+    },
+    {
+      "type": "create-file",
+      "description": "Create Prisma client singleton",
+      "source": "lib/db.ts",
+      "destination": "{{lib}}/db.ts"
+    }
+  ],
+  "postInstall": ["npx prisma generate"]
+}

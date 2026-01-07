@@ -18,11 +18,11 @@
   },
   "scripts": {
     "dev": "tsc --watch",
-    "build": "tsc",
+    "build": "tsc && cp -r ../../templates . && cp -r ../../modules .",
     "clean": "rm -rf dist templates modules",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src --ext .ts",
-    "prepublishOnly": "npm run build && cp -r ../../templates . && cp -r ../../modules ."
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "cli",

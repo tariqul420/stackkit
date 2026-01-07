@@ -1,6 +1,6 @@
 # Contributing to StackKit
 
-Thanks for your interest! 
+Thanks for your interest!
 
 ## Development Setup
 
@@ -27,6 +27,7 @@ stackkit/
 ## Modular Template System
 
 Templates are composed of 3 parts:
+
 1. **Base** - Framework (Next.js, Express, etc.)
 2. **Database** - Prisma, Mongoose, etc.
 3. **Auth** - NextAuth, Better Auth, etc.
@@ -42,6 +43,7 @@ templates/bases/framework-base/
 ```
 
 **template.json:**
+
 ```json
 {
   "name": "framework-base",
@@ -62,6 +64,7 @@ templates/databases/db-name/
 ```
 
 **config.json:**
+
 ```json
 {
   "name": "db-name",
@@ -84,6 +87,7 @@ templates/auth/auth-name/
 ```
 
 **compatibleWith:**
+
 ```json
 {
   "compatibleWith": {
@@ -126,6 +130,7 @@ cd apps/create-stackkit && npm publish
 ## License
 
 MIT
+
 ```json
 {
   "name": "template-name",
@@ -133,6 +138,7 @@ MIT
   "features": ["feature1", "feature2"]
 }
 ```
+
 3. Add template files
 4. Test with `stackkit init my-app --template template-name`
 
@@ -140,6 +146,7 @@ MIT
 
 1. Create folder in `modules/category/module-name/`
 2. Add `module.json`:
+
 ```json
 {
   "name": "module-name",
@@ -151,6 +158,7 @@ MIT
   "envVariables": []
 }
 ```
+
 3. Add module files in `files/` directory
 4. Test with `stackkit add module-name --dry-run`
 
@@ -172,21 +180,22 @@ MIT
 ## Questions?
 
 Open an issue or discussion on GitHub.
-│   │   │   ├── utils/         # Utilities (detect, files, etc.)
-│   │   │   └── types/         # TypeScript types
-│   │   └── package.json
-│   └── create-stackkit/       # NPX wrapper
-├── templates/                  # Project templates
-│   └── next-prisma-postgres-shadcn/
-│       ├── template.json      # Template metadata
-│       └── ...                # Template files
-├── modules/                    # Feature modules
-│   └── auth/
-│       └── nextauth/
-│           ├── module.json    # Module metadata
-│           └── files/         # Module files to copy
-└── package.json               # Root package with workspace scripts
-```
+│ │ │ ├── utils/ # Utilities (detect, files, etc.)
+│ │ │ └── types/ # TypeScript types
+│ │ └── package.json
+│ └── create-stackkit/ # NPX wrapper
+├── templates/ # Project templates
+│ └── next-prisma-postgres-shadcn/
+│ ├── template.json # Template metadata
+│ └── ... # Template files
+├── modules/ # Feature modules
+│ └── auth/
+│ └── nextauth/
+│ ├── module.json # Module metadata
+│ └── files/ # Module files to copy
+└── package.json # Root package with workspace scripts
+
+````
 
 ## 🔧 Development Workflow
 
@@ -196,7 +205,7 @@ Open an issue or discussion on GitHub.
 # Watch mode for automatic rebuilds
 cd apps/stackkit-cli
 pnpm dev
-```
+````
 
 In another terminal, test your changes:
 

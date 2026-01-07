@@ -4,32 +4,50 @@ import { ProjectInfo } from '../types';
 
 export async function detectProjectInfo(targetDir: string): Promise<ProjectInfo> {
   const packageJsonPath = path.join(targetDir, 'package.json');
-  
-  if (!await fs.pathExists(packageJsonPath)) {
+
+  if (!(await fs.pathExists(packageJsonPath))) {
     throw new Error('No package.json found. This does not appear to be a Node.js project.');
   }
 
   const packageJson = await fs.readJSON(packageJsonPath);
-  
+
   // Detect framework
   const isNextJs = packageJson.dependencies?.next || packageJson.devDependencies?.next;
-  const framework = isNextJs ? 'nextjs' : 'unknown';
-  
-  if (framework === 'unknown') {
-    throw new Error('Only Next.js projects are currently supported.');
+  const isExpress = packageJson.dependencies?.express || packageJson.devDependencies?.express;
+  const isReact = packageJson.dependencies?.react || packageJson.devDependencies?.react;
+  const isVite = packageJson.dependencies?.vite || packageJson.devDependencies?.vite;
+
+  let framework: 'nextjs' | 'express' | 'react' | 'react-vite' | 'unknown';
+  if (isNextJs) {
+    framework = 'nextjs';
+  } else if (isExpress) {
+    framework = 'express';
+  } else if (isReact && isVite) {
+    framework = 'react-vite';
+  } else if (isReact) {
+    framework = 'react';
+  } else {
+    framework = 'unknown';
   }
 
-  // Detect router type
-  const appDirExists = await fs.pathExists(path.join(targetDir, 'app'));
-  const pagesDirExists = await fs.pathExists(path.join(targetDir, 'pages'));
-  const srcAppDirExists = await fs.pathExists(path.join(targetDir, 'src', 'app'));
-  const srcPagesDirExists = await fs.pathExists(path.join(targetDir, 'src', 'pages'));
-  
+  if (framework === 'unknown') {
+    throw new Error('Only Next.js, Express, and React projects are currently supported.');
+  }
+
+  // Detect router type (only for Next.js)
   let router: 'app' | 'pages' | 'unknown' = 'unknown';
-  if (appDirExists || srcAppDirExists) {
-    router = 'app';
-  } else if (pagesDirExists || srcPagesDirExists) {
-    router = 'pages';
+
+  if (framework === 'nextjs') {
+    const appDirExists = await fs.pathExists(path.join(targetDir, 'app'));
+    const pagesDirExists = await fs.pathExists(path.join(targetDir, 'pages'));
+    const srcAppDirExists = await fs.pathExists(path.join(targetDir, 'src', 'app'));
+    const srcPagesDirExists = await fs.pathExists(path.join(targetDir, 'src', 'pages'));
+
+    if (appDirExists || srcAppDirExists) {
+      router = 'app';
+    } else if (pagesDirExists || srcPagesDirExists) {
+      router = 'pages';
+    }
   }
 
   // Detect TypeScript vs JavaScript
@@ -40,7 +58,7 @@ export async function detectProjectInfo(targetDir: string): Promise<ProjectInfo>
   const yarnLockExists = await fs.pathExists(path.join(targetDir, 'yarn.lock'));
   const pnpmLockExists = await fs.pathExists(path.join(targetDir, 'pnpm-lock.yaml'));
   let packageManager: 'npm' | 'yarn' | 'pnpm' = 'npm';
-  
+
   if (pnpmLockExists) {
     packageManager = 'pnpm';
   } else if (yarnLockExists) {
@@ -50,15 +68,24 @@ export async function detectProjectInfo(targetDir: string): Promise<ProjectInfo>
   // Check for existing integrations
   const hasAuth = !!(
     packageJson.dependencies?.['next-auth'] ||
+    packageJson.dependencies?.['better-auth'] ||
     packageJson.dependencies?.['@auth/core'] ||
     packageJson.dependencies?.['@clerk/nextjs'] ||
-    packageJson.dependencies?.['@kinde-oss/kinde-auth-nextjs']
+    packageJson.dependencies?.['@kinde-oss/kinde-auth-nextjs'] ||
+    packageJson.dependencies?.['passport']
   );
 
   const hasPrisma = !!(
-    packageJson.dependencies?.['@prisma/client'] ||
-    packageJson.devDependencies?.['prisma']
+    packageJson.dependencies?.['@prisma/client'] || packageJson.devDependencies?.['prisma']
   );
+
+  const hasDatabase =
+    hasPrisma ||
+    !!(
+      packageJson.dependencies?.['mongoose'] ||
+      packageJson.dependencies?.['typeorm'] ||
+      packageJson.dependencies?.['drizzle-orm']
+    );
 
   return {
     framework,
@@ -67,23 +94,28 @@ export async function detectProjectInfo(targetDir: string): Promise<ProjectInfo>
     packageManager,
     hasAuth,
     hasPrisma,
+    hasDatabase,
     rootDir: targetDir,
   };
 }
 
 export function getRouterBasePath(projectInfo: ProjectInfo): string {
   const srcExists = fs.existsSync(path.join(projectInfo.rootDir, 'src'));
-  
+
   if (projectInfo.router === 'app') {
     return srcExists ? 'src/app' : 'app';
   } else if (projectInfo.router === 'pages') {
     return srcExists ? 'src/pages' : 'pages';
   }
-  
+
   throw new Error('Unknown router type');
 }
 
 export function getLibPath(projectInfo: ProjectInfo): string {
+  if (projectInfo.framework === 'express') {
+    return 'src/lib';
+  }
+
   const srcExists = fs.existsSync(path.join(projectInfo.rootDir, 'src'));
   return srcExists ? 'src/lib' : 'lib';
 }
