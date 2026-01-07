@@ -1,83 +1,47 @@
-# StackKit CLI
+# stackkit-cli
 
-The main CLI package for StackKit - a production-ready project generator and module system.
+Main CLI package for StackKit.
+
+## Installation
+
+```bash
+npm install -g stackkit-cli
+```
+
+## Usage
+
+```bash
+stackkit init my-app                    # Create project
+stackkit list                           # List resources
+stackkit add auth                       # Add module
+```
 
 ## Development
 
-### Build
-
 ```bash
-pnpm build
-```
-
-### Watch Mode
-
-```bash
-pnpm dev
-```
-
-### Test Locally
-
-```bash
-# Link globally
-pnpm link --global
-
-# Use it anywhere
-stackkit init my-app
-stackkit list
-stackkit add auth
+pnpm install                            # Install dependencies
+pnpm build                              # Build package
+pnpm link --global                      # Link globally
 ```
 
 ## Commands
 
-### `stackkit init [project-name]`
-
-Create a new project from a template.
-
-**Options:**
-
-- `-t, --template <template>` - Template to use
-- `--pm <pm>` - Package manager (npm, yarn, pnpm)
-- `--no-install` - Skip installing dependencies
+**init** - Create new project
+- `--template <name>` - Template name
+- `--pm <npm|yarn|pnpm>` - Package manager
+- `--no-install` - Skip dependency installation
 - `--no-git` - Skip git initialization
-- `-y, --yes` - Skip prompts and use defaults
 
-**Example:**
+**list** - List available resources
+- `--templates` - Templates only
+- `--modules` - Modules only
 
-```bash
-stackkit init my-app --template next-prisma-postgres-shadcn --pm pnpm
-```
-
-### `stackkit list`
-
-List available templates and modules.
-
-**Options:**
-
-- `-t, --templates` - List only templates
-- `-m, --modules` - List only modules
-
-**Example:**
-
-```bash
-stackkit list
-stackkit list --modules
-```
-
-### `stackkit add <module>`
-
-Add a module to your existing project.
-
-**Options:**
-
-- `--provider <provider>` - Specific provider/variant
+**add** - Add module to project
+- `--dry-run` - Preview changes
 - `--force` - Overwrite existing files
-- `--dry-run` - Show what would be changed
-- `--no-install` - Skip installing dependencies
+- `--no-install` - Skip dependency installation
 
-**Example:**
-
-```bash
+See main [README](../../README.md) for more details.
 stackkit add auth
 stackkit add auth --dry-run
 stackkit add auth --force

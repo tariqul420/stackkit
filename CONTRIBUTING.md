@@ -1,53 +1,99 @@
 # Contributing to StackKit
 
-Thank you for your interest in contributing to StackKit! We appreciate your help in making this project better.
+Thanks for your interest in contributing! 
 
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Node.js 20+
-- pnpm 8+
-- Git
-
-### Setup Development Environment
-
-1. Fork and clone the repository:
+## Development Setup
 
 ```bash
-git clone https://github.com/yourusername/stackkit.git
+# Clone and install
+git clone https://github.com/tariqul420/stackkit.git
 cd stackkit
-```
-
-2. Install dependencies:
-
-```bash
 pnpm install
-```
 
-3. Build all packages:
-
-```bash
+# Build packages
 pnpm build
-```
 
-4. Link the CLI for local testing:
-
-```bash
+# Link CLI locally
 cd apps/stackkit-cli
 pnpm link --global
 ```
 
-Now you can run `stackkit` from anywhere and test your changes.
-
-## 📁 Project Structure
+## Project Structure
 
 ```
 stackkit/
 ├── apps/
-│   ├── stackkit-cli/          # Main CLI package
-│   │   ├── src/
-│   │   │   ├── commands/      # CLI commands (init, add, list)
+│   ├── stackkit-cli/      # Main CLI package
+│   └── create-stackkit/   # NPX wrapper
+├── templates/             # Project templates
+├── modules/               # Feature modules
+└── pnpm-workspace.yaml
+```
+
+## Testing Changes
+
+```bash
+# Test init
+stackkit init test-app --no-install --no-git
+
+# Test add
+cd test-app
+stackkit add auth --dry-run
+
+# Test list
+stackkit list
+```
+
+## Adding Templates
+
+1. Create folder in `templates/`
+2. Add `template.json`:
+```json
+{
+  "name": "template-name",
+  "description": "Template description",
+  "features": ["feature1", "feature2"]
+}
+```
+3. Add template files
+4. Test with `stackkit init my-app --template template-name`
+
+## Adding Modules
+
+1. Create folder in `modules/category/module-name/`
+2. Add `module.json`:
+```json
+{
+  "name": "module-name",
+  "displayName": "Module Display Name",
+  "description": "Module description",
+  "category": "category",
+  "supports": ["nextjs"],
+  "dependencies": {},
+  "envVariables": []
+}
+```
+3. Add module files in `files/` directory
+4. Test with `stackkit add module-name --dry-run`
+
+## Pull Request Process
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit PR with clear description
+
+## Code Style
+
+- TypeScript for all code
+- ESLint + Prettier for formatting
+- Descriptive commit messages
+- Add tests for new features
+
+## Questions?
+
+Open an issue or discussion on GitHub.
 │   │   │   ├── utils/         # Utilities (detect, files, etc.)
 │   │   │   └── types/         # TypeScript types
 │   │   └── package.json

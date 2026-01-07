@@ -1,103 +1,93 @@
 # StackKit
 
-<div align="center">
-  <h3>⚡ Production-Ready Project Generator & Module CLI</h3>
-  <p>Create modern web applications with best practices baked in.</p>
-  
-  [![npm version](https://img.shields.io/npm/v/stackkit-cli)](https://www.npmjs.com/package/stackkit-cli)
-  [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-</div>
+⚡ **Production-ready project generator with modular architecture**
 
----
+[![npm](https://img.shields.io/npm/v/stackkit-cli)](https://www.npmjs.com/package/stackkit-cli)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-## 🚀 Quick Start
-
-Create a new project in seconds:
+## Quick Start
 
 ```bash
-npx create-stackkit@latest my-app
+# Create new project
+npx create-stackkit-app my-app
+
+# Add modules to existing project
+npx stackkit-cli add auth
 ```
 
-Or use the full CLI:
+## Features
+
+- 🎯 Production-ready templates with best practices
+- 🔧 Add modules to existing projects
+- 🛡️ TypeScript support
+- ⚡ Fast setup with multiple package managers
+- 🔄 Idempotent operations
+
+## Commands
+
+### Create Project
 
 ```bash
-npx stackkit-cli@latest init my-app
+npx create-stackkit-app my-app
 ```
 
-## ✨ Features
+Options:
+- `--template <name>` - Choose template (default: next-prisma-postgres-shadcn)
+- `--pm <npm|yarn|pnpm>` - Package manager
+- `--no-install` - Skip dependency installation
+- `--no-git` - Skip git initialization
 
-- 🎯 **Production-Ready Templates** - Start with battle-tested setups
-- 🔧 **Modular Architecture** - Add features on-demand
-- 🛡️ **Type-Safe** - Built with TypeScript for reliability
-- ⚡ **Fast** - Optimized for speed and developer experience
-- 🎨 **Opinionated** - Best practices out of the box
-- 🔄 **Idempotent** - Safe to run multiple times
-
-## 📦 What's Included
-
-### Templates
-
-- **Next.js + Prisma + PostgreSQL + shadcn/ui**
-  - Next.js 15 with App Router
-  - Prisma ORM with PostgreSQL
-  - shadcn/ui components
-  - Tailwind CSS
-  - TypeScript
-  - Environment validation (Zod)
-  - ESLint + Prettier
-  - Health check API
-
-### Modules
-
-- **Authentication** (`stackkit add auth`)
-  - NextAuth.js integration
-  - Multiple provider support
-  - App Router & Pages Router compatible
-  - Session management
-  - Protected routes
-
-*More modules coming soon: payments, emails, analytics, etc.*
-
-## 🎯 Usage
-
-### Create a New Project
-
-Interactive mode:
-```bash
-npx create-stackkit@latest
-```
-
-With options:
-```bash
-npx create-stackkit@latest my-app --template next-prisma-postgres-shadcn --pm pnpm
-```
-
-### List Available Resources
+### List Resources
 
 ```bash
-npx stackkit list           # List all templates and modules
-npx stackkit list --templates  # List only templates
-npx stackkit list --modules    # List only modules
+npx stackkit-cli list                # All templates and modules
+npx stackkit-cli list --templates    # Templates only
+npx stackkit-cli list --modules      # Modules only
 ```
 
-### Add Modules to Existing Projects
+### Add Modules
 
-Add authentication:
 ```bash
-npx stackkit add auth
+npx stackkit-cli add auth            # Add authentication
+npx stackkit-cli add auth --dry-run  # Preview changes
+npx stackkit-cli add auth --force    # Overwrite existing files
 ```
 
-With options:
+## Available Templates
+
+**next-prisma-postgres-shadcn**
+- Next.js 15 App Router
+- Prisma ORM + PostgreSQL
+- shadcn/ui components
+- TypeScript, Tailwind CSS
+- Zod validation, ESLint + Prettier
+
+## Available Modules
+
+**auth** - NextAuth.js authentication
+- Multiple providers
+- App Router & Pages Router support
+- Session management
+
+## Development
+
 ```bash
-npx stackkit add auth --provider nextauth --force
+# Install dependencies
+pnpm install
+
+# Build packages
+pnpm build
+
+# Test locally
+cd apps/stackkit-cli && pnpm link --global
+stackkit init test-app
 ```
 
-Dry run (preview changes):
-```bash
-npx stackkit add auth --dry-run
-```
+See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
-## 🛠️ CLI Options
+## License
+
+MIT © [StackKit](https://github.com/tariqul420/stackkit)
 
 ### `stackkit init`
 

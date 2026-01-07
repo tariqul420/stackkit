@@ -1,53 +1,59 @@
-# StackKit Project
+# Project
 
-This project was created with [StackKit](https://github.com/yourusername/stackkit).
+Created with [StackKit](https://github.com/tariqul420/stackkit).
 
-## Getting Started
-
-1. Install dependencies:
+## Setup
 
 ```bash
+# Install dependencies
 pnpm install
-```
 
-2. Copy the environment variables:
-
-```bash
+# Configure environment
 cp .env.example .env
-```
+# Update DATABASE_URL in .env
 
-3. Update the `DATABASE_URL` in `.env` with your PostgreSQL connection string.
+# Run migrations
+pnpm prisma migrate dev
 
-4. Run database migrations:
-
-```bash
-pnpm prisma migrate dev --name init
-```
-
-5. Start the development server:
-
-```bash
+# Start dev server
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000)
 
-## Tech Stack
+## Stack
 
-- **Next.js 15** - React framework with App Router
-- **TypeScript** - Type-safe JavaScript
-- **Prisma** - Next-generation ORM
-- **PostgreSQL** - Robust relational database
-- **Tailwind CSS** - Utility-first CSS framework
-- **Zod** - TypeScript-first schema validation
+- Next.js 15 (App Router)
+- TypeScript
+- Prisma + PostgreSQL
+- Tailwind CSS
+- shadcn/ui
+- Zod validation
 
-## Project Structure
+## Structure
 
 ```
-├── app/                  # Next.js App Router
-│   ├── api/             # API routes
-│   ├── layout.tsx       # Root layout
-│   └── page.tsx         # Home page
+├── app/              # Next.js routes
+├── lib/              # Utilities
+├── prisma/           # Database schema
+└── public/           # Static files
+```
+
+## Scripts
+
+```bash
+pnpm dev              # Development server
+pnpm build            # Production build
+pnpm start            # Start production
+pnpm lint             # Run linter
+pnpm prisma studio    # Open Prisma Studio
+```
+
+## Add Features
+
+```bash
+npx stackkit-cli add auth
+```
 ├── lib/                 # Shared utilities
 │   ├── db.ts           # Prisma client
 │   └── env.ts          # Environment validation
