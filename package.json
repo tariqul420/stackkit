@@ -2,25 +2,42 @@
   "name": "stackkit",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+  "description": "Production-ready project generator and module CLI for modern web applications",
+  "keywords": [
+    "cli",
+    "generator",
+    "nextjs",
+    "template",
+    "boilerplate",
+    "prisma",
+    "shadcn"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tariqul420/stackkit.git"
   },
-  "dependencies": {
-    "next": "16.1.1",
-    "react": "19.2.3",
-    "react-dom": "19.2.3"
+  "license": "MIT",
+  "author": "Tariqul Islam",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "pnpm --filter \"./apps/**\" build",
+    "dev": "pnpm --filter stackkit-cli dev",
+    "clean": "pnpm --filter \"./apps/**\" clean && rm -rf node_modules",
+    "typecheck": "pnpm --filter \"./apps/**\" typecheck",
+    "lint": "pnpm --filter \"./apps/**\" lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\""
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.1.1",
-    "tailwindcss": "^4",
-    "typescript": "^5"
-  }
+    "@types/node": "^20.11.0",
+    "prettier": "^3.2.4",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0"
 }
