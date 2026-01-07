@@ -74,7 +74,7 @@ export async function initCommand(
           name: 'template',
           message: 'Select a template:',
           choices: templates.map((t) => ({
-            name: `${t.displayName} - ${t.description}`,
+            name: t.displayName,
             value: t.name,
           })),
           when: !options.template,

@@ -26,10 +26,9 @@ export async function listCommand(options: ListOptions): Promise<void> {
         logger.warn('  No templates found');
       } else {
         for (const template of templates) {
-          logger.log(chalk.bold(`  ${template.displayName}`));
-          logger.log(chalk.gray(`    ${template.description}`));
-          logger.newLine();
+          logger.log(`  ${chalk.cyan('▸')} ${template.displayName}`);
         }
+        logger.newLine();
       }
     }
 
@@ -57,13 +56,12 @@ export async function listCommand(options: ListOptions): Promise<void> {
         );
 
         for (const [category, mods] of Object.entries(grouped)) {
-          logger.log(chalk.yellow(`  ${category.toUpperCase()}:`));
+          logger.log(chalk.yellow(`  ${category.toUpperCase()}`));
           for (const mod of mods) {
-            logger.log(chalk.bold(`    ${mod.displayName}`));
-            logger.log(chalk.gray(`      ${mod.description}`));
-            logger.newLine();
+            logger.log(`  ${chalk.cyan('▸')} ${mod.displayName}`);
           }
         }
+        logger.newLine();
       }
     }
   } catch (error) {
