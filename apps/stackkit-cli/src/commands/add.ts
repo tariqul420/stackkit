@@ -28,7 +28,7 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
     );
 
     // Load module metadata
-    const modulesDir = path.join(__dirname, '..', '..', '..', '..', 'modules');
+    const modulesDir = path.join(__dirname, '..', '..', 'modules');
     const moduleMetadata = await loadModuleMetadata(modulesDir, module, options.provider);
 
     if (!moduleMetadata) {

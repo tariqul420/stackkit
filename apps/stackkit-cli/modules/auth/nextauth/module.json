@@ -1,0 +1,50 @@
+{
+  "name": "auth",
+  "displayName": "NextAuth.js Authentication",
+  "description": "Add authentication with NextAuth.js (supports multiple providers)",
+  "category": "auth",
+  "supportedFrameworks": ["nextjs"],
+  "dependencies": {
+    "next-auth": "^4.24.5"
+  },
+  "envVars": [
+    {
+      "key": "NEXTAUTH_URL",
+      "value": "http://localhost:3000",
+      "description": "The URL of your application (change in production)",
+      "required": true
+    },
+    {
+      "key": "NEXTAUTH_SECRET",
+      "value": "",
+      "description": "Secret for encrypting tokens. Generate with: openssl rand -base64 32",
+      "required": true
+    }
+  ],
+  "patches": [
+    {
+      "type": "create-file",
+      "description": "Create NextAuth API route for App Router",
+      "source": "app-router/api/auth/[...nextauth]/route.ts",
+      "destination": "{{router}}/api/auth/[...nextauth]/route.ts",
+      "condition": {
+        "router": "app"
+      }
+    },
+    {
+      "type": "create-file",
+      "description": "Create NextAuth API route for Pages Router",
+      "source": "pages-router/api/auth/[...nextauth].ts",
+      "destination": "{{router}}/api/auth/[...nextauth].ts",
+      "condition": {
+        "router": "pages"
+      }
+    },
+    {
+      "type": "create-file",
+      "description": "Create auth configuration",
+      "source": "lib/auth.ts",
+      "destination": "{{lib}}/auth.ts"
+    }
+  ]
+}

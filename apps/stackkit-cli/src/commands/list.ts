@@ -16,7 +16,7 @@ export async function listCommand(options: ListOptions): Promise<void> {
   try {
     // List templates
     if (showTemplates) {
-      const templatesDir = path.join(__dirname, '..', '..', '..', '..', 'templates');
+      const templatesDir = path.join(__dirname, '..', '..', 'templates');
       const templates = await getAvailableTemplates(templatesDir);
 
       logger.log(chalk.bold('📦 Templates'));
@@ -37,7 +37,7 @@ export async function listCommand(options: ListOptions): Promise<void> {
 
     // List modules
     if (showModules) {
-      const modulesDir = path.join(__dirname, '..', '..', '..', '..', 'modules');
+      const modulesDir = path.join(__dirname, '..', '..', 'modules');
       const modules = await getAvailableModules(modulesDir);
 
       logger.log(chalk.bold('🔧 Modules'));

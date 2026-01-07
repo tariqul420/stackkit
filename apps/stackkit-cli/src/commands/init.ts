@@ -28,7 +28,7 @@ export async function initCommand(
     }
 
     // Get available templates
-    const templatesDir = path.join(__dirname, '..', '..', '..', '..', 'templates');
+    const templatesDir = path.join(__dirname, '..', '..', 'templates');
     const templates = await getAvailableTemplates(templatesDir);
 
     if (templates.length === 0) {
