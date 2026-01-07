@@ -28,8 +28,6 @@ export async function listCommand(options: ListOptions): Promise<void> {
         for (const template of templates) {
           logger.log(chalk.bold(`  ${template.displayName}`));
           logger.log(chalk.gray(`    ${template.description}`));
-          logger.log(chalk.blue(`    Command: stackkit init --template ${template.name}`));
-          logger.log(chalk.gray(`    Features: ${template.features.join(', ')}`));
           logger.newLine();
         }
       }
@@ -63,8 +61,6 @@ export async function listCommand(options: ListOptions): Promise<void> {
           for (const mod of mods) {
             logger.log(chalk.bold(`    ${mod.displayName}`));
             logger.log(chalk.gray(`      ${mod.description}`));
-            logger.log(chalk.blue(`      Command: stackkit add ${mod.name}`));
-            logger.log(chalk.gray(`      Supports: ${mod.supportedFrameworks.join(', ')}`));
             logger.newLine();
           }
         }
