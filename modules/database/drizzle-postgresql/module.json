@@ -1,0 +1,34 @@
+{
+  "name": "drizzle-postgresql",
+  "description": "Drizzle ORM with PostgreSQL",
+  "category": "database",
+  "dependencies": {
+    "drizzle-orm": "^0.36.4",
+    "postgres": "^3.4.5"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.28.1"
+  },
+  "scripts": {
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio"
+  },
+  "env": {
+    "DATABASE_URL": "postgresql://postgres:password@localhost:5432/myapp"
+  },
+  "files": [
+    {
+      "source": "files/lib/db.ts",
+      "destination": "lib/db.ts"
+    },
+    {
+      "source": "files/lib/schema.ts",
+      "destination": "lib/schema.ts"
+    },
+    {
+      "source": "files/drizzle.config.ts",
+      "destination": "drizzle.config.ts"
+    }
+  ]
+}

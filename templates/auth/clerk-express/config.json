@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@clerk/express": "^1.4.5"
+  },
+  "env": {
+    "CLERK_PUBLISHABLE_KEY": "pk_test_your_key_here",
+    "CLERK_SECRET_KEY": "sk_test_your_key_here"
+  }
+}

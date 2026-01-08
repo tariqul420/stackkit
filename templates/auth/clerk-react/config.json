@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@clerk/clerk-react": "^5.19.2"
+  },
+  "env": {
+    "VITE_CLERK_PUBLISHABLE_KEY": "pk_test_your_key_here"
+  }
+}

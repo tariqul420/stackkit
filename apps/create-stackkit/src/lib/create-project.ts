@@ -8,7 +8,7 @@ import validateNpmPackageName from 'validate-npm-package-name';
 
 interface ProjectConfig {
   projectName: string;
-  framework: 'nextjs' | 'express' | 'react-vite' | 'astro';
+  framework: 'nextjs' | 'express' | 'react-vite';
   database:
     | 'prisma-postgresql'
     | 'prisma-mongodb'
@@ -22,6 +22,9 @@ interface ProjectConfig {
     | 'better-auth-nextjs'
     | 'better-auth-express'
     | 'better-auth-react'
+    | 'clerk-nextjs'
+    | 'clerk-express'
+    | 'clerk-react'
     | 'clerk'
     | 'none';
   language: 'typescript' | 'javascript';
@@ -96,10 +99,10 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
       name: 'auth',
       message: 'Select authentication:',
       choices: (answers: any) => {
-        // React apps - client-side only
         if (answers.framework === 'react-vite') {
           return [
-            { name: 'Better Auth (React)', value: 'better-auth-react' },
+            { name: 'Better Auth', value: 'better-auth-react' },
+            { name: 'Clerk', value: 'clerk-react' },
             { name: 'None', value: 'none' },
           ];
         }
@@ -110,7 +113,7 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
             { name: 'Auth.js v5', value: 'authjs-nextjs' },
             { name: 'NextAuth.js', value: 'nextauth' },
             { name: 'Better Auth', value: 'better-auth-nextjs' },
-            { name: 'Clerk', value: 'clerk' },
+            { name: 'Clerk', value: 'clerk-nextjs' },
             { name: 'None', value: 'none' },
           ];
         }
@@ -120,6 +123,7 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
           return [
             { name: 'Auth.js', value: 'authjs-express' },
             { name: 'Better Auth', value: 'better-auth-express' },
+            { name: 'Clerk', value: 'clerk-express' },
             { name: 'None', value: 'none' },
           ];
         }

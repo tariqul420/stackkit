@@ -1,0 +1,17 @@
+{
+  "name": "mongoose-mongodb",
+  "description": "Mongoose ODM for MongoDB",
+  "category": "database",
+  "dependencies": {
+    "mongoose": "^8.8.4"
+  },
+  "env": {
+    "MONGODB_URI": "mongodb://localhost:27017/myapp"
+  },
+  "files": [
+    {
+      "source": "files/lib/db.ts",
+      "destination": "lib/db.ts"
+    }
+  ]
+}
