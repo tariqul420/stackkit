@@ -14,21 +14,24 @@ export async function listCommand(options: ListOptions): Promise<void> {
   const showModules = !options.templates || options.modules;
 
   try {
+    logger.newLine();
+
     // List templates
     if (showTemplates) {
       const templatesDir = path.join(__dirname, '..', '..', 'templates', 'bases');
       const templates = await getAvailableTemplates(templatesDir);
 
-      logger.log(chalk.cyan('▸') + ' ' + chalk.bold.cyan('TEMPLATES'));
+      logger.log(chalk.bold.cyan('▸ TEMPLATES') + chalk.gray(` (${templates.length})`));
+      logger.newLine();
 
       if (templates.length === 0) {
-        logger.warn('  No templates available');
+        logger.log(chalk.dim('  No templates available'));
       } else {
-        for (const template of templates) {
-          logger.log(`  ${chalk.green('•')} ${chalk.white(template.displayName)}`);
-        }
-        logger.newLine();
+        templates.forEach((template, index) => {
+          logger.log(`  ${chalk.cyan('•')} ${template.displayName}`);
+        });
       }
+      logger.newLine();
     }
 
     // List modules
@@ -36,10 +39,12 @@ export async function listCommand(options: ListOptions): Promise<void> {
       const modulesDir = path.join(__dirname, '..', '..', 'modules');
       const modules = await getAvailableModules(modulesDir);
 
-      logger.log(chalk.cyan('▸') + ' ' + chalk.bold.cyan('MODULES'));
+      logger.log(chalk.bold.cyan('▸ MODULES') + chalk.gray(` (${modules.length})`));
 
       if (modules.length === 0) {
-        logger.warn('  No modules available');
+        logger.newLine();
+        logger.log(chalk.dim('  No modules available'));
+        logger.newLine();
       } else {
         // Group by category
         const grouped = modules.reduce(
@@ -55,10 +60,12 @@ export async function listCommand(options: ListOptions): Promise<void> {
 
         for (const [category, mods] of Object.entries(grouped)) {
           logger.newLine();
-          logger.log(`  ${chalk.yellow('→')} ${chalk.bold.yellow(category.toUpperCase())}`);
-          for (const mod of mods) {
-            logger.log(`    ${chalk.green('•')} ${chalk.white(mod.displayName)}`);
-          }
+          logger.log(
+            `  ${chalk.yellow('→')} ${chalk.bold.yellow(category.toUpperCase())} ${chalk.dim(`(${mods.length})`)}`
+          );
+          mods.forEach((mod) => {
+            logger.log(`    ${chalk.cyan('•')} ${mod.displayName}`);
+          });
         }
         logger.newLine();
       }
