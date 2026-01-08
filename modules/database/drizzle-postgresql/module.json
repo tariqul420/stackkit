@@ -1,5 +1,6 @@
 {
   "name": "drizzle-postgresql",
+  "displayName": "Drizzle + PostgreSQL",
   "description": "Drizzle ORM with PostgreSQL",
   "category": "database",
   "dependencies": {

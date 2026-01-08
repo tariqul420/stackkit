@@ -1,5 +1,6 @@
 {
   "name": "clerk-nextjs",
+  "displayName": "Clerk (Next.js)",
   "description": "Clerk Authentication for Next.js",
   "category": "auth",
   "framework": "nextjs",

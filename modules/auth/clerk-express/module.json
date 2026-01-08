@@ -1,5 +1,6 @@
 {
   "name": "clerk-express",
+  "displayName": "Clerk (Express)",
   "description": "Clerk Authentication for Express.js",
   "category": "auth",
   "framework": "express",

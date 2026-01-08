@@ -1,5 +1,6 @@
 {
   "name": "clerk-react",
+  "displayName": "Clerk (React)",
   "description": "Clerk Authentication for React",
   "category": "auth",
   "framework": "react-vite",

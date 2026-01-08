@@ -16,7 +16,7 @@ export async function listCommand(options: ListOptions): Promise<void> {
   try {
     // List templates
     if (showTemplates) {
-      const templatesDir = path.join(__dirname, '..', '..', 'templates');
+      const templatesDir = path.join(__dirname, '..', '..', 'templates', 'bases');
       const templates = await getAvailableTemplates(templatesDir);
 
       logger.log(chalk.bold('📦 Templates'));
