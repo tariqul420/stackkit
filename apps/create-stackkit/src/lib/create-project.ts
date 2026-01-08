@@ -76,27 +76,20 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
         { name: 'Next.js', value: 'nextjs' },
         { name: 'Express.js', value: 'express' },
         { name: 'React (Vite)', value: 'react-vite' },
-        { name: 'Astro', value: 'astro' },
       ],
     },
     {
       type: 'list',
       name: 'database',
       message: 'Select database/ORM:',
-      choices: (answers: any) => {
-        // React apps don't need server-side database
-        if (answers.framework === 'react-vite') {
-          return [{ name: 'None', value: 'none' }];
-        }
-
-        return [
-          { name: 'Prisma + PostgreSQL', value: 'prisma-postgresql' },
-          { name: 'Prisma + MongoDB', value: 'prisma-mongodb' },
-          { name: 'Mongoose + MongoDB', value: 'mongoose-mongodb' },
-          { name: 'Drizzle + PostgreSQL', value: 'drizzle-postgresql' },
-          { name: 'None', value: 'none' },
-        ];
-      },
+      when: (answers: any) => answers.framework !== 'react-vite',
+      choices: [
+        { name: 'Prisma + PostgreSQL', value: 'prisma-postgresql' },
+        { name: 'Prisma + MongoDB', value: 'prisma-mongodb' },
+        { name: 'Mongoose + MongoDB', value: 'mongoose-mongodb' },
+        { name: 'Drizzle + PostgreSQL', value: 'drizzle-postgresql' },
+        { name: 'None', value: 'none' },
+      ],
     },
     {
       type: 'list',
@@ -157,7 +150,7 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
   return {
     projectName: projectName || answers.projectName,
     framework: answers.framework,
-    database: answers.database,
+    database: answers.framework === 'react-vite' ? 'none' : answers.database,
     auth: answers.auth,
     language: answers.language,
     packageManager: answers.packageManager,

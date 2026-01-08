@@ -1,0 +1,5 @@
+{
+  "name": "react-vite-base",
+  "description": "React + Vite + TypeScript base template",
+  "framework": "react-vite"
+}

@@ -10,7 +10,7 @@ const program = new Command();
 program
   .name('stackkit')
   .description('Production-ready project generator and module CLI')
-  .version('0.3.1');
+  .version('0.3.2');
 
 // Init command
 program
