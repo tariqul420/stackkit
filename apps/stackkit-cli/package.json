@@ -37,7 +37,7 @@
     "templates",
     "modules"
   ],
-  "author": "Your Name",
+  "author": "Tariqul Islam",
   "license": "MIT",
   "dependencies": {
     "commander": "^12.0.0",

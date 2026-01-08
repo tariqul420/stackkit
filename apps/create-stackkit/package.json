@@ -37,7 +37,7 @@
     "nextjs",
     "template"
   ],
-  "author": "Your Name",
+  "author": "Tariqul Islam",
   "license": "MIT",
   "dependencies": {
     "chalk": "^4.1.2",
