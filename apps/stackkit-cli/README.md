@@ -1,33 +1,35 @@
 # stackkit-cli
 
-Main CLI package for StackKit - production-ready project generator with modular architecture.
-
-[![npm](https://img.shields.io/npm/v/stackkit-cli)](https://www.npmjs.com/package/stackkit-cli)
-
-## Installation
-
-```bash
-# Global installation
-npm install -g stackkit-cli
-
-# Or use directly with npx
-npx stackkit-cli@latest init my-app
-```
+Add modules to existing projects.
 
 ## Usage
 
 ```bash
-# Create new project
-npx stackkit-cli init my-app
-
-# List available resources
-npx stackkit-cli list
-
-# Add modules to existing project
+# Add authentication
 npx stackkit-cli add auth
+
+# Add database
+npx stackkit-cli add database --provider prisma-postgresql
+
+# List available modules
+npx stackkit-cli list
 ```
 
 ## Commands
+
+- `add <module>` - Add module to your project
+- `list` - List available modules
+- `init` - Create new project (same as create-stackkit-app)
+
+## Development
+
+```bash
+pnpm install
+pnpm build
+npx . add auth
+```
+
+See [main README](../../README.md) for full documentation.
 
 ### `init [project-name]`
 

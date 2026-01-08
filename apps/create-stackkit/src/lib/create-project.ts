@@ -252,41 +252,55 @@ async function mergeDatabaseConfig(
   targetDir: string,
   database: string
 ): Promise<void> {
-  const dbDir = path.join(templatesDir, 'databases', database);
+  // Use modules directory (sibling to templates)
+  const modulesDir = path.join(templatesDir, '..', 'modules');
+  const dbModulePath = path.join(modulesDir, 'database', database);
 
-  if (!(await fs.pathExists(dbDir))) {
-    console.warn(`Database template not found: ${database}`);
+  if (!(await fs.pathExists(dbModulePath))) {
+    console.warn(`Database module not found: ${database}`);
     return;
   }
 
-  // Read config
-  const configPath = path.join(dbDir, 'config.json');
-  if (!(await fs.pathExists(configPath))) {
+  // Read module.json
+  const moduleJsonPath = path.join(dbModulePath, 'module.json');
+  if (!(await fs.pathExists(moduleJsonPath))) {
     return;
   }
 
-  const config = await fs.readJson(configPath);
+  const moduleData = await fs.readJson(moduleJsonPath);
 
-  // Copy database files
-  const entries = await fs.readdir(dbDir, { withFileTypes: true });
-  for (const entry of entries) {
-    if (entry.name === 'config.json') continue;
+  // Copy files from module
+  const filesDir = path.join(dbModulePath, 'files');
+  if (await fs.pathExists(filesDir)) {
+    // Copy files based on patches in module.json
+    for (const patch of moduleData.patches || []) {
+      if (patch.type === 'create-file') {
+        const sourceFile = path.join(filesDir, patch.source);
+        let destFile = path.join(targetDir, patch.destination);
 
-    const sourcePath = path.join(dbDir, entry.name);
-    const destPath = path.join(targetDir, entry.name);
+        // Simple placeholder replacement for lib
+        destFile = destFile.replace('{{lib}}', 'lib').replace('{{src}}', 'src');
 
-    if (entry.isDirectory()) {
-      await fs.copy(sourcePath, destPath, { overwrite: false });
-    } else {
-      await fs.copy(sourcePath, destPath, { overwrite: false });
+        if (await fs.pathExists(sourceFile)) {
+          await fs.ensureDir(path.dirname(destFile));
+          await fs.copy(sourceFile, destFile, { overwrite: false });
+        }
+      }
     }
   }
 
-  // Merge package.json
-  await mergePackageJson(targetDir, config);
+  // Merge package.json with module dependencies
+  await mergePackageJson(targetDir, {
+    dependencies: moduleData.dependencies,
+    devDependencies: moduleData.devDependencies,
+  });
 
-  // Merge .env
-  await mergeEnvFile(targetDir, config.env || {});
+  // Merge .env with module envVars
+  const envVars: Record<string, string> = {};
+  for (const envVar of moduleData.envVars || []) {
+    envVars[envVar.key] = envVar.value;
+  }
+  await mergeEnvFile(targetDir, envVars);
 }
 
 async function mergeAuthConfig(
@@ -295,6 +309,9 @@ async function mergeAuthConfig(
   framework: string,
   auth: string
 ): Promise<void> {
+  // Use modules directory (sibling to templates)
+  const modulesDir = path.join(templatesDir, '..', 'modules');
+
   // Auth modules are now named with framework suffix
   // e.g., better-auth-nextjs, authjs-express, better-auth-react
   // If auth already has framework suffix, use it directly
@@ -302,45 +319,77 @@ async function mergeAuthConfig(
   const authMap: Record<string, string> = {
     nextauth: 'nextauth',
     'better-auth': framework === 'nextjs' ? 'better-auth-nextjs' : 'better-auth-express',
-    clerk: 'clerk',
+    clerk:
+      framework === 'nextjs'
+        ? 'clerk-nextjs'
+        : framework === 'react-vite'
+          ? 'clerk-react'
+          : 'clerk-express',
   };
 
   const authKey = auth.includes('-') ? auth : authMap[auth] || auth;
-  const authDir = path.join(templatesDir, 'auth', authKey);
+  const authModulePath = path.join(modulesDir, 'auth', authKey);
 
-  if (!(await fs.pathExists(authDir))) {
-    console.warn(`Auth template not found: ${authKey}`);
+  if (!(await fs.pathExists(authModulePath))) {
+    console.warn(`Auth module not found: ${authKey}`);
     return;
   }
 
-  // Read config
-  const configPath = path.join(authDir, 'config.json');
-  if (!(await fs.pathExists(configPath))) {
+  // Read module.json
+  const moduleJsonPath = path.join(authModulePath, 'module.json');
+  if (!(await fs.pathExists(moduleJsonPath))) {
     return;
   }
 
-  const config = await fs.readJson(configPath);
+  const moduleData = await fs.readJson(moduleJsonPath);
 
-  // Copy auth files
-  const entries = await fs.readdir(authDir, { withFileTypes: true });
-  for (const entry of entries) {
-    if (entry.name === 'config.json') continue;
+  // Copy files from module
+  const filesDir = path.join(authModulePath, 'files');
+  if (await fs.pathExists(filesDir)) {
+    // Determine path replacements based on framework
+    const getReplacements = () => {
+      if (framework === 'nextjs') {
+        return { lib: 'lib', router: 'app' };
+      } else if (framework === 'express') {
+        return { lib: 'src', router: 'src' };
+      } else {
+        return { lib: 'src', router: 'src' };
+      }
+    };
 
-    const sourcePath = path.join(authDir, entry.name);
-    const destPath = path.join(targetDir, entry.name);
+    const replacements = getReplacements();
 
-    if (entry.isDirectory()) {
-      await fs.copy(sourcePath, destPath, { overwrite: false });
-    } else {
-      await fs.copy(sourcePath, destPath, { overwrite: false });
+    // Copy files based on patches in module.json
+    for (const patch of moduleData.patches || []) {
+      if (patch.type === 'create-file') {
+        const sourceFile = path.join(filesDir, patch.source);
+        let destFile = path.join(targetDir, patch.destination);
+
+        // Replace placeholders
+        destFile = destFile
+          .replace('{{lib}}', replacements.lib)
+          .replace('{{router}}', replacements.router);
+
+        if (await fs.pathExists(sourceFile)) {
+          await fs.ensureDir(path.dirname(destFile));
+          await fs.copy(sourceFile, destFile, { overwrite: false });
+        }
+      }
     }
   }
 
-  // Merge package.json
-  await mergePackageJson(targetDir, config);
+  // Merge package.json with module dependencies
+  await mergePackageJson(targetDir, {
+    dependencies: moduleData.dependencies,
+    devDependencies: moduleData.devDependencies,
+  });
 
-  // Merge .env
-  await mergeEnvFile(targetDir, config.env || {});
+  // Merge .env with module envVars
+  const envVars: Record<string, string> = {};
+  for (const envVar of moduleData.envVars || []) {
+    envVars[envVar.key] = envVar.value;
+  }
+  await mergeEnvFile(targetDir, envVars);
 }
 
 async function mergePackageJson(targetDir: string, config: any): Promise<void> {

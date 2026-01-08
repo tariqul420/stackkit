@@ -21,6 +21,10 @@ out/
 build/
 dist/
 
+# Build artifacts from CLIs
+apps/*/templates/
+apps/*/modules/
+
 # misc
 .DS_Store
 *.pem

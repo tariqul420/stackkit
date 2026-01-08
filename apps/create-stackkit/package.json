@@ -1,6 +1,6 @@
 {
   "name": "create-stackkit-app",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "Create a new StackKit project with modular composition",
   "main": "dist/index.js",
   "bin": {
@@ -10,7 +10,8 @@
   "files": [
     "dist",
     "bin",
-    "templates"
+    "templates",
+    "modules"
   ],
   "repository": {
     "type": "git",
@@ -23,10 +24,11 @@
   },
   "scripts": {
     "dev": "tsc --watch",
-    "build": "tsc",
-    "clean": "rm -rf dist",
+    "build": "npm run clean && tsc && npm run copy-assets",
+    "copy-assets": "cp -r ../../templates . && cp -r ../../modules .",
+    "clean": "rm -rf dist templates modules",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "npm run build && cp -r ../../templates ."
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "create",

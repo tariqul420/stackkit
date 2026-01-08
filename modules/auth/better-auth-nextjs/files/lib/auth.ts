@@ -1,18 +1,26 @@
+import { prismaAdapter } from '@better-auth/prisma';
 import { betterAuth } from 'better-auth';
+import { prisma } from './db';
 
 export const auth = betterAuth({
-  secret: process.env.BETTER_AUTH_SECRET!,
-  baseURL: process.env.BETTER_AUTH_URL!,
-
-  // Add your authentication providers here
-  // Example: email/password, OAuth (Google, GitHub, etc.)
+  database: prismaAdapter(prisma, {
+    provider: 'postgresql', // Change to 'mongodb' if using MongoDB
+  }),
   emailAndPassword: {
     enabled: true,
   },
-
-  // Uncomment to add database adapter
-  // database: {
-  //   provider: "pg", // or "mongodb", "mysql"
-  //   url: process.env.DATABASE_URL!,
-  // },
+  socialProviders: {
+    // Uncomment to add OAuth providers
+    // google: {
+    //   clientId: process.env.GOOGLE_CLIENT_ID!,
+    //   clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    // },
+    // github: {
+    //   clientId: process.env.GITHUB_CLIENT_ID!,
+    //   clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+    // },
+  },
 });
+
+export type Session = typeof auth.$Infer.Session;
+export type User = typeof auth.$Infer.User;
