@@ -8,18 +8,13 @@ Create production-ready projects with one command.
 npx create-stackkit-app my-app
 ```
 
-Interactive wizard for:
-- **Framework**: Next.js, Express, React (Vite)
-- **Database**: Prisma, Drizzle, Mongoose, or none
-- **Auth**: Auth.js, Better Auth, Clerk, or none
-- **Language**: TypeScript or JavaScript
+Interactive wizard helps you choose:
+- Framework (Next.js, Express, React)
+- Database (Prisma, Drizzle, Mongoose)
+- Authentication (Better Auth, Auth.js, Clerk, NextAuth)
+- Language (TypeScript/JavaScript)
+- Package manager (pnpm, npm, yarn)
 
-## Development
+## Documentation
 
-```bash
-pnpm install
-pnpm build
-npx . test-app
-```
-
-See [main README](../../README.md) for full documentation.
+See [main repository](https://github.com/tariqul420/stackkit) for full documentation.
