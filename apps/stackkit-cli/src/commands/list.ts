@@ -19,14 +19,13 @@ export async function listCommand(options: ListOptions): Promise<void> {
       const templatesDir = path.join(__dirname, '..', '..', 'templates', 'bases');
       const templates = await getAvailableTemplates(templatesDir);
 
-      logger.log(chalk.bold('📦 Templates'));
-      logger.newLine();
+      logger.log(chalk.cyan('▸') + ' ' + chalk.bold.cyan('TEMPLATES'));
 
       if (templates.length === 0) {
-        logger.warn('  No templates found');
+        logger.warn('  No templates available');
       } else {
         for (const template of templates) {
-          logger.log(`  ${chalk.cyan('▸')} ${template.displayName}`);
+          logger.log(`  ${chalk.green('•')} ${chalk.white(template.displayName)}`);
         }
         logger.newLine();
       }
@@ -37,11 +36,10 @@ export async function listCommand(options: ListOptions): Promise<void> {
       const modulesDir = path.join(__dirname, '..', '..', 'modules');
       const modules = await getAvailableModules(modulesDir);
 
-      logger.log(chalk.bold('🔧 Modules'));
-      logger.newLine();
+      logger.log(chalk.cyan('▸') + ' ' + chalk.bold.cyan('MODULES'));
 
       if (modules.length === 0) {
-        logger.warn('  No modules found');
+        logger.warn('  No modules available');
       } else {
         // Group by category
         const grouped = modules.reduce(
@@ -56,9 +54,10 @@ export async function listCommand(options: ListOptions): Promise<void> {
         );
 
         for (const [category, mods] of Object.entries(grouped)) {
-          logger.log(chalk.yellow(`  ${category.toUpperCase()}`));
+          logger.newLine();
+          logger.log(`  ${chalk.yellow('→')} ${chalk.bold.yellow(category.toUpperCase())}`);
           for (const mod of mods) {
-            logger.log(`  ${chalk.cyan('▸')} ${mod.displayName}`);
+            logger.log(`    ${chalk.green('•')} ${chalk.white(mod.displayName)}`);
           }
         }
         logger.newLine();
