@@ -2,7 +2,7 @@
   "name": "nextjs-base",
   "displayName": "Next.js",
   "framework": "nextjs",
-  "description": "Next.js 15 App Router with TypeScript",
+  "description": "Next.js 16 App Router with TypeScript",
   "files": [
     "app/",
     "public/",
