@@ -16,16 +16,12 @@ interface ProjectConfig {
     | 'drizzle-postgresql'
     | 'none';
   auth:
-    | 'nextauth'
-    | 'authjs-nextjs'
-    | 'authjs-express'
     | 'better-auth-nextjs'
     | 'better-auth-express'
     | 'better-auth-react'
     | 'clerk-nextjs'
     | 'clerk-express'
     | 'clerk-react'
-    | 'clerk'
     | 'none';
   language: 'typescript' | 'javascript';
   packageManager: 'pnpm' | 'npm' | 'yarn';
@@ -110,8 +106,6 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
         // Next.js apps
         if (answers.framework === 'nextjs') {
           return [
-            { name: 'Auth.js v5', value: 'authjs-nextjs' },
-            { name: 'NextAuth.js', value: 'nextauth' },
             { name: 'Better Auth', value: 'better-auth-nextjs' },
             { name: 'Clerk', value: 'clerk-nextjs' },
             { name: 'None', value: 'none' },
@@ -121,7 +115,6 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
         // Express apps
         if (answers.framework === 'express') {
           return [
-            { name: 'Auth.js', value: 'authjs-express' },
             { name: 'Better Auth', value: 'better-auth-express' },
             { name: 'Clerk', value: 'clerk-express' },
             { name: 'None', value: 'none' },
