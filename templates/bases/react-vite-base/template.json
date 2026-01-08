@@ -1,5 +1,19 @@
 {
   "name": "react-vite-base",
-  "description": "React + Vite + TypeScript base template",
-  "framework": "react-vite"
+  "displayName": "React (Vite)",
+  "framework": "react-vite",
+  "description": "React 18 + Vite with TypeScript",
+  "files": [
+    "src/",
+    "public/",
+    ".gitignore",
+    "eslint.config.js",
+    "index.html",
+    "package.json",
+    "README.md",
+    "tsconfig.json",
+    "tsconfig.app.json",
+    "tsconfig.node.json",
+    "vite.config.ts"
+  ]
 }
