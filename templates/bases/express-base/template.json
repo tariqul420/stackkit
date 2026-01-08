@@ -3,5 +3,5 @@
   "displayName": "Express.js",
   "framework": "express",
   "description": "Express.js REST API with TypeScript",
-  "files": ["src/", "tsconfig.json", "package.json"]
+  "files": ["src/", ".env.example", ".gitignore", "package.json", "tsconfig.json"]
 }
