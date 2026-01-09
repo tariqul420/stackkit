@@ -2,6 +2,7 @@
 
 # dependencies
 node_modules/
+templates/*/node_modules/
 .pnp
 .pnp.*
 .yarn/*
