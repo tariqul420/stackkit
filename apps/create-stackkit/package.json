@@ -1,6 +1,6 @@
 {
   "name": "create-stackkit-app",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Create a new StackKit project with modular composition",
   "main": "dist/index.js",
   "bin": {
