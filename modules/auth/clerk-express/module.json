@@ -3,18 +3,32 @@
   "displayName": "Clerk (Express)",
   "description": "Clerk Authentication for Express.js",
   "category": "auth",
-  "framework": "express",
+  "provider": "clerk",
+  "supportedFrameworks": ["express"],
   "dependencies": {
     "@clerk/express": "^1.4.5"
   },
-  "env": {
-    "CLERK_PUBLISHABLE_KEY": "pk_test_your_key_here",
-    "CLERK_SECRET_KEY": "sk_test_your_key_here"
-  },
-  "files": [
+  "devDependencies": {},
+  "envVars": [
     {
-      "source": "files/lib/auth.ts",
-      "destination": "lib/auth.ts"
+      "key": "CLERK_PUBLISHABLE_KEY",
+      "value": "",
+      "description": "Clerk publishable key (from Clerk dashboard)",
+      "required": true
+    },
+    {
+      "key": "CLERK_SECRET_KEY",
+      "value": "",
+      "description": "Clerk secret key (from Clerk dashboard)",
+      "required": true
+    }
+  ],
+  "patches": [
+    {
+      "type": "create-file",
+      "description": "Create Clerk auth middleware",
+      "source": "lib/auth.ts",
+      "destination": "{{lib}}/auth.ts"
     }
   ]
 }

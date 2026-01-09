@@ -1,11 +1,15 @@
 {
   "name": "mongoose-mongodb",
   "displayName": "Mongoose + MongoDB",
-  "description": "Mongoose ODM for MongoDB",
+  "description": "Mongoose ODM for MongoDB database",
   "category": "database",
+  "provider": "mongoose",
+  "database": "mongodb",
+  "supportedFrameworks": ["nextjs", "express"],
   "dependencies": {
     "mongoose": "^8.8.4"
   },
+  "devDependencies": {},
   "envVars": [
     {
       "key": "MONGODB_URI",
@@ -43,7 +47,7 @@
   "patches": [
     {
       "type": "create-file",
-      "description": "MongoDB connection with Mongoose",
+      "description": "Create MongoDB connection with Mongoose",
       "source": "lib/db.ts",
       "destination": "{{lib}}/db.ts"
     }

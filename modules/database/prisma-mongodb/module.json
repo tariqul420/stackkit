@@ -1,8 +1,10 @@
 {
   "name": "prisma-mongodb",
   "displayName": "Prisma + MongoDB",
-  "description": "Add Prisma ORM with MongoDB database",
+  "description": "Prisma ORM with MongoDB database",
   "category": "database",
+  "provider": "prisma",
+  "database": "mongodb",
   "supportedFrameworks": ["nextjs", "express"],
   "dependencies": {
     "@prisma/client": "^6.1.0"

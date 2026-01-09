@@ -3,17 +3,26 @@
   "displayName": "Clerk (React)",
   "description": "Clerk Authentication for React",
   "category": "auth",
-  "framework": "react-vite",
+  "provider": "clerk",
+  "supportedFrameworks": ["react-vite"],
   "dependencies": {
     "@clerk/clerk-react": "^5.19.2"
   },
-  "env": {
-    "VITE_CLERK_PUBLISHABLE_KEY": "pk_test_your_key_here"
-  },
-  "files": [
+  "devDependencies": {},
+  "envVars": [
     {
-      "source": "files/lib/auth-provider.tsx",
-      "destination": "lib/auth-provider.tsx"
+      "key": "VITE_CLERK_PUBLISHABLE_KEY",
+      "value": "",
+      "description": "Clerk publishable key (from Clerk dashboard)",
+      "required": true
+    }
+  ],
+  "patches": [
+    {
+      "type": "create-file",
+      "description": "Create Clerk auth provider",
+      "source": "lib/auth-provider.tsx",
+      "destination": "src/lib/auth-provider.tsx"
     }
   ]
 }

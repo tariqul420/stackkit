@@ -1,27 +1,63 @@
 {
   "name": "clerk-nextjs",
   "displayName": "Clerk (Next.js)",
-  "description": "Clerk Authentication for Next.js",
+  "description": "Clerk Authentication for Next.js App Router",
   "category": "auth",
-  "framework": "nextjs",
+  "provider": "clerk",
+  "supportedFrameworks": ["nextjs"],
   "dependencies": {
     "@clerk/nextjs": "^6.10.2"
   },
-  "env": {
-    "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_your_key_here",
-    "CLERK_SECRET_KEY": "sk_test_your_key_here",
-    "NEXT_PUBLIC_CLERK_SIGN_IN_URL": "/sign-in",
-    "NEXT_PUBLIC_CLERK_SIGN_UP_URL": "/sign-up",
-    "NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL": "/",
-    "NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL": "/"
-  },
-  "files": [
+  "devDependencies": {},
+  "envVars": [
     {
-      "source": "files/lib/auth-provider.tsx",
-      "destination": "lib/auth-provider.tsx"
+      "key": "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY",
+      "value": "",
+      "description": "Clerk publishable key (from Clerk dashboard)",
+      "required": true
     },
     {
-      "source": "files/middleware.ts",
+      "key": "CLERK_SECRET_KEY",
+      "value": "",
+      "description": "Clerk secret key (from Clerk dashboard)",
+      "required": true
+    },
+    {
+      "key": "NEXT_PUBLIC_CLERK_SIGN_IN_URL",
+      "value": "/sign-in",
+      "description": "Sign in page URL",
+      "required": true
+    },
+    {
+      "key": "NEXT_PUBLIC_CLERK_SIGN_UP_URL",
+      "value": "/sign-up",
+      "description": "Sign up page URL",
+      "required": true
+    },
+    {
+      "key": "NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL",
+      "value": "/",
+      "description": "Redirect URL after sign in",
+      "required": true
+    },
+    {
+      "key": "NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL",
+      "value": "/",
+      "description": "Redirect URL after sign up",
+      "required": true
+    }
+  ],
+  "patches": [
+    {
+      "type": "create-file",
+      "description": "Create Clerk auth provider",
+      "source": "lib/auth-provider.tsx",
+      "destination": "{{lib}}/auth-provider.tsx"
+    },
+    {
+      "type": "create-file",
+      "description": "Create Clerk middleware",
+      "source": "middleware.ts",
       "destination": "middleware.ts"
     }
   ]

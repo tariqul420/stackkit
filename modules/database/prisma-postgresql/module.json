@@ -1,8 +1,10 @@
 {
   "name": "prisma-postgresql",
   "displayName": "Prisma + PostgreSQL",
-  "description": "Add Prisma ORM with PostgreSQL database",
+  "description": "Prisma ORM with PostgreSQL database",
   "category": "database",
+  "provider": "prisma",
+  "database": "postgresql",
   "supportedFrameworks": ["nextjs", "express"],
   "dependencies": {
     "@prisma/client": "^6.1.0"
