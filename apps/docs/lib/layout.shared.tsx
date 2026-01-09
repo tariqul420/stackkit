@@ -10,17 +10,5 @@ export function baseOptions(): BaseLayoutProps {
         </div>
       ),
     },
-    links: [
-      {
-        text: 'Documentation',
-        url: '/docs',
-        active: 'nested-url',
-      },
-      {
-        text: 'GitHub',
-        url: 'https://github.com/tariqul420/stackkit',
-        external: true,
-      },
-    ],
   };
 }
