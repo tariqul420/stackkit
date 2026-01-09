@@ -540,46 +540,41 @@ export async function POST(request: Request) {
 | Feature            | Prisma    | Mongoose |
 | ------------------ | --------- | -------- |
 | **TypeScript**     | Excellent | Good     |
-| **Migrations**     | ✅        | ❌       |
+| **Migrations**     | Yes       | No       |
 | **Type Safety**    | Excellent | Good     |
 | **Learning Curve** | Medium    | Easy     |
 | **Performance**    | Good      | Good     |
-| **PostgreSQL**     | ✅        | ❌       |
-| **MongoDB**        | ✅        | ✅       |
-| **Studio/GUI**     | ✅ (Prisma Studio) | ❌ |
+| **PostgreSQL**     | Yes       | No       |
+| **MongoDB**        | Yes       | Yes      |
+| **Studio/GUI**     | Yes (Prisma Studio) | No |
 
 ## Database Hosting
 
 ### PostgreSQL
 
 **Local Development:**
-
 ```bash
 docker run --name postgres -e POSTGRES_PASSWORD=password -p 5432:5432 -d postgres
 ```
 
 **Production Options:**
-
-- [Neon](https://neon.tech) - Serverless PostgreSQL with generous free tier
-- [Supabase](https://supabase.com) - PostgreSQL + Authentication + Real-time
-- [Railway](https://railway.app) - Easy deployment with automatic backups
-- [Vercel Postgres](https://vercel.com/storage/postgres) - Integrated with Vercel projects
+- [Neon](https://neon.tech) - Serverless PostgreSQL
+- [Supabase](https://supabase.com) - PostgreSQL with additional features
+- [Railway](https://railway.app) - Easy deployment
+- [Vercel Postgres](https://vercel.com/storage/postgres) - Integrated with Vercel
 
 ### MongoDB
 
 **Local Development:**
-
 ```bash
 docker run --name mongodb -p 27017:27017 -d mongo
 ```
 
 **Production Options:**
-
-- [MongoDB Atlas](https://www.mongodb.com/atlas) - Official managed MongoDB with free tier
-- [Railway](https://railway.app) - Simple deployment and management
+- [MongoDB Atlas](https://www.mongodb.com/atlas) - Official managed MongoDB
+- [Railway](https://railway.app) - Simple deployment
 
 ## Next Steps
 
-- [Authentication Setup](/docs/modules/auth)
-- [Deployment](/docs/deployment)
-- [Contributing](/docs/contributing)
+- [Authentication Setup](/docs/modules/auth) - Add authentication to your app
+- [CLI Reference](/docs/cli/stackkit-cli) - Add modules to existing projects

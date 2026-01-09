@@ -5,19 +5,20 @@ description: Install StackKit and create your first project
 
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 # Installation
 
-Get started with StackKit in minutes. This guide will walk you through creating your first project.
+This guide walks you through creating your first StackKit project with authentication and database support.
+
+## Prerequisites
+
+- Node.js 20.0 or higher
+- Package manager (npm, pnpm, yarn, or bun)
+- Git (optional, for version control)
 
 ## Create a New Project
 
-The fastest way to get started is with `create-stackkit-app`:
-
-
-
-### Run the CLI
+Run the interactive CLI to create your project:
 
 <Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
   <Tab value="pnpm">
@@ -42,70 +43,64 @@ The fastest way to get started is with `create-stackkit-app`:
   </Tab>
 </Tabs>
 
-### Answer the Prompts
+## Configure Your Project
 
-The CLI will ask you to configure your project:
+The CLI will guide you through project setup:
 
-```
-? Select a framework: (Use arrow keys)
-❯ Next.js 16 (App Router)
-  Express
-  React (Vite)
+**Framework Selection:**
+- Next.js 16 (App Router) - Full-stack React framework
+- Express - Node.js REST API
+- React (Vite) - Frontend-only SPA
 
-? Select a database:
-  Prisma (PostgreSQL)
-❯ Prisma (MongoDB)
-  Mongoose (MongoDB)
-  Skip for now
+**Database Selection:**
+- Prisma (PostgreSQL) - Recommended for production
+- Prisma (MongoDB) - NoSQL with Prisma ORM
+- Mongoose (MongoDB) - Traditional MongoDB ODM
+- Skip for now
 
-? Select authentication:
-  Better Auth
-❯ Clerk
-  Skip for now
+**Authentication Selection:**
+- Better Auth - TypeScript-first, open source
+- Clerk - Hosted authentication service
+- Skip for now
 
-? Install dependencies?
-❯ Yes
-  No
-```
+The CLI will then install dependencies and initialize your project.
 
-### Navigate to Your Project
+## Start Development
 
-```bash
-cd my-app
-```
-
-### Start Development Server
+Navigate to your project and start the development server:
 
 <Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
   <Tab value="pnpm">
     ```bash
+    cd my-app
     pnpm dev
     ```
   </Tab>
   <Tab value="npm">
     ```bash
+    cd my-app
     npm run dev
     ```
   </Tab>
   <Tab value="yarn">
     ```bash
+    cd my-app
     yarn dev
     ```
   </Tab>
   <Tab value="bun">
     ```bash
+    cd my-app
     bun dev
     ```
   </Tab>
 </Tabs>
 
-Your app is now running! Open [http://localhost:3000](http://localhost:3000) to view it.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+## Project Structure
 
-
-## What Gets Generated?
-
-StackKit creates a complete project structure tailored to your choices:
+StackKit creates a complete project structure tailored to your framework:
 
 ### Next.js Project Structure
 
@@ -194,34 +189,39 @@ Already have a project? Use `stackkit-cli` to add features:
   The CLI will automatically detect your framework and offer compatible modules.
 </Callout>
 
-## Environment Variables
+## Environment Configuration
 
-After project creation, configure your environment variables in `.env.local` (Next.js/React) or `.env` (Express):
+Configure environment variables in `.env.local` (Next.js) or `.env` (Express):
 
-```bash title=".env.local"
-# Database
+**Database:**
+```bash
+# PostgreSQL
 DATABASE_URL="postgresql://user:password@localhost:5432/mydb"
 
-# Authentication (example with Better Auth)
-BETTER_AUTH_SECRET="your-secret-key-here"
-BETTER_AUTH_URL="http://localhost:3000"
-
-# OAuth Providers (if configured)
-GITHUB_CLIENT_ID="your-github-client-id"
-GITHUB_CLIENT_SECRET="your-github-client-secret"
+# MongoDB
+DATABASE_URL="mongodb://localhost:27017/mydb"
 ```
 
-<Callout type="warn">Never commit `.env.local` or `.env` files to version control!</Callout>
+**Better Auth:**
+```bash
+BETTER_AUTH_SECRET="your-secret-key-here"  # Generate: openssl rand -base64 32
+BETTER_AUTH_URL="http://localhost:3000"
+```
+
+**Clerk:**
+```bash
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_..."
+CLERK_SECRET_KEY="sk_test_..."
+```
+
+<Callout type="warn">
+  Never commit `.env` files to version control. They're automatically added to `.gitignore`.
+</Callout>
 
 ## Next Steps
 
-Now that your project is set up:
+1. **[Configure Database](/docs/modules/database)** - Run migrations and set up your schema
+2. **[Configure Authentication](/docs/modules/auth)** - Set up OAuth providers and customize
+3. **[Add Modules](/docs/cli/stackkit-cli)** - Add more features to existing projects
 
-- Learn about [CLI commands](/docs/cli/create-stackkit)
-- Configure [authentication](/docs/modules/auth)
-- Set up your [database](/docs/modules/database)
-- Read about [project structure](/docs/getting-started/project-structure)
-
----
-
-**Need help?** Check out our [troubleshooting guide](/docs/getting-started/troubleshooting) or [open an issue](https://github.com/tariqul420/stackkit/issues).
+For a 60-second overview, see the [Quick Start Guide](/docs/getting-started/quickstart).

@@ -52,7 +52,7 @@ Building a new project shouldn't take hours of setup. StackKit provides:
 
 ## Features
 
-### 🚀 Quick Start
+### Quick Start
 
 Get a working app in under 60 seconds with our interactive CLI:
 
@@ -68,7 +68,7 @@ Get a working app in under 60 seconds with our interactive CLI:
 
 No configuration files to edit. No dependencies to install manually. Just answer a few questions and start coding.
 
-### 🎯 Flexible & Modular
+### Flexible & Modular
 
 Start simple and add features as you need them:
 
@@ -113,7 +113,7 @@ Start simple and add features as you need them:
 
 The CLI detects your framework and only shows compatible modules.
 
-### ✨ What You Get
+### What You Get
 
 Every generated project includes:
 
@@ -142,62 +142,4 @@ Choose the tools you know and love:
 <Callout type="warn">
   All frameworks support TypeScript out of the box. React (Vite) is frontend-only, so database modules aren't available.
 </Callout>
-
-## Quick Links
-
-<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-  <div>
-    ### Get Started
-    - [Quick Start Guide](/docs/getting-started/quickstart) - 60-second setup
-    - [Installation](/docs/getting-started/installation) - Detailed instructions
-    - [Environment Variables](/docs/guides/environment-variables) - Configuration guide
-  </div>
-  
-  <div>
-    ### Learn More
-    - [Authentication Modules](/docs/modules/auth) - Better Auth & Clerk
-    - [Database Modules](/docs/modules/database) - Prisma & Mongoose
-    - [Project Structure](/docs/guides/project-structure) - Folder organization
-  </div>
-</div>
-
-## Example: Next.js + Prisma + Better Auth
-
-Here's what you get with a full-stack Next.js setup:
-
-```typescript title="lib/auth.ts"
-// Authentication client pre-configured
-import { betterAuth } from "better-auth";
-import { prismaAdapter } from "better-auth/adapters/prisma";
-
-export const auth = betterAuth({
-  database: prismaAdapter(prisma, {
-    provider: "postgresql"
-  }),
-  emailAndPassword: { enabled: true }
-});
-```
-
-```typescript title="app/api/auth/[...all]/route.ts"
-// API routes ready to use
-export { GET, POST } from "@/lib/auth";
-```
-
-```prisma title="prisma/schema.prisma"
-// Database schema with auth tables
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  sessions  Session[]
-}
-```
-
-**Start building immediately** - No boilerplate setup required.
-
-## Need Help?
-
-- **[GitHub Repository](https://github.com/tariqul420/stackkit)** - Star us and report issues
-- **[Quick Start](/docs/getting-started/quickstart)** - Get started in 60 seconds
-- **[CLI Reference](/docs/cli/create-stackkit)** - Full command documentation
 

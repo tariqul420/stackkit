@@ -8,280 +8,11 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 # create-stackkit-app
 
-The `create-stackkit-app` CLI tool helps you scaffold new projects with your preferred stack.
+Scaffold production-ready full-stack projects with authentication, database, and TypeScript configured.
 
-## Usage
+## Quick Start
 
-<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
-  <Tab value="pnpm">
-    ```bash
-    pnpm create stackkit-app [project-name] [options]
-    ```
-  </Tab>
-  <Tab value="npm">
-    ```bash
-    npx create-stackkit-app [project-name] [options]
-    ```
-  </Tab>
-  <Tab value="yarn">
-    ```bash
-    yarn create stackkit-app [project-name] [options]
-    ```
-  </Tab>
-  <Tab value="bun">
-    ```bash
-    bun create stackkit-app [project-name] [options]
-    ```
-  </Tab>
-</Tabs>
-
-## Arguments
-
-### `project-name`
-
-The name of your new project. This will create a directory with this name.
-
-<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
-  <Tab value="pnpm">
-    ```bash
-    pnpm create stackkit-app my-awesome-app
-    ```
-  </Tab>
-  <Tab value="npm">
-    ```bash
-    npx create-stackkit-app my-awesome-app
-    ```
-  </Tab>
-  <Tab value="yarn">
-    ```bash
-    yarn create stackkit-app my-awesome-app
-    ```
-  </Tab>
-  <Tab value="bun">
-    ```bash
-    bun create stackkit-app my-awesome-app
-    ```
-  </Tab>
-</Tabs>
-
-If omitted, you'll be prompted to enter a name interactively.
-
-## Options
-
-### `--framework, -f`
-
-Specify the framework to use.
-
-<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
-  <Tab value="pnpm">
-    ```bash
-    pnpm create stackkit-app my-app --framework nextjs
-    ```
-  </Tab>
-  <Tab value="npm">
-    ```bash
-    npx create-stackkit-app my-app --framework nextjs
-    ```
-  </Tab>
-  <Tab value="yarn">
-    ```bash
-    yarn create stackkit-app my-app --framework nextjs
-    ```
-  </Tab>
-  <Tab value="bun">
-    ```bash
-    bun create stackkit-app my-app --framework nextjs
-    ```
-  </Tab>
-</Tabs>
-
-**Choices:**
-- `nextjs` - Next.js 16 with App Router
-- `express` - Express.js REST API
-- `react-vite` - React with Vite
-
-### `--database, -d`
-
-Specify the database adapter to use.
-
-<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
-  <Tab value="pnpm">
-    ```bash
-    pnpm create stackkit-app my-app --database prisma-postgresql
-    ```
-  </Tab>
-  <Tab value="npm">
-    ```bash
-    npx create-stackkit-app my-app --database prisma-postgresql
-    ```
-  </Tab>
-  <Tab value="yarn">
-    ```bash
-    yarn create stackkit-app my-app --database prisma-postgresql
-    ```
-  </Tab>
-  <Tab value="bun">
-    ```bash
-    bun create stackkit-app my-app --database prisma-postgresql
-    ```
-  </Tab>
-</Tabs>
-
-**Choices:**
-- `prisma-postgresql` - Prisma with PostgreSQL
-- `prisma-mongodb` - Prisma with MongoDB
-- `mongoose-mongodb` - Mongoose with MongoDB
-- `skip` - Skip database setup
-
-### `--auth, -a`
-
-Specify the authentication provider.
-
-<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
-  <Tab value="pnpm">
-    ```bash
-    pnpm create stackkit-app my-app --auth better-auth
-    ```
-  </Tab>
-  <Tab value="npm">
-    ```bash
-    npx create-stackkit-app my-app --auth better-auth
-    ```
-  </Tab>
-  <Tab value="yarn">
-    ```bash
-    yarn create stackkit-app my-app --auth better-auth
-    ```
-  </Tab>
-  <Tab value="bun">
-    ```bash
-    bun create stackkit-app my-app --auth better-auth
-    ```
-  </Tab>
-</Tabs>
-
-**Choices:**
-- `better-auth` - Better Auth (modern TypeScript authentication)
-- `clerk` - Clerk authentication
-- `skip` - Skip authentication setup
-
-### `--install, -i`
-
-Auto-install dependencies after project creation.
-
-<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
-  <Tab value="pnpm">
-    ```bash
-    pnpm create stackkit-app my-app --install
-    ```
-  </Tab>
-  <Tab value="npm">
-    ```bash
-    npx create-stackkit-app my-app --install
-    ```
-  </Tab>
-  <Tab value="yarn">
-    ```bash
-    yarn create stackkit-app my-app --install
-    ```
-  </Tab>
-  <Tab value="bun">
-    ```bash
-    bun create stackkit-app my-app --install
-    ```
-  </Tab>
-</Tabs>
-
-Default: `true` (will prompt if not specified)
-
-### `--git`
-
-Initialize a git repository.
-
-<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
-  <Tab value="pnpm">
-    ```bash
-    pnpm create stackkit-app my-app --git
-    ```
-  </Tab>
-  <Tab value="npm">
-    ```bash
-    npx create-stackkit-app my-app --git
-    ```
-  </Tab>
-  <Tab value="yarn">
-    ```bash
-    yarn create stackkit-app my-app --git
-    ```
-  </Tab>
-  <Tab value="bun">
-    ```bash
-    bun create stackkit-app my-app --git
-    ```
-  </Tab>
-</Tabs>
-
-Default: `true`
-
-### `--skip-install`
-
-Skip dependency installation.
-
-<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
-  <Tab value="pnpm">
-    ```bash
-    pnpm create stackkit-app my-app --skip-install
-    ```
-  </Tab>
-  <Tab value="npm">
-    ```bash
-    npx create-stackkit-app my-app --skip-install
-    ```
-  </Tab>
-  <Tab value="yarn">
-    ```bash
-    yarn create stackkit-app my-app --skip-install
-    ```
-  </Tab>
-  <Tab value="bun">
-    ```bash
-    bun create stackkit-app my-app --skip-install
-    ```
-  </Tab>
-</Tabs>
-
-### `--help, -h`
-
-Display help information.
-
-<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
-  <Tab value="pnpm">
-    ```bash
-    pnpm create stackkit-app --help
-    ```
-  </Tab>
-  <Tab value="npm">
-    ```bash
-    npx create-stackkit-app --help
-    ```
-  </Tab>
-  <Tab value="yarn">
-    ```bash
-    yarn create stackkit-app --help
-    ```
-  </Tab>
-  <Tab value="bun">
-    ```bash
-    bun create stackkit-app --help
-    ```
-  </Tab>
-</Tabs>
-
-## Examples
-
-### Interactive Mode (Recommended)
-
-Run without arguments for the full interactive experience:
+Run the interactive CLI to create a new project:
 
 <Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
   <Tab value="pnpm">
@@ -306,7 +37,98 @@ Run without arguments for the full interactive experience:
   </Tab>
 </Tabs>
 
-The CLI will guide you through all options with a friendly wizard.
+Or specify all options directly:
+
+## Command Syntax
+
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm create stackkit-app [project-name] [options]
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npx create-stackkit-app [project-name] [options]
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn create stackkit-app [project-name] [options]
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bun create stackkit-app [project-name] [options]
+    ```
+  </Tab>
+</Tabs>
+
+## Options
+
+All options are optional. Omit them to use the interactive mode.
+
+### `--framework, -f`
+
+Specify the framework:
+
+```bash
+npx create-stackkit-app my-app --framework nextjs
+```
+
+**Available frameworks:**
+- `nextjs` - Next.js 16 with App Router (Full-stack)
+- `express` - Express.js REST API (Backend only)
+- `react-vite` - React with Vite (Frontend only)
+
+### `--database, -d`
+
+Specify the database adapter:
+
+```bash
+npx create-stackkit-app my-app --database prisma-postgresql
+```
+
+**Available databases:**
+- `prisma-postgresql` - Prisma ORM with PostgreSQL
+- `prisma-mongodb` - Prisma ORM with MongoDB
+- `mongoose-mongodb` - Mongoose ODM with MongoDB
+- `skip` - No database
+
+### `--auth, -a`
+
+Specify the authentication provider:
+
+```bash
+npx create-stackkit-app my-app --auth better-auth
+```
+
+**Available providers:**
+- `better-auth` - Better Auth (TypeScript-first, open source)
+- `clerk` - Clerk (hosted authentication service)
+- `skip` - No authentication
+
+### `--install`
+
+Install dependencies after project creation (default: `true`).
+
+### `--skip-install`
+
+Skip dependency installation.
+
+### `--git`
+
+Initialize a git repository (default: `true`).
+
+### `--yes, -y`
+
+Use default options without prompts.
+
+### `--help, -h`
+
+Display help information.
+
+## Examples
 
 ### Next.js with Prisma and Better Auth
 
@@ -386,80 +208,17 @@ The CLI will guide you through all options with a friendly wizard.
   </Tab>
 </Tabs>
 
-### React SPA (No backend)
 
-<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
-  <Tab value="pnpm">
-    ```bash
-    pnpm create stackkit-app my-react-app \
-      --framework react-vite \
-      --database skip \
-      --auth skip
-    ```
-  </Tab>
-  <Tab value="npm">
-    ```bash
-    npx create-stackkit-app my-react-app \
-      --framework react-vite \
-      --database skip \
-      --auth skip
-    ```
-  </Tab>
-  <Tab value="yarn">
-    ```bash
-    yarn create stackkit-app my-react-app \
-      --framework react-vite \
-      --database skip \
-      --auth skip
-    ```
-  </Tab>
-  <Tab value="bun">
-    ```bash
-    bun create stackkit-app my-react-app \
-      --framework react-vite \
-      --database skip \
-      --auth skip
-    ```
-  </Tab>
-</Tabs>
 
-### Quick Start (All Defaults)
+## What Gets Generated
 
-<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
-  <Tab value="pnpm">
-    ```bash
-    pnpm create stackkit-app my-app --yes
-    ```
-  </Tab>
-  <Tab value="npm">
-    ```bash
-    npx create-stackkit-app my-app --yes
-    ```
-  </Tab>
-  <Tab value="yarn">
-    ```bash
-    yarn create stackkit-app my-app --yes
-    ```
-  </Tab>
-  <Tab value="bun">
-    ```bash
-    bun create stackkit-app my-app --yes
-    ```
-  </Tab>
-</Tabs>
+The CLI creates a fully configured project:
 
-Uses sensible defaults: Next.js, Prisma (PostgreSQL), Better Auth
-
-## What Happens During Creation?
-
-1. **Validate Project Name** - Ensures the name is valid and directory doesn't exist
-2. **Copy Base Template** - Copies framework-specific files
-3. **Apply Modules** - Integrates selected database and auth modules
-4. **Configure Environment** - Creates `.env` files with necessary variables
-5. **Update Dependencies** - Adds required npm packages to `package.json`
-6. **Install Dependencies** - Runs package manager install (if not skipped)
-7. **Initialize Git** - Creates git repository (if not skipped)
-8. **Display Next Steps** - Shows commands to start development
+1. **Framework Setup** - Copies base template with TypeScript, ESLint, and Prettier
+2. **Module Integration** - Adds authentication and database code
+3. **Environment Configuration** - Creates `.env` files with required variables
+4. **Dependency Installation** - Installs all npm packages
+5. **Git Initialization** - Initializes repository with `.gitignore`
 
 ## Generated Project Structure
 
@@ -546,32 +305,25 @@ CLERK_SECRET_KEY="sk_test_..."
   ```
 </Callout>
 
-## Troubleshooting
+## Common Issues
 
-### Directory Already Exists
+**Directory already exists**
+```
+Error: Directory 'my-app' already exists
+```
+Choose a different name or remove the existing directory.
 
-**Error:** `Directory 'my-app' already exists`
+**Permission denied**
+```
+Error: EACCES: permission denied
+```
+Check directory permissions. Never use `sudo` with npm/npx.
 
-**Solution:** Choose a different project name or remove the existing directory.
-
-### Permission Denied
-
-**Error:** `EACCES: permission denied`
-
-**Solution:** Check directory permissions or try running without sudo (don't use sudo with npx).
-
-### Network Issues
-
-**Error:** `Failed to download template`
-
-**Solution:** Check your internet connection or try again. The CLI downloads templates from GitHub.
-
-### Unsupported Node Version
-
-**Error:** `Node version must be >= 20.0.0`
-
-**Solution:** Update Node.js using nvm or download from [nodejs.org](https://nodejs.org)
-
+**Node version too old**
+```
+Error: Node version must be >= 20.0.0
+```
+Update Node.js to version 20 or higher:
 ```bash
 # Using nvm
 nvm install 20
@@ -580,13 +332,11 @@ nvm use 20
 
 ## Next Steps
 
-After creating your project:
+After project creation:
 
-1. **Configure Environment Variables** - Update `.env.local` or `.env`
-2. **Run Database Migrations** - `npx prisma migrate dev` (if using Prisma)
-3. **Start Development Server** - `pnpm dev`
-4. **Read Module Docs** - Learn about [Authentication](/docs/modules/auth) and [Database](/docs/modules/database)
+1. **Configure environment** - Update `.env.local` or `.env` with your values
+2. **Run migrations** (Prisma only) - `npx prisma migrate dev`
+3. **Start dev server** - `npm run dev`
+4. **Learn modules** - Read [Authentication](/docs/modules/auth) and [Database](/docs/modules/database) docs
 
----
-
-Need to add features later? Use [stackkit-cli](/docs/cli/stackkit-cli) to add modules to existing projects.
+To add modules to existing projects, use [stackkit-cli](/docs/cli/stackkit-cli).
