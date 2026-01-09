@@ -8,13 +8,7 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 # Installation
 
-This guide walks you through creating your first StackKit project with authentication and database support.
-
-## Prerequisites
-
-- Node.js 20.0 or higher
-- Package manager (npm, pnpm, yarn, or bun)
-- Git (optional, for version control)
+Create production-ready full-stack applications with authentication and database support.
 
 ## Create a New Project
 
@@ -100,46 +94,23 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Project Structure
 
-StackKit creates a complete project structure tailored to your framework:
-
-### Next.js Project Structure
-
+**Next.js:**
 ```
 my-app/
-├── app/                    # Next.js App Router
-│   ├── (auth)/            # Authentication routes (if selected)
-│   ├── api/               # API routes
-│   ├── layout.tsx         # Root layout
-│   └── page.tsx           # Home page
-├── lib/                   # Utility functions
-│   ├── auth.ts            # Auth configuration (if selected)
-│   └── db.ts              # Database client (if selected)
-├── prisma/                # Prisma schema (if selected)
-│   └── schema.prisma
-├── .env.local             # Environment variables
-├── .gitignore
-├── next.config.ts
-├── package.json
-├── tsconfig.json
-└── tailwind.config.ts
+├── app/          # Next.js App Router
+├── lib/          # Auth & database clients
+├── prisma/       # Database schema
+└── .env.local    # Environment variables
 ```
 
-### Express Project Structure
-
+**Express:**
 ```
 my-app/
 ├── src/
-│   ├── routes/            # Express routes
-│   ├── middlewares/       # Custom middleware
-│   ├── config/            # Configuration files
-│   │   ├── auth.ts        # Auth setup (if selected)
-│   │   └── db.ts          # Database setup (if selected)
-│   ├── app.ts             # Express app setup
-│   └── server.ts          # Server entry point
-├── .env
-├── .gitignore
-├── package.json
-└── tsconfig.json
+│   ├── routes/      # API routes
+│   ├── config/      # Auth & database setup
+│   └── server.ts
+└── .env
 ```
 
 ## Add Modules to Existing Projects
@@ -184,10 +155,6 @@ Already have a project? Use `stackkit-cli` to add features:
     ```
   </Tab>
 </Tabs>
-
-<Callout type="warn" title="Compatibility Check">
-  The CLI will automatically detect your framework and offer compatible modules.
-</Callout>
 
 ## Environment Configuration
 

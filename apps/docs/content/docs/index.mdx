@@ -33,113 +33,68 @@ Create production-ready full-stack applications with your preferred stack in sec
   </Tab>
 </Tabs>
 
-Your app will be ready with authentication, database, and all configurations in under 60 seconds.
-
-## Why StackKit?
-
-Building a new project shouldn't take hours of setup. StackKit provides:
-
-- **Zero Configuration** - Everything works out of the box
-- **Type Safety** - Full TypeScript support across the stack
-- **Best Practices** - Industry-standard patterns and folder structure
-- **Modern Stack** - Latest versions of Next.js, Prisma, Better Auth, and more
-- **Modular** - Add or remove features anytime without breaking code
-- **Production Ready** - Deploy-ready configurations included
-
-<Callout type="info">
-  **Perfect for:** Hackathons, MVPs, SaaS products, side projects, and production applications
-</Callout>
-
 ## Features
 
-### Quick Start
+- **Interactive CLI** - Choose framework, database, and auth in one command
+- **Type-Safe** - Full TypeScript support with strict mode
+- **Modular** - Add or remove features anytime using `stackkit-cli`
+- **Production Ready** - Environment configs, error handling, and best practices included
+- **Zero Config** - Everything works out of the box
 
-Get a working app in under 60 seconds with our interactive CLI:
+## Quick Example
 
 ```bash
-✔ Project name: my-app
-✔ Framework: Next.js
-✔ Database: Prisma (PostgreSQL)
-✔ Authentication: Better Auth
-✔ Install dependencies: Yes
+npx create-stackkit-app my-app
+# ✔ Framework: Next.js
+# ✔ Database: Prisma (PostgreSQL)  
+# ✔ Authentication: Better Auth
+# ✔ Install dependencies: Yes
 
-✨ Project created successfully!
+cd my-app && npm run dev
 ```
 
-No configuration files to edit. No dependencies to install manually. Just answer a few questions and start coding.
+Get a full-stack app with:
+- Authentication routes and middleware
+- Database schema and migrations
+- API endpoints configured
+- Environment variables templated
 
-### Flexible & Modular
+## Add Modules Anytime
 
-Start simple and add features as you need them:
+Start simple, add features later:
 
 <Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
   <Tab value="pnpm">
     ```bash
-    # Add authentication later
     pnpm dlx stackkit-cli add auth
-
-    # Add database when ready
     pnpm dlx stackkit-cli add database
     ```
   </Tab>
   <Tab value="npm">
     ```bash
-    # Add authentication later
     npx stackkit-cli add auth
-
-    # Add database when ready
     npx stackkit-cli add database
     ```
   </Tab>
   <Tab value="yarn">
     ```bash
-    # Add authentication later
     yarn dlx stackkit-cli add auth
-
-    # Add database when ready
     yarn dlx stackkit-cli add database
     ```
   </Tab>
   <Tab value="bun">
     ```bash
-    # Add authentication later
     bunx stackkit-cli add auth
-
-    # Add database when ready
     bunx stackkit-cli add database
     ```
   </Tab>
 </Tabs>
 
-The CLI detects your framework and only shows compatible modules.
-
-### What You Get
-
-Every generated project includes:
-
-- **Authentication** - Sign in, sign up, sessions, and protected routes pre-configured
-- **Database** - Schema, migrations, and ORM client ready to use
-- **API Routes** - RESTful endpoints with proper error handling
-- **Type Safety** - End-to-end TypeScript with strict mode
-- **Environment Variables** - `.env` templates with all required keys
-- **Developer Experience** - Hot reload, ESLint, Prettier, and Git initialized
-
-<Callout type="info">
-  All code is yours to modify. No hidden abstractions or black boxes.
-</Callout>
-
 ## Supported Technologies
 
-Choose the tools you know and love:
-
 | Category | Options |
-|----------|---------|
-| **Frameworks** | [Next.js 16](/docs/getting-started/installation#next-js) (App Router), [Express](/docs/getting-started/installation#express), [React + Vite](/docs/getting-started/installation#react-vite) |
-| **Databases** | [Prisma](/docs/modules/database#prisma) (PostgreSQL/MongoDB), [Mongoose](/docs/modules/database#mongoose) (MongoDB) |
-| **Authentication** | [Better Auth](/docs/modules/auth#better-auth), [Clerk](/docs/modules/auth#clerk) |
+|----------|---------|  
+| **Frameworks** | Next.js 16 (App Router), Express, React + Vite |
+| **Databases** | Prisma (PostgreSQL/MongoDB), Mongoose (MongoDB) |
+| **Authentication** | Better Auth, Clerk |
 | **Package Managers** | pnpm, npm, yarn, bun |
-
-<Callout type="warn">
-  All frameworks support TypeScript out of the box. React (Vite) is frontend-only, so database modules aren't available.
-</Callout>
-

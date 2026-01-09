@@ -120,15 +120,6 @@ npx stackkit-cli --help
 npx stackkit-cli add --help
 ```
 
-## How It Works
-
-1. **Framework Detection** - Analyzes `package.json` to detect Next.js, Express, or React (Vite)
-2. **Compatibility Check** - Shows only compatible modules for your framework
-3. **Interactive Selection** - Choose from available options
-4. **File Generation** - Creates configuration files and code
-5. **Dependency Installation** - Adds packages to `package.json` and installs
-6. **Environment Setup** - Updates `.env` with required variables
-
 ## Examples
 
 ### Add Authentication to Next.js
@@ -157,56 +148,6 @@ npx stackkit-cli add database
 - `src/config/db.ts` - Prisma client
 - `.env` - DATABASE_URL variable
 
-
-
-## Module Compatibility
-
-### Authentication Modules
-
-| Module | Next.js | Express | React (Vite) |
-|--------|---------|---------|--------------|
-| Better Auth | ✅ | ✅ | ✅ |
-| Clerk | ✅ | ✅ | ✅ |
-
-### Database Modules
-
-| Module | Next.js | Express | React (Vite) |
-|--------|---------|---------|--------------|
-| Prisma (PostgreSQL) | ✅ | ✅ | ❌ |
-| Prisma (MongoDB) | ✅ | ✅ | ❌ |
-| Mongoose (MongoDB) | ✅ | ✅ | ❌ |
-
-<Callout type="info">
-  React (Vite) is frontend-only, so database modules aren't compatible. Use Next.js or Express for full-stack applications with database access.
-</Callout>
-
-## Generated Files
-
-### Authentication (Better Auth)
-
-```
-lib/auth.ts                  # Auth configuration
-app/api/auth/[...all]/route.ts  # API endpoint (Next.js)
-src/routes/auth.ts           # Auth routes (Express)
-```
-
-### Database (Prisma)
-
-```
-prisma/schema.prisma         # Database schema
-prisma/migrations/           # Migration history
-lib/db.ts                    # Prisma client (Next.js)
-src/config/db.ts             # Prisma client (Express)
-```
-
-### Authentication (Clerk)
-
-```
-app/layout.tsx               # Updated with ClerkProvider (Next.js)
-main.tsx                     # Updated with ClerkProvider (React)
-```
-
-## Post-Installation Setup
 
 ### Database (Prisma)
 
@@ -246,50 +187,7 @@ NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_..."
 CLERK_SECRET_KEY="sk_test_..."
 ```
 
-## Common Issues
-
-**Framework not detected**
-```
-Error: Unable to detect framework
-```
-Ensure `package.json` exists and contains framework dependencies (next, express, or vite+react).
-
-**Module not compatible**
-```
-Error: This module is not compatible with your framework
-```
-Use `npx stackkit-cli list` to see available modules for your framework. React (Vite) doesn't support database modules.
-
-**File already exists**
-```
-Error: File 'lib/auth.ts' already exists
-```
-The CLI won't overwrite files. Either remove the file or manually merge changes.
-
-**Permission denied**
-```
-Error: EACCES: permission denied
-```
-Never use `sudo` with npm/npx. Check your project directory permissions.
-
-## Best Practices
-
-1. **Commit before adding modules** to track changes:
-```bash
-git add .
-git commit -m "Before adding auth module"
-```
-
-2. **Test after installation**:
-```bash
-npm run dev
-```
-
-3. **Never commit `.env` files** - Keep secrets secure
-
-4. **Read module documentation** - Check [Authentication](/docs/modules/auth) and [Database](/docs/modules/database) guides
-
 ## Next Steps
 
-- [Authentication Setup](/docs/modules/auth) - Configure auth providers
-- [Database Configuration](/docs/modules/database) - Set up your database
+- [Authentication Configuration](/docs/modules/auth)
+- [Database Setup](/docs/modules/database)

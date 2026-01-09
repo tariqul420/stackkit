@@ -8,43 +8,7 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 # Database
 
-StackKit supports multiple database adapters for PostgreSQL and MongoDB.
-
-## Available Adapters
-
-StackKit currently supports two database adapters:
-
-### Prisma
-
-Type-safe database client with excellent TypeScript support and migrations.
-
-**Best for:**
-- Type safety and auto-completion
-- Database migrations
-- Multiple databases (PostgreSQL, MongoDB)
-- Production applications with strict type requirements
-
-**Supported in:**
-- Next.js (App Router)
-- Express
-
-[Learn more →](#prisma)
-
-### Mongoose
-
-Popular MongoDB ODM with schema validation and middleware support.
-
-**Best for:**
-- MongoDB-specific features
-- Schema validation and hooks
-- Flexible document structure
-- Rapid prototyping
-
-**Supported in:**
-- Next.js (App Router)
-- Express
-
-[Learn more →](#mongoose)
+StackKit supports Prisma (type-safe ORM for PostgreSQL/MongoDB) and Mongoose (MongoDB ODM).
 
 ## Prisma
 
@@ -548,33 +512,7 @@ export async function POST(request: Request) {
 | **MongoDB**        | Yes       | Yes      |
 | **Studio/GUI**     | Yes (Prisma Studio) | No |
 
-## Database Hosting
-
-### PostgreSQL
-
-**Local Development:**
-```bash
-docker run --name postgres -e POSTGRES_PASSWORD=password -p 5432:5432 -d postgres
-```
-
-**Production Options:**
-- [Neon](https://neon.tech) - Serverless PostgreSQL
-- [Supabase](https://supabase.com) - PostgreSQL with additional features
-- [Railway](https://railway.app) - Easy deployment
-- [Vercel Postgres](https://vercel.com/storage/postgres) - Integrated with Vercel
-
-### MongoDB
-
-**Local Development:**
-```bash
-docker run --name mongodb -p 27017:27017 -d mongo
-```
-
-**Production Options:**
-- [MongoDB Atlas](https://www.mongodb.com/atlas) - Official managed MongoDB
-- [Railway](https://railway.app) - Simple deployment
-
 ## Next Steps
 
-- [Authentication Setup](/docs/modules/auth) - Add authentication to your app
-- [CLI Reference](/docs/cli/stackkit-cli) - Add modules to existing projects
+- [Authentication Configuration](/docs/modules/auth)
+- [Add Modules to Existing Projects](/docs/cli/stackkit-cli)
