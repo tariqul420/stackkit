@@ -1,6 +1,6 @@
 # stackkit-cli
 
-Add modules to existing projects.
+Add authentication and database modules to existing projects.
 
 ## Usage
 
@@ -15,18 +15,23 @@ npx stackkit-cli add database
 npx stackkit-cli list
 ```
 
-## Available Commands
+## Features
 
-### `add <module>`
-Add authentication or database module to your project. Interactive wizard guides you through options.
+- **Auto-detects** your framework (Next.js, Express, React)
+- **Shows compatible modules** for your project
+- **Installs dependencies** automatically
+- **Configures everything** - files, env vars, and setup
 
-### `list`
-List all available modules.
+## Available Modules
+
+### Authentication
+- Better Auth (Next.js, Express, React)
+- Clerk (Next.js, Express, React)
+
+### Database
+- Prisma with PostgreSQL or MongoDB (Next.js, Express)
+- Mongoose with MongoDB (Next.js, Express)
 
 ## Documentation
 
-See [main repository](https://github.com/tariqul420/stackkit) for full documentation.
-
-## License
-
-MIT
+Full documentation: [stackkit.dev](https://stackkit.dev) | [GitHub](https://github.com/tariqul420/stackkit)

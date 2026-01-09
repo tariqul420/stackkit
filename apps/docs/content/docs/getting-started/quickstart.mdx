@@ -1,0 +1,81 @@
+---
+title: Quick Start
+description: Get started with StackKit in under 60 seconds
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Quick Start
+
+Create your first StackKit project in under a minute.
+
+## Create a New Project
+
+<Tabs items={['pnpm', 'npm', 'yarn']}>
+  <Tab value="pnpm">```bash pnpm create stackkit-app my-app ```</Tab>
+  <Tab value="npm">```bash npx create-stackkit-app my-app ```</Tab>
+  <Tab value="yarn">```bash yarn create stackkit-app my-app ```</Tab>
+</Tabs>
+
+## Choose Your Stack
+
+The CLI will guide you through an interactive setup:
+
+```bash
+✔ What framework would you like? › Next.js
+✔ Choose database › Prisma (PostgreSQL)
+✔ Add authentication? › Better Auth
+✔ Install dependencies? › Yes
+
+✓ Project created successfully!
+```
+
+## Start Building
+
+```bash
+cd my-app
+pnpm dev
+```
+
+Your app is running at [http://localhost:3000](http://localhost:3000)
+
+## What's Included?
+
+Your project comes with:
+
+- ✅ **Framework** configured and ready
+- ✅ **Database** client set up (if selected)
+- ✅ **Authentication** configured (if selected)
+- ✅ **TypeScript** strict mode enabled
+- ✅ **ESLint** and **Prettier** configured
+- ✅ **Environment variables** template
+
+## Next Steps
+
+<div className="grid gap-4 mt-6 md:grid-cols-2">
+  <a href="/docs/modules/auth" className="block p-4 border rounded-lg hover:border-primary">
+    <div className="font-semibold mb-1">Configure Authentication</div>
+    <div className="text-sm text-muted-foreground">
+      Set up OAuth providers and customize auth flows
+    </div>
+  </a>
+
+  <a href="/docs/modules/database" className="block p-4 border rounded-lg hover:border-primary">
+    <div className="font-semibold mb-1">Set Up Database</div>
+    <div className="text-sm text-muted-foreground">Connect to your database and run migrations</div>
+  </a>
+
+  <a href="/docs/cli/stackkit-cli" className="block p-4 border rounded-lg hover:border-primary">
+    <div className="font-semibold mb-1">Add More Modules</div>
+    <div className="text-sm text-muted-foreground">Add auth or database to existing projects</div>
+  </a>
+
+  <a
+    href="https://github.com/tariqul420/stackkit/tree/main/examples"
+    className="block p-4 border rounded-lg hover:border-primary"
+  >
+    <div className="font-semibold mb-1">Browse Examples</div>
+    <div className="text-sm text-muted-foreground">Check out example projects and templates</div>
+  </a>
+</div>

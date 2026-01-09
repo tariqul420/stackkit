@@ -1,81 +1,96 @@
 ---
 title: Introduction
-description: Welcome to StackKit - Production-ready project generator with modular composition
+description: Production-ready project generator with modular composition
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-# Welcome to StackKit
+# StackKit
 
-**StackKit** is a production-ready project generator that helps you create modern web applications with a modular architecture. Choose your framework, add authentication, connect a database, and start building — all through an intuitive CLI.
+Create production-ready applications with your preferred stack in seconds.
 
 <Callout title="Quick Start">
-  Get started in seconds:
-  
   ```bash
   npx create-stackkit-app my-app
   ```
 </Callout>
 
-## Why StackKit?
+## What is StackKit?
 
-Building modern web applications requires assembling multiple technologies: frameworks, databases, authentication, and more. StackKit eliminates the complexity by providing:
+StackKit is a CLI tool that generates fully-configured projects with:
 
-- **🧙 Interactive Setup** - Answer a few questions and get a fully configured project
-- **🔧 Modular Design** - Add features anytime without breaking your existing code
-- **📦 Best Practices** - TypeScript, linting, and production-ready configurations included
-- **⚡ Fast Development** - Auto-install dependencies and generate boilerplate code
-- **✅ Battle-Tested** - Built with industry-standard tools and patterns
+- **Framework** - Next.js, Express, or React + Vite
+- **Database** - Prisma or Mongoose with PostgreSQL/MongoDB
+- **Authentication** - Better Auth or Clerk pre-configured
+- **TypeScript** - Strict mode with best practices
+- **Development tools** - ESLint, Prettier, and more
 
-## Supported Stacks
+Stop wasting time on boilerplate. Start building features.
 
-### Frameworks
+## Features
 
-- **Next.js 16** (App Router) - Full-stack React framework
-- **Express** - Minimal and flexible Node.js web framework
-- **React + Vite** - Fast modern React development
+### Interactive Setup
 
-### Authentication
-
-- **Better Auth** - Modern authentication for TypeScript
-- **Clerk** - Complete user management with pre-built components
-
-### Databases
-
-- **Prisma** (PostgreSQL/MongoDB) - Type-safe database access with migrations
-- **Mongoose** (MongoDB) - Elegant MongoDB object modeling
-
-## Two CLI Tools
-
-StackKit provides two complementary tools:
-
-### create-stackkit-app
-
-Create new projects with your chosen stack:
+Answer a few questions and get a fully configured project:
 
 ```bash
-npx create-stackkit-app my-app
+✔ What framework would you like? › Next.js
+✔ Choose database › Prisma (PostgreSQL)
+✔ Add authentication? › Better Auth
 ```
 
-Select your framework, database, and auth during setup.
+### Modular Design
 
-### stackkit-cli
-
-Add modules to existing projects:
+Add features anytime without breaking existing code:
 
 ```bash
 npx stackkit-cli add auth
 npx stackkit-cli add database
 ```
 
-Perfect for incrementally adopting StackKit features.
+### Production Ready
+
+Every project includes:
+- TypeScript strict mode
+- ESLint and Prettier configured
+- Database client set up
+- Authentication flows ready
+- Environment variables templated
+
+## Supported Technologies
+
+| Category | Options |
+|----------|---------|
+| **Frameworks** | Next.js 16, Express, React + Vite |
+| **Databases** | Prisma (PostgreSQL/MongoDB), Mongoose (MongoDB) |
+| **Authentication** | Better Auth, Clerk |
+
+## Get Started
+
+<div className="grid gap-4 mt-8 md:grid-cols-2">
+  <a href="/docs/getting-started/quickstart" className="block p-6 border rounded-lg hover:border-primary transition-colors">
+    <div className="text-lg font-semibold mb-2">→ Quick Start</div>
+    <div className="text-sm text-muted-foreground">Create your first project in 60 seconds</div>
+  </a>
+  
+  <a href="/docs/getting-started/installation" className="block p-6 border rounded-lg hover:border-primary transition-colors">
+    <div className="text-lg font-semibold mb-2">→ Installation Guide</div>
+    <div className="text-sm text-muted-foreground">Detailed setup instructions and options</div>
+  </a>
+  
+  <a href="/docs/modules/auth" className="block p-6 border rounded-lg hover:border-primary transition-colors">
+    <div className="text-lg font-semibold mb-2">→ Authentication</div>
+    <div className="text-sm text-muted-foreground">Set up Better Auth or Clerk</div>
+  </a>
+  
+  <a href="/docs/modules/database" className="block p-6 border rounded-lg hover:border-primary transition-colors">
+    <div className="text-lg font-semibold mb-2">→ Database</div>
+    <div className="text-sm text-muted-foreground">Configure Prisma or Mongoose</div>
+  </a>
+</div>
 
 ## Community
 
-- **GitHub**: [tariqul420/stackkit](https://github.com/tariqul420/stackkit)
-- **Issues**: Report bugs or request features
-- **Discussions**: Ask questions and share ideas
-
----
-
-Ready to start building? Continue to [Installation](/docs/getting-started/installation).
+- [GitHub Repository](https://github.com/tariqul420/stackkit)
+- [Report Issues](https://github.com/tariqul420/stackkit/issues)
+- [Discussions](https://github.com/tariqul420/stackkit/discussions)
