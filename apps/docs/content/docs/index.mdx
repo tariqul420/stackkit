@@ -4,64 +4,200 @@ description: Production-ready project generator with modular composition
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 
 # StackKit
 
-Create production-ready applications with your preferred stack in seconds.
+Create production-ready full-stack applications with your preferred stack in seconds. No more hours spent on project setup, configuration, and boilerplate code.
 
-<Callout title="Quick Start">
-  ```bash
-  npx create-stackkit-app my-app
-  ```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm create stackkit-app my-app
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npx create-stackkit-app my-app
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn create stackkit-app my-app
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bun create stackkit-app my-app
+    ```
+  </Tab>
+</Tabs>
+
+Your app will be ready with authentication, database, and all configurations in under 60 seconds.
+
+## Why StackKit?
+
+Building a new project shouldn't take hours of setup. StackKit provides:
+
+- **Zero Configuration** - Everything works out of the box
+- **Type Safety** - Full TypeScript support across the stack
+- **Best Practices** - Industry-standard patterns and folder structure
+- **Modern Stack** - Latest versions of Next.js, Prisma, Better Auth, and more
+- **Modular** - Add or remove features anytime without breaking code
+- **Production Ready** - Deploy-ready configurations included
+
+<Callout type="info">
+  **Perfect for:** Hackathons, MVPs, SaaS products, side projects, and production applications
 </Callout>
-
-## What is StackKit?
-
-StackKit is a CLI tool that generates fully-configured projects with:
-
-- **Framework** - Next.js, Express, or React + Vite
-- **Database** - Prisma or Mongoose with PostgreSQL/MongoDB
-- **Authentication** - Better Auth or Clerk pre-configured
-- **TypeScript** - Strict mode with best practices
-- **Development tools** - ESLint, Prettier, and more
-
-Stop wasting time on boilerplate. Start building features.
 
 ## Features
 
-### Interactive Setup
+### 🚀 Quick Start
 
-Answer a few questions and get a fully configured project:
-
-```bash
-✔ What framework would you like? › Next.js
-✔ Choose database › Prisma (PostgreSQL)
-✔ Add authentication? › Better Auth
-```
-
-### Modular Design
-
-Add features anytime without breaking existing code:
+Get a working app in under 60 seconds with our interactive CLI:
 
 ```bash
-npx stackkit-cli add auth
-npx stackkit-cli add database
+✔ Project name: my-app
+✔ Framework: Next.js
+✔ Database: Prisma (PostgreSQL)
+✔ Authentication: Better Auth
+✔ Install dependencies: Yes
+
+✨ Project created successfully!
 ```
 
-### Production Ready
+No configuration files to edit. No dependencies to install manually. Just answer a few questions and start coding.
 
-Every project includes:
-- TypeScript strict mode
-- ESLint and Prettier configured
-- Database client set up
-- Authentication flows ready
-- Environment variables templated
+### 🎯 Flexible & Modular
+
+Start simple and add features as you need them:
+
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    # Add authentication later
+    pnpm dlx stackkit-cli add auth
+
+    # Add database when ready
+    pnpm dlx stackkit-cli add database
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    # Add authentication later
+    npx stackkit-cli add auth
+
+    # Add database when ready
+    npx stackkit-cli add database
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    # Add authentication later
+    yarn dlx stackkit-cli add auth
+
+    # Add database when ready
+    yarn dlx stackkit-cli add database
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    # Add authentication later
+    bunx stackkit-cli add auth
+
+    # Add database when ready
+    bunx stackkit-cli add database
+    ```
+  </Tab>
+</Tabs>
+
+The CLI detects your framework and only shows compatible modules.
+
+### ✨ What You Get
+
+Every generated project includes:
+
+- **Authentication** - Sign in, sign up, sessions, and protected routes pre-configured
+- **Database** - Schema, migrations, and ORM client ready to use
+- **API Routes** - RESTful endpoints with proper error handling
+- **Type Safety** - End-to-end TypeScript with strict mode
+- **Environment Variables** - `.env` templates with all required keys
+- **Developer Experience** - Hot reload, ESLint, Prettier, and Git initialized
+
+<Callout type="info">
+  All code is yours to modify. No hidden abstractions or black boxes.
+</Callout>
 
 ## Supported Technologies
 
+Choose the tools you know and love:
+
 | Category | Options |
 |----------|---------|
-| **Frameworks** | Next.js 16, Express, React + Vite |
-| **Databases** | Prisma (PostgreSQL/MongoDB), Mongoose (MongoDB) |
-| **Authentication** | Better Auth, Clerk |
+| **Frameworks** | [Next.js 16](/docs/getting-started/installation#next-js) (App Router), [Express](/docs/getting-started/installation#express), [React + Vite](/docs/getting-started/installation#react-vite) |
+| **Databases** | [Prisma](/docs/modules/database#prisma) (PostgreSQL/MongoDB), [Mongoose](/docs/modules/database#mongoose) (MongoDB) |
+| **Authentication** | [Better Auth](/docs/modules/auth#better-auth), [Clerk](/docs/modules/auth#clerk) |
+| **Package Managers** | pnpm, npm, yarn, bun |
+
+<Callout type="warn">
+  All frameworks support TypeScript out of the box. React (Vite) is frontend-only, so database modules aren't available.
+</Callout>
+
+## Quick Links
+
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+  <div>
+    ### Get Started
+    - [Quick Start Guide](/docs/getting-started/quickstart) - 60-second setup
+    - [Installation](/docs/getting-started/installation) - Detailed instructions
+    - [Environment Variables](/docs/guides/environment-variables) - Configuration guide
+  </div>
+  
+  <div>
+    ### Learn More
+    - [Authentication Modules](/docs/modules/auth) - Better Auth & Clerk
+    - [Database Modules](/docs/modules/database) - Prisma & Mongoose
+    - [Project Structure](/docs/guides/project-structure) - Folder organization
+  </div>
+</div>
+
+## Example: Next.js + Prisma + Better Auth
+
+Here's what you get with a full-stack Next.js setup:
+
+```typescript title="lib/auth.ts"
+// Authentication client pre-configured
+import { betterAuth } from "better-auth";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+
+export const auth = betterAuth({
+  database: prismaAdapter(prisma, {
+    provider: "postgresql"
+  }),
+  emailAndPassword: { enabled: true }
+});
+```
+
+```typescript title="app/api/auth/[...all]/route.ts"
+// API routes ready to use
+export { GET, POST } from "@/lib/auth";
+```
+
+```prisma title="prisma/schema.prisma"
+// Database schema with auth tables
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  sessions  Session[]
+}
+```
+
+**Start building immediately** - No boilerplate setup required.
+
+## Need Help?
+
+- **[GitHub Repository](https://github.com/tariqul420/stackkit)** - Star us and report issues
+- **[Quick Start](/docs/getting-started/quickstart)** - Get started in 60 seconds
+- **[CLI Reference](/docs/cli/create-stackkit)** - Full command documentation
 

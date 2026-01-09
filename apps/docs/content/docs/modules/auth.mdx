@@ -173,9 +173,28 @@ model Session {
 
 Run migrations:
 
-```bash
-npx prisma migrate dev --name add-auth
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm dlx prisma migrate dev --name add-auth
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npx prisma migrate dev --name add-auth
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn dlx prisma migrate dev --name add-auth
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bunx prisma migrate dev --name add-auth
+    ```
+  </Tab>
+</Tabs>
 
 **3. Configure Auth Options**
 

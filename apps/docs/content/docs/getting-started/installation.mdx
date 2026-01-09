@@ -11,22 +11,6 @@ import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 Get started with StackKit in minutes. This guide will walk you through creating your first project.
 
-## Prerequisites
-
-Before you begin, ensure you have the following installed:
-
-- **Node.js** 20.0.0 or higher
-- **pnpm** 8.0.0 or higher (or npm/yarn)
-
-<Callout type="info">
-  Check your versions:
-  
-  ```bash
-  node --version
-  pnpm --version
-  ```
-</Callout>
-
 ## Create a New Project
 
 The fastest way to get started is with `create-stackkit-app`:
@@ -35,7 +19,7 @@ The fastest way to get started is with `create-stackkit-app`:
 
 ### Run the CLI
 
-<Tabs items={['pnpm', 'npm', 'yarn']}>
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
   <Tab value="pnpm">
     ```bash
     pnpm create stackkit-app my-app
@@ -49,6 +33,11 @@ The fastest way to get started is with `create-stackkit-app`:
   <Tab value="yarn">
     ```bash
     yarn create stackkit-app my-app
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bun create stackkit-app my-app
     ```
   </Tab>
 </Tabs>
@@ -87,7 +76,7 @@ cd my-app
 
 ### Start Development Server
 
-<Tabs items={['pnpm', 'npm', 'yarn']}>
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
   <Tab value="pnpm">
     ```bash
     pnpm dev
@@ -101,6 +90,11 @@ cd my-app
   <Tab value="yarn">
     ```bash
     yarn dev
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bun dev
     ```
   </Tab>
 </Tabs>
@@ -157,13 +151,44 @@ my-app/
 
 Already have a project? Use `stackkit-cli` to add features:
 
-```bash
-# Add authentication
-npx stackkit-cli add auth
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    # Add authentication
+    pnpm dlx stackkit-cli add auth
 
-# Add database
-npx stackkit-cli add database
-```
+    # Add database
+    pnpm dlx stackkit-cli add database
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    # Add authentication
+    npx stackkit-cli add auth
+
+    # Add database
+    npx stackkit-cli add database
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    # Add authentication
+    yarn dlx stackkit-cli add auth
+
+    # Add database
+    yarn dlx stackkit-cli add database
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    # Add authentication
+    bunx stackkit-cli add auth
+
+    # Add database
+    bunx stackkit-cli add database
+    ```
+  </Tab>
+</Tabs>
 
 <Callout type="warn" title="Compatibility Check">
   The CLI will automatically detect your framework and offer compatible modules.

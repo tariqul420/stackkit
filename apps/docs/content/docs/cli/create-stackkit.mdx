@@ -12,7 +12,7 @@ The `create-stackkit-app` CLI tool helps you scaffold new projects with your pre
 
 ## Usage
 
-<Tabs items={['pnpm', 'npm', 'yarn']}>
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
   <Tab value="pnpm">
     ```bash
     pnpm create stackkit-app [project-name] [options]
@@ -28,6 +28,11 @@ The `create-stackkit-app` CLI tool helps you scaffold new projects with your pre
     yarn create stackkit-app [project-name] [options]
     ```
   </Tab>
+  <Tab value="bun">
+    ```bash
+    bun create stackkit-app [project-name] [options]
+    ```
+  </Tab>
 </Tabs>
 
 ## Arguments
@@ -36,9 +41,28 @@ The `create-stackkit-app` CLI tool helps you scaffold new projects with your pre
 
 The name of your new project. This will create a directory with this name.
 
-```bash
-npx create-stackkit-app my-awesome-app
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm create stackkit-app my-awesome-app
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npx create-stackkit-app my-awesome-app
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn create stackkit-app my-awesome-app
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bun create stackkit-app my-awesome-app
+    ```
+  </Tab>
+</Tabs>
 
 If omitted, you'll be prompted to enter a name interactively.
 
@@ -48,9 +72,28 @@ If omitted, you'll be prompted to enter a name interactively.
 
 Specify the framework to use.
 
-```bash
-npx create-stackkit-app my-app --framework nextjs
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm create stackkit-app my-app --framework nextjs
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npx create-stackkit-app my-app --framework nextjs
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn create stackkit-app my-app --framework nextjs
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bun create stackkit-app my-app --framework nextjs
+    ```
+  </Tab>
+</Tabs>
 
 **Choices:**
 - `nextjs` - Next.js 16 with App Router
@@ -61,9 +104,28 @@ npx create-stackkit-app my-app --framework nextjs
 
 Specify the database adapter to use.
 
-```bash
-npx create-stackkit-app my-app --database prisma-postgresql
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm create stackkit-app my-app --database prisma-postgresql
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npx create-stackkit-app my-app --database prisma-postgresql
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn create stackkit-app my-app --database prisma-postgresql
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bun create stackkit-app my-app --database prisma-postgresql
+    ```
+  </Tab>
+</Tabs>
 
 **Choices:**
 - `prisma-postgresql` - Prisma with PostgreSQL
@@ -75,9 +137,28 @@ npx create-stackkit-app my-app --database prisma-postgresql
 
 Specify the authentication provider.
 
-```bash
-npx create-stackkit-app my-app --auth better-auth
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm create stackkit-app my-app --auth better-auth
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npx create-stackkit-app my-app --auth better-auth
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn create stackkit-app my-app --auth better-auth
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bun create stackkit-app my-app --auth better-auth
+    ```
+  </Tab>
+</Tabs>
 
 **Choices:**
 - `better-auth` - Better Auth (modern TypeScript authentication)
@@ -88,9 +169,28 @@ npx create-stackkit-app my-app --auth better-auth
 
 Auto-install dependencies after project creation.
 
-```bash
-npx create-stackkit-app my-app --install
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm create stackkit-app my-app --install
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npx create-stackkit-app my-app --install
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn create stackkit-app my-app --install
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bun create stackkit-app my-app --install
+    ```
+  </Tab>
+</Tabs>
 
 Default: `true` (will prompt if not specified)
 
@@ -98,9 +198,28 @@ Default: `true` (will prompt if not specified)
 
 Initialize a git repository.
 
-```bash
-npx create-stackkit-app my-app --git
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm create stackkit-app my-app --git
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npx create-stackkit-app my-app --git
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn create stackkit-app my-app --git
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bun create stackkit-app my-app --git
+    ```
+  </Tab>
+</Tabs>
 
 Default: `true`
 
@@ -108,17 +227,55 @@ Default: `true`
 
 Skip dependency installation.
 
-```bash
-npx create-stackkit-app my-app --skip-install
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm create stackkit-app my-app --skip-install
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npx create-stackkit-app my-app --skip-install
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn create stackkit-app my-app --skip-install
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bun create stackkit-app my-app --skip-install
+    ```
+  </Tab>
+</Tabs>
 
 ### `--help, -h`
 
 Display help information.
 
-```bash
-npx create-stackkit-app --help
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm create stackkit-app --help
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npx create-stackkit-app --help
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn create stackkit-app --help
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bun create stackkit-app --help
+    ```
+  </Tab>
+</Tabs>
 
 ## Examples
 
@@ -126,45 +283,170 @@ npx create-stackkit-app --help
 
 Run without arguments for the full interactive experience:
 
-```bash
-npx create-stackkit-app
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm create stackkit-app
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npx create-stackkit-app
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn create stackkit-app
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bun create stackkit-app
+    ```
+  </Tab>
+</Tabs>
 
 The CLI will guide you through all options with a friendly wizard.
 
 ### Next.js with Prisma and Better Auth
 
-```bash
-npx create-stackkit-app my-next-app \
-  --framework nextjs \
-  --database prisma-postgresql \
-  --auth better-auth \
-  --install
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm create stackkit-app my-next-app \
+      --framework nextjs \
+      --database prisma-postgresql \
+      --auth better-auth \
+      --install
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npx create-stackkit-app my-next-app \
+      --framework nextjs \
+      --database prisma-postgresql \
+      --auth better-auth \
+      --install
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn create stackkit-app my-next-app \
+      --framework nextjs \
+      --database prisma-postgresql \
+      --auth better-auth \
+      --install
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bun create stackkit-app my-next-app \
+      --framework nextjs \
+      --database prisma-postgresql \
+      --auth better-auth \
+      --install
+    ```
+  </Tab>
+</Tabs>
 
 ### Express API with Mongoose
 
-```bash
-npx create-stackkit-app my-api \
-  --framework express \
-  --database mongoose-mongodb \
-  --auth skip
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm create stackkit-app my-api \
+      --framework express \
+      --database mongoose-mongodb \
+      --auth skip
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npx create-stackkit-app my-api \
+      --framework express \
+      --database mongoose-mongodb \
+      --auth skip
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn create stackkit-app my-api \
+      --framework express \
+      --database mongoose-mongodb \
+      --auth skip
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bun create stackkit-app my-api \
+      --framework express \
+      --database mongoose-mongodb \
+      --auth skip
+    ```
+  </Tab>
+</Tabs>
 
 ### React SPA (No backend)
 
-```bash
-npx create-stackkit-app my-react-app \
-  --framework react-vite \
-  --database skip \
-  --auth skip
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm create stackkit-app my-react-app \
+      --framework react-vite \
+      --database skip \
+      --auth skip
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npx create-stackkit-app my-react-app \
+      --framework react-vite \
+      --database skip \
+      --auth skip
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn create stackkit-app my-react-app \
+      --framework react-vite \
+      --database skip \
+      --auth skip
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bun create stackkit-app my-react-app \
+      --framework react-vite \
+      --database skip \
+      --auth skip
+    ```
+  </Tab>
+</Tabs>
 
 ### Quick Start (All Defaults)
 
-```bash
-npx create-stackkit-app my-app --yes
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm create stackkit-app my-app --yes
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npx create-stackkit-app my-app --yes
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn create stackkit-app my-app --yes
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bun create stackkit-app my-app --yes
+    ```
+  </Tab>
+</Tabs>
 
 Uses sensible defaults: Next.js, Prisma (PostgreSQL), Better Auth
 

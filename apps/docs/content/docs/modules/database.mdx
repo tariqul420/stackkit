@@ -146,22 +146,84 @@ model Post {
 
 <Tabs items={['PostgreSQL', 'MongoDB']}>
   <Tab value="PostgreSQL">
-    ```bash
-    # Create and apply migration
-    npx prisma migrate dev --name init
-    
-    # Generate Prisma Client
-    npx prisma generate
-    ```
+    <Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+      <Tab value="pnpm">
+        ```bash
+        # Create and apply migration
+        pnpm dlx prisma migrate dev --name init
+        
+        # Generate Prisma Client
+        pnpm dlx prisma generate
+        ```
+      </Tab>
+      <Tab value="npm">
+        ```bash
+        # Create and apply migration
+        npx prisma migrate dev --name init
+        
+        # Generate Prisma Client
+        npx prisma generate
+        ```
+      </Tab>
+      <Tab value="yarn">
+        ```bash
+        # Create and apply migration
+        yarn dlx prisma migrate dev --name init
+        
+        # Generate Prisma Client
+        yarn dlx prisma generate
+        ```
+      </Tab>
+      <Tab value="bun">
+        ```bash
+        # Create and apply migration
+        bunx prisma migrate dev --name init
+        
+        # Generate Prisma Client
+        bunx prisma generate
+        ```
+      </Tab>
+    </Tabs>
   </Tab>
   <Tab value="MongoDB">
-    ```bash
-    # MongoDB doesn't use migrations, just push schema
-    npx prisma db push
-    
-    # Generate Prisma Client
-    npx prisma generate
-    ```
+    <Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+      <Tab value="pnpm">
+        ```bash
+        # MongoDB doesn't use migrations, just push schema
+        pnpm dlx prisma db push
+        
+        # Generate Prisma Client
+        pnpm dlx prisma generate
+        ```
+      </Tab>
+      <Tab value="npm">
+        ```bash
+        # MongoDB doesn't use migrations, just push schema
+        npx prisma db push
+        
+        # Generate Prisma Client
+        npx prisma generate
+        ```
+      </Tab>
+      <Tab value="yarn">
+        ```bash
+        # MongoDB doesn't use migrations, just push schema
+        yarn dlx prisma db push
+        
+        # Generate Prisma Client
+        yarn dlx prisma generate
+        ```
+      </Tab>
+      <Tab value="bun">
+        ```bash
+        # MongoDB doesn't use migrations, just push schema
+        bunx prisma db push
+        
+        # Generate Prisma Client
+        bunx prisma generate
+        ```
+      </Tab>
+    </Tabs>
   </Tab>
 </Tabs>
 
@@ -306,9 +368,28 @@ await prisma.user.delete({
 
 View and edit your database data with a visual editor:
 
-```bash
-npx prisma studio
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm dlx prisma studio
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npx prisma studio
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn dlx prisma studio
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bunx prisma studio
+    ```
+  </Tab>
+</Tabs>
 
 Opens at [http://localhost:5555](http://localhost:5555)
 

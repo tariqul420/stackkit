@@ -12,17 +12,55 @@ The `stackkit-cli` tool allows you to add authentication, database, and other mo
 
 ## Installation
 
-You can run it directly with npx (no installation needed):
+You can run it directly (no installation needed):
 
-```bash
-npx stackkit-cli [command]
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm dlx stackkit-cli [command]
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npx stackkit-cli [command]
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn dlx stackkit-cli [command]
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bunx stackkit-cli [command]
+    ```
+  </Tab>
+</Tabs>
 
 Or install globally:
 
-```bash
-npm install -g stackkit-cli
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm add -g stackkit-cli
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npm install -g stackkit-cli
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn global add stackkit-cli
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bun add -g stackkit-cli
+    ```
+  </Tab>
+</Tabs>
 
 ## Commands
 
@@ -30,9 +68,28 @@ npm install -g stackkit-cli
 
 Add a module to your existing project.
 
-```bash
-npx stackkit-cli add <module-type>
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm dlx stackkit-cli add <module-type>
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npx stackkit-cli add <module-type>
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn dlx stackkit-cli add <module-type>
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bunx stackkit-cli add <module-type>
+    ```
+  </Tab>
+</Tabs>
 
 **Module Types:**
 - `auth` - Add authentication
@@ -42,9 +99,28 @@ npx stackkit-cli add <module-type>
 
 Add authentication to your project.
 
-```bash
-npx stackkit-cli add auth
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm dlx stackkit-cli add auth
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npx stackkit-cli add auth
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn dlx stackkit-cli add auth
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bunx stackkit-cli add auth
+    ```
+  </Tab>
+</Tabs>
 
 The CLI will:
 1. Detect your framework (Next.js, Express, or React)
@@ -58,17 +134,55 @@ The CLI will:
 
 **Example:**
 
-```bash
-npx stackkit-cli add auth --provider better-auth
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm dlx stackkit-cli add auth --provider better-auth
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npx stackkit-cli add auth --provider better-auth
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn dlx stackkit-cli add auth --provider better-auth
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bunx stackkit-cli add auth --provider better-auth
+    ```
+  </Tab>
+</Tabs>
 
 ### `add database`
 
 Add database support to your project.
 
-```bash
-npx stackkit-cli add database
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm dlx stackkit-cli add database
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npx stackkit-cli add database
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn dlx stackkit-cli add database
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bunx stackkit-cli add database
+    ```
+  </Tab>
+</Tabs>
 
 The CLI will:
 1. Detect your framework
@@ -82,17 +196,55 @@ The CLI will:
 
 **Example:**
 
-```bash
-npx stackkit-cli add database --adapter prisma-postgresql
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm dlx stackkit-cli add database --adapter prisma-postgresql
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npx stackkit-cli add database --adapter prisma-postgresql
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn dlx stackkit-cli add database --adapter prisma-postgresql
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bunx stackkit-cli add database --adapter prisma-postgresql
+    ```
+  </Tab>
+</Tabs>
 
 ### `list`
 
 List all available modules for your project.
 
-```bash
-npx stackkit-cli list
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm dlx stackkit-cli list
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npx stackkit-cli list
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn dlx stackkit-cli list
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bunx stackkit-cli list
+    ```
+  </Tab>
+</Tabs>
 
 Shows compatible modules based on your current framework.
 
@@ -100,15 +252,53 @@ Shows compatible modules based on your current framework.
 
 Get detailed information about a specific module.
 
-```bash
-npx stackkit-cli info <module-name>
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm dlx stackkit-cli info <module-name>
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npx stackkit-cli info <module-name>
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn dlx stackkit-cli info <module-name>
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bunx stackkit-cli info <module-name>
+    ```
+  </Tab>
+</Tabs>
 
 **Example:**
 
-```bash
-npx stackkit-cli info better-auth-nextjs
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm dlx stackkit-cli info better-auth-nextjs
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npx stackkit-cli info better-auth-nextjs
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn dlx stackkit-cli info better-auth-nextjs
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bunx stackkit-cli info better-auth-nextjs
+    ```
+  </Tab>
+</Tabs>
 
 Displays:
 - Module description
@@ -120,18 +310,59 @@ Displays:
 
 Display the installed version.
 
-```bash
-npx stackkit-cli --version
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm dlx stackkit-cli --version
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npx stackkit-cli --version
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn dlx stackkit-cli --version
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bunx stackkit-cli --version
+    ```
+  </Tab>
+</Tabs>
 
 ### `--help, -h`
 
 Display help information.
 
-```bash
-npx stackkit-cli --help
-npx stackkit-cli add --help
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm dlx stackkit-cli --help
+    pnpm dlx stackkit-cli add --help
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npx stackkit-cli --help
+    npx stackkit-cli add --help
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn dlx stackkit-cli --help
+    yarn dlx stackkit-cli add --help
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bunx stackkit-cli --help
+    bunx stackkit-cli add --help
+    ```
+  </Tab>
+</Tabs>
 
 ## How It Works
 
@@ -161,11 +392,36 @@ The CLI automatically detects:
 
 ### Add Better Auth to Next.js
 
-```bash
-cd my-nextjs-app
-npx stackkit-cli add auth
-# Select: Better Auth
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    cd my-nextjs-app
+    pnpm dlx stackkit-cli add auth
+    # Select: Better Auth
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    cd my-nextjs-app
+    npx stackkit-cli add auth
+    # Select: Better Auth
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    cd my-nextjs-app
+    yarn dlx stackkit-cli add auth
+    # Select: Better Auth
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    cd my-nextjs-app
+    bunx stackkit-cli add auth
+    # Select: Better Auth
+    ```
+  </Tab>
+</Tabs>
 
 This will:
 - Install `better-auth` and required packages
@@ -175,11 +431,36 @@ This will:
 
 ### Add Prisma to Express
 
-```bash
-cd my-express-api
-npx stackkit-cli add database
-# Select: Prisma (PostgreSQL)
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    cd my-express-api
+    pnpm dlx stackkit-cli add database
+    # Select: Prisma (PostgreSQL)
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    cd my-express-api
+    npx stackkit-cli add database
+    # Select: Prisma (PostgreSQL)
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    cd my-express-api
+    yarn dlx stackkit-cli add database
+    # Select: Prisma (PostgreSQL)
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    cd my-express-api
+    bunx stackkit-cli add database
+    # Select: Prisma (PostgreSQL)
+    ```
+  </Tab>
+</Tabs>
 
 This will:
 - Install `prisma` and `@prisma/client`
@@ -190,11 +471,36 @@ This will:
 
 ### Add Clerk to React
 
-```bash
-cd my-react-app
-npx stackkit-cli add auth
-# Select: Clerk
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    cd my-react-app
+    pnpm dlx stackkit-cli add auth
+    # Select: Clerk
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    cd my-react-app
+    npx stackkit-cli add auth
+    # Select: Clerk
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    cd my-react-app
+    yarn dlx stackkit-cli add auth
+    # Select: Clerk
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    cd my-react-app
+    bunx stackkit-cli add auth
+    # Select: Clerk
+    ```
+  </Tab>
+</Tabs>
 
 This will:
 - Install `@clerk/clerk-react`
@@ -271,14 +577,52 @@ After adding Prisma, you need to:
    ```
 
 2. **Run Migrations**
-   ```bash
-   npx prisma migrate dev --name init
-   ```
+   <Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+     <Tab value="pnpm">
+       ```bash
+       pnpm dlx prisma migrate dev --name init
+       ```
+     </Tab>
+     <Tab value="npm">
+       ```bash
+       npx prisma migrate dev --name init
+       ```
+     </Tab>
+     <Tab value="yarn">
+       ```bash
+       yarn dlx prisma migrate dev --name init
+       ```
+     </Tab>
+     <Tab value="bun">
+       ```bash
+       bunx prisma migrate dev --name init
+       ```
+     </Tab>
+   </Tabs>
 
 3. **Generate Client**
-   ```bash
-   npx prisma generate
-   ```
+   <Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+     <Tab value="pnpm">
+       ```bash
+       pnpm dlx prisma generate
+       ```
+     </Tab>
+     <Tab value="npm">
+       ```bash
+       npx prisma generate
+       ```
+     </Tab>
+     <Tab value="yarn">
+       ```bash
+       yarn dlx prisma generate
+       ```
+     </Tab>
+     <Tab value="bun">
+       ```bash
+       bunx prisma generate
+       ```
+     </Tab>
+   </Tabs>
 
 ### Authentication Setup (Better Auth)
 
@@ -343,9 +687,28 @@ After adding Better Auth:
    ```
 
 2. **Test After Installation** - Verify everything works
-   ```bash
-   npm run dev
-   ```
+   <Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+     <Tab value="pnpm">
+       ```bash
+       pnpm dev
+       ```
+     </Tab>
+     <Tab value="npm">
+       ```bash
+       npm run dev
+       ```
+     </Tab>
+     <Tab value="yarn">
+       ```bash
+       yarn dev
+       ```
+     </Tab>
+     <Tab value="bun">
+       ```bash
+       bun dev
+       ```
+     </Tab>
+   </Tabs>
 
 3. **Read Module Docs** - Check specific module documentation for configuration details
 
