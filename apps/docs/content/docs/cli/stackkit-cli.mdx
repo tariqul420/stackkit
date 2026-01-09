@@ -49,7 +49,7 @@ npx stackkit-cli add auth
 The CLI will:
 1. Detect your framework (Next.js, Express, or React)
 2. Show compatible auth providers
-3. Let you choose one (Better Auth, Clerk, Auth.js)
+3. Let you choose one (Better Auth or Clerk)
 4. Install dependencies and configure files
 
 **Options:**
@@ -73,7 +73,7 @@ npx stackkit-cli add database
 The CLI will:
 1. Detect your framework
 2. Show compatible database adapters
-3. Let you choose one (Prisma, Mongoose, Drizzle)
+3. Let you choose one (Prisma or Mongoose)
 4. Install dependencies and set up configuration
 
 **Options:**
@@ -210,7 +210,6 @@ This will:
 |--------|---------|---------|--------------|
 | Better Auth | ✅ | ✅ | ✅ |
 | Clerk | ✅ | ✅ | ✅ |
-| Auth.js (NextAuth) | ✅ | ❌ | ❌ |
 
 ### Database Modules
 
@@ -219,10 +218,9 @@ This will:
 | Prisma (PostgreSQL) | ✅ | ✅ | ❌ |
 | Prisma (MongoDB) | ✅ | ✅ | ❌ |
 | Mongoose (MongoDB) | ✅ | ✅ | ❌ |
-| Drizzle (PostgreSQL) | ✅ | ✅ | ❌ |
 
-<Callout>
-  React (Vite) is frontend-only, so database modules aren't compatible. Use a backend framework like Next.js or Express for full-stack applications.
+<Callout type="info">
+  React (Vite) is frontend-only, so database modules aren't compatible. Use Next.js or Express for full-stack applications with database access.
 </Callout>
 
 ## Generated Files

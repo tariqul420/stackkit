@@ -204,8 +204,7 @@ export default function HomePage() {
             </div>
             <h3 className="mb-2 text-lg font-semibold">Database Flexibility</h3>
             <p className="text-sm text-fd-muted-foreground">
-              Choose Prisma, Mongoose, or Drizzle. Support for PostgreSQL and MongoDB out of the
-              box.
+              Choose between Prisma or Mongoose. Support for PostgreSQL and MongoDB out of the box.
             </p>
           </div>
 
@@ -228,8 +227,8 @@ export default function HomePage() {
             </div>
             <h3 className="mb-2 text-lg font-semibold">Auth Ready</h3>
             <p className="text-sm text-fd-muted-foreground">
-              Integrate Better Auth, Clerk, or NextAuth with pre-built sign-in/sign-up pages and
-              session handling.
+              Integrate Better Auth or Clerk with pre-built authentication flows and session
+              handling.
             </p>
           </div>
         </div>
@@ -357,23 +356,6 @@ export default function HomePage() {
                     />
                   </svg>
                   <div>
-                    <div className="font-medium">Drizzle</div>
-                    <div className="text-fd-muted-foreground">Lightweight SQL ORM</div>
-                  </div>
-                </li>
-                <li className="flex items-start gap-2 text-sm">
-                  <svg
-                    className="mt-0.5 size-4 shrink-0 text-fd-primary"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <div>
                     <div className="font-medium">Mongoose</div>
                     <div className="text-fd-muted-foreground">MongoDB ODM with schemas</div>
                   </div>
@@ -424,23 +406,6 @@ export default function HomePage() {
                   <div>
                     <div className="font-medium">Clerk</div>
                     <div className="text-fd-muted-foreground">Complete user management</div>
-                  </div>
-                </li>
-                <li className="flex items-start gap-2 text-sm">
-                  <svg
-                    className="mt-0.5 size-4 shrink-0 text-fd-primary"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <div>
-                    <div className="font-medium">NextAuth (Auth.js v5)</div>
-                    <div className="text-fd-muted-foreground">Flexible authentication</div>
                   </div>
                 </li>
               </ul>
@@ -535,12 +500,12 @@ export default function HomePage() {
         <div className="mx-auto max-w-4xl">
           <div className="grid gap-8 rounded-lg border bg-fd-card p-8 md:grid-cols-3 md:divide-x">
             <div className="text-center">
-              <div className="text-4xl font-bold">10+</div>
-              <div className="mt-2 text-sm text-fd-muted-foreground">Module Combinations</div>
+              <div className="text-4xl font-bold">6+</div>
+              <div className="mt-2 text-sm text-fd-muted-foreground">Authentication Options</div>
             </div>
             <div className="text-center">
               <div className="text-4xl font-bold">3</div>
-              <div className="mt-2 text-sm text-fd-muted-foreground">Modern Frameworks</div>
+              <div className="mt-2 text-sm text-fd-muted-foreground">Database Adapters</div>
             </div>
             <div className="text-center">
               <div className="text-4xl font-bold">&lt;60s</div>

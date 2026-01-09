@@ -12,44 +12,39 @@ StackKit supports multiple database adapters for PostgreSQL and MongoDB.
 
 ## Available Adapters
 
+StackKit currently supports two database adapters:
+
 ### Prisma
 
 Type-safe database client with excellent TypeScript support and migrations.
 
 **Best for:**
-
 - Type safety and auto-completion
 - Database migrations
-- Multiple databases (PostgreSQL, MongoDB, MySQL)
-- Production applications
+- Multiple databases (PostgreSQL, MongoDB)
+- Production applications with strict type requirements
+
+**Supported in:**
+- Next.js (App Router)
+- Express
 
 [Learn more →](#prisma)
 
 ### Mongoose
 
-Popular MongoDB ODM with schema validation.
+Popular MongoDB ODM with schema validation and middleware support.
 
 **Best for:**
-
 - MongoDB-specific features
-- Schema validation
-- Middleware and hooks
-- Document-based data
+- Schema validation and hooks
+- Flexible document structure
+- Rapid prototyping
+
+**Supported in:**
+- Next.js (App Router)
+- Express
 
 [Learn more →](#mongoose)
-
-### Drizzle
-
-Lightweight TypeScript ORM with SQL-like syntax.
-
-**Best for:**
-
-- SQL lovers
-- Minimal overhead
-- Edge runtime compatibility
-- PostgreSQL/MySQL
-
-[Learn more →](#drizzle)
 
 ## Prisma
 
@@ -459,130 +454,18 @@ export async function POST(request: Request) {
 }
 ```
 
-## Drizzle
-
-### Installation
-
-<Tabs items={['New Project', 'Existing Project']}>
-  <Tab value="New Project">
-    ```bash
-    npx create-stackkit-app my-app
-    # Select: Drizzle (PostgreSQL)
-    ```
-  </Tab>
-  <Tab value="Existing Project">
-    ```bash
-    npx stackkit-cli add database
-    # Select: Drizzle (PostgreSQL)
-    ```
-  </Tab>
-</Tabs>
-
-### What Gets Installed
-
-**Dependencies:**
-
-```json
-{
-  "drizzle-orm": "^0.29.0",
-  "drizzle-kit": "^0.20.0",
-  "postgres": "^3.4.0" // or "@neondatabase/serverless" for Neon
-}
-```
-
-**Generated Files:**
-
-```
-drizzle/
-├── schema.ts                # Database schema
-└── config.ts               # Drizzle configuration
-
-lib/
-└── db.ts                   # Database client
-```
-
-### Configuration
-
-**1. Set Database URL**
-
-```bash title=".env.local"
-DATABASE_URL="postgresql://user:password@localhost:5432/mydb"
-```
-
-**2. Define Schema**
-
-```typescript title="drizzle/schema.ts"
-import { pgTable, serial, text, timestamp, boolean } from 'drizzle-orm/pg-core';
-
-export const users = pgTable('users', {
-  id: serial('id').primaryKey(),
-  email: text('email').notNull().unique(),
-  name: text('name'),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
-});
-
-export const posts = pgTable('posts', {
-  id: serial('id').primaryKey(),
-  title: text('title').notNull(),
-  content: text('content'),
-  published: boolean('published').default(false),
-  authorId: serial('author_id').references(() => users.id),
-  createdAt: timestamp('created_at').defaultNow(),
-});
-```
-
-**3. Run Migrations**
-
-```bash
-# Generate migrations
-npx drizzle-kit generate:pg
-
-# Push to database
-npx drizzle-kit push:pg
-```
-
-### Usage
-
-```typescript title="app/api/posts/route.ts"
-import { db } from '@/lib/db';
-import { posts, users } from '@/drizzle/schema';
-import { eq } from 'drizzle-orm';
-
-export async function GET() {
-  const allPosts = await db.select().from(posts).leftJoin(users, eq(posts.authorId, users.id));
-
-  return Response.json(allPosts);
-}
-
-export async function POST(request: Request) {
-  const { title, content } = await request.json();
-
-  const [post] = await db
-    .insert(posts)
-    .values({
-      title,
-      content,
-      published: true,
-    })
-    .returning();
-
-  return Response.json(post);
-}
-```
-
 ## Comparison
 
-| Feature            | Prisma    | Mongoose | Drizzle   |
-| ------------------ | --------- | -------- | --------- |
-| **TypeScript**     | Excellent | Good     | Excellent |
-| **Migrations**     | ✅        | ❌       | ✅        |
-| **Type Safety**    | Excellent | Good     | Excellent |
-| **Learning Curve** | Medium    | Easy     | Medium    |
-| **Performance**    | Good      | Good     | Excellent |
-| **PostgreSQL**     | ✅        | ❌       | ✅        |
-| **MongoDB**        | ✅        | ✅       | ❌        |
-| **Edge Runtime**   | ❌        | ❌       | ✅        |
+| Feature            | Prisma    | Mongoose |
+| ------------------ | --------- | -------- |
+| **TypeScript**     | Excellent | Good     |
+| **Migrations**     | ✅        | ❌       |
+| **Type Safety**    | Excellent | Good     |
+| **Learning Curve** | Medium    | Easy     |
+| **Performance**    | Good      | Good     |
+| **PostgreSQL**     | ✅        | ❌       |
+| **MongoDB**        | ✅        | ✅       |
+| **Studio/GUI**     | ✅ (Prisma Studio) | ❌ |
 
 ## Database Hosting
 
@@ -596,10 +479,10 @@ docker run --name postgres -e POSTGRES_PASSWORD=password -p 5432:5432 -d postgre
 
 **Production Options:**
 
-- [Neon](https://neon.tech) - Serverless PostgreSQL
-- [Supabase](https://supabase.com) - PostgreSQL + Authentication
-- [Railway](https://railway.app) - Easy deployment
-- [Vercel Postgres](https://vercel.com/storage/postgres) - Integrated with Vercel
+- [Neon](https://neon.tech) - Serverless PostgreSQL with generous free tier
+- [Supabase](https://supabase.com) - PostgreSQL + Authentication + Real-time
+- [Railway](https://railway.app) - Easy deployment with automatic backups
+- [Vercel Postgres](https://vercel.com/storage/postgres) - Integrated with Vercel projects
 
 ### MongoDB
 
@@ -611,11 +494,11 @@ docker run --name mongodb -p 27017:27017 -d mongo
 
 **Production Options:**
 
-- [MongoDB Atlas](https://www.mongodb.com/atlas) - Official managed MongoDB
-- [Railway](https://railway.app) - Easy deployment
+- [MongoDB Atlas](https://www.mongodb.com/atlas) - Official managed MongoDB with free tier
+- [Railway](https://railway.app) - Simple deployment and management
 
 ## Next Steps
 
 - [Authentication Setup](/docs/modules/auth)
 - [Deployment](/docs/deployment)
-- [API Routes](/docs/guides/api-routes)
+- [Contributing](/docs/contributing)

@@ -12,14 +12,17 @@ StackKit supports multiple authentication providers, each optimized for differen
 
 ## Available Providers
 
+StackKit currently supports two authentication providers:
+
 ### Better Auth
 
-Modern authentication library built for TypeScript with excellent DX.
+Modern authentication library built for TypeScript with excellent developer experience.
 
 **Best for:**
-- TypeScript projects
+- Full control over authentication logic
 - Custom authentication flows
-- Modern OAuth providers
+- OAuth providers (GitHub, Google, etc.)
+- Email/password authentication
 - Edge runtime compatibility
 
 **Supported in:**
@@ -31,13 +34,14 @@ Modern authentication library built for TypeScript with excellent DX.
 
 ### Clerk
 
-Complete user management platform with beautiful pre-built components.
+Complete user management platform with beautiful pre-built UI components.
 
 **Best for:**
-- Quick setup with minimal code
-- Pre-built UI components
+- Fast setup with minimal configuration
+- Pre-built authentication UI
 - User management dashboard
-- Organizations and teams
+- Multi-tenancy and organizations
+- Social logins out of the box
 
 **Supported in:**
 - Next.js (App Router)
@@ -45,21 +49,6 @@ Complete user management platform with beautiful pre-built components.
 - React (Vite)
 
 [Learn more →](#clerk)
-
-### Auth.js (NextAuth)
-
-Flexible authentication for Next.js applications.
-
-**Best for:**
-- Next.js-specific features
-- Wide provider support
-- JWT or database sessions
-- Established ecosystem
-
-**Supported in:**
-- Next.js (App Router) only
-
-[Learn more →](#authjs-nextauth)
 
 ## Better Auth
 
@@ -407,92 +396,17 @@ export function UserNav() {
 }
 ```
 
-## Auth.js (NextAuth)
-
-### Installation
-
-<Tabs items={['New Project', 'Existing Project']}>
-  <Tab value="New Project">
-    ```bash
-    npx create-stackkit-app my-app
-    # Select: Auth.js (NextAuth) when prompted
-    ```
-  </Tab>
-  <Tab value="Existing Project">
-    ```bash
-    npx stackkit-cli add auth
-    # Select: Auth.js (NextAuth)
-    ```
-  </Tab>
-</Tabs>
-
-<Callout type="info">
-  Auth.js (NextAuth v5) is only compatible with Next.js App Router.
-</Callout>
-
-### Configuration
-
-**1. Set Environment Variables**
-
-```bash title=".env.local"
-AUTH_SECRET="your-secret-here"
-AUTH_URL="http://localhost:3000"
-
-# OAuth Providers
-GITHUB_ID="your-github-client-id"
-GITHUB_SECRET="your-github-client-secret"
-```
-
-**2. Configure Providers**
-
-```typescript title="lib/auth.ts"
-import NextAuth from "next-auth";
-import GitHub from "next-auth/providers/github";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { prisma } from "./db";
-
-export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma),
-  providers: [
-    GitHub({
-      clientId: process.env.GITHUB_ID,
-      clientSecret: process.env.GITHUB_SECRET,
-    }),
-  ],
-  session: {
-    strategy: "jwt",
-  },
-});
-```
-
-### Usage
-
-```typescript title="app/dashboard/page.tsx"
-import { auth } from "@/lib/auth";
-import { redirect } from "next/navigation";
-
-export default async function Dashboard() {
-  const session = await auth();
-
-  if (!session?.user) {
-    redirect("/api/auth/signin");
-  }
-
-  return <div>Welcome, {session.user.name}!</div>;
-}
-```
-
 ## Comparison
 
-| Feature | Better Auth | Clerk | Auth.js |
-|---------|-------------|-------|---------|
-| **Setup Time** | Medium | Fast | Medium |
-| **UI Components** | Manual | Pre-built | Manual |
-| **Customization** | High | Medium | High |
-| **Free Tier** | Unlimited | 10k MAUs | Unlimited |
-| **Edge Runtime** | ✅ | ✅ | ✅ |
-| **Self-hosted** | ✅ | ❌ | ✅ |
-| **TypeScript** | Excellent | Good | Good |
+| Feature | Better Auth | Clerk |
+|---------|-------------|-------|
+| **Setup Time** | Medium | Fast |
+| **UI Components** | Manual | Pre-built |
+| **Customization** | High | Medium |
+| **Free Tier** | Unlimited | 10k MAUs |
+| **Edge Runtime** | ✅ | ✅ |
+| **Self-hosted** | ✅ | ❌ |
+| **TypeScript** | Excellent | Good |
 
 ## Next Steps
 
