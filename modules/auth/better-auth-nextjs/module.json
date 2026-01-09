@@ -8,6 +8,8 @@
   "databaseAdapters": {
     "prisma-postgresql": {
       "adapter": "adapters/prisma-postgresql.ts",
+      "schema": "adapters/prisma-postgresql-schema.prisma",
+      "schemaDestination": "prisma/schema.prisma",
       "dependencies": {
         "better-auth": "^1.1.4",
         "@better-auth/prisma": "^1.1.4"
@@ -15,6 +17,8 @@
     },
     "prisma-mongodb": {
       "adapter": "adapters/prisma-mongodb.ts",
+      "schema": "adapters/prisma-mongodb-schema.prisma",
+      "schemaDestination": "prisma/schema.prisma",
       "dependencies": {
         "better-auth": "^1.1.4",
         "@better-auth/prisma": "^1.1.4"

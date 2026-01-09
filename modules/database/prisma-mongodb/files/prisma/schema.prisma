@@ -7,7 +7,7 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-// Example model - customize as needed
+// Example model - customize based on your auth provider
 model User {
     id        String   @id @default(auto()) @map("_id") @db.ObjectId
     email     String   @unique

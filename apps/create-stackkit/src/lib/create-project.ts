@@ -202,7 +202,7 @@ async function composeTemplate(config: ProjectConfig, targetDir: string): Promis
 
   // 3. Merge auth configuration
   if (config.auth !== 'none') {
-    await mergeAuthConfig(templatesDir, targetDir, config.framework, config.auth);
+    await mergeAuthConfig(templatesDir, targetDir, config.framework, config.auth, config.database);
   }
 
   // 4. Update package.json with project name
@@ -311,7 +311,8 @@ async function mergeAuthConfig(
   templatesDir: string,
   targetDir: string,
   framework: string,
-  auth: string
+  auth: string,
+  database: string = 'none'
 ): Promise<void> {
   // Use modules directory (sibling to templates)
   const modulesDir = path.join(templatesDir, '..', 'modules');
@@ -378,6 +379,52 @@ async function mergeAuthConfig(
           await fs.ensureDir(path.dirname(destFile));
           await fs.copy(sourceFile, destFile, { overwrite: false });
         }
+      }
+    }
+  }
+
+  // Handle database-specific adapters and schemas
+  if (database !== 'none' && moduleData.databaseAdapters) {
+    const adapterConfig = moduleData.databaseAdapters[database];
+    
+    if (adapterConfig) {
+      // Copy adapter file
+      if (adapterConfig.adapter) {
+        const adapterSource = path.join(authModulePath, adapterConfig.adapter);
+        const adapterFileName = path.basename(adapterConfig.adapter);
+        
+        // Determine destination based on framework
+        let adapterDest: string;
+        if (framework === 'nextjs') {
+          adapterDest = path.join(targetDir, 'lib', 'auth.ts');
+        } else if (framework === 'express') {
+          adapterDest = path.join(targetDir, 'src', 'auth.ts');
+        } else {
+          adapterDest = path.join(targetDir, 'src', 'lib', 'auth.ts');
+        }
+        
+        if (await fs.pathExists(adapterSource)) {
+          await fs.ensureDir(path.dirname(adapterDest));
+          await fs.copy(adapterSource, adapterDest, { overwrite: true });
+        }
+      }
+      
+      // Copy schema file if it exists
+      if (adapterConfig.schema && adapterConfig.schemaDestination) {
+        const schemaSource = path.join(authModulePath, adapterConfig.schema);
+        const schemaDest = path.join(targetDir, adapterConfig.schemaDestination);
+        
+        if (await fs.pathExists(schemaSource)) {
+          await fs.ensureDir(path.dirname(schemaDest));
+          await fs.copy(schemaSource, schemaDest, { overwrite: true });
+        }
+      }
+      
+      // Merge adapter-specific dependencies
+      if (adapterConfig.dependencies) {
+        await mergePackageJson(targetDir, {
+          dependencies: adapterConfig.dependencies,
+        });
       }
     }
   }
