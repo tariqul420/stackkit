@@ -11,11 +11,19 @@ auth-provider-framework/
 ├── module.json          # Module configuration
 ├── files/              # Template files to be copied
 │   ├── lib/           # Library/utility files
-│   └── app/           # Framework-specific files
-└── adapters/          # Database-specific adapters (for providers that need database)
-    ├── [db]-adapter.ts
-    └── [db]-schema.prisma (if applicable)
+│   ├── api/           # API route files (framework-specific)
+│   ├── routes/        # Route files (framework-specific)
+│   └── schemas/       # Database schema files (for multi-database support)
+└── adapters/          # Database-specific adapter configurations
+    └── [db]-adapter.ts
 ```
+
+**Directory Purpose:**
+- `files/`: Contains all template files that will be copied to user's project
+  - `files/lib/`: Auth configuration and utility files
+  - `files/schemas/`: Database schema files (Prisma, etc.)
+- `adapters/`: Contains database-specific configuration code (TypeScript files only)
+- `module.json`: Module metadata and configuration
 
 ## Module Configuration (`module.json`)
 
@@ -53,16 +61,39 @@ Standard fields for all auth modules:
 
 Auth providers that require database storage (like Better Auth) include:
 
-1. **adapters/** directory with database-specific configurations
-2. **databaseAdapters** in module.json mapping database types to adapter files
-3. Schema files for each supported database (e.g., `prisma-postgresql-schema.prisma`)
+1. **adapters/** directory with database-specific TypeScript configurations
+2. **files/schemas/** directory with database schema files (e.g., Prisma schemas)
+3. **databaseAdapters** in module.json mapping database types to adapter and schema files
 
-Example:
+**File Organization:**
+- `adapters/*.ts` - Database adapter configuration code
+- `files/schemas/*.prisma` - Prisma schema files for different databases
+- `files/lib/` - Auth library files that use the adapters
+
+Example structure:
+```
+better-auth-express/
+├── adapters/
+│   ├── prisma-postgresql.ts     # Adapter config
+│   ├── prisma-mongodb.ts         # Adapter config
+│   └── mongoose-mongodb.ts       # Adapter config
+├── files/
+│   ├── schemas/
+│   │   ├── prisma-postgresql-schema.prisma
+│   │   └── prisma-mongodb-schema.prisma
+│   ├── lib/
+│   │   └── auth.ts              # Uses adapter from adapters/
+│   └── routes/
+│       └── auth.ts
+└── module.json
+```
+
+Example module.json configuration:
 ```json
 "databaseAdapters": {
   "prisma-postgresql": {
     "adapter": "adapters/prisma-postgresql.ts",
-    "schema": "adapters/prisma-postgresql-schema.prisma",
+    "schema": "files/schemas/prisma-postgresql-schema.prisma",
     "schemaDestination": "prisma/schema.prisma",
     "dependencies": {
       "@better-auth/prisma": "^1.1.4"
