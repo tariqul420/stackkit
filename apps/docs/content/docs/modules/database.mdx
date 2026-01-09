@@ -57,10 +57,16 @@ Lightweight TypeScript ORM with SQL-like syntax.
 
 <Tabs items={['New Project', 'Existing Project']}>
   <Tab value="New Project">
-    ```bash npx create-stackkit-app my-app # Select: Prisma (PostgreSQL) or Prisma (MongoDB) ```
+    ```bash
+    npx create-stackkit-app my-app
+    # Select: Prisma (PostgreSQL) or Prisma (MongoDB)
+    ```
   </Tab>
   <Tab value="Existing Project">
-    ```bash npx stackkit-cli add database # Select: Prisma (PostgreSQL) or Prisma (MongoDB) ```
+    ```bash
+    npx stackkit-cli add database
+    # Select: Prisma (PostgreSQL) or Prisma (MongoDB)
+    ```
   </Tab>
 </Tabs>
 
@@ -93,10 +99,13 @@ lib/ (or src/config/)
 <Tabs items={['PostgreSQL', 'MongoDB']}>
   <Tab value="PostgreSQL">
     ```bash title=".env.local"
-    DATABASE_URL="postgresql://user:password@localhost:5432/mydb?schema=public" ```
+    DATABASE_URL="postgresql://user:password@localhost:5432/mydb?schema=public"
+    ```
   </Tab>
   <Tab value="MongoDB">
-    ```bash title=".env.local" DATABASE_URL="mongodb://username:password@localhost:27017/mydb" ```
+    ```bash title=".env.local"
+    DATABASE_URL="mongodb://username:password@localhost:27017/mydb"
+    ```
   </Tab>
 </Tabs>
 
@@ -142,12 +151,22 @@ model Post {
 
 <Tabs items={['PostgreSQL', 'MongoDB']}>
   <Tab value="PostgreSQL">
-    ```bash # Create and apply migration npx prisma migrate dev --name init # Generate Prisma Client
-    npx prisma generate ```
+    ```bash
+    # Create and apply migration
+    npx prisma migrate dev --name init
+    
+    # Generate Prisma Client
+    npx prisma generate
+    ```
   </Tab>
   <Tab value="MongoDB">
-    ```bash # MongoDB doesn't use migrations, just push schema npx prisma db push # Generate Prisma
-    Client npx prisma generate ```
+    ```bash
+    # MongoDB doesn't use migrations, just push schema
+    npx prisma db push
+    
+    # Generate Prisma Client
+    npx prisma generate
+    ```
   </Tab>
 </Tabs>
 
@@ -304,10 +323,16 @@ Opens at [http://localhost:5555](http://localhost:5555)
 
 <Tabs items={['New Project', 'Existing Project']}>
   <Tab value="New Project">
-    ```bash npx create-stackkit-app my-app # Select: Mongoose (MongoDB) ```
+    ```bash
+    npx create-stackkit-app my-app
+    # Select: Mongoose (MongoDB)
+    ```
   </Tab>
   <Tab value="Existing Project">
-    ```bash npx stackkit-cli add database # Select: Mongoose (MongoDB) ```
+    ```bash
+    npx stackkit-cli add database
+    # Select: Mongoose (MongoDB)
+    ```
   </Tab>
 </Tabs>
 
@@ -440,10 +465,16 @@ export async function POST(request: Request) {
 
 <Tabs items={['New Project', 'Existing Project']}>
   <Tab value="New Project">
-    ```bash npx create-stackkit-app my-app # Select: Drizzle (PostgreSQL) ```
+    ```bash
+    npx create-stackkit-app my-app
+    # Select: Drizzle (PostgreSQL)
+    ```
   </Tab>
   <Tab value="Existing Project">
-    ```bash npx stackkit-cli add database # Select: Drizzle (PostgreSQL) ```
+    ```bash
+    npx stackkit-cli add database
+    # Select: Drizzle (PostgreSQL)
+    ```
   </Tab>
 </Tabs>
 

@@ -15,7 +15,7 @@ This guide covers deploying the StackKit documentation site to various platforms
 
 Vercel provides the best experience for Next.js applications with zero configuration.
 
-<Steps>
+
 
 ### Connect Repository
 
@@ -57,7 +57,7 @@ Click "Deploy" and wait for the build to complete.
 
 Your documentation will be live at `https://your-project.vercel.app`
 
-</Steps>
+
 
 <Callout type="info">
   **Custom Domain:** Add your custom domain in Project Settings → Domains
@@ -65,7 +65,7 @@ Your documentation will be live at `https://your-project.vercel.app`
 
 ## Netlify
 
-<Steps>
+
 
 ### Connect Repository
 
@@ -90,11 +90,11 @@ cd ../.. && pnpm install && pnpm build --filter=docs
 
 Click "Deploy site" and wait for the build.
 
-</Steps>
+
 
 ## Cloudflare Pages
 
-<Steps>
+
 
 ### Connect Repository
 
@@ -119,11 +119,11 @@ cd apps/docs && pnpm install && pnpm build
 
 Click "Save and Deploy"
 
-</Steps>
+
 
 ## Railway
 
-<Steps>
+
 
 ### Create New Project
 
@@ -151,7 +151,7 @@ pnpm start
 
 Railway will automatically deploy your app.
 
-</Steps>
+
 
 ## Self-Hosting
 
@@ -214,7 +214,7 @@ docker run -p 3000:3000 stackkit-docs
 
 ### VPS (DigitalOcean, AWS, etc.)
 
-<Steps>
+
 
 ### Install Node.js and pnpm
 
@@ -276,7 +276,7 @@ server {
 }
 ```
 
-</Steps>
+
 
 ## Environment Variables
 

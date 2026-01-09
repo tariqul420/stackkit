@@ -9,7 +9,6 @@ export function baseOptions(): BaseLayoutProps {
           <span className="font-bold">StackKit</span>
         </div>
       ),
-      githubUrl: 'https://github.com/tariqul420/stackkit',
     },
     links: [
       {
