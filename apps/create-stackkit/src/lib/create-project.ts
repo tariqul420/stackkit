@@ -224,7 +224,7 @@ async function copyBaseFramework(
   targetDir: string,
   framework: string
 ): Promise<void> {
-  const baseDir = path.join(templatesDir, 'bases', `${framework}-base`);
+  const baseDir = path.join(templatesDir, framework);
 
   if (!(await fs.pathExists(baseDir))) {
     throw new Error(

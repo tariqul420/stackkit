@@ -39,7 +39,7 @@ export class TemplateComposer {
 
     // 1. Load base framework template
     const baseConfig = await this.loadConfig(
-      path.join(this.templatesDir, 'bases', `${framework}-base`)
+      path.join(this.templatesDir, framework)
     );
     configs.push(baseConfig);
 
