@@ -1,0 +1,590 @@
+---
+title: Database
+description: Add database support to your StackKit application
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Database
+
+StackKit supports multiple database adapters for PostgreSQL and MongoDB.
+
+## Available Adapters
+
+### Prisma
+
+Type-safe database client with excellent TypeScript support and migrations.
+
+**Best for:**
+
+- Type safety and auto-completion
+- Database migrations
+- Multiple databases (PostgreSQL, MongoDB, MySQL)
+- Production applications
+
+[Learn more →](#prisma)
+
+### Mongoose
+
+Popular MongoDB ODM with schema validation.
+
+**Best for:**
+
+- MongoDB-specific features
+- Schema validation
+- Middleware and hooks
+- Document-based data
+
+[Learn more →](#mongoose)
+
+### Drizzle
+
+Lightweight TypeScript ORM with SQL-like syntax.
+
+**Best for:**
+
+- SQL lovers
+- Minimal overhead
+- Edge runtime compatibility
+- PostgreSQL/MySQL
+
+[Learn more →](#drizzle)
+
+## Prisma
+
+### Installation
+
+<Tabs items={['New Project', 'Existing Project']}>
+  <Tab value="New Project">
+    ```bash npx create-stackkit-app my-app # Select: Prisma (PostgreSQL) or Prisma (MongoDB) ```
+  </Tab>
+  <Tab value="Existing Project">
+    ```bash npx stackkit-cli add database # Select: Prisma (PostgreSQL) or Prisma (MongoDB) ```
+  </Tab>
+</Tabs>
+
+### What Gets Installed
+
+**Dependencies:**
+
+```json
+{
+  "prisma": "^5.0.0",
+  "@prisma/client": "^5.0.0"
+}
+```
+
+**Generated Files:**
+
+```
+prisma/
+├── schema.prisma            # Database schema
+└── migrations/              # Migration history
+
+lib/ (or src/config/)
+└── db.ts                    # Prisma client instance
+```
+
+### Configuration
+
+**1. Set Database URL**
+
+<Tabs items={['PostgreSQL', 'MongoDB']}>
+  <Tab value="PostgreSQL">
+    ```bash title=".env.local"
+    DATABASE_URL="postgresql://user:password@localhost:5432/mydb?schema=public" ```
+  </Tab>
+  <Tab value="MongoDB">
+    ```bash title=".env.local" DATABASE_URL="mongodb://username:password@localhost:27017/mydb" ```
+  </Tab>
+</Tabs>
+
+<Callout type="info">
+  **Local Development:** - PostgreSQL: Use Docker or install locally - MongoDB: Use Docker, MongoDB
+  Atlas, or local installation
+</Callout>
+
+**2. Define Your Schema**
+
+```prisma title="prisma/schema.prisma"
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // or "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  posts     Post[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  title     String
+  content   String?
+  published Boolean  @default(false)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+```
+
+**3. Run Migrations**
+
+<Tabs items={['PostgreSQL', 'MongoDB']}>
+  <Tab value="PostgreSQL">
+    ```bash # Create and apply migration npx prisma migrate dev --name init # Generate Prisma Client
+    npx prisma generate ```
+  </Tab>
+  <Tab value="MongoDB">
+    ```bash # MongoDB doesn't use migrations, just push schema npx prisma db push # Generate Prisma
+    Client npx prisma generate ```
+  </Tab>
+</Tabs>
+
+### Usage
+
+The CLI creates a singleton Prisma client for you:
+
+```typescript title="lib/db.ts"
+import { PrismaClient } from '@prisma/client';
+
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
+
+export const prisma = globalForPrisma.prisma ?? new PrismaClient();
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+```
+
+**Use in your application:**
+
+```typescript title="app/api/posts/route.ts"
+import { prisma } from '@/lib/db';
+import { NextResponse } from 'next/server';
+
+export async function GET() {
+  const posts = await prisma.post.findMany({
+    include: {
+      author: true,
+    },
+  });
+
+  return NextResponse.json(posts);
+}
+
+export async function POST(request: Request) {
+  const { title, content, authorId } = await request.json();
+
+  const post = await prisma.post.create({
+    data: {
+      title,
+      content,
+      authorId,
+    },
+  });
+
+  return NextResponse.json(post);
+}
+```
+
+**Server Actions (Next.js):**
+
+```typescript title="app/actions/posts.ts"
+'use server';
+
+import { prisma } from '@/lib/db';
+import { revalidatePath } from 'next/cache';
+
+export async function createPost(formData: FormData) {
+  const title = formData.get('title') as string;
+  const content = formData.get('content') as string;
+
+  await prisma.post.create({
+    data: {
+      title,
+      content,
+      published: true,
+      authorId: 'user-id',
+    },
+  });
+
+  revalidatePath('/posts');
+}
+```
+
+### Common Queries
+
+**Find Many:**
+
+```typescript
+const users = await prisma.user.findMany({
+  where: {
+    email: {
+      contains: '@example.com',
+    },
+  },
+  orderBy: {
+    createdAt: 'desc',
+  },
+  take: 10,
+});
+```
+
+**Find One:**
+
+```typescript
+const user = await prisma.user.findUnique({
+  where: {
+    email: 'user@example.com',
+  },
+  include: {
+    posts: true,
+  },
+});
+```
+
+**Create:**
+
+```typescript
+const user = await prisma.user.create({
+  data: {
+    email: 'new@example.com',
+    name: 'New User',
+  },
+});
+```
+
+**Update:**
+
+```typescript
+const user = await prisma.user.update({
+  where: {
+    id: 'user-id',
+  },
+  data: {
+    name: 'Updated Name',
+  },
+});
+```
+
+**Delete:**
+
+```typescript
+await prisma.user.delete({
+  where: {
+    id: 'user-id',
+  },
+});
+```
+
+### Prisma Studio
+
+View and edit your database data with a visual editor:
+
+```bash
+npx prisma studio
+```
+
+Opens at [http://localhost:5555](http://localhost:5555)
+
+## Mongoose
+
+### Installation
+
+<Tabs items={['New Project', 'Existing Project']}>
+  <Tab value="New Project">
+    ```bash npx create-stackkit-app my-app # Select: Mongoose (MongoDB) ```
+  </Tab>
+  <Tab value="Existing Project">
+    ```bash npx stackkit-cli add database # Select: Mongoose (MongoDB) ```
+  </Tab>
+</Tabs>
+
+### What Gets Installed
+
+**Dependencies:**
+
+```json
+{
+  "mongoose": "^8.0.0"
+}
+```
+
+**Generated Files:**
+
+```
+lib/ (or src/config/)
+├── db.ts                    # MongoDB connection
+└── models/
+    └── User.ts              # Example model
+```
+
+### Configuration
+
+**1. Set Database URL**
+
+```bash title=".env.local"
+MONGODB_URI="mongodb://localhost:27017/mydb"
+# or MongoDB Atlas
+MONGODB_URI="mongodb+srv://user:password@cluster.mongodb.net/mydb"
+```
+
+**2. Define Models**
+
+```typescript title="lib/models/User.ts"
+import mongoose, { Schema, Document } from 'mongoose';
+
+export interface IUser extends Document {
+  email: string;
+  name?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const UserSchema = new Schema<IUser>(
+  {
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+    },
+    name: {
+      type: String,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+export const User = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
+```
+
+**3. Connection Utility**
+
+```typescript title="lib/db.ts"
+import mongoose from 'mongoose';
+
+const MONGODB_URI = process.env.MONGODB_URI!;
+
+if (!MONGODB_URI) {
+  throw new Error('Please define MONGODB_URI in your .env file');
+}
+
+let cached = global.mongoose;
+
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
+
+export async function connectDB() {
+  if (cached.conn) {
+    return cached.conn;
+  }
+
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(MONGODB_URI).then((mongoose) => {
+      return mongoose;
+    });
+  }
+
+  cached.conn = await cached.promise;
+  return cached.conn;
+}
+```
+
+### Usage
+
+```typescript title="app/api/users/route.ts"
+import { connectDB } from '@/lib/db';
+import { User } from '@/lib/models/User';
+import { NextResponse } from 'next/server';
+
+export async function GET() {
+  await connectDB();
+
+  const users = await User.find().sort({ createdAt: -1 }).limit(10);
+
+  return NextResponse.json(users);
+}
+
+export async function POST(request: Request) {
+  await connectDB();
+
+  const { email, name } = await request.json();
+
+  const user = await User.create({
+    email,
+    name,
+  });
+
+  return NextResponse.json(user);
+}
+```
+
+## Drizzle
+
+### Installation
+
+<Tabs items={['New Project', 'Existing Project']}>
+  <Tab value="New Project">
+    ```bash npx create-stackkit-app my-app # Select: Drizzle (PostgreSQL) ```
+  </Tab>
+  <Tab value="Existing Project">
+    ```bash npx stackkit-cli add database # Select: Drizzle (PostgreSQL) ```
+  </Tab>
+</Tabs>
+
+### What Gets Installed
+
+**Dependencies:**
+
+```json
+{
+  "drizzle-orm": "^0.29.0",
+  "drizzle-kit": "^0.20.0",
+  "postgres": "^3.4.0" // or "@neondatabase/serverless" for Neon
+}
+```
+
+**Generated Files:**
+
+```
+drizzle/
+├── schema.ts                # Database schema
+└── config.ts               # Drizzle configuration
+
+lib/
+└── db.ts                   # Database client
+```
+
+### Configuration
+
+**1. Set Database URL**
+
+```bash title=".env.local"
+DATABASE_URL="postgresql://user:password@localhost:5432/mydb"
+```
+
+**2. Define Schema**
+
+```typescript title="drizzle/schema.ts"
+import { pgTable, serial, text, timestamp, boolean } from 'drizzle-orm/pg-core';
+
+export const users = pgTable('users', {
+  id: serial('id').primaryKey(),
+  email: text('email').notNull().unique(),
+  name: text('name'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+export const posts = pgTable('posts', {
+  id: serial('id').primaryKey(),
+  title: text('title').notNull(),
+  content: text('content'),
+  published: boolean('published').default(false),
+  authorId: serial('author_id').references(() => users.id),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+```
+
+**3. Run Migrations**
+
+```bash
+# Generate migrations
+npx drizzle-kit generate:pg
+
+# Push to database
+npx drizzle-kit push:pg
+```
+
+### Usage
+
+```typescript title="app/api/posts/route.ts"
+import { db } from '@/lib/db';
+import { posts, users } from '@/drizzle/schema';
+import { eq } from 'drizzle-orm';
+
+export async function GET() {
+  const allPosts = await db.select().from(posts).leftJoin(users, eq(posts.authorId, users.id));
+
+  return Response.json(allPosts);
+}
+
+export async function POST(request: Request) {
+  const { title, content } = await request.json();
+
+  const [post] = await db
+    .insert(posts)
+    .values({
+      title,
+      content,
+      published: true,
+    })
+    .returning();
+
+  return Response.json(post);
+}
+```
+
+## Comparison
+
+| Feature            | Prisma    | Mongoose | Drizzle   |
+| ------------------ | --------- | -------- | --------- |
+| **TypeScript**     | Excellent | Good     | Excellent |
+| **Migrations**     | ✅        | ❌       | ✅        |
+| **Type Safety**    | Excellent | Good     | Excellent |
+| **Learning Curve** | Medium    | Easy     | Medium    |
+| **Performance**    | Good      | Good     | Excellent |
+| **PostgreSQL**     | ✅        | ❌       | ✅        |
+| **MongoDB**        | ✅        | ✅       | ❌        |
+| **Edge Runtime**   | ❌        | ❌       | ✅        |
+
+## Database Hosting
+
+### PostgreSQL
+
+**Local Development:**
+
+```bash
+docker run --name postgres -e POSTGRES_PASSWORD=password -p 5432:5432 -d postgres
+```
+
+**Production Options:**
+
+- [Neon](https://neon.tech) - Serverless PostgreSQL
+- [Supabase](https://supabase.com) - PostgreSQL + Authentication
+- [Railway](https://railway.app) - Easy deployment
+- [Vercel Postgres](https://vercel.com/storage/postgres) - Integrated with Vercel
+
+### MongoDB
+
+**Local Development:**
+
+```bash
+docker run --name mongodb -p 27017:27017 -d mongo
+```
+
+**Production Options:**
+
+- [MongoDB Atlas](https://www.mongodb.com/atlas) - Official managed MongoDB
+- [Railway](https://railway.app) - Easy deployment
+
+## Next Steps
+
+- [Authentication Setup](/docs/modules/auth)
+- [Deployment](/docs/deployment)
+- [API Routes](/docs/guides/api-routes)

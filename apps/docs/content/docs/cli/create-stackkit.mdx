@@ -1,0 +1,316 @@
+---
+title: create-stackkit-app
+description: CLI reference for creating new StackKit projects
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# create-stackkit-app
+
+The `create-stackkit-app` CLI tool helps you scaffold new projects with your preferred stack.
+
+## Usage
+
+<Tabs items={['pnpm', 'npm', 'yarn']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm create stackkit-app [project-name] [options]
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npx create-stackkit-app [project-name] [options]
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn create stackkit-app [project-name] [options]
+    ```
+  </Tab>
+</Tabs>
+
+## Arguments
+
+### `project-name`
+
+The name of your new project. This will create a directory with this name.
+
+```bash
+npx create-stackkit-app my-awesome-app
+```
+
+If omitted, you'll be prompted to enter a name interactively.
+
+## Options
+
+### `--framework, -f`
+
+Specify the framework to use.
+
+```bash
+npx create-stackkit-app my-app --framework nextjs
+```
+
+**Choices:**
+- `nextjs` - Next.js 16 with App Router
+- `express` - Express.js REST API
+- `react-vite` - React with Vite
+
+### `--database, -d`
+
+Specify the database adapter to use.
+
+```bash
+npx create-stackkit-app my-app --database prisma-postgresql
+```
+
+**Choices:**
+- `prisma-postgresql` - Prisma with PostgreSQL
+- `prisma-mongodb` - Prisma with MongoDB
+- `mongoose-mongodb` - Mongoose with MongoDB
+- `drizzle-postgresql` - Drizzle ORM with PostgreSQL
+- `skip` - Skip database setup
+
+### `--auth, -a`
+
+Specify the authentication provider.
+
+```bash
+npx create-stackkit-app my-app --auth better-auth
+```
+
+**Choices:**
+- `better-auth` - Better Auth (modern TypeScript auth)
+- `clerk` - Clerk authentication
+- `nextauth` - Auth.js v5 (NextAuth)
+- `skip` - Skip authentication setup
+
+### `--install, -i`
+
+Auto-install dependencies after project creation.
+
+```bash
+npx create-stackkit-app my-app --install
+```
+
+Default: `true` (will prompt if not specified)
+
+### `--git`
+
+Initialize a git repository.
+
+```bash
+npx create-stackkit-app my-app --git
+```
+
+Default: `true`
+
+### `--skip-install`
+
+Skip dependency installation.
+
+```bash
+npx create-stackkit-app my-app --skip-install
+```
+
+### `--help, -h`
+
+Display help information.
+
+```bash
+npx create-stackkit-app --help
+```
+
+## Examples
+
+### Interactive Mode (Recommended)
+
+Run without arguments for the full interactive experience:
+
+```bash
+npx create-stackkit-app
+```
+
+The CLI will guide you through all options with a friendly wizard.
+
+### Next.js with Prisma and Better Auth
+
+```bash
+npx create-stackkit-app my-next-app \
+  --framework nextjs \
+  --database prisma-postgresql \
+  --auth better-auth \
+  --install
+```
+
+### Express API with Mongoose
+
+```bash
+npx create-stackkit-app my-api \
+  --framework express \
+  --database mongoose-mongodb \
+  --auth skip
+```
+
+### React SPA (No backend)
+
+```bash
+npx create-stackkit-app my-react-app \
+  --framework react-vite \
+  --database skip \
+  --auth skip
+```
+
+### Quick Start (All Defaults)
+
+```bash
+npx create-stackkit-app my-app --yes
+```
+
+Uses sensible defaults: Next.js, Prisma (PostgreSQL), Better Auth
+
+## What Happens During Creation?
+
+<Steps>
+
+1. **Validate Project Name** - Ensures the name is valid and directory doesn't exist
+2. **Copy Base Template** - Copies framework-specific files
+3. **Apply Modules** - Integrates selected database and auth modules
+4. **Configure Environment** - Creates `.env` files with necessary variables
+5. **Update Dependencies** - Adds required npm packages to `package.json`
+6. **Install Dependencies** - Runs package manager install (if not skipped)
+7. **Initialize Git** - Creates git repository (if not skipped)
+8. **Display Next Steps** - Shows commands to start development
+
+</Steps>
+
+## Generated Project Structure
+
+### Next.js Project
+
+```
+my-app/
+├── app/
+│   ├── (auth)/              # Auth routes (sign-in, sign-up)
+│   │   ├── sign-in/
+│   │   └── sign-up/
+│   ├── api/
+│   │   └── auth/[...all]/   # Auth API routes
+│   ├── layout.tsx
+│   └── page.tsx
+├── lib/
+│   ├── auth.ts              # Auth configuration
+│   └── db.ts                # Database client
+├── prisma/
+│   └── schema.prisma        # Database schema
+├── components/              # React components
+├── .env.local              # Environment variables
+├── .gitignore
+├── next.config.ts
+├── package.json
+├── tailwind.config.ts
+└── tsconfig.json
+```
+
+### Express Project
+
+```
+my-api/
+├── src/
+│   ├── routes/
+│   │   ├── auth.ts          # Auth routes
+│   │   └── index.ts
+│   ├── middlewares/
+│   │   ├── auth.ts          # Auth middleware
+│   │   └── errorHandler.ts
+│   ├── config/
+│   │   ├── auth.ts          # Auth config
+│   │   └── db.ts            # Database config
+│   ├── app.ts              # Express app setup
+│   └── server.ts           # Server entry point
+├── .env
+├── .gitignore
+├── package.json
+└── tsconfig.json
+```
+
+## Environment Variables
+
+After creation, configure these in your `.env.local` (Next.js) or `.env` (Express):
+
+### Database
+
+```bash
+# PostgreSQL
+DATABASE_URL="postgresql://user:password@localhost:5432/mydb"
+
+# MongoDB
+DATABASE_URL="mongodb://localhost:27017/mydb"
+```
+
+### Authentication (Better Auth)
+
+```bash
+BETTER_AUTH_SECRET="your-32-char-secret"
+BETTER_AUTH_URL="http://localhost:3000"
+```
+
+### Authentication (Clerk)
+
+```bash
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_..."
+CLERK_SECRET_KEY="sk_test_..."
+```
+
+<Callout type="warn">
+  Generate secure secrets using:
+  ```bash
+  openssl rand -base64 32
+  ```
+</Callout>
+
+## Troubleshooting
+
+### Directory Already Exists
+
+**Error:** `Directory 'my-app' already exists`
+
+**Solution:** Choose a different project name or remove the existing directory.
+
+### Permission Denied
+
+**Error:** `EACCES: permission denied`
+
+**Solution:** Check directory permissions or try running without sudo (don't use sudo with npx).
+
+### Network Issues
+
+**Error:** `Failed to download template`
+
+**Solution:** Check your internet connection or try again. The CLI downloads templates from GitHub.
+
+### Unsupported Node Version
+
+**Error:** `Node version must be >= 20.0.0`
+
+**Solution:** Update Node.js using nvm or download from [nodejs.org](https://nodejs.org)
+
+```bash
+# Using nvm
+nvm install 20
+nvm use 20
+```
+
+## Next Steps
+
+After creating your project:
+
+1. **Configure Environment Variables** - Update `.env.local` or `.env`
+2. **Run Database Migrations** - `npx prisma migrate dev` (if using Prisma)
+3. **Start Development Server** - `pnpm dev`
+4. **Read Module Docs** - Learn about [Authentication](/docs/modules/auth) and [Database](/docs/modules/database)
+
+---
+
+Need to add features later? Use [stackkit-cli](/docs/cli/stackkit-cli) to add modules to existing projects.

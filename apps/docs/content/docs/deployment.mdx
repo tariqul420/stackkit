@@ -1,0 +1,469 @@
+---
+title: Deployment
+description: Deploy your StackKit documentation to production
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+# Deploying the Documentation
+
+This guide covers deploying the StackKit documentation site to various platforms.
+
+## Vercel (Recommended)
+
+Vercel provides the best experience for Next.js applications with zero configuration.
+
+<Steps>
+
+### Connect Repository
+
+1. Go to [vercel.com](https://vercel.com)
+2. Click "Add New Project"
+3. Import your `stackkit` repository
+
+### Configure Project
+
+Set the following in project settings:
+
+**Root Directory:** `apps/docs`
+
+**Build Command:** (auto-detected)
+
+```bash
+cd ../.. && pnpm build --filter=docs
+```
+
+**Output Directory:** `.next` (auto-detected)
+
+**Install Command:**
+
+```bash
+pnpm install
+```
+
+### Environment Variables
+
+Add environment variables if needed:
+
+```bash
+NEXT_PUBLIC_URL=https://your-domain.vercel.app
+```
+
+### Deploy
+
+Click "Deploy" and wait for the build to complete.
+
+Your documentation will be live at `https://your-project.vercel.app`
+
+</Steps>
+
+<Callout type="info">
+  **Custom Domain:** Add your custom domain in Project Settings → Domains
+</Callout>
+
+## Netlify
+
+<Steps>
+
+### Connect Repository
+
+1. Go to [netlify.com](https://netlify.com)
+2. Click "Add new site"
+3. Choose "Import an existing project"
+4. Connect your repository
+
+### Configure Build
+
+**Base directory:** `apps/docs`
+
+**Build command:**
+
+```bash
+cd ../.. && pnpm install && pnpm build --filter=docs
+```
+
+**Publish directory:** `apps/docs/.next`
+
+### Deploy
+
+Click "Deploy site" and wait for the build.
+
+</Steps>
+
+## Cloudflare Pages
+
+<Steps>
+
+### Connect Repository
+
+1. Go to Cloudflare Dashboard
+2. Select "Pages"
+3. Click "Create a project"
+4. Connect your GitHub repository
+
+### Configure Build
+
+**Build command:**
+
+```bash
+cd apps/docs && pnpm install && pnpm build
+```
+
+**Build output directory:** `apps/docs/.next`
+
+**Root directory:** (leave empty)
+
+### Deploy
+
+Click "Save and Deploy"
+
+</Steps>
+
+## Railway
+
+<Steps>
+
+### Create New Project
+
+1. Go to [railway.app](https://railway.app)
+2. Click "New Project"
+3. Choose "Deploy from GitHub repo"
+
+### Configure Service
+
+**Root Directory:** `apps/docs`
+
+**Build Command:**
+
+```bash
+pnpm install && pnpm build
+```
+
+**Start Command:**
+
+```bash
+pnpm start
+```
+
+### Deploy
+
+Railway will automatically deploy your app.
+
+</Steps>
+
+## Self-Hosting
+
+### Docker
+
+Create a `Dockerfile` in `apps/docs/`:
+
+```dockerfile title="apps/docs/Dockerfile"
+FROM node:20-alpine AS base
+
+# Install dependencies only when needed
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+# Install pnpm
+RUN npm install -g pnpm
+
+# Copy package files
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+
+# Build application
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+RUN npm install -g pnpm
+RUN pnpm build
+
+# Production image
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV production
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT 3000
+
+CMD ["node", "server.js"]
+```
+
+Build and run:
+
+```bash
+docker build -t stackkit-docs .
+docker run -p 3000:3000 stackkit-docs
+```
+
+### VPS (DigitalOcean, AWS, etc.)
+
+<Steps>
+
+### Install Node.js and pnpm
+
+```bash
+# Install Node.js 20
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# Install pnpm
+npm install -g pnpm
+```
+
+### Clone Repository
+
+```bash
+git clone https://github.com/tariqul420/stackkit.git
+cd stackkit
+```
+
+### Build Documentation
+
+```bash
+pnpm install
+cd apps/docs
+pnpm build
+```
+
+### Run with PM2
+
+```bash
+# Install PM2
+npm install -g pm2
+
+# Start the app
+pm2 start pnpm --name "stackkit-docs" -- start
+
+# Save PM2 configuration
+pm2 save
+
+# Setup PM2 to start on boot
+pm2 startup
+```
+
+### Configure Nginx (Optional)
+
+```nginx
+server {
+    listen 80;
+    server_name docs.stackkit.dev;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+</Steps>
+
+## Environment Variables
+
+Make sure to set these in production:
+
+```bash
+# Production URL
+NEXT_PUBLIC_URL=https://docs.stackkit.dev
+
+# Analytics (optional)
+NEXT_PUBLIC_VERCEL_ANALYTICS_ID=xxx
+```
+
+## Performance Optimization
+
+### Enable Caching
+
+Fumadocs automatically optimizes static content. For additional caching:
+
+**Vercel:** Caching is automatic
+
+**Nginx:**
+
+```nginx
+location /_next/static/ {
+    expires 1y;
+    add_header Cache-Control "public, immutable";
+}
+```
+
+### Image Optimization
+
+Use Next.js Image component for optimal performance:
+
+```tsx
+import Image from 'next/image';
+
+<Image src="/stackkit-logo.png" alt="StackKit" width={200} height={50} />;
+```
+
+### Font Optimization
+
+Next.js automatically optimizes fonts. We use Inter with `next/font/google`:
+
+```tsx
+import { Inter } from 'next/font/google';
+
+const inter = Inter({ subsets: ['latin'] });
+```
+
+## Monitoring
+
+### Vercel Analytics
+
+Add to your project:
+
+```bash
+pnpm add @vercel/analytics
+```
+
+```tsx title="app/layout.tsx"
+import { Analytics } from '@vercel/analytics/react';
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        {children}
+        <Analytics />
+      </body>
+    </html>
+  );
+}
+```
+
+### Custom Analytics
+
+Add your analytics code to `app/layout.tsx`:
+
+```tsx
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <head>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-XXXXXXXXXX');
+          `,
+          }}
+        />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+## Continuous Deployment
+
+### GitHub Actions
+
+Create `.github/workflows/deploy.yml`:
+
+```yaml
+name: Deploy Documentation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/docs/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build
+        run: pnpm build --filter=docs
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.ORG_ID }}
+          vercel-project-id: ${{ secrets.PROJECT_ID }}
+          working-directory: apps/docs
+```
+
+## Troubleshooting
+
+### Build Fails
+
+**Error:** `Module not found`
+
+**Solution:** Make sure all dependencies are installed:
+
+```bash
+pnpm install
+pnpm build
+```
+
+### Port Already in Use
+
+**Error:** `Port 3000 is already in use`
+
+**Solution:** Use a different port:
+
+```bash
+PORT=3001 pnpm start
+```
+
+### Out of Memory
+
+**Error:** `JavaScript heap out of memory`
+
+**Solution:** Increase Node.js memory:
+
+```bash
+NODE_OPTIONS="--max_old_space_size=4096" pnpm build
+```
+
+## Next Steps
+
+- Set up [custom domain](https://vercel.com/docs/concepts/projects/custom-domains)
+- Configure [redirects](https://nextjs.org/docs/app/api-reference/next-config-js/redirects)
+- Add [OpenGraph images](https://fumadocs.dev/docs/ui/og-image)
+- Set up [search](https://fumadocs.dev/docs/ui/search)
+
+---
+
+**Questions?** Check our [GitHub Issues](https://github.com/tariqul420/stackkit/issues) or [Discussions](https://github.com/tariqul420/stackkit/discussions).

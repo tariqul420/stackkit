@@ -1,0 +1,370 @@
+---
+title: stackkit-cli
+description: Add modules to existing projects
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# stackkit-cli
+
+The `stackkit-cli` tool allows you to add authentication, database, and other modules to existing projects.
+
+## Installation
+
+You can run it directly with npx (no installation needed):
+
+```bash
+npx stackkit-cli [command]
+```
+
+Or install globally:
+
+```bash
+npm install -g stackkit-cli
+```
+
+## Commands
+
+### `add`
+
+Add a module to your existing project.
+
+```bash
+npx stackkit-cli add <module-type>
+```
+
+**Module Types:**
+- `auth` - Add authentication
+- `database` - Add database support
+
+### `add auth`
+
+Add authentication to your project.
+
+```bash
+npx stackkit-cli add auth
+```
+
+The CLI will:
+1. Detect your framework (Next.js, Express, or React)
+2. Show compatible auth providers
+3. Let you choose one (Better Auth, Clerk, Auth.js)
+4. Install dependencies and configure files
+
+**Options:**
+- `--provider, -p` - Specify provider directly
+- `--skip-install` - Don't install dependencies
+
+**Example:**
+
+```bash
+npx stackkit-cli add auth --provider better-auth
+```
+
+### `add database`
+
+Add database support to your project.
+
+```bash
+npx stackkit-cli add database
+```
+
+The CLI will:
+1. Detect your framework
+2. Show compatible database adapters
+3. Let you choose one (Prisma, Mongoose, Drizzle)
+4. Install dependencies and set up configuration
+
+**Options:**
+- `--adapter, -a` - Specify adapter directly
+- `--skip-install` - Don't install dependencies
+
+**Example:**
+
+```bash
+npx stackkit-cli add database --adapter prisma-postgresql
+```
+
+### `list`
+
+List all available modules for your project.
+
+```bash
+npx stackkit-cli list
+```
+
+Shows compatible modules based on your current framework.
+
+### `info`
+
+Get detailed information about a specific module.
+
+```bash
+npx stackkit-cli info <module-name>
+```
+
+**Example:**
+
+```bash
+npx stackkit-cli info better-auth-nextjs
+```
+
+Displays:
+- Module description
+- Compatible frameworks
+- Required dependencies
+- Configuration steps
+
+### `--version, -v`
+
+Display the installed version.
+
+```bash
+npx stackkit-cli --version
+```
+
+### `--help, -h`
+
+Display help information.
+
+```bash
+npx stackkit-cli --help
+npx stackkit-cli add --help
+```
+
+## How It Works
+
+When you run `stackkit-cli add`, here's what happens:
+
+<Steps>
+
+1. **Framework Detection** - Analyzes your project to detect the framework
+2. **Compatibility Check** - Shows only compatible modules
+3. **Interactive Selection** - Lets you choose from available options
+4. **File Generation** - Creates necessary configuration files
+5. **Dependency Installation** - Adds required packages to `package.json`
+6. **Environment Setup** - Updates `.env` with required variables
+7. **Post-Install Tasks** - Runs any necessary post-installation commands
+
+</Steps>
+
+## Supported Frameworks
+
+The CLI automatically detects:
+
+- **Next.js** - Checks for `next` in dependencies
+- **Express** - Checks for `express` in dependencies
+- **React (Vite)** - Checks for `vite` + `react` in dependencies
+
+<Callout type="info">
+  Run the command from your project root directory where `package.json` is located.
+</Callout>
+
+## Examples
+
+### Add Better Auth to Next.js
+
+```bash
+cd my-nextjs-app
+npx stackkit-cli add auth
+# Select: Better Auth
+```
+
+This will:
+- Install `better-auth` and required packages
+- Create `lib/auth.ts` with Better Auth configuration
+- Create auth API routes in `app/api/auth/[...all]/route.ts`
+- Add environment variables to `.env.local`
+
+### Add Prisma to Express
+
+```bash
+cd my-express-api
+npx stackkit-cli add database
+# Select: Prisma (PostgreSQL)
+```
+
+This will:
+- Install `prisma` and `@prisma/client`
+- Initialize Prisma with `prisma init`
+- Create `prisma/schema.prisma`
+- Add `DATABASE_URL` to `.env`
+- Create database client in `src/config/db.ts`
+
+### Add Clerk to React
+
+```bash
+cd my-react-app
+npx stackkit-cli add auth
+# Select: Clerk
+```
+
+This will:
+- Install `@clerk/clerk-react`
+- Wrap app with `ClerkProvider` in `main.tsx`
+- Add Clerk environment variables
+- Create auth components
+
+## Module Compatibility
+
+### Authentication Modules
+
+| Module | Next.js | Express | React (Vite) |
+|--------|---------|---------|--------------|
+| Better Auth | ✅ | ✅ | ✅ |
+| Clerk | ✅ | ✅ | ✅ |
+| Auth.js (NextAuth) | ✅ | ❌ | ❌ |
+
+### Database Modules
+
+| Module | Next.js | Express | React (Vite) |
+|--------|---------|---------|--------------|
+| Prisma (PostgreSQL) | ✅ | ✅ | ❌ |
+| Prisma (MongoDB) | ✅ | ✅ | ❌ |
+| Mongoose (MongoDB) | ✅ | ✅ | ❌ |
+| Drizzle (PostgreSQL) | ✅ | ✅ | ❌ |
+
+<Callout>
+  React (Vite) is frontend-only, so database modules aren't compatible. Use a backend framework like Next.js or Express for full-stack applications.
+</Callout>
+
+## Generated Files
+
+### Better Auth (Next.js)
+
+```
+lib/
+└── auth.ts                  # Better Auth configuration
+
+app/
+└── api/
+    └── auth/
+        └── [...all]/
+            └── route.ts     # Auth API endpoint
+```
+
+### Prisma (Any Framework)
+
+```
+prisma/
+├── schema.prisma            # Database schema
+└── migrations/              # Migration files
+
+lib/ (or src/config/)
+└── db.ts                    # Prisma client instance
+```
+
+### Clerk (Next.js)
+
+```
+app/
+├── layout.tsx               # Updated with ClerkProvider
+└── sign-in/
+    └── [[...sign-in]]/
+        └── page.tsx         # Sign-in page
+```
+
+## Configuration After Installation
+
+### Database Setup (Prisma)
+
+After adding Prisma, you need to:
+
+1. **Set Database URL**
+   ```bash
+   DATABASE_URL="postgresql://user:password@localhost:5432/mydb"
+   ```
+
+2. **Run Migrations**
+   ```bash
+   npx prisma migrate dev --name init
+   ```
+
+3. **Generate Client**
+   ```bash
+   npx prisma generate
+   ```
+
+### Authentication Setup (Better Auth)
+
+After adding Better Auth:
+
+1. **Generate Secret**
+   ```bash
+   openssl rand -base64 32
+   ```
+
+2. **Update Environment**
+   ```bash
+   BETTER_AUTH_SECRET="your-generated-secret"
+   BETTER_AUTH_URL="http://localhost:3000"
+   ```
+
+3. **Configure Providers** (Optional)
+   Edit `lib/auth.ts` to add OAuth providers.
+
+## Troubleshooting
+
+### "Could not detect framework"
+
+**Error:** `Unable to detect framework. Is this a valid project?`
+
+**Solution:** 
+- Ensure you're in the project root directory
+- Check that `package.json` exists
+- Verify framework is listed in dependencies
+
+### "Module not compatible"
+
+**Error:** `This module is not compatible with your framework`
+
+**Solution:** 
+- Check compatibility table above
+- Use `stackkit-cli list` to see available modules
+- Consider using a different module or framework
+
+### Files Already Exist
+
+**Error:** `File 'lib/auth.ts' already exists`
+
+**Solution:**
+- The CLI won't overwrite existing files
+- Manually merge changes or remove the file to let CLI recreate it
+
+### Permission Issues
+
+**Error:** `EACCES: permission denied`
+
+**Solution:**
+- Don't use `sudo` with npm/npx
+- Check file permissions in your project directory
+
+## Best Practices
+
+1. **Commit Before Adding Modules** - Use git to track changes
+   ```bash
+   git add .
+   git commit -m "Before adding auth module"
+   ```
+
+2. **Test After Installation** - Verify everything works
+   ```bash
+   npm run dev
+   ```
+
+3. **Read Module Docs** - Check specific module documentation for configuration details
+
+4. **Environment Variables** - Never commit `.env` files
+
+## Next Steps
+
+After adding modules:
+
+- [Configure Authentication](/docs/modules/auth)
+- [Set up Database](/docs/modules/database)
+- [Deploy Your App](/docs/deployment)
+
+---
+
+**Questions?** Check our [FAQ](/docs/faq) or [open an issue](https://github.com/tariqul420/stackkit/issues).

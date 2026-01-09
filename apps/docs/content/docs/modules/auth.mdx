@@ -1,0 +1,501 @@
+---
+title: Authentication
+description: Add authentication to your StackKit application
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Authentication
+
+StackKit supports multiple authentication providers, each optimized for different use cases.
+
+## Available Providers
+
+### Better Auth
+
+Modern authentication library built for TypeScript with excellent DX.
+
+**Best for:**
+- TypeScript projects
+- Custom authentication flows
+- Modern OAuth providers
+- Edge runtime compatibility
+
+**Supported in:**
+- Next.js (App Router)
+- Express
+- React (Vite)
+
+[Learn more →](#better-auth)
+
+### Clerk
+
+Complete user management platform with beautiful pre-built components.
+
+**Best for:**
+- Quick setup with minimal code
+- Pre-built UI components
+- User management dashboard
+- Organizations and teams
+
+**Supported in:**
+- Next.js (App Router)
+- Express
+- React (Vite)
+
+[Learn more →](#clerk)
+
+### Auth.js (NextAuth)
+
+Flexible authentication for Next.js applications.
+
+**Best for:**
+- Next.js-specific features
+- Wide provider support
+- JWT or database sessions
+- Established ecosystem
+
+**Supported in:**
+- Next.js (App Router) only
+
+[Learn more →](#authjs-nextauth)
+
+## Better Auth
+
+### Installation
+
+<Tabs items={['New Project', 'Existing Project']}>
+  <Tab value="New Project">
+    ```bash
+    npx create-stackkit-app my-app
+    # Select: Better Auth when prompted
+    ```
+  </Tab>
+  <Tab value="Existing Project">
+    ```bash
+    npx stackkit-cli add auth
+    # Select: Better Auth
+    ```
+  </Tab>
+</Tabs>
+
+### What Gets Installed
+
+**Dependencies:**
+```json
+{
+  "better-auth": "^1.1.4",
+  "@better-auth/prisma": "^1.1.4" // if using Prisma
+}
+```
+
+**Generated Files:**
+
+<Tabs items={['Next.js', 'Express', 'React']}>
+  <Tab value="Next.js">
+    ```
+    lib/
+    └── auth.ts              # Better Auth configuration
+    
+    app/
+    └── api/
+        └── auth/
+            └── [...all]/
+                └── route.ts # Auth API endpoint
+    ```
+  </Tab>
+  <Tab value="Express">
+    ```
+    src/
+    ├── config/
+    │   └── auth.ts          # Better Auth configuration
+    └── routes/
+        └── auth.ts          # Auth routes
+    ```
+  </Tab>
+  <Tab value="React">
+    ```
+    src/
+    └── lib/
+        └── auth.ts          # Better Auth client
+    ```
+  </Tab>
+</Tabs>
+
+### Configuration
+
+**1. Set Environment Variables**
+
+```bash title=".env.local"
+BETTER_AUTH_SECRET="your-32-char-secret-here"
+BETTER_AUTH_URL="http://localhost:3000"
+
+# OAuth Providers (optional)
+GITHUB_CLIENT_ID="your-github-client-id"
+GITHUB_CLIENT_SECRET="your-github-client-secret"
+
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
+```
+
+<Callout type="warn">
+  Generate a secure secret:
+  ```bash
+  openssl rand -base64 32
+  ```
+</Callout>
+
+**2. Update Database Schema** (if using Prisma)
+
+Better Auth automatically adds required tables to your Prisma schema:
+
+```prisma title="prisma/schema.prisma"
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  // ... additional fields
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+```
+
+Run migrations:
+
+```bash
+npx prisma migrate dev --name add-auth
+```
+
+**3. Configure Auth Options**
+
+Edit `lib/auth.ts` to customize:
+
+```typescript title="lib/auth.ts"
+import { betterAuth } from "better-auth";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import { prisma } from "./db";
+
+export const auth = betterAuth({
+  database: prismaAdapter(prisma, {
+    provider: "postgresql", // or "mongodb"
+  }),
+  socialProviders: {
+    github: {
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+    },
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    },
+  },
+  emailAndPassword: {
+    enabled: true,
+    requireEmailVerification: false, // Set to true in production
+  },
+});
+```
+
+### Usage
+
+**Client-side (Next.js/React):**
+
+```typescript title="app/page.tsx"
+"use client";
+
+import { useAuth } from "@/lib/auth/client";
+
+export default function Home() {
+  const { user, signIn, signOut } = useAuth();
+
+  if (!user) {
+    return (
+      <button onClick={() => signIn.email({
+        email: "user@example.com",
+        password: "password123"
+      })}>
+        Sign In
+      </button>
+    );
+  }
+
+  return (
+    <div>
+      <p>Welcome, {user.name}!</p>
+      <button onClick={() => signOut()}>Sign Out</button>
+    </div>
+  );
+}
+```
+
+**Server-side (Next.js):**
+
+```typescript title="app/dashboard/page.tsx"
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+
+export default async function Dashboard() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    redirect("/sign-in");
+  }
+
+  return <div>Welcome, {session.user.name}!</div>;
+}
+```
+
+## Clerk
+
+### Installation
+
+<Tabs items={['New Project', 'Existing Project']}>
+  <Tab value="New Project">
+    ```bash
+    npx create-stackkit-app my-app
+    # Select: Clerk when prompted
+    ```
+  </Tab>
+  <Tab value="Existing Project">
+    ```bash
+    npx stackkit-cli add auth
+    # Select: Clerk
+    ```
+  </Tab>
+</Tabs>
+
+### What Gets Installed
+
+**Dependencies:**
+
+<Tabs items={['Next.js', 'React']}>
+  <Tab value="Next.js">
+    ```json
+    {
+      "@clerk/nextjs": "^5.0.0"
+    }
+    ```
+  </Tab>
+  <Tab value="React">
+    ```json
+    {
+      "@clerk/clerk-react": "^5.0.0"
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Configuration
+
+**1. Get Clerk Keys**
+
+1. Create an account at [clerk.com](https://clerk.com)
+2. Create a new application
+3. Copy your API keys
+
+**2. Set Environment Variables**
+
+```bash title=".env.local"
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_..."
+CLERK_SECRET_KEY="sk_test_..."
+
+# Optional: Customize sign-in/up URLs
+NEXT_PUBLIC_CLERK_SIGN_IN_URL="/sign-in"
+NEXT_PUBLIC_CLERK_SIGN_UP_URL="/sign-up"
+NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL="/"
+NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL="/"
+```
+
+**3. Wrap Your App**
+
+The CLI automatically wraps your app with `ClerkProvider`:
+
+```typescript title="app/layout.tsx"
+import { ClerkProvider } from "@clerk/nextjs";
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <ClerkProvider>
+      <html lang="en">
+        <body>{children}</body>
+      </html>
+    </ClerkProvider>
+  );
+}
+```
+
+### Usage
+
+**Protect Routes:**
+
+```typescript title="app/dashboard/page.tsx"
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
+
+export default async function Dashboard() {
+  const { userId } = await auth();
+  
+  if (!userId) {
+    redirect("/sign-in");
+  }
+
+  return <div>Protected Dashboard</div>;
+}
+```
+
+**Access User Data:**
+
+```typescript title="app/profile/page.tsx"
+import { currentUser } from "@clerk/nextjs/server";
+
+export default async function Profile() {
+  const user = await currentUser();
+
+  return (
+    <div>
+      <p>Email: {user?.emailAddresses[0].emailAddress}</p>
+      <p>Name: {user?.firstName} {user?.lastName}</p>
+    </div>
+  );
+}
+```
+
+**Client Components:**
+
+```typescript title="components/user-button.tsx"
+"use client";
+
+import { UserButton, useUser } from "@clerk/nextjs";
+
+export function UserNav() {
+  const { user } = useUser();
+
+  return (
+    <div>
+      <p>Hello, {user?.firstName}!</p>
+      <UserButton />
+    </div>
+  );
+}
+```
+
+## Auth.js (NextAuth)
+
+### Installation
+
+<Tabs items={['New Project', 'Existing Project']}>
+  <Tab value="New Project">
+    ```bash
+    npx create-stackkit-app my-app
+    # Select: Auth.js (NextAuth) when prompted
+    ```
+  </Tab>
+  <Tab value="Existing Project">
+    ```bash
+    npx stackkit-cli add auth
+    # Select: Auth.js (NextAuth)
+    ```
+  </Tab>
+</Tabs>
+
+<Callout type="info">
+  Auth.js (NextAuth v5) is only compatible with Next.js App Router.
+</Callout>
+
+### Configuration
+
+**1. Set Environment Variables**
+
+```bash title=".env.local"
+AUTH_SECRET="your-secret-here"
+AUTH_URL="http://localhost:3000"
+
+# OAuth Providers
+GITHUB_ID="your-github-client-id"
+GITHUB_SECRET="your-github-client-secret"
+```
+
+**2. Configure Providers**
+
+```typescript title="lib/auth.ts"
+import NextAuth from "next-auth";
+import GitHub from "next-auth/providers/github";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { prisma } from "./db";
+
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  adapter: PrismaAdapter(prisma),
+  providers: [
+    GitHub({
+      clientId: process.env.GITHUB_ID,
+      clientSecret: process.env.GITHUB_SECRET,
+    }),
+  ],
+  session: {
+    strategy: "jwt",
+  },
+});
+```
+
+### Usage
+
+```typescript title="app/dashboard/page.tsx"
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+
+export default async function Dashboard() {
+  const session = await auth();
+
+  if (!session?.user) {
+    redirect("/api/auth/signin");
+  }
+
+  return <div>Welcome, {session.user.name}!</div>;
+}
+```
+
+## Comparison
+
+| Feature | Better Auth | Clerk | Auth.js |
+|---------|-------------|-------|---------|
+| **Setup Time** | Medium | Fast | Medium |
+| **UI Components** | Manual | Pre-built | Manual |
+| **Customization** | High | Medium | High |
+| **Free Tier** | Unlimited | 10k MAUs | Unlimited |
+| **Edge Runtime** | ✅ | ✅ | ✅ |
+| **Self-hosted** | ✅ | ❌ | ✅ |
+| **TypeScript** | Excellent | Good | Good |
+
+## Next Steps
+
+- [Database Setup](/docs/modules/database)
+- [Deployment](/docs/deployment)
+- [Contributing](/docs/contributing)

@@ -1,0 +1,173 @@
+---
+title: Installation
+description: Install StackKit and create your first project
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+# Installation
+
+Get started with StackKit in minutes. This guide will walk you through creating your first project.
+
+## Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+- **Node.js** 20.0.0 or higher
+- **pnpm** 8.0.0 or higher (or npm/yarn)
+
+<Callout type="info">Check your versions: ```bash node --version pnpm --version ```</Callout>
+
+## Create a New Project
+
+The fastest way to get started is with `create-stackkit-app`:
+
+<Steps>
+
+### Run the CLI
+
+<Tabs items={['pnpm', 'npm', 'yarn']}>
+  <Tab value="pnpm">```bash pnpm create stackkit-app my-app ```</Tab>
+  <Tab value="npm">```bash npx create-stackkit-app my-app ```</Tab>
+  <Tab value="yarn">```bash yarn create stackkit-app my-app ```</Tab>
+</Tabs>
+
+### Answer the Prompts
+
+The CLI will ask you to configure your project:
+
+```
+? Select a framework: (Use arrow keys)
+❯ Next.js 16 (App Router)
+  Express
+  React (Vite)
+
+? Select a database:
+  Prisma (PostgreSQL)
+❯ Prisma (MongoDB)
+  Mongoose (MongoDB)
+  Drizzle (PostgreSQL)
+  Skip for now
+
+? Select authentication:
+  Better Auth
+❯ Clerk
+  Auth.js (NextAuth)
+  Skip for now
+
+? Install dependencies?
+❯ Yes
+  No
+```
+
+### Navigate to Your Project
+
+```bash
+cd my-app
+```
+
+### Start Development Server
+
+<Tabs items={['pnpm', 'npm', 'yarn']}>
+  <Tab value="pnpm">```bash pnpm dev ```</Tab>
+  <Tab value="npm">```bash npm run dev ```</Tab>
+  <Tab value="yarn">```bash yarn dev ```</Tab>
+</Tabs>
+
+Your app is now running! Open [http://localhost:3000](http://localhost:3000) to view it.
+
+</Steps>
+
+## What Gets Generated?
+
+StackKit creates a complete project structure tailored to your choices:
+
+### Next.js Project Structure
+
+```
+my-app/
+├── app/                    # Next.js App Router
+│   ├── (auth)/            # Authentication routes (if selected)
+│   ├── api/               # API routes
+│   ├── layout.tsx         # Root layout
+│   └── page.tsx           # Home page
+├── lib/                   # Utility functions
+│   ├── auth.ts            # Auth configuration (if selected)
+│   └── db.ts              # Database client (if selected)
+├── prisma/                # Prisma schema (if selected)
+│   └── schema.prisma
+├── .env.local             # Environment variables
+├── .gitignore
+├── next.config.ts
+├── package.json
+├── tsconfig.json
+└── tailwind.config.ts
+```
+
+### Express Project Structure
+
+```
+my-app/
+├── src/
+│   ├── routes/            # Express routes
+│   ├── middlewares/       # Custom middleware
+│   ├── config/            # Configuration files
+│   │   ├── auth.ts        # Auth setup (if selected)
+│   │   └── db.ts          # Database setup (if selected)
+│   ├── app.ts             # Express app setup
+│   └── server.ts          # Server entry point
+├── .env
+├── .gitignore
+├── package.json
+└── tsconfig.json
+```
+
+## Add Modules to Existing Projects
+
+Already have a project? Use `stackkit-cli` to add features:
+
+```bash
+# Add authentication
+npx stackkit-cli add auth
+
+# Add database
+npx stackkit-cli add database
+```
+
+<Callout type="warn" title="Compatibility Check">
+  The CLI will automatically detect your framework and offer compatible modules.
+</Callout>
+
+## Environment Variables
+
+After project creation, configure your environment variables in `.env.local` (Next.js/React) or `.env` (Express):
+
+```bash title=".env.local"
+# Database
+DATABASE_URL="postgresql://user:password@localhost:5432/mydb"
+
+# Authentication (example with Better Auth)
+BETTER_AUTH_SECRET="your-secret-key-here"
+BETTER_AUTH_URL="http://localhost:3000"
+
+# OAuth Providers (if configured)
+GITHUB_CLIENT_ID="your-github-client-id"
+GITHUB_CLIENT_SECRET="your-github-client-secret"
+```
+
+<Callout type="warn">Never commit `.env.local` or `.env` files to version control!</Callout>
+
+## Next Steps
+
+Now that your project is set up:
+
+- Learn about [CLI commands](/docs/cli/create-stackkit)
+- Configure [authentication](/docs/modules/auth)
+- Set up your [database](/docs/modules/database)
+- Read about [project structure](/docs/getting-started/project-structure)
+
+---
+
+**Need help?** Check out our [troubleshooting guide](/docs/getting-started/troubleshooting) or [open an issue](https://github.com/tariqul420/stackkit/issues).
