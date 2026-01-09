@@ -38,9 +38,7 @@ export class TemplateComposer {
     const filesToCopy: Array<{ source: string; dest: string }> = [];
 
     // 1. Load base framework template
-    const baseConfig = await this.loadConfig(
-      path.join(this.templatesDir, framework)
-    );
+    const baseConfig = await this.loadConfig(path.join(this.templatesDir, framework));
     configs.push(baseConfig);
 
     // Copy base files
