@@ -1,14 +1,31 @@
 {
-  "name": "auth",
+  "name": "better-auth-nextjs",
   "displayName": "Better Auth (Next.js)",
   "description": "Modern authentication with Better Auth for Next.js App Router",
   "category": "auth",
   "provider": "better-auth",
   "supportedFrameworks": ["nextjs"],
-  "compatibleDatabases": ["prisma-postgresql", "prisma-mongodb"],
-  "dependencies": {
-    "better-auth": "^1.1.4",
-    "@better-auth/prisma": "^1.1.4"
+  "databaseAdapters": {
+    "prisma-postgresql": {
+      "adapter": "adapters/prisma-postgresql.ts",
+      "dependencies": {
+        "better-auth": "^1.1.4",
+        "@better-auth/prisma": "^1.1.4"
+      }
+    },
+    "prisma-mongodb": {
+      "adapter": "adapters/prisma-mongodb.ts",
+      "dependencies": {
+        "better-auth": "^1.1.4",
+        "@better-auth/prisma": "^1.1.4"
+      }
+    },
+    "mongoose-mongodb": {
+      "adapter": "adapters/mongoose-mongodb.ts",
+      "dependencies": {
+        "better-auth": "^1.1.4"
+      }
+    }
   },
   "envVars": [
     {

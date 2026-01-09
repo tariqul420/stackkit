@@ -197,7 +197,7 @@ async function composeTemplate(config: ProjectConfig, targetDir: string): Promis
 
   // 2. Merge database configuration
   if (config.database !== 'none') {
-    await mergeDatabaseConfig(templatesDir, targetDir, config.database);
+    await mergeDatabaseConfig(templatesDir, targetDir, config.database, config.framework);
   }
 
   // 3. Merge auth configuration
@@ -243,7 +243,8 @@ async function copyBaseFramework(
 async function mergeDatabaseConfig(
   templatesDir: string,
   targetDir: string,
-  database: string
+  database: string,
+  framework: string
 ): Promise<void> {
   // Use modules directory (sibling to templates)
   const modulesDir = path.join(templatesDir, '..', 'modules');
@@ -294,6 +295,16 @@ async function mergeDatabaseConfig(
     envVars[envVar.key] = envVar.value;
   }
   await mergeEnvFile(targetDir, envVars);
+
+  // Apply framework-specific patches from database module
+  if (moduleData.frameworkPatches) {
+    const frameworkKey = framework === 'react-vite' ? 'react' : framework;
+    const patches = moduleData.frameworkPatches[frameworkKey];
+    
+    if (patches) {
+      await applyFrameworkPatches(targetDir, patches);
+    }
+  }
 }
 
 async function mergeAuthConfig(
@@ -515,6 +526,46 @@ async function initGit(cwd: string): Promise<void> {
   } catch (error) {
     throw new Error('Git initialization failed');
   }
+}
+
+async function applyFrameworkPatches(
+  targetDir: string,
+  patches: Record<string, any>
+): Promise<void> {
+  for (const [filename, patchConfig] of Object.entries(patches)) {
+    const filePath = path.join(targetDir, filename);
+    
+    if (await fs.pathExists(filePath)) {
+      const fileContent = await fs.readJson(filePath);
+      
+      if (patchConfig.merge) {
+        // Deep merge configuration
+        const merged = deepMerge(fileContent, patchConfig.merge);
+        await fs.writeJson(filePath, merged, { spaces: 2 });
+      }
+    }
+  }
+}
+
+function deepMerge(target: any, source: any): any {
+  const output = { ...target };
+  
+  for (const key in source) {
+    if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+      if (target[key]) {
+        output[key] = deepMerge(target[key], source[key]);
+      } else {
+        output[key] = source[key];
+      }
+    } else if (Array.isArray(source[key])) {
+      // For arrays, merge uniquely
+      output[key] = Array.from(new Set([...(target[key] || []), ...source[key]]));
+    } else {
+      output[key] = source[key];
+    }
+  }
+  
+  return output;
 }
 
 function showNextSteps(config: ProjectConfig): void {

@@ -1,11 +1,30 @@
 {
-  "name": "auth",
+  "name": "better-auth-express",
   "displayName": "Better Auth (Express)",
   "description": "Modern authentication with Better Auth for Express",
   "category": "auth",
   "supportedFrameworks": ["express"],
-  "dependencies": {
-    "better-auth": "^1.0.0"
+  "databaseAdapters": {
+    "prisma-postgresql": {
+      "adapter": "adapters/prisma-postgresql.ts",
+      "dependencies": {
+        "better-auth": "^1.1.4",
+        "@better-auth/prisma": "^1.1.4"
+      }
+    },
+    "prisma-mongodb": {
+      "adapter": "adapters/prisma-mongodb.ts",
+      "dependencies": {
+        "better-auth": "^1.1.4",
+        "@better-auth/prisma": "^1.1.4"
+      }
+    },
+    "mongoose-mongodb": {
+      "adapter": "adapters/mongoose-mongodb.ts",
+      "dependencies": {
+        "better-auth": "^1.1.4"
+      }
+    }
   },
   "envVars": [
     {

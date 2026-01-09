@@ -1,5 +1,5 @@
 {
-  "name": "database",
+  "name": "prisma-postgresql",
   "displayName": "Prisma + PostgreSQL",
   "description": "Add Prisma ORM with PostgreSQL database",
   "category": "database",
@@ -18,17 +18,39 @@
       "required": true
     }
   ],
+  "frameworkPatches": {
+    "express": {
+      "tsconfig.json": {
+        "merge": {
+          "compilerOptions": {
+            "paths": {
+              "@/*": ["./src/*"]
+            }
+          },
+          "include": ["src/**/*"],
+          "exclude": ["node_modules", "dist", "prisma/migrations"]
+        }
+      }
+    },
+    "nextjs": {
+      "tsconfig.json": {
+        "merge": {
+          "exclude": ["node_modules", ".next", "out", "prisma/migrations"]
+        }
+      }
+    }
+  },
   "patches": [
     {
       "type": "create-file",
       "description": "Create Prisma schema",
-      "source": "prisma/schema.prisma",
+      "source": "files/prisma/schema.prisma",
       "destination": "prisma/schema.prisma"
     },
     {
       "type": "create-file",
       "description": "Create Prisma client singleton",
-      "source": "lib/db.ts",
+      "source": "files/lib/db.ts",
       "destination": "{{lib}}/db.ts"
     }
   ],

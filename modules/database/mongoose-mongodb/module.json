@@ -6,13 +6,46 @@
   "dependencies": {
     "mongoose": "^8.8.4"
   },
-  "env": {
-    "MONGODB_URI": "mongodb://localhost:27017/myapp"
-  },
-  "files": [
+  "envVars": [
     {
-      "source": "files/lib/db.ts",
-      "destination": "lib/db.ts"
+      "key": "MONGODB_URI",
+      "value": "mongodb://localhost:27017/myapp",
+      "description": "MongoDB connection string",
+      "required": true
+    }
+  ],
+  "frameworkPatches": {
+    "express": {
+      "tsconfig.json": {
+        "merge": {
+          "compilerOptions": {
+            "paths": {
+              "@/*": ["./src/*"],
+              "@/models/*": ["./src/models/*"]
+            }
+          },
+          "include": ["src/**/*", "src/models/**/*"]
+        }
+      }
+    },
+    "nextjs": {
+      "tsconfig.json": {
+        "merge": {
+          "compilerOptions": {
+            "paths": {
+              "@/models/*": ["./models/*"]
+            }
+          }
+        }
+      }
+    }
+  },
+  "patches": [
+    {
+      "type": "create-file",
+      "description": "MongoDB connection with Mongoose",
+      "source": "lib/db.ts",
+      "destination": "{{lib}}/db.ts"
     }
   ]
 }
