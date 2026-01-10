@@ -1,18 +1,17 @@
-version: '3.8'
 services:
   docs:
     container_name: stackkit-docs
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ../..
+      dockerfile: apps/docs/Dockerfile
 
     ports:
-      - "3001:3001"
+      - "3003:3003"
 
     restart: unless-stopped
     environment:
       - NODE_ENV=production
-      - PORT=3001
+      - PORT=3003
 
     networks:
       - proxy
@@ -27,7 +26,7 @@ services:
       - "traefik.http.routers.stackkit.tls.certresolver=letsencrypt"
       - "traefik.http.routers.stackkit.service=stackkit-svc"
       - "traefik.http.routers.stackkit.middlewares=stackkit-headers@docker"
-      - "traefik.http.services.stackkit-svc.loadbalancer.server.port=3001"
+      - "traefik.http.services.stackkit-svc.loadbalancer.server.port=3003"
       - "traefik.http.services.stackkit-svc.loadbalancer.passhostheader=true"
       - "traefik.http.middlewares.stackkit-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
       - "traefik.http.middlewares.stackkit-headers.headers.customrequestheaders.X-Forwarded-Host=stackkit.tariqul.dev"
