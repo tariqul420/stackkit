@@ -1,11 +1,11 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter } from 'react-router';
 import { userService } from './api/services/user.service';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import Layout from './components/Layout';
 import About from './pages/About';
 import Home from './pages/Home';
 import NotFound from './pages/NotFound';
 import UserProfile from './pages/UserProfile';
-import { ErrorBoundary } from './components/ErrorBoundary';
 
 export const router = createBrowserRouter([
   {

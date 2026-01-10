@@ -3,7 +3,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Toaster } from 'react-hot-toast';
-import { RouterProvider } from 'react-router-dom';
+import { RouterProvider } from 'react-router';
 import { SEOProvider } from './components/SEO';
 import './index.css';
 import { queryClient } from './lib/queryClient';

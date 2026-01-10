@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useLoaderData, useParams } from 'react-router-dom';
+import { useLoaderData, useParams } from 'react-router';
 import { userService } from '../api/services/user.service';
 
 type User = { id?: string; name?: string; email?: string; avatar?: string; [key: string]: any };
