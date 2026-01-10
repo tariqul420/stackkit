@@ -15,6 +15,10 @@ RUN pnpm install --frozen-lockfile
 
 # copy sources and build only the docs app
 COPY ../.. ./
+
+# reinstall workspace dependencies now that sources are present (ensures bins like `next` are linked)
+RUN pnpm install --frozen-lockfile
+
 WORKDIR /app/apps/docs
 
 RUN pnpm --filter docs build
@@ -32,7 +36,7 @@ RUN apt-get update -y && \
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     HOSTNAME=0.0.0.0 \
-    PORT=3003
+    PORT=3001
 
 # copy built app and node_modules from builder
 COPY --from=builder --chown=nextjs:nextjs /app/apps/docs .
@@ -43,6 +47,6 @@ WORKDIR /app/apps/docs
 ENV NODE_ENV=production
 
 USER nextjs
-EXPOSE 3003
+EXPOSE 3001
 
-CMD ["sh", "-c", "pnpm start -p 3003"]
+CMD ["sh", "-c", "pnpm start -p 3001"]
