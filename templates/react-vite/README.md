@@ -1,73 +1,85 @@
-# React + TypeScript + Vite
+# React + Vite Template
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A production-ready React starter template with TypeScript, Vite, and essential libraries pre-configured.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React 19** with TypeScript
+- **Vite 7** for fast development
+- **React Router v7** for client-side routing
+- **TanStack Query v5** for data fetching and caching
+- **Axios** with interceptors
+- **Tailwind CSS** for styling
+- **React Hot Toast** for notifications
+- **SEO Ready** with React Helmet Async
+- **Error Boundaries** for graceful error handling
+- **ESLint** for code quality
+- **Custom Hooks** included
 
-## React Compiler
+## Quick Start
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+# Install dependencies
+pnpm install
 
-## Expanding the ESLint configuration
+# Start development server
+pnpm dev
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+# Build for production
+pnpm build
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Preview production build
+pnpm preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Project Structure
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+src/
+├── api/          # API client & interceptors
+├── components/   # Reusable UI components
+├── config/       # App configuration
+├── hooks/        # Custom React hooks
+├── lib/          # Library configurations
+├── pages/        # Route pages
+├── types/        # TypeScript types
+├── utils/        # Helper functions
+├── App.tsx       # Main app component
+├── main.tsx      # Entry point
+└── index.css     # Global styles
+```
+
+## Environment Variables
+
+Create a `.env` file:
+
+```env
+VITE_API_URL=http://localhost:3000/api
+VITE_APP_NAME=My App
+```
+
+## Production Build
+
+- Code splitting with vendor chunks
+- Tree shaking to remove unused code
+- Minified and compressed output
+- TypeScript strict mode enabled
+- ESLint configured for code quality
+
+## Deployment
+
+```bash
+pnpm build
+```
+
+Deploy the `dist` folder to Vercel, Netlify, or any static hosting service.
+
+## Tech Stack
+
+- React 19 - UI library
+- Vite 7 - Build tool
+- TypeScript - Type safety
+- React Router v7 - Routing
+- TanStack Query v5 - Data fetching
+- Axios - HTTP client
+- Tailwind CSS - Styling

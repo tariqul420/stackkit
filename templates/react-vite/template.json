@@ -2,10 +2,11 @@
   "name": "react-vite-base",
   "displayName": "React (Vite)",
   "framework": "react-vite",
-  "description": "React 18 + Vite with TypeScript",
+  "description": "Production-ready React 19 + Vite with TypeScript, Router, TanStack Query, and more",
   "files": [
     "src/",
     "public/",
+    ".env.example",
     ".gitignore",
     "eslint.config.js",
     "index.html",
