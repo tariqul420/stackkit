@@ -3,20 +3,18 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Toaster } from 'react-hot-toast';
-import { BrowserRouter } from 'react-router-dom';
-import App from './App.tsx';
+import { RouterProvider } from 'react-router-dom';
 import { SEOProvider } from './components/SEO';
 import './index.css';
 import { queryClient } from './lib/queryClient';
+import { router } from './router';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <SEOProvider>
       <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <App />
-          <Toaster position="top-right" />
-        </BrowserRouter>
+        <RouterProvider router={router} />
+        <Toaster position="top-right" />
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </SEOProvider>
