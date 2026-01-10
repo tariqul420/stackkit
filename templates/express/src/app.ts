@@ -48,7 +48,11 @@ app.use(
 
 // Home page route
 app.get('/', (req: Request, res: Response) => {
-  res.send('Hello World!');
+  res.json({
+    title: 'StackKit - Production-ready project generator',
+    description:
+      'Modern CLI tool for creating production-ready web applications with modular architecture. Build with Next.js, Express, or React.',
+  });
 });
 
 // unhandled routes
