@@ -24,7 +24,7 @@ Community leaders will enforce these standards fairly and take appropriate actio
 
 ## Reporting
 
-Report unacceptable behavior to [tariqul420@example.com](mailto:tariqul420@example.com).
+Report unacceptable behavior to [tariqul@tariqul.dev](mailto:tariqul@tariqul.dev).
 
 ## Attribution
 
@@ -42,7 +42,7 @@ representative at an online or offline event.
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
 reported to the community leaders responsible for enforcement at
-[conduct@stackkit.dev].
+[conduct@stack-kit.com].
 
 All complaints will be reviewed and investigated promptly and fairly.
 

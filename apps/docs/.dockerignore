@@ -1,0 +1,15 @@
+node_modules
+.next
+dist
+build
+.pnpm-store
+/.cache
+.env
+.env.*
+.git
+.github
+**/node_modules
+**/.next
+**/.DS_Store
+pnpm-lock.yaml
+/*.tgz

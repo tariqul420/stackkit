@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  docs:
+    container_name: stackkit-docs
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    ports:
+      - "3001:3001"
+
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+
+    networks:
+      - proxy
+      - appnet
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.stackkit.rule=Host(`stackkit.tariqul.dev`)"
+      - "traefik.http.routers.stackkit.entrypoints=websecure"
+      - "traefik.http.routers.stackkit.tls=true"
+      - "traefik.http.routers.stackkit.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.stackkit.service=stackkit-svc"
+      - "traefik.http.routers.stackkit.middlewares=stackkit-headers@docker"
+      - "traefik.http.services.stackkit-svc.loadbalancer.server.port=3001"
+      - "traefik.http.services.stackkit-svc.loadbalancer.passhostheader=true"
+      - "traefik.http.middlewares.stackkit-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.middlewares.stackkit-headers.headers.customrequestheaders.X-Forwarded-Host=stackkit.tariqul.dev"
+
+networks:
+  proxy:
+    external: true
+  appnet:
+    external: true
