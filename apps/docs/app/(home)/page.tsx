@@ -169,7 +169,7 @@ export default function HomePage() {
 
           {/* Command Box */}
           <div className="mt-16 w-full max-w-3xl">
-            <div className="relative overflow-hidden rounded-xl border border-fd-border bg-fd-card/80 shadow-2xl backdrop-blur-sm">
+            <div className="relative overflow-hidden rounded-xl border border-fd-border bg-fd-card/80 shadow-md backdrop-blur-sm">
               <div className="flex items-center gap-2 border-b border-fd-border bg-fd-muted/50 px-5 py-3">
                 <div className="flex gap-1.5">
                   <div className="size-3 rounded-full bg-red-500" />
