@@ -38,8 +38,11 @@ ENV NODE_ENV=production \
     HOSTNAME=0.0.0.0 \
     PORT=3001
 
-# copy built app and node_modules from builder
-COPY --from=builder --chown=nextjs:nextjs /app/apps/docs .
+
+# copy built app and workspace node_modules from builder so runtime binaries (next) are available
+COPY --from=builder --chown=nextjs:nextjs /app/node_modules /app/node_modules
+COPY --from=builder --chown=nextjs:nextjs /app/apps/docs /app/apps/docs
+COPY --from=builder --chown=nextjs:nextjs /app/package.json /app/package.json
 
 WORKDIR /app/apps/docs
 
