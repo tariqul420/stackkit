@@ -6,26 +6,18 @@ export default function NotFound() {
     <>
       <SEO title="404 - Page Not Found" description="The page you're looking for doesn't exist" />
 
-      <div style={{ textAlign: 'center', padding: '3rem' }}>
-        <h1 style={{ fontSize: '4rem', margin: 0 }}>404</h1>
-        <h2>Page Not Found</h2>
-        <p style={{ color: '#666', margin: '1rem 0 2rem' }}>
-          The page you're looking for doesn't exist.
-        </p>
-        <Link
-          to="/"
-          style={{
-            display: 'inline-block',
-            padding: '0.75rem 1.5rem',
-            background: '#646cff',
-            color: 'white',
-            textDecoration: 'none',
-            borderRadius: '8px',
-            transition: 'background 0.3s',
-          }}
-        >
-          Go Home
-        </Link>
+      <div className="flex min-h-screen items-center justify-center bg-black">
+        <div className="text-center px-6">
+          <h1 className="text-8xl font-bold text-white mb-4">404</h1>
+          <h2 className="text-3xl font-semibold text-zinc-50 mb-4">Page Not Found</h2>
+          <p className="text-lg text-zinc-400 mb-8">The page you're looking for doesn't exist.</p>
+          <Link
+            to="/"
+            className="inline-flex h-12 items-center justify-center rounded-full bg-white text-black px-8 font-medium transition-colors hover:bg-zinc-200"
+          >
+            Go Home
+          </Link>
+        </div>
       </div>
     </>
   );
