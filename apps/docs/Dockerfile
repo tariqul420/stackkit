@@ -36,7 +36,7 @@ RUN apt-get update -y && \
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     HOSTNAME=0.0.0.0 \
-    PORT=3001
+    PORT=3003
 
 
 # copy built app and workspace node_modules from builder so runtime binaries (next) are available
@@ -50,6 +50,6 @@ WORKDIR /app/apps/docs
 ENV NODE_ENV=production
 
 USER nextjs
-EXPOSE 3001
+EXPOSE 3003
 
-CMD ["sh", "-c", "pnpm start -p 3001"]
+CMD ["sh", "-c", "pnpm start -p 3003"]
