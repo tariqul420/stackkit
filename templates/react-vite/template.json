@@ -16,5 +16,31 @@
     "tsconfig.app.json",
     "tsconfig.node.json",
     "vite.config.ts"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "preview": "vite preview"
+  },
+  "jsScripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "preview": "vite preview"
+  },
+  "fileReplacements": [
+    {
+      "file": "index.html",
+      "from": "/src/main.tsx",
+      "to": "/src/main.jsx"
+    },
+    {
+      "file": "vite.config.ts",
+      "from": "main.tsx",
+      "to": "main.jsx"
+    }
   ]
 }

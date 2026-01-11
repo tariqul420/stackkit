@@ -1,12 +1,4 @@
-import type { ApiResponse } from "../../types/api";
 import api from "../client";
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  avatar?: string;
-}
 
 export const userService = {
   getUser: async (id: string): Promise<User> => {

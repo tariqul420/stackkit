@@ -14,5 +14,17 @@
     "postcss.config.mjs",
     "README.md",
     "tsconfig.json"
-  ]
+  ],
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "jsScripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  }
 }

@@ -214,7 +214,7 @@ async function composeTemplate(config: ProjectConfig, targetDir: string): Promis
 
   // 5. Convert to JavaScript if selected
   if (config.language === "javascript") {
-    await convertToJavaScript(targetDir);
+    await convertToJavaScript(targetDir, config.framework);
   }
 }
 
@@ -499,9 +499,14 @@ async function mergeEnvFile(targetDir: string, envVars: Record<string, string>):
   }
 }
 
-async function convertToJavaScript(targetDir: string): Promise<void> {
-  // Remove TypeScript config files
-  const tsFiles = ["tsconfig.json", "next-env.d.ts"];
+async function convertToJavaScript(targetDir: string, framework: string): Promise<void> {
+  const tsFiles = [
+    "tsconfig.json",
+    "tsconfig.app.json",
+    "tsconfig.node.json",
+    "next-env.d.ts",
+    "vite-env.d.ts",
+  ];
   for (const file of tsFiles) {
     const filePath = path.join(targetDir, file);
     if (await fs.pathExists(filePath)) {
@@ -509,26 +514,160 @@ async function convertToJavaScript(targetDir: string): Promise<void> {
     }
   }
 
-  // Rename .ts(x) files to .js(x)
-  const renameExtensions = async (dir: string) => {
+  const removeDtsFiles = async (dir: string) => {
     const entries = await fs.readdir(dir, { withFileTypes: true });
     for (const entry of entries) {
       const fullPath = path.join(dir, entry.name);
       if (entry.isDirectory() && entry.name !== "node_modules") {
-        await renameExtensions(fullPath);
+        await removeDtsFiles(fullPath);
+      } else if (entry.isFile() && entry.name.endsWith(".d.ts")) {
+        await fs.remove(fullPath);
+      }
+    }
+  };
+  await removeDtsFiles(targetDir);
+
+  const ts = require("typescript");
+  let prettier;
+  try {
+    prettier = require("prettier");
+  } catch {
+    prettier = null;
+  }
+  function ensureBlankLineAfterImports(code: string): string {
+    const lines = code.split("\n");
+    let lastImportIdx = -1;
+    for (let i = 0; i < lines.length; i++) {
+      if (/^\s*import\s/.test(lines[i])) {
+        lastImportIdx = i;
+      }
+    }
+    if (lastImportIdx !== -1) {
+      if (lines[lastImportIdx + 1] && lines[lastImportIdx + 1].trim() !== "") {
+        lines.splice(lastImportIdx + 1, 0, "");
+      }
+    }
+    return lines.join("\n");
+  }
+  const transpileAllTsFiles = async (dir: string) => {
+    const entries = await fs.readdir(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory() && entry.name !== "node_modules") {
+        await transpileAllTsFiles(fullPath);
       } else if (entry.isFile()) {
-        if (entry.name.endsWith(".ts")) {
-          await fs.rename(fullPath, fullPath.replace(/\.ts$/, ".js"));
-        } else if (entry.name.endsWith(".tsx")) {
-          await fs.rename(fullPath, fullPath.replace(/\.tsx$/, ".jsx"));
+        if (entry.name.endsWith(".ts") || entry.name.endsWith(".tsx")) {
+          const code = await fs.readFile(fullPath, "utf8");
+          const codeNoNonNull = code.replace(/([a-zA-Z0-9_\)\]]+)!/g, "$1");
+          const isTsx = entry.name.endsWith(".tsx");
+          const transpiled = ts.transpileModule(codeNoNonNull, {
+            compilerOptions: {
+              target: ts.ScriptTarget.ES2022,
+              module: ts.ModuleKind.ESNext,
+              esModuleInterop: true,
+              jsx: isTsx ? "preserve" : undefined,
+              removeComments: true,
+              strict: true,
+            },
+          });
+          const outFile = fullPath.replace(/\.tsx$/, ".jsx").replace(/\.ts$/, ".js");
+          let output = transpiled.outputText;
+          output = ensureBlankLineAfterImports(output);
+          if (prettier) {
+            try {
+              const formatted = prettier.format(output, { parser: isTsx ? "babel" : "babel" });
+              if (formatted && typeof formatted.then === "function") {
+                output = await formatted;
+              } else {
+                output = formatted;
+              }
+            } catch {}
+          }
+          await fs.writeFile(outFile, String(output), "utf8");
+          await fs.remove(fullPath);
         }
       }
     }
   };
+  await transpileAllTsFiles(targetDir);
 
-  await renameExtensions(targetDir);
+  const templatesRoot = path.join(__dirname, "..", "..", "templates");
+  let templateName = framework;
 
-  // Update package.json to remove TypeScript dependencies
+  let fileReplacements = [];
+  let jsScripts = null;
+  if (templateName) {
+    const templateJsonPath = path.join(templatesRoot, templateName, "template.json");
+    if (await fs.pathExists(templateJsonPath)) {
+      try {
+        const templateJson = await fs.readJson(templateJsonPath);
+        if (Array.isArray(templateJson.fileReplacements)) {
+          fileReplacements = templateJson.fileReplacements;
+        }
+        if (templateJson.jsScripts) {
+          jsScripts = templateJson.jsScripts;
+        }
+      } catch {}
+    }
+  }
+  const defaultReplacements = [
+    {
+      file: "index.html",
+      from: /src\s*=\s*"src\/main\.tsx"/g,
+      to: 'src="src/main.jsx"',
+    },
+    {
+      file: "vite.config.js",
+      from: /main\.tsx/g,
+      to: "main.jsx",
+    },
+  ];
+  for (const rep of fileReplacements.length ? fileReplacements : defaultReplacements) {
+    const filePath = path.join(targetDir, rep.file);
+    if (await fs.pathExists(filePath)) {
+      let content = await fs.readFile(filePath, "utf8");
+      if (rep.from && rep.to) {
+        content = content.replace(rep.from, rep.to);
+        await fs.writeFile(filePath, content, "utf8");
+      }
+    }
+  }
+  if (jsScripts) {
+    const packageJsonPath = path.join(targetDir, "package.json");
+    if (await fs.pathExists(packageJsonPath)) {
+      const packageJson = await fs.readJson(packageJsonPath);
+      packageJson.scripts = { ...packageJson.scripts, ...jsScripts };
+      await fs.writeJson(packageJsonPath, packageJson, { spaces: 2 });
+    }
+  }
+  const jsconfig = path.join(targetDir, "jsconfig.json");
+  if (!(await fs.pathExists(jsconfig))) {
+    for (const tmpl of await fs.readdir(templatesRoot, { withFileTypes: true })) {
+      if (tmpl.isDirectory()) {
+        const templateJsconfig = path.join(templatesRoot, tmpl.name, "jsconfig.json");
+        if (await fs.pathExists(templateJsconfig)) {
+          await fs.copy(templateJsconfig, jsconfig);
+          break;
+        }
+      }
+    }
+  }
+  const srcDir = path.join(targetDir, "src");
+  if (await fs.pathExists(srcDir)) {
+    const srcFiles = await fs.readdir(srcDir);
+    for (const file of srcFiles) {
+      if (
+        (file.endsWith(".js") || file.endsWith(".jsx")) &&
+        file.replace(/\.(js|jsx)$/, ".ts") &&
+        srcFiles.includes(file.replace(/\.(js|jsx)$/, ".ts"))
+      ) {
+        await fs.remove(path.join(srcDir, file.replace(/\.(js|jsx)$/, ".ts")));
+      }
+      if (file.endsWith(".jsx") && srcFiles.includes(file.replace(/\.jsx$/, ".tsx"))) {
+        await fs.remove(path.join(srcDir, file.replace(/\.jsx$/, ".tsx")));
+      }
+    }
+  }
   const packageJsonPath = path.join(targetDir, "package.json");
   if (await fs.pathExists(packageJsonPath)) {
     const packageJson = await fs.readJson(packageJsonPath);
