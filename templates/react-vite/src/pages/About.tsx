@@ -7,7 +7,11 @@ export default function About() {
 
       <div className="flex min-h-screen items-center justify-center bg-black">
         <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-black sm:items-start">
-          <div className="text-2xl font-bold text-white">Stackkit</div>
+          <div className="flex items-center gap-4 mb-8">
+            <div className="text-2xl font-bold text-white">Stackkit</div>
+            <span className="text-xl text-zinc-400">+</span>
+            <img src="https://react.dev/favicon.ico" alt="React logo" width={32} height={32} />
+          </div>
 
           <div className="flex flex-col gap-12 sm:text-left">
             <div>

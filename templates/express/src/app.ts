@@ -49,9 +49,11 @@ app.use(
 // Home page route
 app.get("/", (req: Request, res: Response) => {
   res.json({
-    title: "StackKit - Production-ready project generator",
+    title: "Welcome to your Express app",
     description:
-      "Modern CLI tool for creating production-ready web applications with modular architecture. Build with Next.js, Express, or React.",
+      "Built with StackKit - A production-ready Express template with TypeScript, security, and best practices.",
+    version: "1.0.0",
+    docs: "https://github.com/tariqul420/stackkit",
   });
 });
 
