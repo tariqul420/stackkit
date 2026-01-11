@@ -23,7 +23,7 @@ interface ProjectConfig {
 }
 
 export async function createProject(projectName?: string): Promise<void> {
-  console.log(chalk.bold.cyan("\n🚀 Create StackKit App\n"));
+  console.log(chalk.bold.cyan("\n Create StackKit App\n"));
 
   // Get project configuration through wizard
   const config = await getProjectConfig(projectName);
@@ -534,7 +534,7 @@ async function convertToJavaScript(targetDir: string, framework: string): Promis
     babel = require("@babel/core");
   } catch (e) {
     throw new Error(
-      "@babel/core is required for JS transpile. Please install it with: pnpm add -D @babel/core @babel/preset-typescript"
+      "@babel/core is required for JS transpile. Please install it with: pnpm add -D @babel/core @babel/preset-typescript",
     );
   }
   const transpileAllTsFiles = async (dir: string) => {
@@ -576,7 +576,7 @@ async function convertToJavaScript(targetDir: string, framework: string): Promis
   await transpileAllTsFiles(targetDir);
 
   const templatesRoot = path.join(__dirname, "..", "..", "templates");
-  let templateName = framework;
+  const templateName = framework;
 
   let fileReplacements = [];
   let jsScripts = null;
