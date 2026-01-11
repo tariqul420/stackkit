@@ -500,6 +500,7 @@ async function mergeEnvFile(targetDir: string, envVars: Record<string, string>):
 }
 
 async function convertToJavaScript(targetDir: string, framework: string): Promise<void> {
+  // Remove TS config and declaration files
   const tsFiles = [
     "tsconfig.json",
     "tsconfig.app.json",
@@ -527,27 +528,14 @@ async function convertToJavaScript(targetDir: string, framework: string): Promis
   };
   await removeDtsFiles(targetDir);
 
-  const ts = require("typescript");
-  let prettier;
+  // Use Babel to strip types only, preserving formatting/comments/blank lines
+  let babel;
   try {
-    prettier = require("prettier");
-  } catch {
-    prettier = null;
-  }
-  function ensureBlankLineAfterImports(code: string): string {
-    const lines = code.split("\n");
-    let lastImportIdx = -1;
-    for (let i = 0; i < lines.length; i++) {
-      if (/^\s*import\s/.test(lines[i])) {
-        lastImportIdx = i;
-      }
-    }
-    if (lastImportIdx !== -1) {
-      if (lines[lastImportIdx + 1] && lines[lastImportIdx + 1].trim() !== "") {
-        lines.splice(lastImportIdx + 1, 0, "");
-      }
-    }
-    return lines.join("\n");
+    babel = require("@babel/core");
+  } catch (e) {
+    throw new Error(
+      "@babel/core is required for JS transpile. Please install it with: pnpm add -D @babel/core @babel/preset-typescript"
+    );
   }
   const transpileAllTsFiles = async (dir: string) => {
     const entries = await fs.readdir(dir, { withFileTypes: true });
@@ -558,32 +546,28 @@ async function convertToJavaScript(targetDir: string, framework: string): Promis
       } else if (entry.isFile()) {
         if (entry.name.endsWith(".ts") || entry.name.endsWith(".tsx")) {
           const code = await fs.readFile(fullPath, "utf8");
-          const codeNoNonNull = code.replace(/([a-zA-Z0-9_\)\]]+)!/g, "$1");
           const isTsx = entry.name.endsWith(".tsx");
-          const transpiled = ts.transpileModule(codeNoNonNull, {
-            compilerOptions: {
-              target: ts.ScriptTarget.ES2022,
-              module: ts.ModuleKind.ESNext,
-              esModuleInterop: true,
-              jsx: isTsx ? "preserve" : undefined,
-              removeComments: true,
-              strict: true,
-            },
-          });
           const outFile = fullPath.replace(/\.tsx$/, ".jsx").replace(/\.ts$/, ".js");
-          let output = transpiled.outputText;
-          output = ensureBlankLineAfterImports(output);
-          if (prettier) {
-            try {
-              const formatted = prettier.format(output, { parser: isTsx ? "babel" : "babel" });
-              if (formatted && typeof formatted.then === "function") {
-                output = await formatted;
-              } else {
-                output = formatted;
-              }
-            } catch {}
-          }
-          await fs.writeFile(outFile, String(output), "utf8");
+          const result = await babel.transformAsync(code, {
+            filename: entry.name,
+            presets: [
+              [
+                require.resolve("@babel/preset-typescript"),
+                {
+                  onlyRemoveTypeImports: true,
+                  allowDeclareFields: true,
+                  jsxPragma: isTsx ? undefined : undefined,
+                  allExtensions: true,
+                  isTSX: isTsx,
+                  preserveComments: true,
+                },
+              ],
+            ],
+            comments: true,
+            retainLines: true,
+            compact: false,
+          });
+          await fs.writeFile(outFile, result.code, "utf8");
           await fs.remove(fullPath);
         }
       }

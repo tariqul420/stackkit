@@ -15,7 +15,7 @@
     "start:prod": "cross-env NODE_ENV=production node dist/server.js"
   },
   "jsScripts": {
-    "dev": "node --watch src/server.js",
+    "dev": "tsx --watch src/server.js",
     "clean": "rimraf dist",
     "prebuild": "npm run clean",
     "build": "echo 'No build step for JavaScript'",
