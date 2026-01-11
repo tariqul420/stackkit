@@ -29,7 +29,7 @@ export interface EnvVar {
 export interface ModulePatch {
   type: "create-file" | "modify-json" | "append-env" | "inject-code";
   description: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface CreateFilePatch extends ModulePatch {
@@ -47,7 +47,7 @@ export interface ModifyJsonPatch extends ModulePatch {
   file: string;
   operations: {
     path: string;
-    value: any;
+    value: unknown;
     merge?: boolean;
   }[];
 }

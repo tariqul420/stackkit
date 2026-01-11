@@ -27,7 +27,7 @@ export async function listCommand(options: ListOptions): Promise<void> {
       if (templates.length === 0) {
         logger.log(chalk.dim("  No templates available"));
       } else {
-        templates.forEach((template, index) => {
+        templates.forEach((template) => {
           logger.log(`  ${chalk.cyan("•")} ${template.displayName}`);
         });
       }

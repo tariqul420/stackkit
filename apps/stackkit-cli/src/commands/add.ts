@@ -175,9 +175,11 @@ async function loadModuleMetadata(
   return null;
 }
 
+// (removed duplicate import)
+
 async function applyModulePatches(
   projectRoot: string,
-  projectInfo: any,
+  projectInfo: ProjectInfo,
   moduleMetadata: ModuleMetadata,
   modulesDir: string,
   moduleName: string,

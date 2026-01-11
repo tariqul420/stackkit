@@ -5,27 +5,27 @@ export class Logger {
   private spinner: Ora | null = null;
 
   info(message: string): void {
-    console.log(chalk.blue("ℹ"), message);
+    process.stdout.write(chalk.blue("ℹ") + " " + message + "\n");
   }
 
   success(message: string): void {
-    console.log(chalk.green("✔"), message);
+    process.stdout.write(chalk.green("✔") + " " + message + "\n");
   }
 
   error(message: string): void {
-    console.log(chalk.red("✖"), message);
+    process.stderr.write(chalk.red("✖") + " " + message + "\n");
   }
 
   warn(message: string): void {
-    console.log(chalk.yellow("⚠"), message);
+    process.stdout.write(chalk.yellow("⚠") + " " + message + "\n");
   }
 
   log(message: string): void {
-    console.log(message);
+    process.stdout.write(message + "\n");
   }
 
   newLine(): void {
-    console.log();
+    process.stdout.write("\n");
   }
 
   startSpinner(text: string): Ora {
@@ -51,11 +51,11 @@ export class Logger {
   }
 
   header(text: string): void {
-    console.log(chalk.bold.cyan(text));
+    process.stdout.write(chalk.bold.cyan(text) + "\n");
   }
 
   footer(): void {
-    console.log();
+    process.stdout.write("\n");
   }
 }
 

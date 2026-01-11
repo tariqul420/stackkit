@@ -16,7 +16,7 @@ export async function detectPackageManager(cwd: string): Promise<PackageManager>
 export async function installDependencies(
   cwd: string,
   pm: PackageManager,
-  dev = false,
+  // dev argument removed as it is unused
 ): Promise<void> {
   const spinner = logger.startSpinner(`Installing dependencies with ${pm}...`);
 
@@ -37,7 +37,7 @@ export async function installDependencies(
     spinner.succeed(`Dependencies installed successfully`);
   } catch (error) {
     spinner.fail(`Failed to install dependencies`);
-    throw error;
+    throw new Error(`Failed to install dependencies: ${error}`);
   }
 }
 
@@ -71,7 +71,7 @@ export async function addDependencies(
     spinner.succeed(`Dependencies added successfully`);
   } catch (error) {
     spinner.fail(`Failed to add dependencies`);
-    throw error;
+    throw new Error(`Failed to add dependencies: ${error}`); // error is used here
   }
 }
 
@@ -83,7 +83,7 @@ export async function initGit(cwd: string): Promise<void> {
     await execa("git", ["add", "."], { cwd });
     await execa("git", ["commit", "-m", "Initial commit from StackKit"], { cwd });
     spinner.succeed("Git repository initialized");
-  } catch (error) {
+  } catch {
     spinner.fail("Failed to initialize git repository");
     // Don't throw - git init is optional
   }

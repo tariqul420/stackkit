@@ -1,5 +1,4 @@
 import fs from "fs-extra";
-import path from "path";
 
 const CODE_MARKER_START = (id: string) => `// StackKit:${id}:start`;
 const CODE_MARKER_END = (id: string) => `// StackKit:${id}:end`;

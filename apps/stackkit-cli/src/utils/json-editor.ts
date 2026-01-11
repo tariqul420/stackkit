@@ -1,7 +1,8 @@
 import fs from "fs-extra";
 
+export async function modifyJson(
   filePath: string,
-  modifier: (json: Record<string, unknown>) => Record<string, unknown>,
+  modifier: (_json: Record<string, unknown>) => Record<string, unknown>,
   options: { create?: boolean; force?: boolean } = {},
 ): Promise<void> {
   const exists = await fs.pathExists(filePath);
@@ -10,12 +11,7 @@ import fs from "fs-extra";
     throw new Error(`File not found: ${filePath}`);
   }
 
-  let json: Record<string, unknown> = {};
-  if (exists) {
-    json = await fs.readJSON(filePath);
-  }
-
-  const modified = modifier(json);
+  const modified = modifier(exists ? await fs.readJSON(filePath) : {});
   await fs.writeJSON(filePath, modified, { spaces: 2 });
 }
 
@@ -24,28 +20,29 @@ export async function addToPackageJson(
   section: "dependencies" | "devDependencies" | "scripts",
   additions: Record<string, string>,
 ): Promise<void> {
-  await modifyJson(filePath, (json) => {
-    json[section] = json[section] || {};
-    Object.assign(json[section], additions);
-    return json;
+  await modifyJson(filePath, (_json) => {
+    _json[section] = (_json[section] as Record<string, unknown>) || {};
+    Object.assign(_json[section] as Record<string, unknown>, additions);
+    return _json;
   });
 }
 
+export async function setJsonValue(
   filePath: string,
   path: string,
   value: unknown,
   options: { merge?: boolean } = {},
 ): Promise<void> {
-  await modifyJson(filePath, (json) => {
+  await modifyJson(filePath, (_json) => {
     const keys = path.split(".");
-    let current = json;
+    let current = _json;
 
     for (let i = 0; i < keys.length - 1; i++) {
       const key = keys[i];
-      if (!current[key]) {
+      if (!(current[key] as Record<string, unknown>)) {
         current[key] = {};
       }
-      current = current[key];
+      current = current[key] as Record<string, unknown>;
     }
 
     const lastKey = keys[keys.length - 1];
@@ -56,6 +53,6 @@ export async function addToPackageJson(
       current[lastKey] = value;
     }
 
-    return json;
+    return _json;
   });
 }
