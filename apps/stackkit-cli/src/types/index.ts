@@ -3,7 +3,7 @@ export interface TemplateMetadata {
   displayName: string;
   description: string;
   tags: string[];
-  defaultPackageManager: 'pnpm' | 'npm' | 'yarn';
+  defaultPackageManager: 'pnpm' | 'npm' | 'yarn' | 'bun';
   features: string[];
 }
 
@@ -56,7 +56,7 @@ export interface ProjectInfo {
   framework: 'nextjs' | 'express' | 'react' | 'react-vite' | 'unknown';
   router: 'app' | 'pages' | 'unknown';
   language: 'ts' | 'js';
-  packageManager: 'npm' | 'yarn' | 'pnpm';
+  packageManager: 'npm' | 'yarn' | 'pnpm' | 'bun';
   hasAuth: boolean;
   hasPrisma: boolean;
   hasDatabase: boolean;
@@ -68,5 +68,5 @@ export interface CLIOptions {
   dryRun?: boolean;
   yes?: boolean;
   noInstall?: boolean;
-  pm?: 'npm' | 'yarn' | 'pnpm';
+  pm?: 'npm' | 'yarn' | 'pnpm' | 'bun';
 }

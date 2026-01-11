@@ -2,7 +2,7 @@ import { detect } from 'detect-package-manager';
 import execa from 'execa';
 import { logger } from './logger';
 
-export type PackageManager = 'npm' | 'yarn' | 'pnpm';
+export type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun';
 
 export async function detectPackageManager(cwd: string): Promise<PackageManager> {
   try {
@@ -28,6 +28,8 @@ export async function installDependencies(
     } else if (pm === 'yarn') {
       args.push('install');
     } else if (pm === 'pnpm') {
+      args.push('install');
+    } else if (pm === 'bun') {
       args.push('install');
     }
 
@@ -60,6 +62,9 @@ export async function addDependencies(
       args.push('add', dev ? '--dev' : '', ...packages);
     } else if (pm === 'pnpm') {
       args.push('add', dev ? '-D' : '', ...packages);
+    } else if (pm === 'bun') {
+      // bun uses `bun add` and `-d` for dev dependencies
+      args.push('add', ...(dev ? ['-d'] : []), ...packages);
     }
 
     await execa(pm, args.filter(Boolean), { cwd, stdio: 'pipe' });

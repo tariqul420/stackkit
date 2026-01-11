@@ -17,7 +17,7 @@ program
   .command('init [project-name]')
   .description('Create a new project from a template')
   .option('-t, --template <template>', 'Template to use')
-  .option('--pm <pm>', 'Package manager to use (npm, yarn, pnpm)')
+  .option('--pm <pm>', 'Package manager to use (npm, yarn, pnpm, bun)')
   .option('--no-install', 'Skip installing dependencies')
   .option('--no-git', 'Skip git initialization')
   .option('-y, --yes', 'Skip prompts and use defaults')

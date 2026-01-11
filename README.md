@@ -39,7 +39,6 @@ npx stackkit-cli add database
 
 ### Databases
 - Prisma (PostgreSQL/MongoDB)
-- Drizzle (PostgreSQL)
 - Mongoose (MongoDB)
 
 ## Contributing

@@ -22,8 +22,8 @@ export async function initCommand(
 ): Promise<void> {
   try {
     // Validate package manager option
-    if (options.pm && !['npm', 'yarn', 'pnpm'].includes(options.pm)) {
-      logger.error(`Invalid package manager: ${options.pm}. Use npm, yarn, or pnpm.`);
+    if (options.pm && !['npm', 'yarn', 'pnpm', 'bun'].includes(options.pm)) {
+      logger.error(`Invalid package manager: ${options.pm}. Use npm, yarn, pnpm, or bun.`);
       process.exit(1);
     }
 
@@ -83,7 +83,12 @@ export async function initCommand(
           type: 'list',
           name: 'packageManager',
           message: 'Select a package manager:',
-          choices: ['pnpm', 'npm', 'yarn'],
+          choices: [
+            { name: 'pnpm (recommended)', value: 'pnpm' },
+            { name: 'npm', value: 'npm' },
+            { name: 'yarn', value: 'yarn' },
+            { name: 'bun', value: 'bun' },
+          ],
           default: 'pnpm',
           when: !options.pm,
         },

@@ -57,12 +57,15 @@ export async function detectProjectInfo(targetDir: string): Promise<ProjectInfo>
   // Detect package manager
   const yarnLockExists = await fs.pathExists(path.join(targetDir, 'yarn.lock'));
   const pnpmLockExists = await fs.pathExists(path.join(targetDir, 'pnpm-lock.yaml'));
-  let packageManager: 'npm' | 'yarn' | 'pnpm' = 'npm';
+  const bunLockExists = await fs.pathExists(path.join(targetDir, 'bun.lockb'));
+  let packageManager: 'npm' | 'yarn' | 'pnpm' | 'bun' = 'npm';
 
   if (pnpmLockExists) {
     packageManager = 'pnpm';
   } else if (yarnLockExists) {
     packageManager = 'yarn';
+  } else if (bunLockExists) {
+    packageManager = 'bun';
   }
 
   // Check for existing integrations

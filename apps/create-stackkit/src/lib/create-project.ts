@@ -9,12 +9,7 @@ import validateNpmPackageName from 'validate-npm-package-name';
 interface ProjectConfig {
   projectName: string;
   framework: 'nextjs' | 'express' | 'react-vite';
-  database:
-    | 'prisma-postgresql'
-    | 'prisma-mongodb'
-    | 'mongoose-mongodb'
-    | 'drizzle-postgresql'
-    | 'none';
+  database: 'prisma-postgresql' | 'prisma-mongodb' | 'mongoose-mongodb' | 'none';
   auth:
     | 'better-auth-nextjs'
     | 'better-auth-express'
@@ -24,7 +19,7 @@ interface ProjectConfig {
     | 'clerk-react'
     | 'none';
   language: 'typescript' | 'javascript';
-  packageManager: 'pnpm' | 'npm' | 'yarn';
+  packageManager: 'pnpm' | 'npm' | 'yarn' | 'bun';
 }
 
 export async function createProject(projectName?: string): Promise<void> {
@@ -86,7 +81,6 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
         { name: 'Prisma + PostgreSQL', value: 'prisma-postgresql' },
         { name: 'Prisma + MongoDB', value: 'prisma-mongodb' },
         { name: 'Mongoose + MongoDB', value: 'mongoose-mongodb' },
-        { name: 'Drizzle + PostgreSQL', value: 'drizzle-postgresql' },
         { name: 'None', value: 'none' },
       ],
     },
@@ -139,7 +133,12 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
       type: 'list',
       name: 'packageManager',
       message: 'Package manager:',
-      choices: ['pnpm', 'npm', 'yarn'],
+      choices: [
+        { name: 'pnpm (recommended)', value: 'pnpm' },
+        { name: 'npm', value: 'npm' },
+        { name: 'yarn', value: 'yarn' },
+        { name: 'bun', value: 'bun' },
+      ],
       default: 'pnpm',
     },
   ]);
@@ -300,7 +299,7 @@ async function mergeDatabaseConfig(
   if (moduleData.frameworkPatches) {
     const frameworkKey = framework === 'react-vite' ? 'react' : framework;
     const patches = moduleData.frameworkPatches[frameworkKey];
-    
+
     if (patches) {
       await applyFrameworkPatches(targetDir, patches);
     }
@@ -386,13 +385,13 @@ async function mergeAuthConfig(
   // Handle database-specific adapters and schemas
   if (database !== 'none' && moduleData.databaseAdapters) {
     const adapterConfig = moduleData.databaseAdapters[database];
-    
+
     if (adapterConfig) {
       // Copy adapter file
       if (adapterConfig.adapter) {
         const adapterSource = path.join(authModulePath, adapterConfig.adapter);
         const adapterFileName = path.basename(adapterConfig.adapter);
-        
+
         // Determine destination based on framework
         let adapterDest: string;
         if (framework === 'nextjs') {
@@ -402,24 +401,24 @@ async function mergeAuthConfig(
         } else {
           adapterDest = path.join(targetDir, 'src', 'lib', 'auth.ts');
         }
-        
+
         if (await fs.pathExists(adapterSource)) {
           await fs.ensureDir(path.dirname(adapterDest));
           await fs.copy(adapterSource, adapterDest, { overwrite: true });
         }
       }
-      
+
       // Copy schema file if it exists
       if (adapterConfig.schema && adapterConfig.schemaDestination) {
         const schemaSource = path.join(authModulePath, adapterConfig.schema);
         const schemaDest = path.join(targetDir, adapterConfig.schemaDestination);
-        
+
         if (await fs.pathExists(schemaSource)) {
           await fs.ensureDir(path.dirname(schemaDest));
           await fs.copy(schemaSource, schemaDest, { overwrite: true });
         }
       }
-      
+
       // Merge adapter-specific dependencies
       if (adapterConfig.dependencies) {
         await mergePackageJson(targetDir, {
@@ -548,12 +547,37 @@ async function installDependencies(cwd: string, packageManager: string): Promise
     npm: 'npm install',
     yarn: 'yarn install',
     pnpm: 'pnpm install',
+    bun: 'bun install',
   };
 
-  const command = commands[packageManager];
-  if (!command) {
-    throw new Error(`Unsupported package manager: ${packageManager}`);
+  const isAvailable = (cmd: string) => {
+    try {
+      execSync(`command -v ${cmd}`, { stdio: 'ignore' });
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  let chosen = packageManager;
+
+  // If requested package manager is not available, try to fall back to a common one
+  if (!isAvailable(chosen)) {
+    const fallbacks = ['pnpm', 'npm', 'yarn', 'bun'];
+    const found = fallbacks.find((p) => isAvailable(p));
+    if (found) {
+      console.warn(
+        `Selected package manager '${chosen}' was not found. Falling back to '${found}'.`
+      );
+      chosen = found;
+    } else {
+      throw new Error(
+        `Selected package manager '${packageManager}' was not found and no fallback package manager is available. Please install '${packageManager}' or use a different package manager.`
+      );
+    }
   }
+
+  const command = commands[chosen];
 
   execSync(command, {
     cwd,
@@ -581,10 +605,10 @@ async function applyFrameworkPatches(
 ): Promise<void> {
   for (const [filename, patchConfig] of Object.entries(patches)) {
     const filePath = path.join(targetDir, filename);
-    
+
     if (await fs.pathExists(filePath)) {
       const fileContent = await fs.readJson(filePath);
-      
+
       if (patchConfig.merge) {
         // Deep merge configuration
         const merged = deepMerge(fileContent, patchConfig.merge);
@@ -596,7 +620,7 @@ async function applyFrameworkPatches(
 
 function deepMerge(target: any, source: any): any {
   const output = { ...target };
-  
+
   for (const key in source) {
     if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
       if (target[key]) {
@@ -611,7 +635,7 @@ function deepMerge(target: any, source: any): any {
       output[key] = source[key];
     }
   }
-  
+
   return output;
 }
 
@@ -619,7 +643,6 @@ function showNextSteps(config: ProjectConfig): void {
   console.log(chalk.green.bold(`\n✓ Created ${config.projectName}\n`));
   console.log(chalk.bold('Next steps:'));
   console.log(chalk.cyan(`  cd ${config.projectName}`));
-  console.log(
-    chalk.cyan(`  ${config.packageManager}${config.packageManager === 'npm' ? ' run' : ''} dev\n`)
-  );
+  // Only `bun` is supported as the package manager in production-ready CLI
+  console.log(chalk.cyan('  bun run dev\n'));
 }
