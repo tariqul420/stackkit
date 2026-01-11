@@ -528,15 +528,8 @@ async function convertToJavaScript(targetDir: string, framework: string): Promis
   };
   await removeDtsFiles(targetDir);
 
-  // Use Babel to strip types only, preserving formatting/comments/blank lines
-  let babel;
-  try {
-    babel = require("@babel/core");
-  } catch (e) {
-    throw new Error(
-      "@babel/core is required for JS transpile. Please install it with: pnpm add -D @babel/core @babel/preset-typescript",
-    );
-  }
+  // Use Babel to strip types only, preserving exact formatting/comments/blank lines, producing clean production-ready code
+  const babel = require("@babel/core");
   const transpileAllTsFiles = async (dir: string) => {
     const entries = await fs.readdir(dir, { withFileTypes: true });
     for (const entry of entries) {
@@ -548,24 +541,85 @@ async function convertToJavaScript(targetDir: string, framework: string): Promis
           const code = await fs.readFile(fullPath, "utf8");
           const isTsx = entry.name.endsWith(".tsx");
           const outFile = fullPath.replace(/\.tsx$/, ".jsx").replace(/\.ts$/, ".js");
+          const presets: any[] = [
+            [
+              require.resolve("@babel/preset-typescript"),
+              {
+                onlyRemoveTypeImports: true,
+                allowDeclareFields: true,
+                allowNamespaces: true,
+                optimizeForSpeed: true,
+                allExtensions: true,
+                isTSX: isTsx,
+              },
+            ],
+            [
+              require.resolve("@babel/preset-env"),
+              {
+                targets: { node: "18" },
+                modules: false,
+              },
+            ],
+          ];
+          if (isTsx) {
+            presets.push([
+              require.resolve("@babel/preset-react"),
+              {
+                runtime: "automatic",
+              },
+            ]);
+          }
+          // Use recast + Babel AST transform (same approach as transform.tools)
+          try {
+            const recast = require("recast");
+            const { transformFromAstSync } = require("@babel/core");
+            const transformTypescript = require("@babel/plugin-transform-typescript");
+            // getBabelOptions may be exported as default or directly
+            let getBabelOptions: any = require("recast/parsers/_babel_options");
+            if (getBabelOptions && getBabelOptions.default)
+              getBabelOptions = getBabelOptions.default;
+            const babelParser = require("recast/parsers/babel").parser;
+
+            const ast = recast.parse(code, {
+              parser: {
+                parse: (source: string, options: any) => {
+                  const babelOptions = getBabelOptions(options || {});
+                  // ensure typescript and jsx handling
+                  if (isTsx) {
+                    babelOptions.plugins.push("typescript", "jsx");
+                  } else {
+                    babelOptions.plugins.push("typescript");
+                  }
+                  return babelParser.parse(source, babelOptions);
+                },
+              },
+            });
+
+            const opts = {
+              cloneInputAst: false,
+              code: false,
+              ast: true,
+              plugins: [transformTypescript],
+              configFile: false,
+            };
+
+            const { ast: transformedAST } = transformFromAstSync(ast, code, opts);
+            const resultCode = recast.print(transformedAST).code;
+            await fs.writeFile(outFile, resultCode, "utf8");
+            await fs.remove(fullPath);
+            continue;
+          } catch (e) {
+            // fallback to previous Babel pipeline if anything fails
+          }
+
           const result = await babel.transformAsync(code, {
             filename: entry.name,
-            presets: [
-              [
-                require.resolve("@babel/preset-typescript"),
-                {
-                  onlyRemoveTypeImports: true,
-                  allowDeclareFields: true,
-                  jsxPragma: isTsx ? undefined : undefined,
-                  allExtensions: true,
-                  isTSX: isTsx,
-                  preserveComments: true,
-                },
-              ],
-            ],
+            presets,
             comments: true,
             retainLines: true,
             compact: false,
+            babelrc: false,
+            configFile: false,
           });
           await fs.writeFile(outFile, result.code, "utf8");
           await fs.remove(fullPath);
@@ -594,19 +648,7 @@ async function convertToJavaScript(targetDir: string, framework: string): Promis
       } catch {}
     }
   }
-  const defaultReplacements = [
-    {
-      file: "index.html",
-      from: /src\s*=\s*"src\/main\.tsx"/g,
-      to: 'src="src/main.jsx"',
-    },
-    {
-      file: "vite.config.js",
-      from: /main\.tsx/g,
-      to: "main.jsx",
-    },
-  ];
-  for (const rep of fileReplacements.length ? fileReplacements : defaultReplacements) {
+  for (const rep of fileReplacements) {
     const filePath = path.join(targetDir, rep.file);
     if (await fs.pathExists(filePath)) {
       let content = await fs.readFile(filePath, "utf8");
