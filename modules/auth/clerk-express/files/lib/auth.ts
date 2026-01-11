@@ -1,4 +1,4 @@
-import { clerkClient, clerkMiddleware, requireAuth } from '@clerk/express';
+import { clerkClient, clerkMiddleware, requireAuth } from "@clerk/express";
 
 export { clerkMiddleware, requireAuth };
 

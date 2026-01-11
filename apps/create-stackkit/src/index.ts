@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { createProject } from './lib/create-project';
+import { createProject } from "./lib/create-project";
 
 async function main() {
   const args = process.argv.slice(2);
@@ -8,7 +8,7 @@ async function main() {
   try {
     await createProject(projectName);
   } catch (error) {
-    console.error('Error:', (error as Error).message);
+    console.error("Error:", (error as Error).message);
     process.exit(1);
   }
 }

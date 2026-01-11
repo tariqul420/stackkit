@@ -4,7 +4,7 @@ export const storage = {
       const item = localStorage.getItem(key);
       return item ? JSON.parse(item) : (defaultValue ?? null);
     } catch (error) {
-      console.error('Error reading from localStorage:', error);
+      console.error("Error reading from localStorage:", error);
       return defaultValue ?? null;
     }
   },
@@ -13,7 +13,7 @@ export const storage = {
     try {
       localStorage.setItem(key, JSON.stringify(value));
     } catch (error) {
-      console.error('Error writing to localStorage:', error);
+      console.error("Error writing to localStorage:", error);
     }
   },
 
@@ -21,7 +21,7 @@ export const storage = {
     try {
       localStorage.removeItem(key);
     } catch (error) {
-      console.error('Error removing from localStorage:', error);
+      console.error("Error removing from localStorage:", error);
     }
   },
 
@@ -29,7 +29,7 @@ export const storage = {
     try {
       localStorage.clear();
     } catch (error) {
-      console.error('Error clearing localStorage:', error);
+      console.error("Error clearing localStorage:", error);
     }
   },
 };

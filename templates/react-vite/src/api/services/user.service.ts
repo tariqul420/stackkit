@@ -1,5 +1,5 @@
-import type { ApiResponse } from '../../types/api';
-import api from '../client';
+import type { ApiResponse } from "../../types/api";
+import api from "../client";
 
 export interface User {
   id: string;
@@ -15,7 +15,7 @@ export const userService = {
   },
 
   getCurrentUser: async (): Promise<User> => {
-    const response = await api.get<ApiResponse<User>>('/users/me');
+    const response = await api.get<ApiResponse<User>>("/users/me");
     return response.data.data;
   },
 

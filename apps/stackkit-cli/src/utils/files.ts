@@ -1,11 +1,11 @@
-import fs from 'fs-extra';
-import path from 'path';
-import { logger } from './logger';
+import fs from "fs-extra";
+import path from "path";
+import { logger } from "./logger";
 
 export async function copyTemplate(
   templatePath: string,
   targetPath: string,
-  projectName: string
+  projectName: string,
 ): Promise<void> {
   if (!(await fs.pathExists(templatePath))) {
     throw new Error(`Template not found: ${templatePath}`);
@@ -19,12 +19,12 @@ export async function copyTemplate(
     filter: (src) => {
       const basename = path.basename(src);
       // Skip template.json metadata file and node_modules
-      return basename !== 'template.json' && basename !== 'node_modules';
+      return basename !== "template.json" && basename !== "node_modules";
     },
   });
 
   // Update package.json with project name
-  const packageJsonPath = path.join(targetPath, 'package.json');
+  const packageJsonPath = path.join(targetPath, "package.json");
   if (await fs.pathExists(packageJsonPath)) {
     const packageJson = await fs.readJSON(packageJsonPath);
     packageJson.name = projectName;
@@ -37,7 +37,7 @@ export async function copyTemplate(
 export async function createFile(
   targetPath: string,
   content: string,
-  options: { force?: boolean } = {}
+  options: { force?: boolean } = {},
 ): Promise<void> {
   const exists = await fs.pathExists(targetPath);
 
@@ -47,11 +47,11 @@ export async function createFile(
   }
 
   await fs.ensureDir(path.dirname(targetPath));
-  await fs.writeFile(targetPath, content, 'utf-8');
+  await fs.writeFile(targetPath, content, "utf-8");
 }
 
 export async function readFile(filePath: string): Promise<string> {
-  return fs.readFile(filePath, 'utf-8');
+  return fs.readFile(filePath, "utf-8");
 }
 
 export async function fileExists(filePath: string): Promise<boolean> {

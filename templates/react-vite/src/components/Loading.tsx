@@ -1,4 +1,4 @@
-export default function Loading({ message = 'Loading...' }: { message?: string }) {
+export default function Loading({ message = "Loading..." }: { message?: string }) {
   return (
     <div className="loading-container">
       <div className="loading-spinner"></div>

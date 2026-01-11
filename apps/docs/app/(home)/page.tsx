@@ -1,19 +1,20 @@
-import Link from 'next/link';
+import Link from "next/link";
 
 // Shared CSS classes
 const styles = {
-  section: 'container px-6 py-32',
-  sectionHeader: 'mx-auto max-w-3xl text-center',
-  sectionTitle: 'text-4xl font-bold tracking-tight sm:text-5xl',
-  sectionDescription: 'mt-6 text-xl text-fd-muted-foreground',
-  card: 'group relative overflow-hidden rounded-2xl border border-fd-border bg-fd-card p-8 transition-all',
-  cardGlow: 'absolute rounded-full bg-fd-primary/5 blur-2xl transition-all',
-  iconWrapper: 'flex items-center justify-center rounded-xl bg-fd-primary/10 text-fd-primary ring-1 ring-fd-primary/20',
+  section: "container px-6 py-32",
+  sectionHeader: "mx-auto max-w-3xl text-center",
+  sectionTitle: "text-4xl font-bold tracking-tight sm:text-5xl",
+  sectionDescription: "mt-6 text-xl text-fd-muted-foreground",
+  card: "group relative overflow-hidden rounded-2xl border border-fd-border bg-fd-card p-8 transition-all",
+  cardGlow: "absolute rounded-full bg-fd-primary/5 blur-2xl transition-all",
+  iconWrapper:
+    "flex items-center justify-center rounded-xl bg-fd-primary/10 text-fd-primary ring-1 ring-fd-primary/20",
   primaryButton:
-    'inline-flex h-12 items-center justify-center rounded-lg bg-fd-primary px-10 text-base font-medium text-fd-primary-foreground shadow-lg shadow-fd-primary/25 transition-all hover:scale-105 hover:shadow-xl hover:shadow-fd-primary/30',
+    "inline-flex h-12 items-center justify-center rounded-lg bg-fd-primary px-10 text-base font-medium text-fd-primary-foreground shadow-lg shadow-fd-primary/25 transition-all hover:scale-105 hover:shadow-xl hover:shadow-fd-primary/30",
   secondaryButton:
-    'inline-flex h-12 items-center justify-center rounded-lg border border-fd-border bg-fd-card/80 px-10 text-base font-medium backdrop-blur-sm transition-all hover:scale-105 hover:bg-fd-accent',
-  gradientText: 'bg-linear-to-br from-fd-primary to-fd-primary/60 bg-clip-text text-transparent',
+    "inline-flex h-12 items-center justify-center rounded-lg border border-fd-border bg-fd-card/80 px-10 text-base font-medium backdrop-blur-sm transition-all hover:scale-105 hover:bg-fd-accent",
+  gradientText: "bg-linear-to-br from-fd-primary to-fd-primary/60 bg-clip-text text-transparent",
 };
 
 const features = [
@@ -26,8 +27,8 @@ const features = [
         d="M13 10V3L4 14h7v7l9-11h-7z"
       />
     ),
-    title: 'Lightning Fast',
-    description: 'From zero to running app in under 60 seconds',
+    title: "Lightning Fast",
+    description: "From zero to running app in under 60 seconds",
   },
   {
     icon: (
@@ -38,8 +39,8 @@ const features = [
         d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
       />
     ),
-    title: 'Production Ready',
-    description: 'Best practices, error handling, and security baked in',
+    title: "Production Ready",
+    description: "Best practices, error handling, and security baked in",
   },
   {
     icon: (
@@ -50,8 +51,8 @@ const features = [
         d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"
       />
     ),
-    title: 'Modular',
-    description: 'Start minimal, add features as you grow',
+    title: "Modular",
+    description: "Start minimal, add features as you grow",
   },
   {
     icon: (
@@ -62,8 +63,8 @@ const features = [
         d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
       />
     ),
-    title: 'Type Safe',
-    description: 'End-to-end TypeScript with strict mode by default',
+    title: "Type Safe",
+    description: "End-to-end TypeScript with strict mode by default",
   },
   {
     icon: (
@@ -74,8 +75,8 @@ const features = [
         d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"
       />
     ),
-    title: 'Database Flexibility',
-    description: 'Prisma or Mongoose with PostgreSQL/MongoDB',
+    title: "Database Flexibility",
+    description: "Prisma or Mongoose with PostgreSQL/MongoDB",
   },
   {
     icon: (
@@ -86,8 +87,8 @@ const features = [
         d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
       />
     ),
-    title: 'Auth Ready',
-    description: 'Better Auth or Clerk with pre-built flows',
+    title: "Auth Ready",
+    description: "Better Auth or Clerk with pre-built flows",
   },
 ];
 
@@ -96,30 +97,30 @@ const stackCategories = [
     icon: (
       <path d="M12 0L1.75 6v12L12 24l10.25-6V6L12 0zm0 2.15l8.5 4.97v9.76L12 21.85l-8.5-4.97V7.12L12 2.15z" />
     ),
-    title: 'Frameworks',
-    items: ['Next.js 16 (App Router)', 'React + Vite', 'Express'],
+    title: "Frameworks",
+    items: ["Next.js 16 (App Router)", "React + Vite", "Express"],
   },
   {
     icon: (
       <path d="M12 1C8.5 1 5.5 2.5 5.5 4.5v15c0 2 3 3.5 6.5 3.5s6.5-1.5 6.5-3.5v-15C18.5 2.5 15.5 1 12 1zm0 2c2.5 0 4.5 1 4.5 1.5S14.5 6 12 6 7.5 5 7.5 4.5 9.5 3 12 3zm0 18c-2.5 0-4.5-1-4.5-1.5V18c1 .5 2.7.8 4.5.8s3.5-.3 4.5-.8v1.5c0 .5-2 1.5-4.5 1.5z" />
     ),
-    title: 'Databases',
-    items: ['Prisma (PostgreSQL/MongoDB)', 'Mongoose (MongoDB)'],
+    title: "Databases",
+    items: ["Prisma (PostgreSQL/MongoDB)", "Mongoose (MongoDB)"],
   },
   {
     icon: (
       <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z" />
     ),
-    title: 'Authentication',
-    items: ['Better Auth', 'Clerk'],
+    title: "Authentication",
+    items: ["Better Auth", "Clerk"],
   },
 ];
 
 const stats = [
-  { value: '3', label: 'Frameworks' },
-  { value: '12+', label: 'Combinations' },
-  { value: '100%', label: 'Type Safe' },
-  { value: '<60s', label: 'Setup Time' },
+  { value: "3", label: "Frameworks" },
+  { value: "12+", label: "Combinations" },
+  { value: "100%", label: "Type Safe" },
+  { value: "<60s", label: "Setup Time" },
 ];
 
 export default function HomePage() {

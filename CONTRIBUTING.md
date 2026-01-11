@@ -25,7 +25,7 @@ pnpm install && pnpm build
 cd apps/create-stackkit && npm run build
 node bin/create-stackkit.js my-test-app
 
-# Test stackkit-cli  
+# Test stackkit-cli
 cd apps/stackkit-cli && npm run build
 cd /tmp/my-test-app
 node /path/to/bin/stackkit.js add auth

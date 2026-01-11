@@ -1,5 +1,5 @@
-import fs from 'fs-extra';
-import path from 'path';
+import fs from "fs-extra";
+import path from "path";
 
 const CODE_MARKER_START = (id: string) => `// StackKit:${id}:start`;
 const CODE_MARKER_END = (id: string) => `// StackKit:${id}:end`;
@@ -13,14 +13,14 @@ export interface CodeInjection {
 export async function injectCode(
   filePath: string,
   injection: CodeInjection,
-  position: 'append' | 'prepend' | { after: string } | { before: string },
-  options: { force?: boolean } = {}
+  position: "append" | "prepend" | { after: string } | { before: string },
+  options: { force?: boolean } = {},
 ): Promise<void> {
   if (!(await fs.pathExists(filePath))) {
     throw new Error(`File not found: ${filePath}`);
   }
 
-  let content = await fs.readFile(filePath, 'utf-8');
+  let content = await fs.readFile(filePath, "utf-8");
 
   // Check if already injected
   const startMarker = CODE_MARKER_START(injection.id);
@@ -37,18 +37,18 @@ export async function injectCode(
   const markedCode = `\n${startMarker}\n${injection.code}\n${CODE_MARKER_END(injection.id)}\n`;
 
   // Inject based on position
-  if (position === 'append') {
+  if (position === "append") {
     content += markedCode;
-  } else if (position === 'prepend') {
+  } else if (position === "prepend") {
     content = markedCode + content;
-  } else if ('after' in position) {
+  } else if ("after" in position) {
     const index = content.indexOf(position.after);
     if (index === -1) {
       throw new Error(`Could not find marker: ${position.after}`);
     }
     const insertPos = index + position.after.length;
     content = content.slice(0, insertPos) + markedCode + content.slice(insertPos);
-  } else if ('before' in position) {
+  } else if ("before" in position) {
     const index = content.indexOf(position.before);
     if (index === -1) {
       throw new Error(`Could not find marker: ${position.before}`);
@@ -56,7 +56,7 @@ export async function injectCode(
     content = content.slice(0, index) + markedCode + content.slice(index);
   }
 
-  await fs.writeFile(filePath, content, 'utf-8');
+  await fs.writeFile(filePath, content, "utf-8");
 }
 
 export function removeInjection(content: string, id: string): string {

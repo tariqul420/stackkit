@@ -1,4 +1,4 @@
-import { Helmet, HelmetProvider } from 'react-helmet-async';
+import { Helmet, HelmetProvider } from "react-helmet-async";
 
 interface SEOProps {
   title?: string;
@@ -9,10 +9,10 @@ interface SEOProps {
 }
 
 const defaultSEO = {
-  title: 'React App',
-  description: 'A modern React application built with Vite',
-  keywords: 'react, vite, typescript, spa',
-  image: '/og-image.png',
+  title: "React App",
+  description: "A modern React application built with Vite",
+  keywords: "react, vite, typescript, spa",
+  image: "/og-image.png",
 };
 
 export function SEOProvider({ children }: { children: React.ReactNode }) {

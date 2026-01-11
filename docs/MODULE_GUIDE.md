@@ -181,7 +181,7 @@ Create files in the `files/` directory matching the `source` paths in `patches`:
 
 ```typescript
 // modules/auth/auth0-nextjs/files/lib/auth0.ts
-import { initAuth0 } from '@auth0/nextjs-auth0';
+import { initAuth0 } from "@auth0/nextjs-auth0";
 
 export const auth0 = initAuth0({
   secret: process.env.AUTH0_SECRET!,
@@ -194,7 +194,7 @@ export const auth0 = initAuth0({
 
 ```typescript
 // modules/auth/auth0-nextjs/files/app/api/auth/[auth0]/route.ts
-import { handleAuth } from '@auth0/nextjs-auth0';
+import { handleAuth } from "@auth0/nextjs-auth0";
 
 export const GET = handleAuth();
 ```

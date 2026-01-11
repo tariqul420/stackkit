@@ -1,21 +1,21 @@
-import { LLMCopyButton, ViewOptions } from '@/components/ai/page-actions';
-import { getPageImage, source } from '@/lib/source';
-import { getMDXComponents } from '@/mdx-components';
-import { DocsBody, DocsDescription, DocsPage, DocsTitle } from 'fumadocs-ui/layouts/docs/page';
-import { createRelativeLink } from 'fumadocs-ui/mdx';
-import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { LLMCopyButton, ViewOptions } from "@/components/ai/page-actions";
+import { getPageImage, source } from "@/lib/source";
+import { getMDXComponents } from "@/mdx-components";
+import { DocsBody, DocsDescription, DocsPage, DocsTitle } from "fumadocs-ui/layouts/docs/page";
+import { createRelativeLink } from "fumadocs-ui/mdx";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 
-export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
+export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
   const params = await props.params;
   const page = source.getPage(params.slug);
   if (!page) notFound();
 
   const MDX = page.data.body;
   const gitConfig = {
-    user: 'tariqul420',
-    repo: 'stackkit',
-    branch: 'main',
+    user: "tariqul420",
+    repo: "stackkit",
+    branch: "main",
   };
 
   return (
@@ -46,7 +46,7 @@ export async function generateStaticParams() {
   return source.generateParams();
 }
 
-export async function generateMetadata(props: PageProps<'/docs/[[...slug]]'>): Promise<Metadata> {
+export async function generateMetadata(props: PageProps<"/docs/[[...slug]]">): Promise<Metadata> {
   const params = await props.params;
   const page = source.getPage(params.slug);
   if (!page) notFound();

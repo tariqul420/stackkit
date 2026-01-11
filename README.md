@@ -9,11 +9,13 @@
 ## Quick Start
 
 **Create a new project:**
+
 ```bash
 npx create-stackkit-app my-app
 ```
 
 **Add modules to existing project:**
+
 ```bash
 npx stackkit-cli add auth
 npx stackkit-cli add database
@@ -30,14 +32,17 @@ npx stackkit-cli add database
 ## Available Stacks
 
 ### Frameworks
+
 - Next.js 16 (App Router)
 - Express
 - React (Vite)
 
 ### Authentication
+
 - Better Auth, Auth.js v5, NextAuth, Clerk
 
 ### Databases
+
 - Prisma (PostgreSQL/MongoDB)
 - Mongoose (MongoDB)
 

@@ -9,6 +9,7 @@ npx create-stackkit-app my-app
 ```
 
 Interactive wizard helps you choose:
+
 - **Framework**: Next.js, Express, or React + Vite
 - **Database**: Prisma (PostgreSQL/MongoDB), Mongoose (MongoDB)
 - **Authentication**: Better Auth, Clerk

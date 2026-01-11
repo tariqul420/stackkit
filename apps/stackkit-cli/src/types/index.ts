@@ -3,7 +3,7 @@ export interface TemplateMetadata {
   displayName: string;
   description: string;
   tags: string[];
-  defaultPackageManager: 'pnpm' | 'npm' | 'yarn' | 'bun';
+  defaultPackageManager: "pnpm" | "npm" | "yarn" | "bun";
   features: string[];
 }
 
@@ -11,7 +11,7 @@ export interface ModuleMetadata {
   name: string;
   displayName: string;
   description: string;
-  category: 'auth' | 'database' | 'ui' | 'other';
+  category: "auth" | "database" | "ui" | "other";
   supportedFrameworks: string[];
   dependencies: Record<string, string>;
   devDependencies?: Record<string, string>;
@@ -27,23 +27,23 @@ export interface EnvVar {
 }
 
 export interface ModulePatch {
-  type: 'create-file' | 'modify-json' | 'append-env' | 'inject-code';
+  type: "create-file" | "modify-json" | "append-env" | "inject-code";
   description: string;
   [key: string]: any;
 }
 
 export interface CreateFilePatch extends ModulePatch {
-  type: 'create-file';
+  type: "create-file";
   source: string;
   destination: string;
   condition?: {
-    router?: 'app' | 'pages';
-    language?: 'ts' | 'js';
+    router?: "app" | "pages";
+    language?: "ts" | "js";
   };
 }
 
 export interface ModifyJsonPatch extends ModulePatch {
-  type: 'modify-json';
+  type: "modify-json";
   file: string;
   operations: {
     path: string;
@@ -53,10 +53,10 @@ export interface ModifyJsonPatch extends ModulePatch {
 }
 
 export interface ProjectInfo {
-  framework: 'nextjs' | 'express' | 'react' | 'react-vite' | 'unknown';
-  router: 'app' | 'pages' | 'unknown';
-  language: 'ts' | 'js';
-  packageManager: 'npm' | 'yarn' | 'pnpm' | 'bun';
+  framework: "nextjs" | "express" | "react" | "react-vite" | "unknown";
+  router: "app" | "pages" | "unknown";
+  language: "ts" | "js";
+  packageManager: "npm" | "yarn" | "pnpm" | "bun";
   hasAuth: boolean;
   hasPrisma: boolean;
   hasDatabase: boolean;
@@ -68,5 +68,5 @@ export interface CLIOptions {
   dryRun?: boolean;
   yes?: boolean;
   noInstall?: boolean;
-  pm?: 'npm' | 'yarn' | 'pnpm' | 'bun';
+  pm?: "npm" | "yarn" | "pnpm" | "bun";
 }

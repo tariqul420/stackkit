@@ -1,5 +1,5 @@
-import fs from 'fs-extra';
-import path from 'path';
+import fs from "fs-extra";
+import path from "path";
 
 interface TemplateConfig {
   name: string;
@@ -32,7 +32,7 @@ export class TemplateComposer {
     targetDir: string,
     framework: string,
     database: string,
-    auth: string
+    auth: string,
   ): Promise<void> {
     const configs: TemplateConfig[] = [];
     const filesToCopy: Array<{ source: string; dest: string }> = [];
@@ -46,8 +46,8 @@ export class TemplateComposer {
     filesToCopy.push(...baseFiles);
 
     // 2. Load database configuration if not "none"
-    if (database !== 'none') {
-      const dbConfig = await this.loadConfig(path.join(this.templatesDir, 'databases', database));
+    if (database !== "none") {
+      const dbConfig = await this.loadConfig(path.join(this.templatesDir, "databases", database));
 
       // Check compatibility
       if (
@@ -60,20 +60,20 @@ export class TemplateComposer {
       configs.push(dbConfig);
 
       // Copy database files
-      const dbDir = path.join(this.templatesDir, 'databases', database);
+      const dbDir = path.join(this.templatesDir, "databases", database);
       const dbFiles = await this.collectFiles(dbDir);
       filesToCopy.push(
         ...dbFiles.map((f) => ({
           source: f,
-          dest: path.join(targetDir, f.replace(dbDir + path.sep, '')),
-        }))
+          dest: path.join(targetDir, f.replace(dbDir + path.sep, "")),
+        })),
       );
     }
 
     // 3. Load auth configuration if not "none"
-    if (auth !== 'none') {
+    if (auth !== "none") {
       const authKey = this.getAuthKey(framework, auth);
-      const authDir = path.join(this.templatesDir, 'auth', authKey);
+      const authDir = path.join(this.templatesDir, "auth", authKey);
 
       if (await fs.pathExists(authDir)) {
         const authConfig = await this.loadConfig(authDir);
@@ -100,8 +100,8 @@ export class TemplateComposer {
         filesToCopy.push(
           ...authFiles.map((f) => ({
             source: f,
-            dest: path.join(targetDir, f.replace(authDir + path.sep, '')),
-          }))
+            dest: path.join(targetDir, f.replace(authDir + path.sep, "")),
+          })),
         );
       }
     }
@@ -120,8 +120,8 @@ export class TemplateComposer {
   }
 
   private async loadConfig(dir: string): Promise<TemplateConfig> {
-    const configPath = path.join(dir, 'config.json');
-    const templatePath = path.join(dir, 'template.json');
+    const configPath = path.join(dir, "config.json");
+    const templatePath = path.join(dir, "template.json");
 
     if (await fs.pathExists(configPath)) {
       return await fs.readJson(configPath);
@@ -135,18 +135,18 @@ export class TemplateComposer {
   private async getBaseFiles(framework: string): Promise<Array<{ source: string; dest: string }>> {
     // For now, use existing complete template
     // In future, this will use minimal base templates
-    const baseDir = path.join(this.templatesDir, 'next-prisma-postgres-shadcn');
+    const baseDir = path.join(this.templatesDir, "next-prisma-postgres-shadcn");
     const files = await this.collectFiles(baseDir);
 
     return files.map((source) => ({
       source,
-      dest: source.replace(baseDir, ''),
+      dest: source.replace(baseDir, ""),
     }));
   }
 
   private async collectFiles(
     dir: string,
-    exclude: string[] = ['config.json', 'template.json', 'node_modules']
+    exclude: string[] = ["config.json", "template.json", "node_modules"],
   ): Promise<string[]> {
     const files: string[] = [];
 
@@ -204,7 +204,7 @@ export class TemplateComposer {
   }
 
   private async writePackageJson(targetDir: string, config: TemplateConfig): Promise<void> {
-    const pkgPath = path.join(targetDir, 'package.json');
+    const pkgPath = path.join(targetDir, "package.json");
     let pkg: any = {};
 
     if (await fs.pathExists(pkgPath)) {
@@ -232,19 +232,19 @@ export class TemplateComposer {
       return;
     }
 
-    const envPath = path.join(targetDir, '.env');
-    const envExamplePath = path.join(targetDir, '.env.example');
+    const envPath = path.join(targetDir, ".env");
+    const envExamplePath = path.join(targetDir, ".env.example");
 
     const envContent =
       Object.entries(config.env)
         .map(([key, value]) => `${key}="${value}"`)
-        .join('\n') + '\n';
+        .join("\n") + "\n";
 
     // Append or create .env.example
     if (await fs.pathExists(envExamplePath)) {
-      const existing = await fs.readFile(envExamplePath, 'utf-8');
+      const existing = await fs.readFile(envExamplePath, "utf-8");
       if (!existing.includes(envContent)) {
-        await fs.appendFile(envExamplePath, '\n' + envContent);
+        await fs.appendFile(envExamplePath, "\n" + envContent);
       }
     } else {
       await fs.writeFile(envExamplePath, envContent);
@@ -259,9 +259,9 @@ export class TemplateComposer {
   private getAuthKey(framework: string, auth: string): string {
     // Map framework + auth to specific implementation
     const mapping: Record<string, string> = {
-      'nextjs-nextauth': 'nextauth',
-      'nextjs-better-auth': 'better-auth-nextjs',
-      'express-better-auth': 'better-auth-express',
+      "nextjs-nextauth": "nextauth",
+      "nextjs-better-auth": "better-auth-nextjs",
+      "express-better-auth": "better-auth-express",
     };
 
     return mapping[`${framework}-${auth}`] || auth;

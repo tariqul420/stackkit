@@ -25,10 +25,12 @@ npx stackkit-cli list
 ## Available Modules
 
 ### Authentication
+
 - Better Auth (Next.js, Express, React)
 - Clerk (Next.js, Express, React)
 
 ### Database
+
 - Prisma with PostgreSQL or MongoDB (Next.js, Express)
 - Mongoose with MongoDB (Next.js, Express)
 

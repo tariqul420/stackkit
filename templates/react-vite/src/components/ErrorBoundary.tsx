@@ -1,5 +1,5 @@
-import type { ErrorInfo, ReactNode } from 'react';
-import { Component } from 'react';
+import type { ErrorInfo, ReactNode } from "react";
+import { Component } from "react";
 
 interface Props {
   children?: ReactNode;
@@ -22,7 +22,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    console.error("ErrorBoundary caught an error:", error, errorInfo);
   }
 
   render() {
@@ -34,7 +34,7 @@ export class ErrorBoundary extends Component<Props, State> {
         <div className="p-8 text-center">
           <h2 className="text-2xl font-semibold">Something went wrong</h2>
           <p className="mt-2 text-gray-600">
-            {this.state.error?.message || 'An unexpected error occurred'}
+            {this.state.error?.message || "An unexpected error occurred"}
           </p>
           <button
             onClick={() => this.setState({ hasError: false, error: undefined })}

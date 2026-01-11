@@ -1,10 +1,8 @@
-import fs from 'fs-extra';
-import { logger } from './logger';
+import fs from "fs-extra";
 
-export async function modifyJson(
   filePath: string,
-  modifier: (json: any) => any,
-  options: { create?: boolean; force?: boolean } = {}
+  modifier: (json: Record<string, unknown>) => Record<string, unknown>,
+  options: { create?: boolean; force?: boolean } = {},
 ): Promise<void> {
   const exists = await fs.pathExists(filePath);
 
@@ -12,7 +10,7 @@ export async function modifyJson(
     throw new Error(`File not found: ${filePath}`);
   }
 
-  let json = {};
+  let json: Record<string, unknown> = {};
   if (exists) {
     json = await fs.readJSON(filePath);
   }
@@ -23,8 +21,8 @@ export async function modifyJson(
 
 export async function addToPackageJson(
   filePath: string,
-  section: 'dependencies' | 'devDependencies' | 'scripts',
-  additions: Record<string, string>
+  section: "dependencies" | "devDependencies" | "scripts",
+  additions: Record<string, string>,
 ): Promise<void> {
   await modifyJson(filePath, (json) => {
     json[section] = json[section] || {};
@@ -33,14 +31,13 @@ export async function addToPackageJson(
   });
 }
 
-export async function setJsonValue(
   filePath: string,
   path: string,
-  value: any,
-  options: { merge?: boolean } = {}
+  value: unknown,
+  options: { merge?: boolean } = {},
 ): Promise<void> {
   await modifyJson(filePath, (json) => {
-    const keys = path.split('.');
+    const keys = path.split(".");
     let current = json;
 
     for (let i = 0; i < keys.length - 1; i++) {
@@ -53,7 +50,7 @@ export async function setJsonValue(
 
     const lastKey = keys[keys.length - 1];
 
-    if (options.merge && typeof current[lastKey] === 'object' && typeof value === 'object') {
+    if (options.merge && typeof current[lastKey] === "object" && typeof value === "object") {
       current[lastKey] = { ...current[lastKey], ...value };
     } else {
       current[lastKey] = value;

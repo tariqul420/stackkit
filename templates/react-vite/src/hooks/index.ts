@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 export function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -18,7 +18,7 @@ export function useDebounce<T>(value: T, delay: number): T {
 
 export function useLocalStorage<T>(
   key: string,
-  initialValue: T
+  initialValue: T,
 ): [T, (value: T | ((val: T) => T)) => void] {
   const [storedValue, setStoredValue] = useState<T>(() => {
     try {
@@ -45,7 +45,7 @@ export function useLocalStorage<T>(
 
 export function useMediaQuery(query: string): boolean {
   const [matches, setMatches] = useState(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       return window.matchMedia(query).matches;
     }
     return false;
@@ -55,9 +55,9 @@ export function useMediaQuery(query: string): boolean {
     const media = window.matchMedia(query);
 
     const listener = () => setMatches(media.matches);
-    media.addEventListener('change', listener);
+    media.addEventListener("change", listener);
 
-    return () => media.removeEventListener('change', listener);
+    return () => media.removeEventListener("change", listener);
   }, [query]);
 
   return matches;

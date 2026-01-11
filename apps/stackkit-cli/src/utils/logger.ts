@@ -1,23 +1,23 @@
-import chalk from 'chalk';
-import ora, { Ora } from 'ora';
+import chalk from "chalk";
+import ora, { Ora } from "ora";
 
 export class Logger {
   private spinner: Ora | null = null;
 
   info(message: string): void {
-    console.log(chalk.blue('ℹ'), message);
+    console.log(chalk.blue("ℹ"), message);
   }
 
   success(message: string): void {
-    console.log(chalk.green('✔'), message);
+    console.log(chalk.green("✔"), message);
   }
 
   error(message: string): void {
-    console.log(chalk.red('✖'), message);
+    console.log(chalk.red("✖"), message);
   }
 
   warn(message: string): void {
-    console.log(chalk.yellow('⚠'), message);
+    console.log(chalk.yellow("⚠"), message);
   }
 
   log(message: string): void {

@@ -1,4 +1,4 @@
-import { SEO } from '../components/SEO';
+import { SEO } from "../components/SEO";
 
 export default function Home() {
   return (
@@ -14,10 +14,10 @@ export default function Home() {
             </h1>
             <p className="max-w-md text-lg leading-8 text-zinc-400">
               This template includes React Router, TanStack Query, Axios, and Tailwind CSS. Check
-              out the{' '}
+              out the{" "}
               <a href="/about" className="font-medium text-zinc-50 hover:underline">
                 About
-              </a>{' '}
+              </a>{" "}
               page to learn more about the included features.
             </p>
           </div>
