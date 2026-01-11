@@ -2,7 +2,7 @@ import chalk from "chalk";
 import fs from "fs-extra";
 import inquirer from "inquirer";
 import path from "path";
-import { CreateFilePatch, ModuleMetadata } from "../types";
+import { CreateFilePatch, ModuleMetadata, ProjectInfo } from "../types";
 import { detectProjectInfo, getLibPath, getRouterBasePath } from "../utils/detect";
 import { addEnvVariables } from "../utils/env-editor";
 import { createFile, fileExists } from "../utils/files";
@@ -185,6 +185,8 @@ async function applyModulePatches(
   moduleName: string,
   options: AddOptions,
 ): Promise<void> {
+  // Find the module path
+
   const moduleBasePath = await findModulePath(modulesDir, moduleName, options.provider);
 
   if (!moduleBasePath) {
