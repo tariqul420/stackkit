@@ -33,14 +33,7 @@ interface Answers {
   framework: "nextjs" | "express" | "react-vite";
   database?: "prisma" | "mongoose-mongodb" | "none";
   dbProvider?: "postgresql" | "mongodb" | "mysql" | "sqlite";
-  auth:
-    | "better-auth-nextjs"
-    | "better-auth-express"
-    | "better-auth-react"
-    | "clerk-nextjs"
-    | "clerk-express"
-    | "clerk-react"
-    | "none";
+  auth?: "better-auth" | "clerk" | "none";
   language: "typescript" | "javascript";
   packageManager: "pnpm" | "npm" | "yarn" | "bun";
 }
@@ -121,6 +114,7 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
       type: "list",
       name: "auth",
       message: "Select authentication:",
+      when: (answers: Answers) => answers.database !== "none" || answers.framework === "react-vite",
       choices: (answers: Answers) => {
         if (answers.framework === "react-vite") {
           return [
@@ -183,7 +177,9 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
       ? "none"
       : answers.database) as ProjectConfig["database"],
     dbProvider: answers.dbProvider,
-    auth: answers.auth,
+    auth: answers.auth && answers.auth !== "none"
+      ? `${answers.auth}-${answers.framework === "react-vite" ? "react" : answers.framework}`
+      : "none",
     language: answers.language,
     packageManager: answers.packageManager,
   };

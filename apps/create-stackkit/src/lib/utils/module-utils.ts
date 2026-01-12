@@ -167,12 +167,7 @@ export async function mergeAuthConfig(
 ): Promise<void> {
   const modulesDir = join(templatesDir, "..", "modules");
 
-  const authMap: Record<string, string> = {
-    "better-auth": "better-auth",
-    clerk: "clerk",
-  };
-
-  const authKey = authMap[auth] || auth;
+  const authKey = auth;
   const authModulePath = join(modulesDir, "auth", authKey);
 
   if (!(await fs.pathExists(authModulePath))) {
