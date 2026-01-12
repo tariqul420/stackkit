@@ -16,13 +16,13 @@
         "pg": "^8.16.3"
       },
       "mongodb": {
-        "mongodb": "^6.10.0"
+        "@prisma/client": "6.19"
       },
       "mysql": {
-        "mysql2": "^3.10.0"
+        "@prisma/adapter-mariadb": "^7.2.0"
       },
       "sqlite": {
-        "better-sqlite3": "^11.0.0"
+        "@prisma/adapter-better-sqlite3": "^7.2.0"
       }
     }
   },
@@ -35,23 +35,59 @@
       "postgresql": {
         "@types/pg": "^8.16.0"
       },
-      "mongodb": {},
-      "mysql": {
-        "@types/mysql2": "^1.7.0"
+      "mongodb": {
+        "prisma": "6.19"
       },
+      "mysql": {},
       "sqlite": {
-        "@types/better-sqlite3": "^7.6.0"
+        "@types/better-sqlite3": "^7.6.13"
       }
     }
   },
-  "envVars": [
-    {
-      "key": "DATABASE_URL",
-      "value": "{{connectionString}}",
-      "description": "Database connection URL",
-      "required": true
+  "envVars": {
+    "common": [
+      {
+        "key": "DATABASE_URL",
+        "value": "{{connectionString}}",
+        "description": "Database connection URL",
+        "required": true
+      }
+    ],
+    "providers": {
+      "mysql": [
+        {
+          "key": "DATABASE_HOST",
+          "value": "localhost",
+          "description": "MySQL host",
+          "required": true
+        },
+        {
+          "key": "DATABASE_USER",
+          "value": "",
+          "description": "MySQL username",
+          "required": true
+        },
+        {
+          "key": "DATABASE_PASSWORD",
+          "value": "",
+          "description": "MySQL password",
+          "required": true
+        },
+        {
+          "key": "DATABASE_NAME",
+          "value": "mydb",
+          "description": "MySQL database name",
+          "required": true
+        },
+        {
+          "key": "DATABASE_PORT",
+          "value": "3306",
+          "description": "MySQL port",
+          "required": false
+        }
+      ]
     }
-  ],
+  },
   "frameworkPatches": {
     "express": {
       "tsconfig.json": {

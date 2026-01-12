@@ -57,43 +57,31 @@ const prisma = globalForPrisma.prisma ?? new PrismaClient({
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 `;
     } else if (dbProvider === "mongodb") {
-      variables.connectionString = "mongodb://localhost:27017/mydb";
+      variables.connectionString = "mongodb+srv://username:password@cluster.mongodb.net/mydb";
       variables.prismaClientInit = `
-const globalForPrisma = global as unknown as {
-  prisma: PrismaClient | undefined;
-};
-
-const prisma = globalForPrisma.prisma ?? new PrismaClient({
-  datasourceUrl: process.env.DATABASE_URL,
-});
-
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+const prisma = new PrismaClient()
 `;
     } else if (dbProvider === "mysql") {
       variables.connectionString = "mysql://user:password@localhost:3306/mydb";
       variables.prismaClientInit = `
-const globalForPrisma = global as unknown as {
-  prisma: PrismaClient | undefined;
-};
+import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 
-const prisma = globalForPrisma.prisma ?? new PrismaClient({
-  datasourceUrl: process.env.DATABASE_URL,
+const adapter = new PrismaMariaDb({
+  host: process.env.DATABASE_HOST,
+  user: process.env.DATABASE_USER,
+  password: process.env.DATABASE_PASSWORD,
+  database: process.env.DATABASE_NAME,
+  connectionLimit: 5
 });
-
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+const prisma = new PrismaClient({ adapter });
 `;
     } else if (dbProvider === "sqlite") {
       variables.connectionString = "file:./dev.db";
       variables.prismaClientInit = `
-const globalForPrisma = global as unknown as {
-  prisma: PrismaClient | undefined;
-};
+import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 
-const prisma = globalForPrisma.prisma ?? new PrismaClient({
-  datasourceUrl: process.env.DATABASE_URL,
-});
-
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+const adapter = new PrismaBetterSqlite3({ url: process.env.DATABASE_URL });
+const prisma = new PrismaClient({ adapter });
 `;
     }
   }
@@ -144,7 +132,11 @@ if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
   });
 
   const envVars: Record<string, string> = {};
-  for (const envVar of moduleData.envVars || []) {
+  const commonEnvVars = Array.isArray(moduleData.envVars) ? moduleData.envVars : moduleData.envVars?.common || [];
+  const providerEnvVars = dbProvider && moduleData.envVars?.providers?.[dbProvider] ? moduleData.envVars.providers[dbProvider] : [];
+  const allEnvVars = [...commonEnvVars, ...providerEnvVars];
+  
+  for (const envVar of allEnvVars) {
     let value = envVar.value;
     for (const [key, val] of Object.entries(variables)) {
       value = value.replace(new RegExp(`{{${key}}}`, "g"), val);
@@ -178,9 +170,6 @@ export async function mergeAuthConfig(
   const authMap: Record<string, string> = {
     "better-auth": "better-auth",
     clerk: "clerk",
-    "clerk-nextjs": "clerk",
-    "clerk-express": "clerk",
-    "clerk-react": "clerk",
   };
 
   const authKey = authMap[auth] || auth;

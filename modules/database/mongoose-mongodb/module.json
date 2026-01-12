@@ -7,20 +7,22 @@
   "database": "mongodb",
   "supportedFrameworks": ["nextjs", "express"],
   "dependencies": {
-    "mongoose": "8.8.4",
-    "dotenv": "17.2.3"
+    "mongoose": "^8.8.4",
+    "dotenv": "^17.2.3"
   },
   "devDependencies": {
-    "@types/mongoose": "5.11.97"
+    "@types/mongoose": "^5.11.97"
   },
-  "envVars": [
-    {
-      "key": "DATABASE_URL",
-      "value": "mongodb://localhost:27017/myapp",
-      "description": "MongoDB connection string",
-      "required": true
-    }
-  ],
+  "envVars": {
+    "common": [
+      {
+        "key": "DATABASE_URL",
+        "value": "mongodb://localhost:27017/myapp",
+        "description": "MongoDB connection string",
+        "required": true
+      }
+    ]
+  },
   "frameworkPatches": {
     "express": {
       "tsconfig.json": {
