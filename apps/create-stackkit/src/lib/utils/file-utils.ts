@@ -85,8 +85,17 @@ export async function mergeEnvFile(
     await fs.writeFile(envExamplePath, envContent);
   }
 
-  // Create .env if doesn't exist
-  if (!(await fs.pathExists(envPath))) {
+  // Update .env (create if doesn't exist, or append new vars if it does)
+  if (await fs.pathExists(envPath)) {
+    const existing = await fs.readFile(envPath, "utf-8");
+    const existingKeys = existing.split("\n").map((line) => line.split("=")[0]);
+
+    const newVars = Object.keys(envVars).filter((key) => !existingKeys.includes(key));
+    if (newVars.length > 0) {
+      const newContent = newVars.map((key) => `${key}="${envVars[key]}"`).join("\n");
+      await fs.appendFile(envPath, "\n" + newContent + "\n");
+    }
+  } else {
     await fs.writeFile(envPath, envContent);
   }
 }

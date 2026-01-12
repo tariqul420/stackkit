@@ -16,14 +16,7 @@ interface ProjectConfig {
   framework: "nextjs" | "express" | "react-vite";
   database: "prisma" | "mongoose-mongodb" | "none";
   dbProvider?: "postgresql" | "mongodb" | "mysql" | "sqlite";
-  auth:
-    | "better-auth-nextjs"
-    | "better-auth-express"
-    | "better-auth-react"
-    | "clerk-nextjs"
-    | "clerk-express"
-    | "clerk-react"
-    | "none";
+  auth: "better-auth" | "clerk" | "none";
   language: "typescript" | "javascript";
   packageManager: "pnpm" | "npm" | "yarn" | "bun";
 }
@@ -177,9 +170,7 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
       ? "none"
       : answers.database) as ProjectConfig["database"],
     dbProvider: answers.dbProvider,
-    auth: answers.auth && answers.auth !== "none"
-      ? `${answers.auth}-${answers.framework === "react-vite" ? "react" : answers.framework}`
-      : "none",
+    auth: answers.auth || "none",
     language: answers.language,
     packageManager: answers.packageManager,
   };
@@ -191,40 +182,6 @@ async function generateProject(config: ProjectConfig, targetDir: string): Promis
   try {
     postInstallCommands = await composeTemplate(config, targetDir);
     copySpinner.succeed("Project files created");
-
-    // Ensure .env exists: if .env.example was copied from the template, create .env from it
-    try {
-      const envExamplePath = path.join(targetDir, ".env.example");
-      const envPath = path.join(targetDir, ".env");
-      if ((await fs.pathExists(envExamplePath)) && !(await fs.pathExists(envPath))) {
-        const envContent = await fs.readFile(envExamplePath, "utf-8");
-        await fs.writeFile(envPath, envContent);
-      }
-    } catch {
-      // non-fatal
-    }
-
-    // Also ensure .env is created next to any .env.example found anywhere in project
-    try {
-      const walk = async (dir: string) => {
-        const entries = await fs.readdir(dir, { withFileTypes: true });
-        for (const entry of entries) {
-          const full = path.join(dir, entry.name);
-          if (entry.isDirectory()) {
-            await walk(full);
-          } else if (entry.isFile() && entry.name === ".env.example") {
-            const targetEnv = path.join(dir, ".env");
-            if (!(await fs.pathExists(targetEnv))) {
-              const content = await fs.readFile(full, "utf-8");
-              await fs.writeFile(targetEnv, content);
-            }
-          }
-        }
-      };
-      await walk(targetDir);
-    } catch {
-      // non-fatal
-    }
   } catch (error) {
     copySpinner.fail("Failed to create project files");
     throw error;
@@ -270,6 +227,18 @@ async function composeTemplate(config: ProjectConfig, targetDir: string): Promis
   await fs.ensureDir(targetDir);
 
   await copyBaseFramework(templatesDir, targetDir, config.framework);
+
+  // Ensure .env exists: if .env.example was copied from the template, create .env from it
+  try {
+    const envExamplePath = path.join(targetDir, ".env.example");
+    const envPath = path.join(targetDir, ".env");
+    if ((await fs.pathExists(envExamplePath)) && !(await fs.pathExists(envPath))) {
+      const envContent = await fs.readFile(envExamplePath, "utf-8");
+      await fs.writeFile(envPath, envContent);
+    }
+  } catch {
+    // non-fatal
+  }
 
   const postInstallCommands: string[] = [];
 
