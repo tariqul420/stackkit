@@ -127,7 +127,7 @@
       "type": "create-file",
       "description": "Create Prisma config",
       "source": "prisma.config.ts",
-      "destination": "prisma.config.js"
+      "destination": "prisma.config.ts"
     },
     {
       "type": "create-file",
