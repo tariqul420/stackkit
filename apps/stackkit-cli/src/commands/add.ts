@@ -1,4 +1,5 @@
 import chalk from "chalk";
+import { execSync } from "child_process";
 import fs from "fs-extra";
 import inquirer from "inquirer";
 import path from "path";
@@ -36,6 +37,96 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
       process.exit(1);
     }
 
+    // For database modules, ensure provider is selected
+    let selectedProvider = options.provider;
+    if (moduleMetadata.category === "database" && !selectedProvider) {
+      if (
+        typeof moduleMetadata.dependencies === "object" &&
+        "providers" in moduleMetadata.dependencies
+      ) {
+        const providers = Object.keys(moduleMetadata.dependencies.providers || {});
+        if (providers.length > 0) {
+          const { provider } = await inquirer.prompt([
+            {
+              type: "list",
+              name: "provider",
+              message: "Select database provider:",
+              choices: providers.map((p) => ({ name: p, value: p })),
+            },
+          ]);
+          selectedProvider = provider;
+        }
+      }
+    }
+
+    // Merge dependencies based on provider
+    const mergedDeps: Record<string, string> = {};
+    const mergedDevDeps: Record<string, string> = {};
+
+    if (
+      typeof moduleMetadata.dependencies === "object" &&
+      !("common" in moduleMetadata.dependencies)
+    ) {
+      // Already flat
+      Object.assign(mergedDeps, moduleMetadata.dependencies);
+    } else if (
+      typeof moduleMetadata.dependencies === "object" &&
+      "common" in moduleMetadata.dependencies
+    ) {
+      Object.assign(mergedDeps, moduleMetadata.dependencies.common);
+      if (
+        selectedProvider &&
+        typeof moduleMetadata.dependencies === "object" &&
+        "providers" in moduleMetadata.dependencies &&
+        typeof moduleMetadata.dependencies.providers === "object" &&
+        selectedProvider in moduleMetadata.dependencies.providers
+      ) {
+        Object.assign(mergedDeps, moduleMetadata.dependencies.providers[selectedProvider]);
+      }
+    }
+
+    if (moduleMetadata.devDependencies) {
+      if (
+        typeof moduleMetadata.devDependencies === "object" &&
+        !("common" in moduleMetadata.devDependencies)
+      ) {
+        Object.assign(mergedDevDeps, moduleMetadata.devDependencies);
+      } else if (
+        typeof moduleMetadata.devDependencies === "object" &&
+        "common" in moduleMetadata.devDependencies
+      ) {
+        Object.assign(mergedDevDeps, moduleMetadata.devDependencies.common);
+        if (
+          selectedProvider &&
+          typeof moduleMetadata.devDependencies === "object" &&
+          "providers" in moduleMetadata.devDependencies &&
+          typeof moduleMetadata.devDependencies.providers === "object" &&
+          selectedProvider in moduleMetadata.devDependencies.providers
+        ) {
+          Object.assign(mergedDevDeps, moduleMetadata.devDependencies.providers[selectedProvider]);
+        }
+      }
+    }
+
+    // Update metadata with merged deps
+    moduleMetadata.dependencies = mergedDeps;
+    moduleMetadata.devDependencies = mergedDevDeps;
+
+    // Set variables for replacements
+    const variables: Record<string, string> = {};
+    if (selectedProvider) {
+      variables.provider = selectedProvider;
+      if (selectedProvider === "postgresql") {
+        variables.connectionString = "postgresql://user:password@localhost:5432/mydb?schema=public";
+      } else if (selectedProvider === "mongodb") {
+        variables.connectionString = "mongodb://localhost:27017/mydb";
+      } else if (selectedProvider === "mysql") {
+        variables.connectionString = "mysql://user:password@localhost:3306/mydb";
+      } else if (selectedProvider === "sqlite") {
+        variables.connectionString = "file:./dev.db";
+      }
+    }
+
     // Check if framework is supported
     if (!moduleMetadata.supportedFrameworks.includes(projectInfo.framework)) {
       logger.error(
@@ -70,6 +161,29 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
     // Apply module patches
     await applyModulePatches(projectRoot, projectInfo, moduleMetadata, modulesDir, module, options);
 
+    // Apply framework patches
+    if (moduleMetadata.frameworkPatches && !options.dryRun) {
+      await applyFrameworkPatches(
+        projectRoot,
+        moduleMetadata.frameworkPatches,
+        projectInfo.framework,
+      );
+    }
+
+    // Run post-install commands
+    if (moduleMetadata.postInstall && moduleMetadata.postInstall.length > 0 && !options.dryRun) {
+      const postInstallSpinner = logger.startSpinner("Running post-install commands...");
+      try {
+        for (const command of moduleMetadata.postInstall) {
+          execSync(command, { cwd: projectRoot, stdio: "pipe" });
+        }
+        postInstallSpinner.succeed("Post-install commands completed");
+      } catch (error) {
+        postInstallSpinner.fail("Failed to run post-install commands");
+        throw error;
+      }
+    }
+
     // Add dependencies
     if (Object.keys(moduleMetadata.dependencies).length > 0 && options.install !== false) {
       const deps = Object.entries(moduleMetadata.dependencies).map(
@@ -102,8 +216,13 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
 
     // Add environment variables
     if (moduleMetadata.envVars.length > 0) {
+      // Replace variables in envVars
+      const processedEnvVars = moduleMetadata.envVars.map((envVar) => ({
+        ...envVar,
+        value: envVar.value?.replace(/\{\{(\w+)\}\}/g, (match, key) => variables[key] || match),
+      }));
       if (!options.dryRun) {
-        await addEnvVariables(projectRoot, moduleMetadata.envVars, { force: options.force });
+        await addEnvVariables(projectRoot, processedEnvVars, { force: options.force });
       } else {
         logger.log(`  ${chalk.dim("~")} .env.example`);
       }
@@ -272,4 +391,57 @@ async function findModulePath(
   }
 
   return null;
+}
+async function applyFrameworkPatches(
+  projectRoot: string,
+  patches: Record<string, { [file: string]: { merge?: Record<string, unknown> } }>,
+  framework: string,
+): Promise<void> {
+  const frameworkKey = framework;
+  const frameworkPatches = patches[frameworkKey];
+
+  if (!frameworkPatches) return;
+
+  for (const [filename, patchConfig] of Object.entries(frameworkPatches)) {
+    const filePath = path.join(projectRoot, filename);
+
+    if (await fs.pathExists(filePath)) {
+      const fileContent = await fs.readJson(filePath);
+
+      if (patchConfig.merge) {
+        const merged = deepMerge(fileContent, patchConfig.merge);
+        await fs.writeJson(filePath, merged, { spaces: 2 });
+        const relativePath = path.relative(projectRoot, filePath);
+        logger.log(`  ${chalk.blue("~")} ${relativePath}`);
+      }
+    }
+  }
+}
+
+function deepMerge(
+  target: Record<string, unknown>,
+  source: Record<string, unknown>,
+): Record<string, unknown> {
+  const output = { ...target };
+
+  for (const key in source) {
+    if (source[key] && typeof source[key] === "object" && !Array.isArray(source[key])) {
+      if (target[key]) {
+        output[key] = deepMerge(
+          target[key] as Record<string, unknown>,
+          source[key] as Record<string, unknown>,
+        );
+      } else {
+        output[key] = source[key];
+      }
+    } else if (Array.isArray(source[key])) {
+      output[key] = Array.from(
+        new Set([...((target[key] as unknown[]) || []), ...(source[key] as unknown[])]),
+      );
+    } else {
+      output[key] = source[key];
+    }
+  }
+
+  return output;
 }

@@ -13,10 +13,22 @@ export interface ModuleMetadata {
   description: string;
   category: "auth" | "database" | "ui" | "other";
   supportedFrameworks: string[];
-  dependencies: Record<string, string>;
-  devDependencies?: Record<string, string>;
+  dependencies:
+    | {
+        common?: Record<string, string>;
+        providers?: Record<string, Record<string, string>>;
+      }
+    | Record<string, string>;
+  devDependencies?:
+    | {
+        common?: Record<string, string>;
+        providers?: Record<string, Record<string, string>>;
+      }
+    | Record<string, string>;
   envVars: EnvVar[];
   patches: ModulePatch[];
+  frameworkPatches?: Record<string, { [file: string]: { merge?: Record<string, unknown> } }>;
+  postInstall?: string[];
 }
 
 export interface EnvVar {
