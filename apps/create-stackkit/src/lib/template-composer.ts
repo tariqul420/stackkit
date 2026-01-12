@@ -25,9 +25,7 @@ export class TemplateComposer {
     this.templatesDir = templatesDir;
   }
 
-  /**
-   * Compose a project from base + database + auth selections
-   */
+  // Compose a project from base + database + auth selections
   async compose(
     targetDir: string,
     framework: string,
@@ -37,15 +35,15 @@ export class TemplateComposer {
     const configs: TemplateConfig[] = [];
     const filesToCopy: Array<{ source: string; dest: string }> = [];
 
-    // 1. Load base framework template
+    // Load base framework template
     const baseConfig = await this.loadConfig(path.join(this.templatesDir, framework));
     configs.push(baseConfig);
 
     // Copy base files
-    const baseFiles = await this.getBaseFiles(framework);
+    const baseFiles = await this.getBaseFiles(targetDir);
     filesToCopy.push(...baseFiles);
 
-    // 2. Load database configuration if not "none"
+    // Load database configuration if not "none"
     if (database !== "none") {
       const dbConfig = await this.loadConfig(path.join(this.templatesDir, "databases", database));
 
@@ -70,7 +68,7 @@ export class TemplateComposer {
       );
     }
 
-    // 3. Load auth configuration if not "none"
+    // Load auth configuration if not "none"
     if (auth !== "none") {
       const authKey = this.getAuthKey(framework, auth);
       const authDir = path.join(this.templatesDir, "auth", authKey);
@@ -106,16 +104,16 @@ export class TemplateComposer {
       }
     }
 
-    // 4. Merge all configurations
+    // Merge all configurations
     const mergedConfig = this.mergeConfigs(configs);
 
-    // 5. Copy all files
+    // Copy all files
     await this.copyFiles(filesToCopy);
 
-    // 6. Create/update package.json
+    // Create/update package.json
     await this.writePackageJson(targetDir, mergedConfig);
 
-    // 7. Create/update .env
+    // Create/update .env
     await this.writeEnvFile(targetDir, mergedConfig);
   }
 
@@ -132,15 +130,12 @@ export class TemplateComposer {
     throw new Error(`No configuration found in ${dir}`);
   }
 
-  private async getBaseFiles(framework: string): Promise<Array<{ source: string; dest: string }>> {
-    // For now, use existing complete template
-    // In future, this will use minimal base templates
+  private async getBaseFiles(targetDir: string): Promise<Array<{ source: string; dest: string }>> {
     const baseDir = path.join(this.templatesDir, "next-prisma-postgres-shadcn");
     const files = await this.collectFiles(baseDir);
-
     return files.map((source) => ({
       source,
-      dest: source.replace(baseDir, ""),
+      dest: path.join(targetDir, source.replace(baseDir + path.sep, "")),
     }));
   }
 
@@ -205,54 +200,52 @@ export class TemplateComposer {
 
   private async writePackageJson(targetDir: string, config: TemplateConfig): Promise<void> {
     const pkgPath = path.join(targetDir, "package.json");
-    let pkg: any = {};
-
+    let pkg = {} as Record<string, unknown>;
     if (await fs.pathExists(pkgPath)) {
       pkg = await fs.readJson(pkgPath);
     }
 
     // Merge dependencies and scripts
     if (config.dependencies) {
-      pkg.dependencies = { ...pkg.dependencies, ...config.dependencies };
+      pkg.dependencies = {
+        ...((pkg.dependencies as Record<string, string>) || {}),
+        ...config.dependencies,
+      };
     }
-
     if (config.devDependencies) {
-      pkg.devDependencies = { ...pkg.devDependencies, ...config.devDependencies };
+      pkg.devDependencies = {
+        ...((pkg.devDependencies as Record<string, string>) || {}),
+        ...config.devDependencies,
+      };
     }
-
     if (config.scripts) {
-      pkg.scripts = { ...pkg.scripts, ...config.scripts };
+      pkg.scripts = { ...((pkg.scripts as Record<string, string>) || {}), ...config.scripts };
     }
 
     await fs.writeJson(pkgPath, pkg, { spaces: 2 });
   }
 
   private async writeEnvFile(targetDir: string, config: TemplateConfig): Promise<void> {
-    if (!config.env || Object.keys(config.env).length === 0) {
-      return;
-    }
-
-    const envPath = path.join(targetDir, ".env");
     const envExamplePath = path.join(targetDir, ".env.example");
+    const envPath = path.join(targetDir, ".env");
 
-    const envContent =
-      Object.entries(config.env)
-        .map(([key, value]) => `${key}="${value}"`)
-        .join("\n") + "\n";
-
-    // Append or create .env.example
+    // If .env.example exists, copy its contents to .env (if .env does not exist)
     if (await fs.pathExists(envExamplePath)) {
-      const existing = await fs.readFile(envExamplePath, "utf-8");
-      if (!existing.includes(envContent)) {
-        await fs.appendFile(envExamplePath, "\n" + envContent);
+      if (!(await fs.pathExists(envPath))) {
+        const envContent = await fs.readFile(envExamplePath, "utf-8");
+        await fs.writeFile(envPath, envContent);
       }
-    } else {
-      await fs.writeFile(envExamplePath, envContent);
     }
-
-    // Don't overwrite existing .env, but create if missing
-    if (!(await fs.pathExists(envPath))) {
-      await fs.writeFile(envPath, envContent);
+    // If .env.example does not exist but config.env exists (legacy), fallback
+    else if (config.env && Object.keys(config.env).length > 0) {
+      const envContent =
+        Object.entries(config.env)
+          .map(([key, value]) => `${key}="${value}"`)
+          .join("\n") + "\n";
+      await fs.writeFile(envExamplePath, envContent);
+      if (!(await fs.pathExists(envPath))) {
+        await fs.writeFile(envPath, envContent);
+      }
     }
   }
 

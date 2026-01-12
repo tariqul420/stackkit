@@ -3,11 +3,9 @@
   "displayName": "Express.js",
   "framework": "express",
   "description": "Express.js REST API with TypeScript",
-  "files": ["src/", ".env.example", ".gitignore", "package.json", "tsconfig.json"],
+  "files": ["src/", ".gitignore", "package.json", "tsconfig.json", ".env.example"],
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "clean": "rimraf dist",
-    "prebuild": "npm run clean",
     "build": "tsc",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
@@ -16,8 +14,6 @@
   },
   "jsScripts": {
     "dev": "tsx --watch src/server.js",
-    "clean": "rimraf dist",
-    "prebuild": "npm run clean",
     "build": "echo 'No build step for JavaScript'",
     "lint": "eslint src --ext .js",
     "lint:fix": "eslint src --ext .js --fix",
