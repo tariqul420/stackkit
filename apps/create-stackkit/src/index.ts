@@ -8,6 +8,7 @@ async function main() {
   try {
     await createProject(projectName);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Error:", (error as Error).message);
     process.exit(1);
   }

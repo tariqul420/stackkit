@@ -40,7 +40,7 @@ export class TemplateComposer {
     configs.push(baseConfig);
 
     // Copy base files
-    const baseFiles = await this.getBaseFiles(targetDir);
+    const baseFiles = await this.getBaseFiles(framework, targetDir);
     filesToCopy.push(...baseFiles);
 
     // Load database configuration if not "none"
@@ -130,8 +130,11 @@ export class TemplateComposer {
     throw new Error(`No configuration found in ${dir}`);
   }
 
-  private async getBaseFiles(targetDir: string): Promise<Array<{ source: string; dest: string }>> {
-    const baseDir = path.join(this.templatesDir, "next-prisma-postgres-shadcn");
+  private async getBaseFiles(
+    framework: string,
+    targetDir: string,
+  ): Promise<Array<{ source: string; dest: string }>> {
+    const baseDir = path.join(this.templatesDir, framework);
     const files = await this.collectFiles(baseDir);
     return files.map((source) => ({
       source,

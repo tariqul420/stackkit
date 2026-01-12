@@ -22,7 +22,34 @@ interface ProjectConfig {
   packageManager: "pnpm" | "npm" | "yarn" | "bun";
 }
 
+interface PackageJsonConfig {
+  dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+  scripts?: Record<string, string>;
+}
+
+interface Answers {
+  projectName?: string;
+  framework: "nextjs" | "express" | "react-vite";
+  database?: "prisma-postgresql" | "prisma-mongodb" | "mongoose-mongodb" | "none";
+  auth:
+    | "better-auth-nextjs"
+    | "better-auth-express"
+    | "better-auth-react"
+    | "clerk-nextjs"
+    | "clerk-express"
+    | "clerk-react"
+    | "none";
+  language: "typescript" | "javascript";
+  packageManager: "pnpm" | "npm" | "yarn" | "bun";
+}
+
+interface PatchConfig {
+  merge?: unknown;
+}
+
 export async function createProject(projectName?: string): Promise<void> {
+  // eslint-disable-next-line no-console
   console.log(chalk.bold.cyan("\n Create StackKit App\n"));
 
   // Get project configuration through wizard
@@ -31,7 +58,9 @@ export async function createProject(projectName?: string): Promise<void> {
   // Validate target directory
   const targetDir = path.join(process.cwd(), config.projectName);
   if (await fs.pathExists(targetDir)) {
+    // eslint-disable-next-line no-console
     console.log(chalk.red(`\n✖ Directory "${config.projectName}" already exists`));
+    // eslint-disable-next-line no-console
     console.log(chalk.gray("Please choose a different name or remove the existing directory.\n"));
     process.exit(1);
   }
@@ -44,7 +73,7 @@ export async function createProject(projectName?: string): Promise<void> {
 }
 
 async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
-  const answers = await inquirer.prompt([
+  const answers = (await inquirer.prompt([
     {
       type: "input",
       name: "projectName",
@@ -76,7 +105,7 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
       type: "list",
       name: "database",
       message: "Select database/ORM:",
-      when: (answers: any) => answers.framework !== "react-vite",
+      when: (answers: Answers) => answers.framework !== "react-vite",
       choices: [
         { name: "Prisma + PostgreSQL", value: "prisma-postgresql" },
         { name: "Prisma + MongoDB", value: "prisma-mongodb" },
@@ -88,7 +117,7 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
       type: "list",
       name: "auth",
       message: "Select authentication:",
-      choices: (answers: any) => {
+      choices: (answers: Answers) => {
         if (answers.framework === "react-vite") {
           return [
             { name: "Better Auth", value: "better-auth-react" },
@@ -141,12 +170,14 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
       ],
       default: "pnpm",
     },
-  ]);
+  ])) as Answers;
 
   return {
-    projectName: projectName || answers.projectName,
+    projectName: (projectName || answers.projectName) as string,
     framework: answers.framework,
-    database: answers.framework === "react-vite" ? "none" : answers.database,
+    database: (answers.framework === "react-vite"
+      ? "none"
+      : answers.database) as ProjectConfig["database"],
     auth: answers.auth,
     language: answers.language,
     packageManager: answers.packageManager,
@@ -154,13 +185,45 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
 }
 
 async function generateProject(config: ProjectConfig, targetDir: string): Promise<void> {
-  console.log();
-
   // Copy and compose template
   const copySpinner = ora("Creating project files...").start();
   try {
     await composeTemplate(config, targetDir);
     copySpinner.succeed("Project files created");
+
+    // Ensure .env exists: if .env.example was copied from the template, create .env from it
+    try {
+      const envExamplePath = path.join(targetDir, ".env.example");
+      const envPath = path.join(targetDir, ".env");
+      if ((await fs.pathExists(envExamplePath)) && !(await fs.pathExists(envPath))) {
+        const envContent = await fs.readFile(envExamplePath, "utf-8");
+        await fs.writeFile(envPath, envContent);
+      }
+    } catch {
+      // non-fatal
+    }
+
+    // Also ensure .env is created next to any .env.example found anywhere in project
+    try {
+      const walk = async (dir: string) => {
+        const entries = await fs.readdir(dir, { withFileTypes: true });
+        for (const entry of entries) {
+          const full = path.join(dir, entry.name);
+          if (entry.isDirectory()) {
+            await walk(full);
+          } else if (entry.isFile() && entry.name === ".env.example") {
+            const targetEnv = path.join(dir, ".env");
+            if (!(await fs.pathExists(targetEnv))) {
+              const content = await fs.readFile(full, "utf-8");
+              await fs.writeFile(targetEnv, content);
+            }
+          }
+        }
+      };
+      await walk(targetDir);
+    } catch {
+      // non-fatal
+    }
   } catch (error) {
     copySpinner.fail("Failed to create project files");
     throw error;
@@ -181,7 +244,7 @@ async function generateProject(config: ProjectConfig, targetDir: string): Promis
   try {
     await initGit(targetDir);
     gitSpinner.succeed("Git repository initialized");
-  } catch (error) {
+  } catch {
     gitSpinner.warn("Failed to initialize git repository");
   }
 }
@@ -250,6 +313,7 @@ async function mergeDatabaseConfig(
   const dbModulePath = path.join(modulesDir, "database", database);
 
   if (!(await fs.pathExists(dbModulePath))) {
+    // eslint-disable-next-line no-console
     console.warn(`Database module not found: ${database}`);
     return;
   }
@@ -335,6 +399,7 @@ async function mergeAuthConfig(
   const authModulePath = path.join(modulesDir, "auth", authKey);
 
   if (!(await fs.pathExists(authModulePath))) {
+    // eslint-disable-next-line no-console
     console.warn(`Auth module not found: ${authKey}`);
     return;
   }
@@ -390,7 +455,6 @@ async function mergeAuthConfig(
       // Copy adapter file
       if (adapterConfig.adapter) {
         const adapterSource = path.join(authModulePath, adapterConfig.adapter);
-        const adapterFileName = path.basename(adapterConfig.adapter);
 
         // Determine destination based on framework
         let adapterDest: string;
@@ -442,7 +506,7 @@ async function mergeAuthConfig(
   await mergeEnvFile(targetDir, envVars);
 }
 
-async function mergePackageJson(targetDir: string, config: any): Promise<void> {
+async function mergePackageJson(targetDir: string, config: PackageJsonConfig): Promise<void> {
   const pkgPath = path.join(targetDir, "package.json");
 
   if (!(await fs.pathExists(pkgPath))) {
@@ -529,7 +593,8 @@ async function convertToJavaScript(targetDir: string, framework: string): Promis
   await removeDtsFiles(targetDir);
 
   // Use Babel to strip types only, preserving exact formatting/comments/blank lines, producing clean production-ready code
-  const babel = require("@babel/core");
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const babelCore = require("@babel/core");
   const transpileAllTsFiles = async (dir: string) => {
     const entries = await fs.readdir(dir, { withFileTypes: true });
     for (const entry of entries) {
@@ -541,7 +606,7 @@ async function convertToJavaScript(targetDir: string, framework: string): Promis
           const code = await fs.readFile(fullPath, "utf8");
           const isTsx = entry.name.endsWith(".tsx");
           const outFile = fullPath.replace(/\.tsx$/, ".jsx").replace(/\.ts$/, ".js");
-          const presets: any[] = [
+          const presets: unknown[] = [
             [
               require.resolve("@babel/preset-typescript"),
               {
@@ -569,50 +634,7 @@ async function convertToJavaScript(targetDir: string, framework: string): Promis
               },
             ]);
           }
-          // Use recast + Babel AST transform (same approach as transform.tools)
-          try {
-            const recast = require("recast");
-            const { transformFromAstSync } = require("@babel/core");
-            const transformTypescript = require("@babel/plugin-transform-typescript");
-            // getBabelOptions may be exported as default or directly
-            let getBabelOptions: any = require("recast/parsers/_babel_options");
-            if (getBabelOptions && getBabelOptions.default)
-              getBabelOptions = getBabelOptions.default;
-            const babelParser = require("recast/parsers/babel").parser;
-
-            const ast = recast.parse(code, {
-              parser: {
-                parse: (source: string, options: any) => {
-                  const babelOptions = getBabelOptions(options || {});
-                  // ensure typescript and jsx handling
-                  if (isTsx) {
-                    babelOptions.plugins.push("typescript", "jsx");
-                  } else {
-                    babelOptions.plugins.push("typescript");
-                  }
-                  return babelParser.parse(source, babelOptions);
-                },
-              },
-            });
-
-            const opts = {
-              cloneInputAst: false,
-              code: false,
-              ast: true,
-              plugins: [transformTypescript],
-              configFile: false,
-            };
-
-            const { ast: transformedAST } = transformFromAstSync(ast, code, opts);
-            const resultCode = recast.print(transformedAST).code;
-            await fs.writeFile(outFile, resultCode, "utf8");
-            await fs.remove(fullPath);
-            continue;
-          } catch (e) {
-            // fallback to previous Babel pipeline if anything fails
-          }
-
-          const result = await babel.transformAsync(code, {
+          const result = await babelCore.transformAsync(code, {
             filename: entry.name,
             presets,
             comments: true,
@@ -645,7 +667,7 @@ async function convertToJavaScript(targetDir: string, framework: string): Promis
         if (templateJson.jsScripts) {
           jsScripts = templateJson.jsScripts;
         }
-      } catch {}
+      } catch {} // eslint-disable-line no-empty
     }
   }
   for (const rep of fileReplacements) {
@@ -731,6 +753,7 @@ async function installDependencies(cwd: string, packageManager: string): Promise
     const fallbacks = ["pnpm", "npm", "yarn", "bun"];
     const found = fallbacks.find((p) => isAvailable(p));
     if (found) {
+      // eslint-disable-next-line no-console
       console.warn(
         `Selected package manager '${chosen}' was not found. Falling back to '${found}'.`,
       );
@@ -759,14 +782,14 @@ async function initGit(cwd: string): Promise<void> {
       cwd,
       stdio: "pipe",
     });
-  } catch (error) {
+  } catch {
     throw new Error("Git initialization failed");
   }
 }
 
 async function applyFrameworkPatches(
   targetDir: string,
-  patches: Record<string, any>,
+  patches: Record<string, PatchConfig>,
 ): Promise<void> {
   for (const [filename, patchConfig] of Object.entries(patches)) {
     const filePath = path.join(targetDir, filename);
@@ -776,26 +799,37 @@ async function applyFrameworkPatches(
 
       if (patchConfig.merge) {
         // Deep merge configuration
-        const merged = deepMerge(fileContent, patchConfig.merge);
+        const merged = deepMerge(
+          fileContent as Record<string, unknown>,
+          patchConfig.merge as Record<string, unknown>,
+        );
         await fs.writeJson(filePath, merged, { spaces: 2 });
       }
     }
   }
 }
 
-function deepMerge(target: any, source: any): any {
+function deepMerge(
+  target: Record<string, unknown>,
+  source: Record<string, unknown>,
+): Record<string, unknown> {
   const output = { ...target };
 
   for (const key in source) {
     if (source[key] && typeof source[key] === "object" && !Array.isArray(source[key])) {
       if (target[key]) {
-        output[key] = deepMerge(target[key], source[key]);
+        output[key] = deepMerge(
+          target[key] as Record<string, unknown>,
+          source[key] as Record<string, unknown>,
+        );
       } else {
         output[key] = source[key];
       }
     } else if (Array.isArray(source[key])) {
       // For arrays, merge uniquely
-      output[key] = Array.from(new Set([...(target[key] || []), ...source[key]]));
+      output[key] = Array.from(
+        new Set([...((target[key] as unknown[]) || []), ...(source[key] as unknown[])]),
+      );
     } else {
       output[key] = source[key];
     }
@@ -805,9 +839,12 @@ function deepMerge(target: any, source: any): any {
 }
 
 function showNextSteps(config: ProjectConfig): void {
+  // eslint-disable-next-line no-console
   console.log(chalk.green.bold(`\n✓ Created ${config.projectName}\n`));
+  // eslint-disable-next-line no-console
   console.log(chalk.bold("Next steps:"));
+  // eslint-disable-next-line no-console
   console.log(chalk.cyan(`  cd ${config.projectName}`));
-  // Only `bun` is supported as the package manager in production-ready CLI
-  console.log(chalk.cyan("  bun run dev\n"));
+  // eslint-disable-next-line no-console
+  console.log(chalk.cyan(`  ${config.packageManager} run dev\n`));
 }
