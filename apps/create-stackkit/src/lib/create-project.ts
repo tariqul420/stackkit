@@ -197,8 +197,9 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
 
 async function generateProject(config: ProjectConfig, targetDir: string): Promise<void> {
   const copySpinner = ora("Creating project files...").start();
+  let postInstallCommands: string[] = [];
   try {
-    await composeTemplate(config, targetDir);
+    postInstallCommands = await composeTemplate(config, targetDir);
     copySpinner.succeed("Project files created");
 
     // Ensure .env exists: if .env.example was copied from the template, create .env from it
@@ -249,6 +250,20 @@ async function generateProject(config: ProjectConfig, targetDir: string): Promis
     throw error;
   }
 
+  // Run post-install commands
+  if (postInstallCommands.length > 0) {
+    const postInstallSpinner = ora("Running post-install commands...").start();
+    try {
+      for (const command of postInstallCommands) {
+        execSync(command, { cwd: targetDir, stdio: "pipe" });
+      }
+      postInstallSpinner.succeed("Post-install commands completed");
+    } catch (error) {
+      postInstallSpinner.fail("Failed to run post-install commands");
+      throw error;
+    }
+  }
+
   // Initialize git
   const gitSpinner = ora("Initializing git repository...").start();
   try {
@@ -259,21 +274,24 @@ async function generateProject(config: ProjectConfig, targetDir: string): Promis
   }
 }
 
-async function composeTemplate(config: ProjectConfig, targetDir: string): Promise<void> {
+async function composeTemplate(config: ProjectConfig, targetDir: string): Promise<string[]> {
   const templatesDir = path.join(__dirname, "..", "..", "templates");
 
   await fs.ensureDir(targetDir);
 
   await copyBaseFramework(templatesDir, targetDir, config.framework);
 
+  const postInstallCommands: string[] = [];
+
   if (config.database !== "none") {
-    await mergeDatabaseConfig(
+    const dbPostInstall = await mergeDatabaseConfig(
       templatesDir,
       targetDir,
       config.database,
       config.framework,
       config.dbProvider,
     );
+    postInstallCommands.push(...dbPostInstall);
   }
 
   if (config.auth !== "none") {
@@ -290,6 +308,8 @@ async function composeTemplate(config: ProjectConfig, targetDir: string): Promis
   if (config.language === "javascript") {
     await convertToJavaScript(targetDir, config.framework);
   }
+
+  return postInstallCommands;
 }
 
 async function copyBaseFramework(
@@ -319,20 +339,20 @@ async function mergeDatabaseConfig(
   database: string,
   framework: string,
   dbProvider?: string,
-): Promise<void> {
+): Promise<string[]> {
   const modulesDir = path.join(templatesDir, "..", "modules");
   const dbModulePath = path.join(modulesDir, "database", database);
 
   if (!(await fs.pathExists(dbModulePath))) {
     // eslint-disable-next-line no-console
     console.warn(`Database module not found: ${database}`);
-    return;
+    return [];
   }
 
   // Read module.json
   const moduleJsonPath = path.join(dbModulePath, "module.json");
   if (!(await fs.pathExists(moduleJsonPath))) {
-    return;
+    return [];
   }
 
   const moduleData = await fs.readJson(moduleJsonPath);
@@ -368,12 +388,16 @@ const prisma = new PrismaClient({ adapter });`;
 
   const filesDir = path.join(dbModulePath, "files");
   if (await fs.pathExists(filesDir)) {
+    const libDir = framework === "nextjs" ? "lib" : "src";
     for (const patch of moduleData.patches || []) {
       if (patch.type === "create-file") {
         const sourceFile = path.join(filesDir, patch.source);
         let destFile = path.join(targetDir, patch.destination);
 
-        destFile = destFile.replace("{{lib}}", "lib").replace("{{src}}", "src");
+        destFile = destFile
+          .replace("{{lib}}", libDir)
+          .replace("{{src}}", "src")
+          .replace("{{models}}", framework === "nextjs" ? "models" : "src/models");
 
         if (await fs.pathExists(sourceFile)) {
           await fs.ensureDir(path.dirname(destFile));
@@ -425,6 +449,8 @@ const prisma = new PrismaClient({ adapter });`;
       await applyFrameworkPatches(targetDir, patches);
     }
   }
+
+  return moduleData.postInstall || [];
 }
 
 async function mergeAuthConfig(
@@ -604,6 +630,12 @@ async function mergeEnvFile(targetDir: string, envVars: Record<string, string>):
   }
 }
 
+const baseDirs: Record<string, string> = {
+  express: "./src",
+  "react-vite": "./src",
+  nextjs: ".",
+};
+
 async function convertToJavaScript(targetDir: string, framework: string): Promise<void> {
   const tsFiles = [
     "tsconfig.json",
@@ -732,6 +764,32 @@ async function convertToJavaScript(targetDir: string, framework: string): Promis
     }
   };
   await transpileAllTsFiles(targetDir);
+
+  const baseDir = baseDirs[framework];
+  if (baseDir) {
+    const replaceAliases = async (dir: string) => {
+      const entries = await fs.readdir(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory() && entry.name !== "node_modules") {
+          await replaceAliases(full);
+        } else if (entry.isFile() && (entry.name.endsWith(".js") || entry.name.endsWith(".jsx"))) {
+          const content = await fs.readFile(full, "utf-8");
+          if (content.includes("@/")) {
+            const fileDir = path.dirname(full);
+            const newContent = content.replace(/from ['"]@\/([^'"]*)['"]/g, (match, p1) => {
+              const resolved = path.resolve(baseDir, p1);
+              let relPath = path.relative(fileDir, resolved);
+              if (!relPath.startsWith(".")) relPath = "./" + relPath;
+              return `from '${relPath}'`;
+            });
+            await fs.writeFile(full, newContent, "utf-8");
+          }
+        }
+      }
+    };
+    await replaceAliases(targetDir);
+  }
 
   const templatesRoot = path.join(__dirname, "..", "..", "templates");
   const templateName = framework;

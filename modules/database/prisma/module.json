@@ -57,6 +57,7 @@
       "tsconfig.json": {
         "merge": {
           "compilerOptions": {
+            "baseUrl": ".",
             "paths": {
               "@/*": ["./src/*"]
             }
@@ -69,6 +70,11 @@
     "nextjs": {
       "tsconfig.json": {
         "merge": {
+          "compilerOptions": {
+            "paths": {
+              "@/*": ["./*"]
+            }
+          },
           "exclude": ["node_modules", ".next", "out", "prisma/migrations"]
         }
       }
@@ -78,19 +84,19 @@
     {
       "type": "create-file",
       "description": "Create Prisma schema",
-      "source": "files/prisma/schema.prisma",
+      "source": "prisma/schema.prisma",
       "destination": "prisma/schema.prisma"
     },
     {
       "type": "create-file",
       "description": "Create Prisma config",
-      "source": "files/prisma.config.ts",
-      "destination": "prisma.config.ts"
+      "source": "prisma.config.ts",
+      "destination": "prisma.config.js"
     },
     {
       "type": "create-file",
       "description": "Create Prisma client singleton",
-      "source": "files/lib/prisma.ts",
+      "source": "lib/prisma.ts",
       "destination": "{{lib}}/prisma.ts"
     }
   ],

@@ -7,12 +7,15 @@
   "database": "mongodb",
   "supportedFrameworks": ["nextjs", "express"],
   "dependencies": {
-    "mongoose": "^8.8.4"
+    "mongoose": "8.8.4",
+    "dotenv": "17.2.3"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/mongoose": "5.11.97"
+  },
   "envVars": [
     {
-      "key": "MONGODB_URI",
+      "key": "DATABASE_URL",
       "value": "mongodb://localhost:27017/myapp",
       "description": "MongoDB connection string",
       "required": true
@@ -23,12 +26,14 @@
       "tsconfig.json": {
         "merge": {
           "compilerOptions": {
+            "baseUrl": ".",
             "paths": {
               "@/*": ["./src/*"],
               "@/models/*": ["./src/models/*"]
             }
           },
-          "include": ["src/**/*", "src/models/**/*"]
+          "include": ["src/**/*", "src/models/**/*"],
+          "exclude": ["node_modules", "dist"]
         }
       }
     },
@@ -36,10 +41,12 @@
       "tsconfig.json": {
         "merge": {
           "compilerOptions": {
+            "baseUrl": ".",
             "paths": {
               "@/models/*": ["./models/*"]
             }
-          }
+          },
+          "exclude": ["node_modules", ".next", "out"]
         }
       }
     }
@@ -50,6 +57,12 @@
       "description": "Create MongoDB connection with Mongoose",
       "source": "lib/db.ts",
       "destination": "{{lib}}/db.ts"
+    },
+    {
+      "type": "create-file",
+      "description": "Create sample User model",
+      "source": "models/User.ts",
+      "destination": "{{models}}/User.ts"
     }
   ]
 }
