@@ -124,8 +124,8 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
       choices: (answers: Answers) => {
         if (answers.framework === "react-vite") {
           return [
-            { name: "Better Auth", value: "better-auth-react" },
-            { name: "Clerk", value: "clerk-react" },
+            { name: "Better Auth", value: "better-auth" },
+            { name: "Clerk", value: "clerk" },
             { name: "None", value: "none" },
           ];
         }
@@ -133,8 +133,8 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
         // Next.js apps
         if (answers.framework === "nextjs") {
           return [
-            { name: "Better Auth", value: "better-auth-nextjs" },
-            { name: "Clerk", value: "clerk-nextjs" },
+            { name: "Better Auth", value: "better-auth" },
+            { name: "Clerk", value: "clerk" },
             { name: "None", value: "none" },
           ];
         }
@@ -142,8 +142,8 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
         // Express apps
         if (answers.framework === "express") {
           return [
-            { name: "Better Auth", value: "better-auth-express" },
-            { name: "Clerk", value: "clerk-express" },
+            { name: "Better Auth", value: "better-auth" },
+            { name: "Clerk", value: "clerk" },
             { name: "None", value: "none" },
           ];
         }
@@ -289,7 +289,14 @@ async function composeTemplate(config: ProjectConfig, targetDir: string): Promis
   }
 
   if (config.auth !== "none") {
-    await mergeAuthConfig(templatesDir, targetDir, config.framework, config.auth, config.database);
+    await mergeAuthConfig(
+      templatesDir,
+      targetDir,
+      config.framework,
+      config.auth,
+      config.database,
+      config.dbProvider,
+    );
   }
 
   const packageJsonPath = path.join(targetDir, "package.json");

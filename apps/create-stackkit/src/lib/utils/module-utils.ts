@@ -3,6 +3,13 @@ import path, { join } from "path";
 import { applyFrameworkPatches } from "./config-utils";
 import { mergeEnvFile, mergePackageJson } from "./file-utils";
 
+interface FrameworkConfig {
+  dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+  envVars?: Array<{ key: string; value: string; description?: string; required?: boolean }>;
+  patches?: Array<{ type: string; description: string; source: string; destination: string }>;
+}
+
 export async function mergeDatabaseConfig(
   templatesDir: string,
   targetDir: string,
@@ -32,27 +39,62 @@ export async function mergeDatabaseConfig(
     variables.provider = dbProvider;
     if (dbProvider === "postgresql") {
       variables.connectionString = "postgresql://user:password@localhost:5432/mydb?schema=public";
-      variables.prismaClientInit = `import { PrismaPg } from "@prisma/adapter-pg";
+      variables.prismaClientInit = `
+import { PrismaPg } from "@prisma/adapter-pg";
 
-const connectionString = \`\${env.db.url}\`;
+const globalForPrisma = global as unknown as {
+  prisma: PrismaClient | undefined;
+};
 
-const adapter = new PrismaPg({ connectionString });
-const prisma = new PrismaClient({ adapter });`;
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL!,
+});
+
+const prisma = globalForPrisma.prisma ?? new PrismaClient({
+  adapter,
+});
+
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+`;
     } else if (dbProvider === "mongodb") {
       variables.connectionString = "mongodb://localhost:27017/mydb";
-      variables.prismaClientInit = `const prisma = new PrismaClient({
-  datasourceUrl: env.db.url,
-});`;
+      variables.prismaClientInit = `
+const globalForPrisma = global as unknown as {
+  prisma: PrismaClient | undefined;
+};
+
+const prisma = globalForPrisma.prisma ?? new PrismaClient({
+  datasourceUrl: process.env.DATABASE_URL,
+});
+
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+`;
     } else if (dbProvider === "mysql") {
       variables.connectionString = "mysql://user:password@localhost:3306/mydb";
-      variables.prismaClientInit = `const prisma = new PrismaClient({
-  datasourceUrl: env.db.url,
-});`;
+      variables.prismaClientInit = `
+const globalForPrisma = global as unknown as {
+  prisma: PrismaClient | undefined;
+};
+
+const prisma = globalForPrisma.prisma ?? new PrismaClient({
+  datasourceUrl: process.env.DATABASE_URL,
+});
+
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+`;
     } else if (dbProvider === "sqlite") {
       variables.connectionString = "file:./dev.db";
-      variables.prismaClientInit = `const prisma = new PrismaClient({
-  datasourceUrl: env.db.url,
-});`;
+      variables.prismaClientInit = `
+const globalForPrisma = global as unknown as {
+  prisma: PrismaClient | undefined;
+};
+
+const prisma = globalForPrisma.prisma ?? new PrismaClient({
+  datasourceUrl: process.env.DATABASE_URL,
+});
+
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+`;
     }
   }
 
@@ -129,21 +171,19 @@ export async function mergeAuthConfig(
   framework: string,
   auth: string,
   database: string = "none",
+  dbProvider?: string,
 ): Promise<void> {
   const modulesDir = join(templatesDir, "..", "modules");
 
   const authMap: Record<string, string> = {
-    nextauth: "nextauth",
-    "better-auth": framework === "nextjs" ? "better-auth-nextjs" : "better-auth-express",
-    clerk:
-      framework === "nextjs"
-        ? "clerk-nextjs"
-        : framework === "react-vite"
-          ? "clerk-react"
-          : "clerk-express",
+    "better-auth": "better-auth",
+    clerk: "clerk",
+    "clerk-nextjs": "clerk",
+    "clerk-express": "clerk",
+    "clerk-react": "clerk",
   };
 
-  const authKey = auth.includes("-") ? auth : authMap[auth] || auth;
+  const authKey = authMap[auth] || auth;
   const authModulePath = join(modulesDir, "auth", authKey);
 
   if (!(await fs.pathExists(authModulePath))) {
@@ -160,6 +200,31 @@ export async function mergeAuthConfig(
 
   const moduleData = await fs.readJson(moduleJsonPath);
 
+  if (moduleData.supportedFrameworks && !moduleData.supportedFrameworks.includes(framework)) {
+    // eslint-disable-next-line no-console
+    console.warn(`Auth ${authKey} does not support framework ${framework}`);
+    return;
+  }
+
+  let frameworkConfig: FrameworkConfig | null = null;
+  if (moduleData.frameworkConfigs) {
+    frameworkConfig = moduleData.frameworkConfigs[framework];
+    if (!frameworkConfig) {
+      // eslint-disable-next-line no-console
+      console.warn(`No config for framework ${framework} in ${authKey}`);
+      return;
+    }
+  }
+
+  const variables: Record<string, string> = {};
+  if (framework === "nextjs") {
+    variables.dbImport = "@/lib/db";
+  } else if (framework === "express") {
+    variables.dbImport = "../db";
+  } else {
+    variables.dbImport = "../db";
+  }
+
   const filesDir = join(authModulePath, "files");
   if (await fs.pathExists(filesDir)) {
     const getReplacements = () => {
@@ -174,7 +239,8 @@ export async function mergeAuthConfig(
 
     const replacements = getReplacements();
 
-    for (const patch of moduleData.patches || []) {
+    const patches = frameworkConfig?.patches || moduleData.patches || [];
+    for (const patch of patches) {
       if (patch.type === "create-file") {
         const sourceFile = join(filesDir, patch.source);
         let destFile = join(targetDir, patch.destination);
@@ -185,33 +251,41 @@ export async function mergeAuthConfig(
 
         if (await fs.pathExists(sourceFile)) {
           await fs.ensureDir(path.dirname(destFile));
-          await fs.copy(sourceFile, destFile, { overwrite: false });
+          // Check if text file
+          const ext = path.extname(sourceFile);
+          if ([".ts", ".js", ".json"].includes(ext)) {
+            let content = await fs.readFile(sourceFile, "utf-8");
+            for (const [key, value] of Object.entries(variables)) {
+              content = content.replace(new RegExp(`{{${key}}}`, "g"), value);
+            }
+            await fs.writeFile(destFile, content);
+          } else {
+            await fs.copy(sourceFile, destFile, { overwrite: false });
+          }
         }
       }
     }
   }
 
+  // Add framework-specific patches
+  if (framework === "nextjs") {
+    const apiSource = join(filesDir, "api/auth/[...all]/route.ts");
+    const apiDest = join(targetDir, "app/api/auth/[...all]/route.ts");
+    if (await fs.pathExists(apiSource)) {
+      await fs.ensureDir(path.dirname(apiDest));
+      await fs.copy(apiSource, apiDest, { overwrite: false });
+    }
+  }
+
   if (database !== "none" && moduleData.databaseAdapters) {
-    const adapterConfig = moduleData.databaseAdapters[database];
+    let adapterKey = database;
+    if (database === "prisma" && dbProvider) {
+      adapterKey = `prisma-${dbProvider}`;
+    }
+    const adapterConfig = moduleData.databaseAdapters[adapterKey];
 
     if (adapterConfig) {
-      if (adapterConfig.adapter) {
-        const adapterSource = join(authModulePath, adapterConfig.adapter);
-
-        let adapterDest: string;
-        if (framework === "nextjs") {
-          adapterDest = join(targetDir, "lib", "auth.ts");
-        } else if (framework === "express") {
-          adapterDest = join(targetDir, "src", "auth.ts");
-        } else {
-          adapterDest = join(targetDir, "src", "lib", "auth.ts");
-        }
-
-        if (await fs.pathExists(adapterSource)) {
-          await fs.ensureDir(path.dirname(adapterDest));
-          await fs.copy(adapterSource, adapterDest, { overwrite: true });
-        }
-      }
+      variables.databaseAdapter = adapterConfig.adapterCode;
 
       if (adapterConfig.schema && adapterConfig.schemaDestination) {
         const schemaSource = join(authModulePath, adapterConfig.schema);
@@ -219,7 +293,23 @@ export async function mergeAuthConfig(
 
         if (await fs.pathExists(schemaSource)) {
           await fs.ensureDir(path.dirname(schemaDest));
-          await fs.copy(schemaSource, schemaDest, { overwrite: true });
+          let content = await fs.readFile(schemaSource, "utf-8");
+
+          // Set schema variables
+          if (dbProvider === "postgresql") {
+            variables.provider = "postgresql";
+            variables.idDefault = "@default(cuid())";
+            variables.userIdType = "";
+          } else if (dbProvider === "mongodb") {
+            variables.provider = "mongodb";
+            variables.idDefault = '@default(auto()) @map("_id") @db.ObjectId';
+            variables.userIdType = "@db.ObjectId";
+          }
+
+          for (const [key, value] of Object.entries(variables)) {
+            content = content.replace(new RegExp(`{{${key}}}`, "g"), value);
+          }
+          await fs.writeFile(schemaDest, content, { flag: "a" }); // append
         }
       }
 
@@ -232,12 +322,13 @@ export async function mergeAuthConfig(
   }
 
   await mergePackageJson(targetDir, {
-    dependencies: moduleData.dependencies,
-    devDependencies: moduleData.devDependencies,
+    dependencies: frameworkConfig?.dependencies || moduleData.dependencies,
+    devDependencies: frameworkConfig?.devDependencies || moduleData.devDependencies,
   });
 
   const envVars: Record<string, string> = {};
-  for (const envVar of moduleData.envVars || []) {
+  const envVarList = frameworkConfig?.envVars || moduleData.envVars || [];
+  for (const envVar of envVarList) {
     envVars[envVar.key] = envVar.value;
   }
   await mergeEnvFile(targetDir, envVars);

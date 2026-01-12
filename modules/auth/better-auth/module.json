@@ -1,0 +1,54 @@
+{
+  "name": "better-auth",
+  "displayName": "Better Auth",
+  "description": "Modern authentication with Better Auth",
+  "category": "auth",
+  "provider": "better-auth",
+  "supportedFrameworks": ["nextjs", "express", "react-vite"],
+  "databaseAdapters": {
+    "prisma-postgresql": {
+      "adapterCode": "import { prisma } from \"{{dbImport}}\";\nimport { prismaAdapter } from \"@better-auth/prisma\";\n\nexport const auth = betterAuth({\n  database: prismaAdapter(prisma, {\n    provider: \"postgresql\",\n  }),",
+      "schema": "files/schemas/prisma-schema.prisma",
+      "schemaDestination": "prisma/schema.prisma",
+      "dependencies": {
+        "better-auth": "^1.1.4"
+      }
+    },
+    "prisma-mongodb": {
+      "adapterCode": "import { prisma } from \"{{dbImport}}\";\nimport { prismaAdapter } from \"@better-auth/prisma\";\n\nexport const auth = betterAuth({\n  database: prismaAdapter(prisma, {\n    provider: \"mongodb\",\n  }),",
+      "schema": "files/schemas/prisma-schema.prisma",
+      "schemaDestination": "prisma/schema.prisma",
+      "dependencies": {
+        "better-auth": "^1.1.4"
+      }
+    },
+    "mongoose-mongodb": {
+      "adapterCode": "import { client } from \"{{dbImport}}\";\nimport { mongodbAdapter } from \"better-auth/adapters/mongodb\";\n\nexport const auth = betterAuth({\n  database: mongodbAdapter(client),",
+      "dependencies": {
+        "better-auth": "^1.1.4"
+      }
+    }
+  },
+  "envVars": [
+    {
+      "key": "BETTER_AUTH_SECRET",
+      "value": "",
+      "description": "Secret key for Better Auth. Generate with: openssl rand -base64 32",
+      "required": true
+    },
+    {
+      "key": "BETTER_AUTH_URL",
+      "value": "http://localhost:3000",
+      "description": "Base URL of your application (change in production)",
+      "required": true
+    }
+  ],
+  "patches": [
+    {
+      "type": "create-file",
+      "description": "Create Better Auth configuration",
+      "source": "files/lib/auth.ts",
+      "destination": "{{lib}}/auth.ts"
+    }
+  ]
+}
