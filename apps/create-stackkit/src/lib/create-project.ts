@@ -10,7 +10,8 @@ import validateNpmPackageName from "validate-npm-package-name";
 interface ProjectConfig {
   projectName: string;
   framework: "nextjs" | "express" | "react-vite";
-  database: "prisma-postgresql" | "prisma-mongodb" | "mongoose-mongodb" | "none";
+  database: "prisma" | "mongoose-mongodb" | "none";
+  dbProvider?: "postgresql" | "mongodb" | "mysql" | "sqlite";
   auth:
     | "better-auth-nextjs"
     | "better-auth-express"
@@ -32,7 +33,8 @@ interface PackageJsonConfig {
 interface Answers {
   projectName?: string;
   framework: "nextjs" | "express" | "react-vite";
-  database?: "prisma-postgresql" | "prisma-mongodb" | "mongoose-mongodb" | "none";
+  database?: "prisma" | "mongoose-mongodb" | "none";
+  dbProvider?: "postgresql" | "mongodb" | "mysql" | "sqlite";
   auth:
     | "better-auth-nextjs"
     | "better-auth-express"
@@ -104,10 +106,21 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
       message: "Select database/ORM:",
       when: (answers: Answers) => answers.framework !== "react-vite",
       choices: [
-        { name: "Prisma + PostgreSQL", value: "prisma-postgresql" },
-        { name: "Prisma + MongoDB", value: "prisma-mongodb" },
+        { name: "Prisma", value: "prisma" },
         { name: "Mongoose + MongoDB", value: "mongoose-mongodb" },
         { name: "None", value: "none" },
+      ],
+    },
+    {
+      type: "list",
+      name: "dbProvider",
+      message: "Select database provider for Prisma:",
+      when: (answers: Answers) => answers.database === "prisma",
+      choices: [
+        { name: "PostgreSQL", value: "postgresql" },
+        { name: "MongoDB", value: "mongodb" },
+        { name: "MySQL", value: "mysql" },
+        { name: "SQLite", value: "sqlite" },
       ],
     },
     {
@@ -175,6 +188,7 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
     database: (answers.framework === "react-vite"
       ? "none"
       : answers.database) as ProjectConfig["database"],
+    dbProvider: answers.dbProvider,
     auth: answers.auth,
     language: answers.language,
     packageManager: answers.packageManager,
@@ -253,7 +267,13 @@ async function composeTemplate(config: ProjectConfig, targetDir: string): Promis
   await copyBaseFramework(templatesDir, targetDir, config.framework);
 
   if (config.database !== "none") {
-    await mergeDatabaseConfig(templatesDir, targetDir, config.database, config.framework);
+    await mergeDatabaseConfig(
+      templatesDir,
+      targetDir,
+      config.database,
+      config.framework,
+      config.dbProvider,
+    );
   }
 
   if (config.auth !== "none") {
@@ -298,6 +318,7 @@ async function mergeDatabaseConfig(
   targetDir: string,
   database: string,
   framework: string,
+  dbProvider?: string,
 ): Promise<void> {
   const modulesDir = path.join(templatesDir, "..", "modules");
   const dbModulePath = path.join(modulesDir, "database", database);
@@ -316,6 +337,35 @@ async function mergeDatabaseConfig(
 
   const moduleData = await fs.readJson(moduleJsonPath);
 
+  const variables: Record<string, string> = {};
+  if (dbProvider) {
+    variables.provider = dbProvider;
+    if (dbProvider === "postgresql") {
+      variables.connectionString = "postgresql://user:password@localhost:5432/mydb?schema=public";
+      variables.prismaClientInit = `import { PrismaPg } from "@prisma/adapter-pg";
+
+const connectionString = \`\${env.db.url}\`;
+
+const adapter = new PrismaPg({ connectionString });
+const prisma = new PrismaClient({ adapter });`;
+    } else if (dbProvider === "mongodb") {
+      variables.connectionString = "mongodb://localhost:27017/mydb";
+      variables.prismaClientInit = `const prisma = new PrismaClient({
+  datasourceUrl: env.db.url,
+});`;
+    } else if (dbProvider === "mysql") {
+      variables.connectionString = "mysql://user:password@localhost:3306/mydb";
+      variables.prismaClientInit = `const prisma = new PrismaClient({
+  datasourceUrl: env.db.url,
+});`;
+    } else if (dbProvider === "sqlite") {
+      variables.connectionString = "file:./dev.db";
+      variables.prismaClientInit = `const prisma = new PrismaClient({
+  datasourceUrl: env.db.url,
+});`;
+    }
+  }
+
   const filesDir = path.join(dbModulePath, "files");
   if (await fs.pathExists(filesDir)) {
     for (const patch of moduleData.patches || []) {
@@ -327,20 +377,43 @@ async function mergeDatabaseConfig(
 
         if (await fs.pathExists(sourceFile)) {
           await fs.ensureDir(path.dirname(destFile));
-          await fs.copy(sourceFile, destFile, { overwrite: false });
+          // Check if text file
+          const ext = path.extname(sourceFile);
+          if ([".ts", ".js", ".prisma", ".json"].includes(ext)) {
+            let content = await fs.readFile(sourceFile, "utf-8");
+            for (const [key, value] of Object.entries(variables)) {
+              content = content.replace(new RegExp(`{{${key}}}`, "g"), value);
+            }
+            await fs.writeFile(destFile, content);
+          } else {
+            await fs.copy(sourceFile, destFile, { overwrite: false });
+          }
         }
       }
     }
   }
 
+  const dependencies = {
+    ...moduleData.dependencies.common,
+    ...(dbProvider ? moduleData.dependencies.providers[dbProvider] : {}),
+  };
+  const devDependencies = {
+    ...moduleData.devDependencies.common,
+    ...(dbProvider ? moduleData.devDependencies.providers[dbProvider] : {}),
+  };
+
   await mergePackageJson(targetDir, {
-    dependencies: moduleData.dependencies,
-    devDependencies: moduleData.devDependencies,
+    dependencies,
+    devDependencies,
   });
 
   const envVars: Record<string, string> = {};
   for (const envVar of moduleData.envVars || []) {
-    envVars[envVar.key] = envVar.value;
+    let value = envVar.value;
+    for (const [key, val] of Object.entries(variables)) {
+      value = value.replace(new RegExp(`{{${key}}}`, "g"), val);
+    }
+    envVars[envVar.key] = value;
   }
   await mergeEnvFile(targetDir, envVars);
 

@@ -1,0 +1,98 @@
+{
+  "name": "prisma",
+  "displayName": "Prisma",
+  "description": "Prisma ORM",
+  "category": "database",
+  "provider": "prisma",
+  "supportedFrameworks": ["nextjs", "express"],
+  "dependencies": {
+    "common": {
+      "@prisma/client": "^7.2.0",
+      "dotenv": "^17.2.3"
+    },
+    "providers": {
+      "postgresql": {
+        "@prisma/adapter-pg": "^7.2.0",
+        "pg": "^8.16.3"
+      },
+      "mongodb": {
+        "mongodb": "^6.10.0"
+      },
+      "mysql": {
+        "mysql2": "^3.10.0"
+      },
+      "sqlite": {
+        "better-sqlite3": "^11.0.0"
+      }
+    }
+  },
+  "devDependencies": {
+    "common": {
+      "prisma": "^7.2.0",
+      "tsx": "^4.21.0"
+    },
+    "providers": {
+      "postgresql": {
+        "@types/pg": "^8.16.0"
+      },
+      "mongodb": {},
+      "mysql": {
+        "@types/mysql2": "^1.7.0"
+      },
+      "sqlite": {
+        "@types/better-sqlite3": "^7.6.0"
+      }
+    }
+  },
+  "envVars": [
+    {
+      "key": "DATABASE_URL",
+      "value": "{{connectionString}}",
+      "description": "Database connection URL",
+      "required": true
+    }
+  ],
+  "frameworkPatches": {
+    "express": {
+      "tsconfig.json": {
+        "merge": {
+          "compilerOptions": {
+            "paths": {
+              "@/*": ["./src/*"]
+            }
+          },
+          "include": ["src/**/*"],
+          "exclude": ["node_modules", "dist", "prisma/migrations"]
+        }
+      }
+    },
+    "nextjs": {
+      "tsconfig.json": {
+        "merge": {
+          "exclude": ["node_modules", ".next", "out", "prisma/migrations"]
+        }
+      }
+    }
+  },
+  "patches": [
+    {
+      "type": "create-file",
+      "description": "Create Prisma schema",
+      "source": "files/prisma/schema.prisma",
+      "destination": "prisma/schema.prisma"
+    },
+    {
+      "type": "create-file",
+      "description": "Create Prisma config",
+      "source": "files/prisma.config.ts",
+      "destination": "prisma.config.ts"
+    },
+    {
+      "type": "create-file",
+      "description": "Create Prisma client singleton",
+      "source": "files/lib/prisma.ts",
+      "destination": "{{lib}}/prisma.ts"
+    }
+  ],
+  "postInstall": ["npx prisma generate"]
+}
