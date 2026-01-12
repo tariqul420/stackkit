@@ -44,7 +44,11 @@
     "fs-extra": "^11.2.0",
     "inquirer": "^9.3.8",
     "ora": "^5.4.1",
-    "validate-npm-package-name": "^5.0.1"
+    "validate-npm-package-name": "^5.0.1",
+    "@babel/core": "^7.28.5",
+    "@babel/preset-env": "^7.28.5",
+    "@babel/preset-typescript": "^7.28.5",
+    "@babel/preset-react": "^7.28.5"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",

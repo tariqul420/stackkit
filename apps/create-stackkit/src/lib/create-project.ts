@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 import chalk from "chalk";
 import { execSync } from "child_process";
 import fs from "fs-extra";
@@ -52,10 +53,8 @@ export async function createProject(projectName?: string): Promise<void> {
   // eslint-disable-next-line no-console
   console.log(chalk.bold.cyan("\n Create StackKit App\n"));
 
-  // Get project configuration through wizard
   const config = await getProjectConfig(projectName);
 
-  // Validate target directory
   const targetDir = path.join(process.cwd(), config.projectName);
   if (await fs.pathExists(targetDir)) {
     // eslint-disable-next-line no-console
@@ -65,10 +64,8 @@ export async function createProject(projectName?: string): Promise<void> {
     process.exit(1);
   }
 
-  // Create project
   await generateProject(config, targetDir);
 
-  // Show next steps
   showNextSteps(config);
 }
 
@@ -185,7 +182,6 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
 }
 
 async function generateProject(config: ProjectConfig, targetDir: string): Promise<void> {
-  // Copy and compose template
   const copySpinner = ora("Creating project files...").start();
   try {
     await composeTemplate(config, targetDir);
@@ -254,20 +250,16 @@ async function composeTemplate(config: ProjectConfig, targetDir: string): Promis
 
   await fs.ensureDir(targetDir);
 
-  // 1. Copy base framework template
   await copyBaseFramework(templatesDir, targetDir, config.framework);
 
-  // 2. Merge database configuration
   if (config.database !== "none") {
     await mergeDatabaseConfig(templatesDir, targetDir, config.database, config.framework);
   }
 
-  // 3. Merge auth configuration
   if (config.auth !== "none") {
     await mergeAuthConfig(templatesDir, targetDir, config.framework, config.auth, config.database);
   }
 
-  // 4. Update package.json with project name
   const packageJsonPath = path.join(targetDir, "package.json");
   if (await fs.pathExists(packageJsonPath)) {
     const packageJson = await fs.readJson(packageJsonPath);
@@ -275,7 +267,6 @@ async function composeTemplate(config: ProjectConfig, targetDir: string): Promis
     await fs.writeJson(packageJsonPath, packageJson, { spaces: 2 });
   }
 
-  // 5. Convert to JavaScript if selected
   if (config.language === "javascript") {
     await convertToJavaScript(targetDir, config.framework);
   }
@@ -308,7 +299,6 @@ async function mergeDatabaseConfig(
   database: string,
   framework: string,
 ): Promise<void> {
-  // Use modules directory (sibling to templates)
   const modulesDir = path.join(templatesDir, "..", "modules");
   const dbModulePath = path.join(modulesDir, "database", database);
 
@@ -326,16 +316,13 @@ async function mergeDatabaseConfig(
 
   const moduleData = await fs.readJson(moduleJsonPath);
 
-  // Copy files from module
   const filesDir = path.join(dbModulePath, "files");
   if (await fs.pathExists(filesDir)) {
-    // Copy files based on patches in module.json
     for (const patch of moduleData.patches || []) {
       if (patch.type === "create-file") {
         const sourceFile = path.join(filesDir, patch.source);
         let destFile = path.join(targetDir, patch.destination);
 
-        // Simple placeholder replacement for lib
         destFile = destFile.replace("{{lib}}", "lib").replace("{{src}}", "src");
 
         if (await fs.pathExists(sourceFile)) {
@@ -346,20 +333,17 @@ async function mergeDatabaseConfig(
     }
   }
 
-  // Merge package.json with module dependencies
   await mergePackageJson(targetDir, {
     dependencies: moduleData.dependencies,
     devDependencies: moduleData.devDependencies,
   });
 
-  // Merge .env with module envVars
   const envVars: Record<string, string> = {};
   for (const envVar of moduleData.envVars || []) {
     envVars[envVar.key] = envVar.value;
   }
   await mergeEnvFile(targetDir, envVars);
 
-  // Apply framework-specific patches from database module
   if (moduleData.frameworkPatches) {
     const frameworkKey = framework === "react-vite" ? "react" : framework;
     const patches = moduleData.frameworkPatches[frameworkKey];
@@ -377,13 +361,8 @@ async function mergeAuthConfig(
   auth: string,
   database: string = "none",
 ): Promise<void> {
-  // Use modules directory (sibling to templates)
   const modulesDir = path.join(templatesDir, "..", "modules");
 
-  // Auth modules are now named with framework suffix
-  // e.g., better-auth-nextjs, authjs-express, better-auth-react
-  // If auth already has framework suffix, use it directly
-  // Otherwise, map old names to new ones
   const authMap: Record<string, string> = {
     nextauth: "nextauth",
     "better-auth": framework === "nextjs" ? "better-auth-nextjs" : "better-auth-express",
@@ -412,10 +391,8 @@ async function mergeAuthConfig(
 
   const moduleData = await fs.readJson(moduleJsonPath);
 
-  // Copy files from module
   const filesDir = path.join(authModulePath, "files");
   if (await fs.pathExists(filesDir)) {
-    // Determine path replacements based on framework
     const getReplacements = () => {
       if (framework === "nextjs") {
         return { lib: "lib", router: "app" };
@@ -428,13 +405,11 @@ async function mergeAuthConfig(
 
     const replacements = getReplacements();
 
-    // Copy files based on patches in module.json
     for (const patch of moduleData.patches || []) {
       if (patch.type === "create-file") {
         const sourceFile = path.join(filesDir, patch.source);
         let destFile = path.join(targetDir, patch.destination);
 
-        // Replace placeholders
         destFile = destFile
           .replace("{{lib}}", replacements.lib)
           .replace("{{router}}", replacements.router);
@@ -447,16 +422,13 @@ async function mergeAuthConfig(
     }
   }
 
-  // Handle database-specific adapters and schemas
   if (database !== "none" && moduleData.databaseAdapters) {
     const adapterConfig = moduleData.databaseAdapters[database];
 
     if (adapterConfig) {
-      // Copy adapter file
       if (adapterConfig.adapter) {
         const adapterSource = path.join(authModulePath, adapterConfig.adapter);
 
-        // Determine destination based on framework
         let adapterDest: string;
         if (framework === "nextjs") {
           adapterDest = path.join(targetDir, "lib", "auth.ts");
@@ -472,7 +444,6 @@ async function mergeAuthConfig(
         }
       }
 
-      // Copy schema file if it exists
       if (adapterConfig.schema && adapterConfig.schemaDestination) {
         const schemaSource = path.join(authModulePath, adapterConfig.schema);
         const schemaDest = path.join(targetDir, adapterConfig.schemaDestination);
@@ -483,7 +454,6 @@ async function mergeAuthConfig(
         }
       }
 
-      // Merge adapter-specific dependencies
       if (adapterConfig.dependencies) {
         await mergePackageJson(targetDir, {
           dependencies: adapterConfig.dependencies,
@@ -492,13 +462,11 @@ async function mergeAuthConfig(
     }
   }
 
-  // Merge package.json with module dependencies
   await mergePackageJson(targetDir, {
     dependencies: moduleData.dependencies,
     devDependencies: moduleData.devDependencies,
   });
 
-  // Merge .env with module envVars
   const envVars: Record<string, string> = {};
   for (const envVar of moduleData.envVars || []) {
     envVars[envVar.key] = envVar.value;
@@ -564,7 +532,6 @@ async function mergeEnvFile(targetDir: string, envVars: Record<string, string>):
 }
 
 async function convertToJavaScript(targetDir: string, framework: string): Promise<void> {
-  // Remove TS config and declaration files
   const tsFiles = [
     "tsconfig.json",
     "tsconfig.app.json",
@@ -592,9 +559,7 @@ async function convertToJavaScript(targetDir: string, framework: string): Promis
   };
   await removeDtsFiles(targetDir);
 
-  // Use Babel to strip types only, preserving exact formatting/comments/blank lines, producing clean production-ready code
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const babelCore = require("@babel/core");
+  const babel = require("@babel/core");
   const transpileAllTsFiles = async (dir: string) => {
     const entries = await fs.readdir(dir, { withFileTypes: true });
     for (const entry of entries) {
@@ -606,7 +571,7 @@ async function convertToJavaScript(targetDir: string, framework: string): Promis
           const code = await fs.readFile(fullPath, "utf8");
           const isTsx = entry.name.endsWith(".tsx");
           const outFile = fullPath.replace(/\.tsx$/, ".jsx").replace(/\.ts$/, ".js");
-          const presets: unknown[] = [
+          const presets: (string | [string, Record<string, unknown>])[] = [
             [
               require.resolve("@babel/preset-typescript"),
               {
@@ -630,11 +595,55 @@ async function convertToJavaScript(targetDir: string, framework: string): Promis
             presets.push([
               require.resolve("@babel/preset-react"),
               {
-                runtime: "automatic",
+                runtime: "classic",
               },
             ]);
           }
-          const result = await babelCore.transformAsync(code, {
+          // Use recast + Babel AST transform (same approach as transform.tools)
+          try {
+            const recast = require("recast");
+            const { transformFromAstSync } = require("@babel/core");
+            const transformTypescript = require("@babel/plugin-transform-typescript");
+            // getBabelOptions may be exported as default or directly
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            let getBabelOptions: any = require("recast/parsers/_babel_options");
+            if (getBabelOptions && getBabelOptions.default)
+              getBabelOptions = getBabelOptions.default;
+            const babelParser = require("recast/parsers/babel").parser;
+
+            const ast = recast.parse(code, {
+              parser: {
+                parse: (source: string, options: Record<string, unknown>) => {
+                  const babelOptions = getBabelOptions(options || {});
+                  // ensure typescript and jsx handling
+                  if (isTsx) {
+                    babelOptions.plugins.push("typescript", "jsx");
+                  } else {
+                    babelOptions.plugins.push("typescript");
+                  }
+                  return babelParser.parse(source, babelOptions);
+                },
+              },
+            });
+
+            const opts = {
+              cloneInputAst: false,
+              code: false,
+              ast: true,
+              plugins: [transformTypescript],
+              configFile: false,
+            };
+
+            const { ast: transformedAST } = transformFromAstSync(ast, code, opts);
+            const resultCode = recast.print(transformedAST).code;
+            await fs.writeFile(outFile, resultCode, "utf8");
+            await fs.remove(fullPath);
+            continue;
+          } catch {
+            // ignore recast errors, fall back to babel
+          }
+
+          const result = await babel.transformAsync(code, {
             filename: entry.name,
             presets,
             comments: true,
@@ -667,7 +676,9 @@ async function convertToJavaScript(targetDir: string, framework: string): Promis
         if (templateJson.jsScripts) {
           jsScripts = templateJson.jsScripts;
         }
-      } catch {} // eslint-disable-line no-empty
+      } catch {
+        // ignore errors reading template.json
+      }
     }
   }
   for (const rep of fileReplacements) {
@@ -748,7 +759,6 @@ async function installDependencies(cwd: string, packageManager: string): Promise
 
   let chosen = packageManager;
 
-  // If requested package manager is not available, try to fall back to a common one
   if (!isAvailable(chosen)) {
     const fallbacks = ["pnpm", "npm", "yarn", "bun"];
     const found = fallbacks.find((p) => isAvailable(p));
@@ -798,7 +808,6 @@ async function applyFrameworkPatches(
       const fileContent = await fs.readJson(filePath);
 
       if (patchConfig.merge) {
-        // Deep merge configuration
         const merged = deepMerge(
           fileContent as Record<string, unknown>,
           patchConfig.merge as Record<string, unknown>,
@@ -826,7 +835,6 @@ function deepMerge(
         output[key] = source[key];
       }
     } else if (Array.isArray(source[key])) {
-      // For arrays, merge uniquely
       output[key] = Array.from(
         new Set([...((target[key] as unknown[]) || []), ...(source[key] as unknown[])]),
       );

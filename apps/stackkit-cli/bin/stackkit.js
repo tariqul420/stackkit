@@ -1,2 +1,11 @@
 #!/usr/bin/env node
-require("../dist/index.js");
+
+try {
+  // eslint-disable-next-line
+  require("ts-node/register");
+  // eslint-disable-next-line
+  require("../src/index.ts");
+} catch {
+  // eslint-disable-next-line
+  require("../dist/index.js");
+}

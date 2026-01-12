@@ -1,9 +1,11 @@
 #!/usr/bin/env node
+
 try {
-  // Prefer loading TS source during development if ts-node is available
+  // eslint-disable-next-line
   require("ts-node/register");
+  // eslint-disable-next-line
   require("../src/index.ts");
-} catch (e) {
-  // Fallback to built JS
+} catch {
+  // eslint-disable-next-line
   require("../dist/index.js");
 }
