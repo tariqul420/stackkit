@@ -58,6 +58,12 @@
           "description": "Create Better Auth API routes",
           "source": "api/auth/[...all]/route.ts",
           "destination": "app/api/auth/[...all]/route.ts"
+        },
+        {
+          "type": "create-file",
+          "description": "Create Better Auth client for React",
+          "source": "lib/auth-client.ts",
+          "destination": "{{lib}}/auth-client.ts"
         }
       ]
     },
@@ -97,6 +103,12 @@
           "description": "{{authDescription}}",
           "source": "lib/{{authFile}}",
           "destination": "{{lib}}/{{authFile}}"
+        },
+        {
+          "type": "create-file",
+          "description": "Create Better Auth client for React",
+          "source": "lib/auth-client.ts",
+          "destination": "{{lib}}/auth-client.ts"
         }
       ]
     }

@@ -102,19 +102,6 @@
           "exclude": ["node_modules", "dist", "lib/generated/prisma"]
         }
       }
-    },
-    "nextjs": {
-      "tsconfig.json": {
-        "merge": {
-          "compilerOptions": {
-            "paths": {
-              "@/*": ["./*"]
-            }
-          },
-          "include": ["lib/**/*"],
-          "exclude": ["node_modules", ".next", "lib/generated/prisma"]
-        }
-      }
     }
   },
   "patches": [

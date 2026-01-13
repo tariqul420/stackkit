@@ -38,20 +38,6 @@
           "exclude": ["node_modules", "dist"]
         }
       }
-    },
-    "nextjs": {
-      "tsconfig.json": {
-        "merge": {
-          "compilerOptions": {
-            "baseUrl": ".",
-            "paths": {
-              "@/*": ["./*"]
-            }
-          },
-          "include": ["lib/**/*"],
-          "exclude": ["node_modules", ".next", "out"]
-        }
-      }
     }
   },
   "patches": [
