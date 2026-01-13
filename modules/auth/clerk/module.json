@@ -51,15 +51,15 @@
       "patches": [
         {
           "type": "create-file",
-          "description": "{{authDescription}}",
-          "source": "nextjs/{{authFile}}",
-          "destination": "{{lib}}/{{authFile}}"
-        },
-        {
-          "type": "create-file",
           "description": "Create Clerk middleware",
           "source": "nextjs/middleware.ts",
           "destination": "middleware.ts"
+        },
+        {
+          "type": "create-file",
+          "description": "Update root layout to include Clerk provider",
+          "source": "nextjs/layout.tsx",
+          "destination": "app/layout.tsx"
         }
       ]
     },

@@ -214,7 +214,7 @@ async function processPatch(
     await fs.ensureDir(path.dirname(destFile));
 
     const ext = path.extname(sourceFile);
-    if ([".ts", ".js", ".prisma", ".json"].includes(ext)) {
+    if ([".ts", ".js", ".tsx", ".prisma", ".json"].includes(ext)) {
       let content = await fs.readFile(sourceFile, "utf-8");
       for (const [key, value] of Object.entries(variables)) {
         content = content.replace(new RegExp(`{{${key}}}`, "g"), value);
