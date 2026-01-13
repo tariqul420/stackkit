@@ -35,7 +35,7 @@ npx stackkit-cli add <module-type>
 ```
 
 **Available modules:**
-- `auth` - Authentication (Better Auth, Clerk)
+- `auth` - Authentication (Better Auth)
 - `database` - Database (Prisma, Mongoose)
 
 ### `add auth`
@@ -48,7 +48,7 @@ npx stackkit-cli add auth
 
 The CLI will:
 1. Detect your framework (Next.js, Express, or React)
-2. Show compatible providers (Better Auth, Clerk)
+2. Show compatible providers (Better Auth)
 3. Install dependencies and configure files
 
 **Options:**
@@ -173,14 +173,6 @@ openssl rand -base64 32
 ```bash
 BETTER_AUTH_SECRET="your-generated-secret"
 BETTER_AUTH_URL="http://localhost:3000"
-```
-
-### Authentication (Clerk)
-
-Add Clerk keys to `.env`:
-```bash
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_..."
-CLERK_SECRET_KEY="sk_test_..."
 ```
 
 ## Next Steps

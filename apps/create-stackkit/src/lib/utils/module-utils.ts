@@ -112,7 +112,7 @@ function generateVariables(
 
   // Auth-specific variables
   if (auth) {
-    variables.authFile = auth === "clerk" ? "auth-provider.tsx" : "auth.ts";
+    variables.authFile = "auth.ts";
     variables.authDescription = `Create ${auth} authentication configuration`;
 
     // Dynamic dbImport for auth modules

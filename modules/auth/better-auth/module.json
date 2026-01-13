@@ -174,12 +174,6 @@
       "patches": [
         {
           "type": "create-file",
-          "description": "{{authDescription}}",
-          "source": "lib/{{authFile}}",
-          "destination": "{{lib}}/{{authFile}}"
-        },
-        {
-          "type": "create-file",
           "description": "Create Better Auth client for React",
           "source": "lib/auth-client.ts",
           "destination": "{{lib}}/auth-client.ts"

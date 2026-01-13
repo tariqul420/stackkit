@@ -16,7 +16,7 @@ interface ProjectConfig {
   framework: "nextjs" | "express" | "react-vite";
   database: "prisma" | "mongoose-mongodb" | "none";
   dbProvider?: "postgresql" | "mongodb" | "mysql" | "sqlite";
-  auth: "better-auth" | "clerk" | "none";
+  auth: "better-auth" | "none";
   language: "typescript" | "javascript";
   packageManager: "pnpm" | "npm" | "yarn" | "bun";
 }
@@ -26,7 +26,7 @@ interface Answers {
   framework: "nextjs" | "express" | "react-vite";
   database?: "prisma" | "mongoose-mongodb" | "none";
   dbProvider?: "postgresql" | "mongodb" | "mysql" | "sqlite";
-  auth?: "better-auth" | "clerk" | "none";
+  auth?: "better-auth" | "none";
   language: "typescript" | "javascript";
   packageManager: "pnpm" | "npm" | "yarn" | "bun";
 }
@@ -112,7 +112,6 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
         if (answers.framework === "react-vite") {
           return [
             { name: "Better Auth", value: "better-auth" },
-            { name: "Clerk", value: "clerk" },
             { name: "None", value: "none" },
           ];
         }
@@ -121,7 +120,6 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
         if (answers.framework === "nextjs") {
           return [
             { name: "Better Auth", value: "better-auth" },
-            { name: "Clerk", value: "clerk" },
             { name: "None", value: "none" },
           ];
         }
@@ -130,7 +128,6 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
         if (answers.framework === "express") {
           return [
             { name: "Better Auth", value: "better-auth" },
-            { name: "Clerk", value: "clerk" },
             { name: "None", value: "none" },
           ];
         }

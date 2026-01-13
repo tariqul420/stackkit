@@ -233,155 +233,17 @@ export default async function Dashboard() {
 }
 ```
 
-## Clerk
-
-### Installation
-
-<Tabs items={['New Project', 'Existing Project']}>
-  <Tab value="New Project">
-    ```bash
-    npx create-stackkit-app my-app
-    # Select: Clerk when prompted
-    ```
-  </Tab>
-  <Tab value="Existing Project">
-    ```bash
-    npx stackkit-cli add auth
-    # Select: Clerk
-    ```
-  </Tab>
-</Tabs>
-
-### What Gets Installed
-
-**Dependencies:**
-
-<Tabs items={['Next.js', 'React']}>
-  <Tab value="Next.js">
-    ```json
-    {
-      "@clerk/nextjs": "^5.0.0"
-    }
-    ```
-  </Tab>
-  <Tab value="React">
-    ```json
-    {
-      "@clerk/clerk-react": "^5.0.0"
-    }
-    ```
-  </Tab>
-</Tabs>
-
-### Configuration
-
-**1. Get Clerk Keys**
-
-1. Create an account at [clerk.com](https://clerk.com)
-2. Create a new application
-3. Copy your API keys
-
-**2. Set Environment Variables**
-
-```bash title=".env.local"
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_..."
-CLERK_SECRET_KEY="sk_test_..."
-
-# Optional: Customize sign-in/up URLs
-NEXT_PUBLIC_CLERK_SIGN_IN_URL="/sign-in"
-NEXT_PUBLIC_CLERK_SIGN_UP_URL="/sign-up"
-NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL="/"
-NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL="/"
-```
-
-**3. Wrap Your App**
-
-The CLI automatically wraps your app with `ClerkProvider`:
-
-```typescript title="app/layout.tsx"
-import { ClerkProvider } from "@clerk/nextjs";
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <ClerkProvider>
-      <html lang="en">
-        <body>{children}</body>
-      </html>
-    </ClerkProvider>
-  );
-}
-```
-
-### Usage
-
-**Protect Routes:**
-
-```typescript title="app/dashboard/page.tsx"
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
-
-export default async function Dashboard() {
-  const { userId } = await auth();
-  
-  if (!userId) {
-    redirect("/sign-in");
-  }
-
-  return <div>Protected Dashboard</div>;
-}
-```
-
-**Access User Data:**
-
-```typescript title="app/profile/page.tsx"
-import { currentUser } from "@clerk/nextjs/server";
-
-export default async function Profile() {
-  const user = await currentUser();
-
-  return (
-    <div>
-      <p>Email: {user?.emailAddresses[0].emailAddress}</p>
-      <p>Name: {user?.firstName} {user?.lastName}</p>
-    </div>
-  );
-}
-```
-
-**Client Components:**
-
-```typescript title="components/user-button.tsx"
-"use client";
-
-import { UserButton, useUser } from "@clerk/nextjs";
-
-export function UserNav() {
-  const { user } = useUser();
-
-  return (
-    <div>
-      <p>Hello, {user?.firstName}!</p>
-      <UserButton />
-    </div>
-  );
-}
-```
-
 ## Comparison
 
-| Feature | Better Auth | Clerk |
-|---------|-------------|-------|
-| **Setup Time** | Medium | Fast |
-| **UI Components** | Manual | Pre-built |
-| **Customization** | High | Medium |
-| **Free Tier** | Unlimited | 10k MAUs |
-| **Edge Runtime** | Yes | Yes |
-| **Self-hosted** | Yes | No |
-| **TypeScript** | Excellent | Good |
+| Feature | Better Auth |
+|---------|-------------|
+| **Setup Time** | Medium |
+| **UI Components** | Manual |
+| **Customization** | High |
+| **Free Tier** | Unlimited |
+| **Edge Runtime** | Yes |
+| **Self-hosted** | Yes |
+| **TypeScript** | Excellent |
 
 ## Next Steps
 

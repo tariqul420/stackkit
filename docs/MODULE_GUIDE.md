@@ -267,7 +267,7 @@ npx ../apps/stackkit-cli/bin/stackkit.js add auth --provider auth0-nextjs
 
 **Location**: `modules/auth/`
 
-**Example providers**: better-auth-nextjs, clerk-nextjs, auth0-nextjs
+**Example providers**: better-auth-nextjs, auth0-nextjs
 
 ### Database Modules
 
@@ -385,7 +385,7 @@ Modules are published as part of the CLI packages:
 
 See existing modules for reference:
 
-- Simple: `modules/auth/clerk-nextjs/`
+- Simple: `modules/auth/better-auth-nextjs/`
 - Database-integrated: `modules/auth/better-auth-nextjs/`
 - Complex: `modules/database/prisma-postgresql/`
 

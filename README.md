@@ -39,7 +39,7 @@ npx stackkit-cli add database
 
 ### Authentication
 
-- Better Auth, Auth.js v5, NextAuth, Clerk
+- Better Auth, Auth.js v5, NextAuth
 
 ### Databases
 

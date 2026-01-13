@@ -73,7 +73,6 @@ export async function detectProjectInfo(targetDir: string): Promise<ProjectInfo>
     packageJson.dependencies?.["next-auth"] ||
     packageJson.dependencies?.["better-auth"] ||
     packageJson.dependencies?.["@auth/core"] ||
-    packageJson.dependencies?.["@clerk/nextjs"] ||
     packageJson.dependencies?.["@kinde-oss/kinde-auth-nextjs"] ||
     packageJson.dependencies?.["passport"]
   );

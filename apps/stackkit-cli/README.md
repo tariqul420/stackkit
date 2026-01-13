@@ -27,7 +27,6 @@ npx stackkit-cli list
 ### Authentication
 
 - Better Auth (Next.js, Express, React)
-- Clerk (Next.js, Express, React)
 
 ### Database
 
