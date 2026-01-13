@@ -3,7 +3,7 @@ import express, { Application, NextFunction, Request, Response } from "express";
 import helmet from "helmet";
 import morgan from "morgan";
 import { env } from "./config/env";
-import { authRoutes } from "./features/auth/auth.route";
+import { authRoutes } from "./features/health/health.route";
 import { errorHandler } from "./middlewares/error.middleware";
 
 // app initialization
@@ -35,7 +35,7 @@ app.get("/", (_req: Request, res: Response) => {
 });
 
 // routes
-app.use("/api/auth", authRoutes);
+app.use("/api/health", authRoutes);
 
 // unhandled routes
 app.use((req: Request, _res: Response, next: NextFunction) => {

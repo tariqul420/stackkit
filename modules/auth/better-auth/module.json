@@ -44,12 +44,61 @@
       "required": true
     }
   ],
-  "patches": [
-    {
-      "type": "create-file",
-      "description": "{{authDescription}}",
-      "source": "lib/{{authFile}}",
-      "destination": "{{lib}}/{{authFile}}"
+  "frameworkConfigs": {
+    "nextjs": {
+      "patches": [
+        {
+          "type": "create-file",
+          "description": "{{authDescription}}",
+          "source": "lib/{{authFile}}",
+          "destination": "{{lib}}/{{authFile}}"
+        },
+        {
+          "type": "create-file",
+          "description": "Create Better Auth API routes",
+          "source": "api/auth/[...all]/route.ts",
+          "destination": "app/api/auth/[...all]/route.ts"
+        }
+      ]
+    },
+    "express": {
+      "patches": [
+        {
+          "type": "create-file",
+          "description": "{{authDescription}}",
+          "source": "lib/{{authFile}}",
+          "destination": "{{lib}}/{{authFile}}"
+        },
+        {
+          "type": "patch-file",
+          "description": "Add Better Auth routes to Express app",
+          "file": "src/app.ts",
+          "operations": [
+            {
+              "type": "add-import",
+              "imports": [
+                "import { auth } from \"./lib/auth\";",
+                "import { toNodeHandler } from \"better-auth/node\";"
+              ]
+            },
+            {
+              "type": "add-code",
+              "after": "// routes\napp.use(\"/api/auth\", authRoutes);",
+              "code": "\napp.all(\"/api/auth/*\", toNodeHandler(auth));"
+            }
+          ]
+        }
+      ]
+    },
+    "react-vite": {
+      "patches": [
+        {
+          "type": "create-file",
+          "description": "{{authDescription}}",
+          "source": "lib/{{authFile}}",
+          "destination": "{{lib}}/{{authFile}}"
+        }
+      ]
     }
-  ]
+  }
 }

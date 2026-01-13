@@ -48,9 +48,9 @@ interface ModuleVariables {
 function getFrameworkPaths(framework: string): FrameworkPaths {
   switch (framework) {
     case "nextjs":
-      return { lib: "lib", router: "app", models: "models" };
+      return { lib: "lib", router: "app", models: "lib/models" };
     case "express":
-      return { lib: "src/lib", router: "src", models: "src/models" };
+      return { lib: "lib", router: "src", models: "lib/models" };
     case "react-vite":
       return { lib: "src/lib", router: "src", models: "src/models" };
     default:

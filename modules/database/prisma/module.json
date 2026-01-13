@@ -95,13 +95,16 @@
           "compilerOptions": {
             "baseUrl": ".",
             "paths": {
-              "@/*": ["./src/*"]
+              "@/*": ["./*"]
             }
           },
-          "include": ["lib/**/*"],
-          "exclude": ["generated/prisma"]
-        }
-      }
+          "include": ["src/**/*", "lib/**/*"],
+          "exclude": ["node_modules", "dist", "lib/generated/prisma"]
+        }      },
+      "src/lib/prisma.ts": {
+        "replace": {
+          "./generated/prisma/client": "../../lib/generated/prisma/client"
+        }      }
     },
     "nextjs": {
       "tsconfig.json": {
@@ -110,7 +113,9 @@
             "paths": {
               "@/*": ["./*"]
             }
-          }
+          },
+          "include": ["lib/**/*"],
+          "exclude": ["node_modules", ".next", "lib/generated/prisma"]
         }
       }
     }

@@ -31,11 +31,10 @@
           "compilerOptions": {
             "baseUrl": ".",
             "paths": {
-              "@/*": ["./src/*"],
-              "@/models/*": ["./src/models/*"]
+              "@/*": ["./*"]
             }
           },
-          "include": ["src/**/*", "src/models/**/*"],
+          "include": ["src/**/*", "lib/**/*"],
           "exclude": ["node_modules", "dist"]
         }
       }
@@ -46,9 +45,10 @@
           "compilerOptions": {
             "baseUrl": ".",
             "paths": {
-              "@/models/*": ["./models/*"]
+              "@/*": ["./*"]
             }
           },
+          "include": ["lib/**/*"],
           "exclude": ["node_modules", ".next", "out"]
         }
       }
