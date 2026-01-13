@@ -14,6 +14,7 @@ A production-ready React starter template with TypeScript, Vite, and essential l
 - **SEO Ready** with React Helmet Async
 - **Error Boundaries** for graceful error handling
 - **ESLint** for code quality
+- **Prettier** for code formatting
 - **Custom Hooks** included
 
 ## Quick Start
@@ -30,6 +31,18 @@ pnpm build
 
 # Preview production build
 pnpm preview
+
+# Run linter
+pnpm lint
+
+# Fix linting issues
+pnpm lint:fix
+
+# Format code
+pnpm format
+
+# Check formatting
+pnpm format:check
 ```
 
 ## Project Structure
@@ -44,9 +57,18 @@ src/
 ├── pages/        # Route pages
 ├── types/        # TypeScript types
 ├── utils/        # Helper functions
+├── test/         # Test setup
 ├── App.tsx       # Main app component
 ├── main.tsx      # Entry point
 └── index.css     # Global styles
+```
+
+## Environment Variables
+
+Copy `.env.example` to `.env` and update the values:
+
+```bash
+cp .env.example .env
 ```
 
 ## Environment Variables
