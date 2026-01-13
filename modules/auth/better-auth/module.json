@@ -6,26 +6,46 @@
   "provider": "better-auth",
   "supportedFrameworks": ["nextjs", "express", "react-vite"],
   "databaseAdapters": {
+    "common": {
+      "dependencies": {
+        "better-auth": "^1.1.4",
+        "nodemailer": "^6.9.0"
+      },
+      "devDependencies": {
+        "@types/nodemailer": "^6.4.0"
+      }
+    },
     "prisma-postgresql": {
-      "adapterCode": "database: prismaAdapter(prisma, {\n    provider: \"postgresql\",\n  }),",
       "schema": "files/schemas/prisma-schema.prisma",
       "schemaDestination": "prisma/schema.prisma",
       "dependencies": {
-        "better-auth": "^1.1.4"
+        "@prisma/adapter-pg": "^5.0.0",
+        "pg": "^8.0.0"
       }
     },
     "prisma-mongodb": {
-      "adapterCode": "database: prismaAdapter(prisma, {\n    provider: \"mongodb\",\n  }),",
+      "schema": "files/schemas/prisma-schema.prisma",
+      "schemaDestination": "prisma/schema.prisma",
+      "dependencies": {}
+    },
+    "prisma-mysql": {
       "schema": "files/schemas/prisma-schema.prisma",
       "schemaDestination": "prisma/schema.prisma",
       "dependencies": {
-        "better-auth": "^1.1.4"
+        "@prisma/adapter-mariadb": "^5.0.0",
+        "mysql2": "^3.0.0"
+      }
+    },
+    "prisma-sqlite": {
+      "schema": "files/schemas/prisma-schema.prisma",
+      "schemaDestination": "prisma/schema.prisma",
+      "dependencies": {
+        "@prisma/adapter-better-sqlite3": "^5.0.0",
+        "better-sqlite3": "^9.0.0"
       }
     },
     "mongoose-mongodb": {
-      "adapterCode": "database: mongodbAdapter(db),",
       "dependencies": {
-        "better-auth": "^1.1.4",
         "mongodb": "^6.10.0"
       }
     }
@@ -41,6 +61,36 @@
       "key": "BETTER_AUTH_URL",
       "value": "http://localhost:3000",
       "description": "Base URL of your application (change in production)",
+      "required": true
+    },
+    {
+      "key": "EMAIL_HOST",
+      "value": "smtp.gmail.com",
+      "description": "SMTP host for sending emails (e.g., smtp.gmail.com)",
+      "required": true
+    },
+    {
+      "key": "EMAIL_PORT",
+      "value": "587",
+      "description": "SMTP port (587 for TLS, 465 for SSL)",
+      "required": true
+    },
+    {
+      "key": "EMAIL_USER",
+      "value": "",
+      "description": "SMTP username (your email)",
+      "required": true
+    },
+    {
+      "key": "EMAIL_PASS",
+      "value": "",
+      "description": "SMTP password or app password",
+      "required": true
+    },
+    {
+      "key": "EMAIL_FROM",
+      "value": "noreply@yourapp.com",
+      "description": "From email address",
       "required": true
     }
   ],
@@ -64,6 +114,18 @@
           "description": "Create Better Auth client for React",
           "source": "lib/auth-client.ts",
           "destination": "{{lib}}/auth-client.ts"
+        },
+        {
+          "type": "create-file",
+          "description": "Create email service for sending emails",
+          "source": "lib/email-service.ts",
+          "destination": "{{lib}}/email/email-service.ts"
+        },
+        {
+          "type": "create-file",
+          "description": "Create email templates",
+          "source": "lib/email-templates.ts",
+          "destination": "{{lib}}/email/email-templates.ts"
         }
       ]
     },
@@ -93,6 +155,18 @@
               "code": "\napp.all(\"/api/auth/*splat\", toNodeHandler(auth));"
             }
           ]
+        },
+        {
+          "type": "create-file",
+          "description": "Create email service for sending emails",
+          "source": "lib/email-service.ts",
+          "destination": "{{lib}}/email/email-service.ts"
+        },
+        {
+          "type": "create-file",
+          "description": "Create email templates",
+          "source": "lib/email-templates.ts",
+          "destination": "{{lib}}/email/email-templates.ts"
         }
       ]
     },
@@ -109,6 +183,18 @@
           "description": "Create Better Auth client for React",
           "source": "lib/auth-client.ts",
           "destination": "{{lib}}/auth-client.ts"
+        },
+        {
+          "type": "create-file",
+          "description": "Create email service for sending emails",
+          "source": "lib/email-service.ts",
+          "destination": "{{lib}}/email/email-service.ts"
+        },
+        {
+          "type": "create-file",
+          "description": "Create email templates",
+          "source": "lib/email-templates.ts",
+          "destination": "{{lib}}/email/email-templates.ts"
         }
       ]
     }

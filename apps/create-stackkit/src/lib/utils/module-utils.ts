@@ -59,6 +59,24 @@ interface ModuleVariables {
 }
 
 /**
+ * Process environment variables with variable replacement
+ */
+function processEnvVars(
+  envVarList: Array<{ key: string; value: string; description?: string; required?: boolean }>,
+  variables: ModuleVariables,
+): Record<string, string> {
+  const envVars: Record<string, string> = {};
+  for (const envVar of envVarList) {
+    let value = envVar.value;
+    for (const [key, val] of Object.entries(variables)) {
+      value = value.replace(new RegExp(`{{${key}}}`, "g"), val);
+    }
+    envVars[envVar.key] = value;
+  }
+  return envVars;
+}
+
+/**
  * Get framework-specific paths for file placement
  */
 function getFrameworkPaths(framework: string): FrameworkPaths {
@@ -97,45 +115,27 @@ function generateVariables(
     variables.authFile = auth === "clerk" ? "auth-provider.tsx" : "auth.ts";
     variables.authDescription = `Create ${auth} authentication configuration`;
 
-    // Override dbImport for auth modules
-    if (framework === "nextjs") {
-      if (database === "prisma") {
-        variables.dbImport = `import { prisma } from "@/lib/prisma";
-import { prismaAdapter } from "better-auth/adapters/prisma";`;
-      } else if (database === "mongoose-mongodb") {
-        // For Better Auth, we need MongoDB client, not Mongoose
-        variables.dbImport = `import { MongoClient } from "mongodb";
+    // Dynamic dbImport for auth modules
+    const libPath = framework === "nextjs" ? "@/lib" : ".";
+    const adapterImport = database === "prisma" ? 'import { prismaAdapter } from "better-auth/adapters/prisma";' : 'import { mongodbAdapter } from "better-auth/adapters/mongodb";';
+
+    if (database === "prisma") {
+      variables.dbImport = `import { prisma } from "${libPath}/prisma";
+${adapterImport}`;
+    } else if (database === "mongoose-mongodb") {
+      variables.dbImport = `import { MongoClient } from "mongodb";
 
 const client = new MongoClient(process.env.DATABASE_URL!);
 const db = client.db();
 
-import { mongodbAdapter } from "better-auth/adapters/mongodb";`;
-      } else {
-        variables.dbImport = database === "prisma" ? 'import { prisma } from "@/lib/prisma";' : 'import { client } from "@/lib/db";';
-      }
+${adapterImport}`;
     } else {
-      if (database === "prisma") {
-        variables.dbImport = `import { prisma } from "./prisma";
-import { prismaAdapter } from "better-auth/adapters/prisma";`;
-      } else if (database === "mongoose-mongodb") {
-        // For Better Auth, we need MongoDB client, not Mongoose
-        variables.dbImport = `import { MongoClient } from "mongodb";
-
-const client = new MongoClient(process.env.DATABASE_URL!);
-const db = client.db();
-
-import { mongodbAdapter } from "better-auth/adapters/mongodb";`;
-      } else {
-        variables.dbImport = database === "prisma" ? 'import { prisma } from "./prisma";' : 'import { client } from "./db";';
-      }
+      variables.dbImport = database === "prisma" ? `import { prisma } from "${libPath}/prisma";` : `import { client } from "${libPath}/db";`;
     }
   } else {
     // Framework-specific database import for database modules
-    if (framework === "nextjs") {
-      variables.dbImport = "@/lib/prisma";
-    } else {
-      variables.dbImport = database === "prisma" ? "./prisma" : "./db";
-    }
+    const libPath = framework === "nextjs" ? "@/lib" : ".";
+    variables.dbImport = database === "prisma" ? `${libPath}/prisma` : `${libPath}/db`;
   }
 
   // Provider-specific variables
@@ -390,13 +390,7 @@ export async function mergeDatabaseConfig(
         : [];
     const allEnvVars = [...commonEnvVars, ...providerEnvVars];
 
-    for (const envVar of allEnvVars) {
-      let value = envVar.value;
-      for (const [key, val] of Object.entries(variables)) {
-        value = value.replace(new RegExp(`{{${key}}}`, "g"), val);
-      }
-      envVars[envVar.key] = value;
-    }
+    Object.assign(envVars, processEnvVars(allEnvVars, variables));
     await mergeEnvFile(targetDir, envVars);
 
     // Apply framework-specific patches
@@ -465,7 +459,12 @@ export async function mergeAuthConfig(
       const adapterConfig = moduleData.databaseAdapters[adapterKey];
 
       if (adapterConfig) {
-        variables.databaseAdapter = adapterConfig.adapterCode;
+        // Generate adapter code based on database type
+        if (database === "prisma" && dbProvider) {
+          variables.databaseAdapter = `database: prismaAdapter(prisma, {\n    provider: "${dbProvider}",\n  }),`;
+        } else if (database === "mongoose-mongodb") {
+          variables.databaseAdapter = "database: mongodbAdapter(db),";
+        }
 
         if (adapterConfig.schema && adapterConfig.schemaDestination) {
           const schemaSource = join(authModulePath, adapterConfig.schema);
@@ -484,6 +483,14 @@ export async function mergeAuthConfig(
               variables.provider = "mongodb";
               variables.idDefault = '@default(auto()) @map("_id") @db.ObjectId';
               variables.userIdType = "@db.ObjectId";
+            } else if (dbProvider === "mysql") {
+              variables.provider = "mysql";
+              variables.idDefault = "@default(cuid())";
+              variables.userIdType = "";
+            } else if (dbProvider === "sqlite") {
+              variables.provider = "sqlite";
+              variables.idDefault = "@default(cuid())";
+              variables.userIdType = "";
             }
 
             for (const [key, value] of Object.entries(variables)) {
@@ -494,8 +501,13 @@ export async function mergeAuthConfig(
         }
 
         if (adapterConfig.dependencies) {
+          const commonDeps = moduleData.databaseAdapters.common?.dependencies || {};
+          const commonDevDeps = moduleData.databaseAdapters.common?.devDependencies || {};
+          const specificDeps = adapterConfig.dependencies;
+          const specificDevDeps = adapterConfig.devDependencies || {};
           await mergePackageJson(targetDir, {
-            dependencies: adapterConfig.dependencies,
+            dependencies: { ...commonDeps, ...specificDeps },
+            devDependencies: { ...commonDevDeps, ...specificDevDeps },
           });
         }
       }
@@ -528,9 +540,7 @@ export async function mergeAuthConfig(
     // Process environment variables
     const envVars: Record<string, string> = {};
     const envVarList = frameworkConfig?.envVars || moduleData.envVars || [];
-    for (const envVar of envVarList) {
-      envVars[envVar.key] = envVar.value;
-    }
+    Object.assign(envVars, processEnvVars(envVarList, variables));
     await mergeEnvFile(targetDir, envVars);
 
     // Apply framework-specific patches
