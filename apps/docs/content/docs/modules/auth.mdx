@@ -233,17 +233,128 @@ export default async function Dashboard() {
 }
 ```
 
+## Auth.js
+
+Auth.js (formerly NextAuth.js) is a complete open source authentication solution for Next.js applications.
+
+### Installation
+
+<Tabs items={['New Project', 'Existing Project']}>
+  <Tab value="New Project">
+    ```bash
+    npx create-stackkit-app my-app
+    # Select: Auth.js when prompted
+    ```
+  </Tab>
+  <Tab value="Existing Project">
+    ```bash
+    npx stackkit-cli add auth
+    # Select: Auth.js
+    ```
+  </Tab>
+</Tabs>
+
+### What Gets Installed
+
+**Dependencies:**
+
+```json
+{
+  "next-auth": "beta",
+  "@auth/prisma-adapter": "^2.0.0"
+}
+```
+
+### Configuration
+
+**1. Set Environment Variables**
+
+```bash title=".env.local"
+NEXTAUTH_SECRET="your-secret-key"
+NEXTAUTH_URL="http://localhost:3000"
+
+# OAuth Providers (optional)
+GOOGLE_CLIENT_ID="..."
+GOOGLE_CLIENT_SECRET="..."
+GITHUB_ID="..."
+GITHUB_SECRET="..."
+```
+
+**2. Database Setup**
+
+Auth.js uses Prisma adapter for database integration. The CLI automatically adds the required models to your `prisma/schema.prisma`.
+
+### Usage
+
+**Protect API Routes:**
+
+```typescript title="app/api/protected/route.ts"
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
+
+export async function GET() {
+  const session = await getServerSession(authOptions);
+
+  if (!session) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  return Response.json({ data: "Protected content" });
+}
+```
+
+**Protect Pages:**
+
+```typescript title="app/dashboard/page.tsx"
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
+
+export default async function Dashboard() {
+  const session = await getServerSession(authOptions);
+
+  if (!session) {
+    redirect("/api/auth/signin");
+  }
+
+  return <div>Welcome, {session.user.name}!</div>;
+}
+```
+
+**Client Components:**
+
+```typescript title="components/auth-button.tsx"
+"use client";
+
+import { signIn, signOut, useSession } from "next-auth/react";
+
+export function AuthButton() {
+  const { data: session } = useSession();
+
+  if (session) {
+    return (
+      <button onClick={() => signOut()}>
+        Sign out ({session.user.email})
+      </button>
+    );
+  }
+
+  return <button onClick={() => signIn()}>Sign in</button>;
+}
+```
+
 ## Comparison
 
-| Feature | Better Auth |
-|---------|-------------|
-| **Setup Time** | Medium |
-| **UI Components** | Manual |
-| **Customization** | High |
-| **Free Tier** | Unlimited |
-| **Edge Runtime** | Yes |
-| **Self-hosted** | Yes |
-| **TypeScript** | Excellent |
+| Feature | Better Auth | Auth.js |
+|---------|-------------|---------|
+| **Setup Time** | Medium | Easy |
+| **UI Components** | Manual | Manual |
+| **Customization** | High | High |
+| **Free Tier** | Unlimited | Unlimited |
+| **Edge Runtime** | Yes | Yes |
+| **Self-hosted** | Yes | Yes |
+| **TypeScript** | Excellent | Good |
+| **OAuth Providers** | Built-in | Extensive |
 
 ## Next Steps
 

@@ -12,7 +12,7 @@ Interactive wizard helps you choose:
 
 - **Framework**: Next.js, Express, or React + Vite
 - **Database**: Prisma (PostgreSQL/MongoDB), Mongoose (MongoDB)
-- **Authentication**: Better Auth
+- **Authentication**: Better Auth, Auth.js
 - **Package manager**: pnpm, npm, or yarn
 
 ## Quick Start

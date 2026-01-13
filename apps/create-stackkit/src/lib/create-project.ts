@@ -16,7 +16,7 @@ interface ProjectConfig {
   framework: "nextjs" | "express" | "react-vite";
   database: "prisma" | "mongoose-mongodb" | "none";
   dbProvider?: "postgresql" | "mongodb" | "mysql" | "sqlite";
-  auth: "better-auth" | "none";
+  auth: "better-auth" | "authjs" | "none";
   language: "typescript" | "javascript";
   packageManager: "pnpm" | "npm" | "yarn" | "bun";
 }
@@ -26,7 +26,7 @@ interface Answers {
   framework: "nextjs" | "express" | "react-vite";
   database?: "prisma" | "mongoose-mongodb" | "none";
   dbProvider?: "postgresql" | "mongodb" | "mysql" | "sqlite";
-  auth?: "better-auth" | "none";
+  auth?: "better-auth" | "authjs" | "none";
   language: "typescript" | "javascript";
   packageManager: "pnpm" | "npm" | "yarn" | "bun";
 }
@@ -120,6 +120,7 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
         if (answers.framework === "nextjs") {
           return [
             { name: "Better Auth", value: "better-auth" },
+            { name: "Auth.js", value: "authjs" },
             { name: "None", value: "none" },
           ];
         }

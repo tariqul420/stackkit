@@ -1,0 +1,106 @@
+{
+  "name": "authjs",
+  "displayName": "Auth.js",
+  "description": "Authentication with Auth.js (NextAuth.js v5)",
+  "category": "auth",
+  "provider": "authjs",
+  "supportedFrameworks": ["nextjs"],
+  "databaseAdapters": {
+    "common": {
+      "dependencies": {
+        "next-auth": "beta"
+      },
+      "devDependencies": {}
+    },
+    "prisma-postgresql": {
+      "schema": "files/schemas/prisma-schema.prisma",
+      "schemaDestination": "prisma/schema.prisma",
+      "dependencies": {
+        "@auth/prisma-adapter": "^2.0.0"
+      }
+    },
+    "prisma-mongodb": {
+      "schema": "files/schemas/prisma-schema.prisma",
+      "schemaDestination": "prisma/schema.prisma",
+      "dependencies": {
+        "@auth/prisma-adapter": "^2.0.0"
+      }
+    },
+    "prisma-mysql": {
+      "schema": "files/schemas/prisma-schema.prisma",
+      "schemaDestination": "prisma/schema.prisma",
+      "dependencies": {
+        "@auth/prisma-adapter": "^2.0.0"
+      }
+    },
+    "prisma-sqlite": {
+      "schema": "files/schemas/prisma-schema.prisma",
+      "schemaDestination": "prisma/schema.prisma",
+      "dependencies": {
+        "@auth/prisma-adapter": "^2.0.0"
+      }
+    }
+  },
+  "envVars": [
+    {
+      "key": "NEXTAUTH_SECRET",
+      "value": "",
+      "description": "Secret key for Auth.js. Generate with: openssl rand -base64 32",
+      "required": true
+    },
+    {
+      "key": "NEXTAUTH_URL",
+      "value": "http://localhost:3000",
+      "description": "Base URL of your application (change in production)",
+      "required": true
+    },
+    {
+      "key": "GOOGLE_CLIENT_ID",
+      "value": "",
+      "description": "Google OAuth Client ID (optional)",
+      "required": false
+    },
+    {
+      "key": "GOOGLE_CLIENT_SECRET",
+      "value": "",
+      "description": "Google OAuth Client Secret (optional)",
+      "required": false
+    },
+    {
+      "key": "GITHUB_ID",
+      "value": "",
+      "description": "GitHub OAuth Client ID (optional)",
+      "required": false
+    },
+    {
+      "key": "GITHUB_SECRET",
+      "value": "",
+      "description": "GitHub OAuth Client Secret (optional)",
+      "required": false
+    }
+  ],
+  "frameworkConfigs": {
+    "nextjs": {
+      "patches": [
+        {
+          "type": "create-file",
+          "description": "{{authDescription}}",
+          "source": "lib/{{authFile}}",
+          "destination": "{{lib}}/{{authFile}}"
+        },
+        {
+          "type": "create-file",
+          "description": "Create Auth.js API routes",
+          "source": "api/auth/[...nextauth]/route.ts",
+          "destination": "app/api/auth/[...nextauth]/route.ts"
+        },
+        {
+          "type": "create-file",
+          "description": "Create Auth.js client utilities",
+          "source": "lib/auth-client.ts",
+          "destination": "{{lib}}/auth-client.ts"
+        }
+      ]
+    }
+  }
+}
