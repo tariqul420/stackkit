@@ -5,6 +5,15 @@ import { getVerificationEmailTemplate, getPasswordResetEmailTemplate } from "./e
 
 export const auth = betterAuth({
 {{databaseAdapter}}
+  user: {
+    additionalFields: {
+      role: {
+        type: "string",
+        defaultValue: "USER",
+        required: true,
+      },
+    },
+  },
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,

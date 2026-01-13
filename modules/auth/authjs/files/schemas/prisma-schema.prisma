@@ -1,7 +1,7 @@
 
 model Account {
-  id                String  @id @default(cuid())
-  userId            String
+  id                String  @id {{idDefault}}
+  userId            String {{userIdType}}
   type              String
   provider          String
   providerAccountId String
@@ -19,15 +19,15 @@ model Account {
 }
 
 model Session {
-  id           String   @id @default(cuid())
+  id           String   @id {{idDefault}}
   sessionToken String   @unique
-  userId       String
+  userId       String {{userIdType}}
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String    @id {{idDefault}}
   name          String?
   email         String    @unique
   emailVerified DateTime?
