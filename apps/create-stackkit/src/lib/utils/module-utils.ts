@@ -10,36 +10,114 @@ interface FrameworkConfig {
   patches?: Array<{ type: string; description: string; source: string; destination: string }>;
 }
 
-export async function mergeDatabaseConfig(
-  templatesDir: string,
-  targetDir: string,
+interface ModuleData {
+  name: string;
+  displayName: string;
+  description: string;
+  category: string;
+  provider: string;
+  supportedFrameworks?: string[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  dependencies?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  devDependencies?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  envVars?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  frameworkPatches?: Record<string, any>;
+  patches?: Array<{ type: string; description: string; source: string; destination: string }>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  databaseAdapters?: Record<string, any>;
+  frameworkConfigs?: Record<string, FrameworkConfig>;
+  postInstall?: string[];
+}
+
+interface FrameworkPaths {
+  lib: string;
+  router: string;
+  models: string;
+}
+
+interface ModuleVariables {
+  [key: string]: string;
+}
+
+/**
+ * Get framework-specific paths for file placement
+ */
+function getFrameworkPaths(framework: string): FrameworkPaths {
+  switch (framework) {
+    case "nextjs":
+      return { lib: "lib", router: "app", models: "models" };
+    case "express":
+      return { lib: "src/lib", router: "src", models: "src/models" };
+    case "react-vite":
+      return { lib: "src/lib", router: "src", models: "src/models" };
+    default:
+      return { lib: "src/lib", router: "src", models: "src/models" };
+  }
+}
+
+/**
+ * Generate variables based on database, framework, and provider
+ */
+function generateVariables(
   database: string,
   framework: string,
   dbProvider?: string,
-): Promise<string[]> {
-  const modulesDir = join(templatesDir, "..", "modules");
-  const dbModulePath = join(modulesDir, "database", database);
+  auth?: string,
+): ModuleVariables {
+  const variables: ModuleVariables = {};
 
-  if (!(await fs.pathExists(dbModulePath))) {
-    // eslint-disable-next-line no-console
-    console.warn(`Database module not found: ${database}`);
-    return [];
+  // Database-specific variables
+  variables.dbFile = database === "prisma" ? "prisma.ts" : "db.ts";
+  variables.dbDescription =
+    database === "prisma"
+      ? "Create Prisma client singleton"
+      : "Create MongoDB connection with Mongoose";
+
+  // Auth-specific variables
+  if (auth) {
+    variables.authFile = auth === "clerk" ? "auth-provider.tsx" : "auth.ts";
+    variables.authDescription = `Create ${auth} authentication configuration`;
+
+    // Override dbImport for auth modules
+    if (framework === "nextjs") {
+      if (database === "prisma") {
+        variables.dbImport = 'import { prisma } from "@/lib/prisma";\nimport { prismaAdapter } from "better-auth/adapters/prisma";';
+      } else if (database === "mongoose-mongodb") {
+        // For Better Auth, we need MongoDB client, not Mongoose
+        variables.dbImport = 'import { MongoClient } from "mongodb";\n\nconst client = new MongoClient(process.env.DATABASE_URL!);\nconst db = client.db();\n\nimport { mongodbAdapter } from "better-auth/adapters/mongodb";';
+      } else {
+        variables.dbImport = database === "prisma" ? 'import { prisma } from "@/lib/prisma";' : 'import { client } from "@/lib/db";';
+      }
+    } else {
+      if (database === "prisma") {
+        variables.dbImport = 'import { prisma } from "./prisma";\nimport { prismaAdapter } from "better-auth/adapters/prisma";';
+      } else if (database === "mongoose-mongodb") {
+        // For Better Auth, we need MongoDB client, not Mongoose
+        variables.dbImport = 'import { MongoClient } from "mongodb";\n\nconst client = new MongoClient(process.env.DATABASE_URL!);\nconst db = client.db();\n\nimport { mongodbAdapter } from "better-auth/adapters/mongodb";';
+      } else {
+        variables.dbImport = database === "prisma" ? 'import { prisma } from "./prisma";' : 'import { client } from "./db";';
+      }
+    }
+  } else {
+    // Framework-specific database import for database modules
+    if (framework === "nextjs") {
+      variables.dbImport = "@/lib/prisma";
+    } else {
+      variables.dbImport = database === "prisma" ? "./prisma" : "./db";
+    }
   }
 
-  // Read module.json
-  const moduleJsonPath = join(dbModulePath, "module.json");
-  if (!(await fs.pathExists(moduleJsonPath))) {
-    return [];
-  }
-
-  const moduleData = await fs.readJson(moduleJsonPath);
-
-  const variables: Record<string, string> = {};
+  // Provider-specific variables
   if (dbProvider) {
     variables.provider = dbProvider;
-    if (dbProvider === "postgresql") {
-      variables.connectionString = "postgresql://user:password@localhost:5432/mydb?schema=public";
-      variables.prismaClientInit = `
+
+    switch (dbProvider) {
+      case "postgresql":
+        variables.connectionString = "postgresql://user:password@localhost:5432/mydb?schema=public";
+        variables.prismaClientInit = `
 import { PrismaPg } from "@prisma/adapter-pg";
 
 const globalForPrisma = global as unknown as {
@@ -56,14 +134,16 @@ const prisma = globalForPrisma.prisma ?? new PrismaClient({
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 `;
-    } else if (dbProvider === "mongodb") {
-      variables.connectionString = "mongodb+srv://username:password@cluster.mongodb.net/mydb";
-      variables.prismaClientInit = `
+        break;
+      case "mongodb":
+        variables.connectionString = "mongodb+srv://username:password@cluster.mongodb.net/mydb";
+        variables.prismaClientInit = `
 const prisma = new PrismaClient()
 `;
-    } else if (dbProvider === "mysql") {
-      variables.connectionString = "mysql://user:password@localhost:3306/mydb";
-      variables.prismaClientInit = `
+        break;
+      case "mysql":
+        variables.connectionString = "mysql://user:password@localhost:3306/mydb";
+        variables.prismaClientInit = `
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 
 const adapter = new PrismaMariaDb({
@@ -75,86 +155,194 @@ const adapter = new PrismaMariaDb({
 });
 const prisma = new PrismaClient({ adapter });
 `;
-    } else if (dbProvider === "sqlite") {
-      variables.connectionString = "file:./dev.db";
-      variables.prismaClientInit = `
+        break;
+      case "sqlite":
+        variables.connectionString = "file:./dev.db";
+        variables.prismaClientInit = `
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 
 const adapter = new PrismaBetterSqlite3({ url: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 `;
+        break;
     }
   }
 
-  const filesDir = join(dbModulePath, "files");
-  if (await fs.pathExists(filesDir)) {
-    const libDir = framework === "nextjs" ? "lib" : "src";
-    for (const patch of moduleData.patches || []) {
-      if (patch.type === "create-file") {
-        const sourceFile = join(filesDir, patch.source);
-        let destFile = join(targetDir, patch.destination);
+  return variables;
+}
 
-        destFile = destFile
-          .replace("{{lib}}", libDir)
-          .replace("{{src}}", "src")
-          .replace("{{models}}", framework === "nextjs" ? "models" : "src/models");
+/**
+ * Process a single patch with variable replacement
+ */
+async function processPatch(
+  patch: { type: string; description: string; source: string; destination: string },
+  filesDir: string,
+  targetDir: string,
+  variables: ModuleVariables,
+  frameworkPaths: FrameworkPaths,
+): Promise<void> {
+  if (patch.type !== "create-file") return;
 
-        if (await fs.pathExists(sourceFile)) {
-          await fs.ensureDir(join(destFile, ".."));
-          // Check if text file
-          const ext = path.extname(sourceFile);
-          if ([".ts", ".js", ".prisma", ".json"].includes(ext)) {
-            let content = await fs.readFile(sourceFile, "utf-8");
-            for (const [key, value] of Object.entries(variables)) {
-              content = content.replace(new RegExp(`{{${key}}}`, "g"), value);
-            }
-            await fs.writeFile(destFile, content);
-          } else {
-            await fs.copy(sourceFile, destFile, { overwrite: false });
-          }
-        }
+  try {
+    // Replace variables in source and destination
+    const sourcePath = patch.source.replace(
+      /\{\{(\w+)\}\}/g,
+      (match: string, key: string) => variables[key] || match,
+    );
+    const sourceFile = join(filesDir, sourcePath);
+
+    let destFile = join(
+      targetDir,
+      patch.destination.replace(
+        /\{\{(\w+)\}\}/g,
+        (match: string, key: string) => variables[key] || match,
+      ),
+    );
+
+    // Apply framework-specific path replacements
+    destFile = destFile
+      .replace("{{lib}}", frameworkPaths.lib)
+      .replace("{{router}}", frameworkPaths.router)
+      .replace("{{models}}", frameworkPaths.models);
+
+    if (!(await fs.pathExists(sourceFile))) {
+      // eslint-disable-next-line no-console
+      console.warn(`Source file not found: ${sourceFile}`);
+      return;
+    }
+
+    await fs.ensureDir(path.dirname(destFile));
+
+    const ext = path.extname(sourceFile);
+    if ([".ts", ".js", ".prisma", ".json"].includes(ext)) {
+      let content = await fs.readFile(sourceFile, "utf-8");
+      for (const [key, value] of Object.entries(variables)) {
+        content = content.replace(new RegExp(`{{${key}}}`, "g"), value);
+      }
+      await fs.writeFile(destFile, content);
+    } else {
+      await fs.copy(sourceFile, destFile, { overwrite: false });
+    }
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(`Failed to process patch ${patch.description}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Validate and extract module data
+ */
+async function loadModuleData(modulePath: string): Promise<ModuleData> {
+  const moduleJsonPath = join(modulePath, "module.json");
+  if (!(await fs.pathExists(moduleJsonPath))) {
+    throw new Error(`Module configuration not found: ${moduleJsonPath}`);
+  }
+
+  const moduleData = await fs.readJson(moduleJsonPath);
+  if (!moduleData) {
+    throw new Error(`Invalid module configuration: ${moduleJsonPath}`);
+  }
+
+  return moduleData as ModuleData;
+}
+
+export async function mergeDatabaseConfig(
+  templatesDir: string,
+  targetDir: string,
+  database: string,
+  framework: string,
+  dbProvider?: string,
+): Promise<string[]> {
+  try {
+    const modulesDir = join(templatesDir, "..", "modules");
+    const dbModulePath = join(modulesDir, "database", database);
+
+    if (!(await fs.pathExists(dbModulePath))) {
+      // eslint-disable-next-line no-console
+      console.warn(`Database module not found: ${database}`);
+      return [];
+    }
+
+    const moduleData = await loadModuleData(dbModulePath);
+    const variables = generateVariables(database, framework, dbProvider);
+    const frameworkPaths = getFrameworkPaths(framework);
+
+    const filesDir = join(dbModulePath, "files");
+    if (await fs.pathExists(filesDir)) {
+      for (const patch of moduleData.patches || []) {
+        await processPatch(patch, filesDir, targetDir, variables, frameworkPaths);
       }
     }
-  }
 
-  const dependencies = {
-    ...moduleData.dependencies.common,
-    ...(dbProvider ? moduleData.dependencies.providers[dbProvider] : {}),
-  };
-  const devDependencies = {
-    ...moduleData.devDependencies.common,
-    ...(dbProvider ? moduleData.devDependencies.providers[dbProvider] : {}),
-  };
+    // Merge dependencies
+    let dependencies: Record<string, string> = {};
+    let devDependencies: Record<string, string> = {};
 
-  await mergePackageJson(targetDir, {
-    dependencies,
-    devDependencies,
-  });
-
-  const envVars: Record<string, string> = {};
-  const commonEnvVars = Array.isArray(moduleData.envVars) ? moduleData.envVars : moduleData.envVars?.common || [];
-  const providerEnvVars = dbProvider && moduleData.envVars?.providers?.[dbProvider] ? moduleData.envVars.providers[dbProvider] : [];
-  const allEnvVars = [...commonEnvVars, ...providerEnvVars];
-  
-  for (const envVar of allEnvVars) {
-    let value = envVar.value;
-    for (const [key, val] of Object.entries(variables)) {
-      value = value.replace(new RegExp(`{{${key}}}`, "g"), val);
+    if (moduleData.dependencies) {
+      if (moduleData.dependencies.common || moduleData.dependencies.providers) {
+        // Structured dependencies (common + providers)
+        dependencies = {
+          ...moduleData.dependencies.common,
+          ...(dbProvider ? moduleData.dependencies.providers?.[dbProvider] : {}),
+        };
+      } else {
+        // Flat dependencies structure
+        dependencies = { ...moduleData.dependencies };
+      }
     }
-    envVars[envVar.key] = value;
-  }
-  await mergeEnvFile(targetDir, envVars);
 
-  if (moduleData.frameworkPatches) {
-    const frameworkKey = framework === "react-vite" ? "react" : framework;
-    const patches = moduleData.frameworkPatches[frameworkKey];
-
-    if (patches) {
-      await applyFrameworkPatches(targetDir, patches);
+    if (moduleData.devDependencies) {
+      if (moduleData.devDependencies.common || moduleData.devDependencies.providers) {
+        // Structured devDependencies
+        devDependencies = {
+          ...moduleData.devDependencies.common,
+          ...(dbProvider ? moduleData.devDependencies.providers?.[dbProvider] : {}),
+        };
+      } else {
+        // Flat devDependencies structure
+        devDependencies = { ...moduleData.devDependencies };
+      }
     }
-  }
 
-  return moduleData.postInstall || [];
+    await mergePackageJson(targetDir, { dependencies, devDependencies });
+
+    // Process environment variables
+    const envVars: Record<string, string> = {};
+    const commonEnvVars = Array.isArray(moduleData.envVars)
+      ? moduleData.envVars
+      : moduleData.envVars?.common || [];
+    const providerEnvVars =
+      dbProvider && moduleData.envVars?.providers?.[dbProvider]
+        ? moduleData.envVars.providers[dbProvider]
+        : [];
+    const allEnvVars = [...commonEnvVars, ...providerEnvVars];
+
+    for (const envVar of allEnvVars) {
+      let value = envVar.value;
+      for (const [key, val] of Object.entries(variables)) {
+        value = value.replace(new RegExp(`{{${key}}}`, "g"), val);
+      }
+      envVars[envVar.key] = value;
+    }
+    await mergeEnvFile(targetDir, envVars);
+
+    // Apply framework-specific patches
+    if (moduleData.frameworkPatches) {
+      const frameworkKey = framework === "react-vite" ? "react" : framework;
+      const patches = moduleData.frameworkPatches[frameworkKey];
+
+      if (patches) {
+        await applyFrameworkPatches(targetDir, patches);
+      }
+    }
+
+    return moduleData.postInstall || [];
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(`Failed to merge database config for ${database}:`, error);
+    throw error;
+  }
 }
 
 export async function mergeAuthConfig(
@@ -165,155 +353,116 @@ export async function mergeAuthConfig(
   database: string = "none",
   dbProvider?: string,
 ): Promise<void> {
-  const modulesDir = join(templatesDir, "..", "modules");
+  try {
+    const modulesDir = join(templatesDir, "..", "modules");
+    const authModulePath = join(modulesDir, "auth", auth);
 
-  const authKey = auth;
-  const authModulePath = join(modulesDir, "auth", authKey);
-
-  if (!(await fs.pathExists(authModulePath))) {
-    // eslint-disable-next-line no-console
-    console.warn(`Auth module not found: ${authKey}`);
-    return;
-  }
-
-  // Read module.json
-  const moduleJsonPath = join(authModulePath, "module.json");
-  if (!(await fs.pathExists(moduleJsonPath))) {
-    return;
-  }
-
-  const moduleData = await fs.readJson(moduleJsonPath);
-
-  if (moduleData.supportedFrameworks && !moduleData.supportedFrameworks.includes(framework)) {
-    // eslint-disable-next-line no-console
-    console.warn(`Auth ${authKey} does not support framework ${framework}`);
-    return;
-  }
-
-  let frameworkConfig: FrameworkConfig | null = null;
-  if (moduleData.frameworkConfigs) {
-    frameworkConfig = moduleData.frameworkConfigs[framework];
-    if (!frameworkConfig) {
+    if (!(await fs.pathExists(authModulePath))) {
       // eslint-disable-next-line no-console
-      console.warn(`No config for framework ${framework} in ${authKey}`);
+      console.warn(`Auth module not found: ${auth}`);
       return;
     }
-  }
 
-  const variables: Record<string, string> = {};
-  if (framework === "nextjs") {
-    variables.dbImport = "@/lib/db";
-  } else if (framework === "express") {
-    variables.dbImport = "../db";
-  } else {
-    variables.dbImport = "../db";
-  }
+    const moduleData = await loadModuleData(authModulePath);
 
-  const filesDir = join(authModulePath, "files");
-  if (await fs.pathExists(filesDir)) {
-    const getReplacements = () => {
-      if (framework === "nextjs") {
-        return { lib: "lib", router: "app" };
-      } else if (framework === "express") {
-        return { lib: "src", router: "src" };
-      } else {
-        return { lib: "src", router: "src" };
+    if (moduleData.supportedFrameworks && !moduleData.supportedFrameworks.includes(framework)) {
+      // eslint-disable-next-line no-console
+      console.warn(`Auth ${auth} does not support framework ${framework}`);
+      return;
+    }
+
+    let frameworkConfig: FrameworkConfig | null = null;
+    if (moduleData.frameworkConfigs) {
+      frameworkConfig = moduleData.frameworkConfigs[framework];
+      if (!frameworkConfig) {
+        // eslint-disable-next-line no-console
+        console.warn(`No config for framework ${framework} in ${auth}`);
+        return;
       }
-    };
+    }
 
-    const replacements = getReplacements();
+    const variables = generateVariables(database, framework, dbProvider, auth);
+    const frameworkPaths = getFrameworkPaths(framework);
 
-    const patches = frameworkConfig?.patches || moduleData.patches || [];
-    for (const patch of patches) {
-      if (patch.type === "create-file") {
-        const sourceFile = join(filesDir, patch.source);
-        let destFile = join(targetDir, patch.destination);
+    // Handle database adapters first to set variables
+    if (database !== "none" && moduleData.databaseAdapters) {
+      let adapterKey = database;
+      if (database === "prisma" && dbProvider) {
+        adapterKey = `prisma-${dbProvider}`;
+      }
+      const adapterConfig = moduleData.databaseAdapters[adapterKey];
 
-        destFile = destFile
-          .replace("{{lib}}", replacements.lib)
-          .replace("{{router}}", replacements.router);
+      if (adapterConfig) {
+        variables.databaseAdapter = adapterConfig.adapterCode;
 
-        if (await fs.pathExists(sourceFile)) {
-          await fs.ensureDir(path.dirname(destFile));
-          // Check if text file
-          const ext = path.extname(sourceFile);
-          if ([".ts", ".js", ".json"].includes(ext)) {
-            let content = await fs.readFile(sourceFile, "utf-8");
+        if (adapterConfig.schema && adapterConfig.schemaDestination) {
+          const schemaSource = join(authModulePath, adapterConfig.schema);
+          const schemaDest = join(targetDir, adapterConfig.schemaDestination);
+
+          if (await fs.pathExists(schemaSource)) {
+            await fs.ensureDir(path.dirname(schemaDest));
+            let content = await fs.readFile(schemaSource, "utf-8");
+
+            // Set schema variables for Prisma
+            if (dbProvider === "postgresql") {
+              variables.provider = "postgresql";
+              variables.idDefault = "@default(cuid())";
+              variables.userIdType = "";
+            } else if (dbProvider === "mongodb") {
+              variables.provider = "mongodb";
+              variables.idDefault = '@default(auto()) @map("_id") @db.ObjectId';
+              variables.userIdType = "@db.ObjectId";
+            }
+
             for (const [key, value] of Object.entries(variables)) {
               content = content.replace(new RegExp(`{{${key}}}`, "g"), value);
             }
-            await fs.writeFile(destFile, content);
-          } else {
-            await fs.copy(sourceFile, destFile, { overwrite: false });
+            await fs.writeFile(schemaDest, content, { flag: "a" }); // append
           }
+        }
+
+        if (adapterConfig.dependencies) {
+          await mergePackageJson(targetDir, {
+            dependencies: adapterConfig.dependencies,
+          });
         }
       }
     }
-  }
 
-  // Add framework-specific patches
-  if (framework === "nextjs") {
-    const apiSource = join(filesDir, "api/auth/[...all]/route.ts");
-    const apiDest = join(targetDir, "app/api/auth/[...all]/route.ts");
-    if (await fs.pathExists(apiSource)) {
-      await fs.ensureDir(path.dirname(apiDest));
-      await fs.copy(apiSource, apiDest, { overwrite: false });
-    }
-  }
-
-  if (database !== "none" && moduleData.databaseAdapters) {
-    let adapterKey = database;
-    if (database === "prisma" && dbProvider) {
-      adapterKey = `prisma-${dbProvider}`;
-    }
-    const adapterConfig = moduleData.databaseAdapters[adapterKey];
-
-    if (adapterConfig) {
-      variables.databaseAdapter = adapterConfig.adapterCode;
-
-      if (adapterConfig.schema && adapterConfig.schemaDestination) {
-        const schemaSource = join(authModulePath, adapterConfig.schema);
-        const schemaDest = join(targetDir, adapterConfig.schemaDestination);
-
-        if (await fs.pathExists(schemaSource)) {
-          await fs.ensureDir(path.dirname(schemaDest));
-          let content = await fs.readFile(schemaSource, "utf-8");
-
-          // Set schema variables
-          if (dbProvider === "postgresql") {
-            variables.provider = "postgresql";
-            variables.idDefault = "@default(cuid())";
-            variables.userIdType = "";
-          } else if (dbProvider === "mongodb") {
-            variables.provider = "mongodb";
-            variables.idDefault = '@default(auto()) @map("_id") @db.ObjectId';
-            variables.userIdType = "@db.ObjectId";
-          }
-
-          for (const [key, value] of Object.entries(variables)) {
-            content = content.replace(new RegExp(`{{${key}}}`, "g"), value);
-          }
-          await fs.writeFile(schemaDest, content, { flag: "a" }); // append
-        }
-      }
-
-      if (adapterConfig.dependencies) {
-        await mergePackageJson(targetDir, {
-          dependencies: adapterConfig.dependencies,
-        });
+    const filesDir = join(authModulePath, "files");
+    if (await fs.pathExists(filesDir)) {
+      const patches = frameworkConfig?.patches || moduleData.patches || [];
+      for (const patch of patches) {
+        await processPatch(patch, filesDir, targetDir, variables, frameworkPaths);
       }
     }
-  }
 
-  await mergePackageJson(targetDir, {
-    dependencies: frameworkConfig?.dependencies || moduleData.dependencies,
-    devDependencies: frameworkConfig?.devDependencies || moduleData.devDependencies,
-  });
+    // Add framework-specific patches
+    if (framework === "nextjs") {
+      const apiSource = join(filesDir, "api/auth/[...all]/route.ts");
+      const apiDest = join(targetDir, "app/api/auth/[...all]/route.ts");
+      if (await fs.pathExists(apiSource)) {
+        await fs.ensureDir(path.dirname(apiDest));
+        await fs.copy(apiSource, apiDest, { overwrite: false });
+      }
+    }
 
-  const envVars: Record<string, string> = {};
-  const envVarList = frameworkConfig?.envVars || moduleData.envVars || [];
-  for (const envVar of envVarList) {
-    envVars[envVar.key] = envVar.value;
+    // Merge package.json
+    await mergePackageJson(targetDir, {
+      dependencies: frameworkConfig?.dependencies || moduleData.dependencies,
+      devDependencies: frameworkConfig?.devDependencies || moduleData.devDependencies,
+    });
+
+    // Process environment variables
+    const envVars: Record<string, string> = {};
+    const envVarList = frameworkConfig?.envVars || moduleData.envVars || [];
+    for (const envVar of envVarList) {
+      envVars[envVar.key] = envVar.value;
+    }
+    await mergeEnvFile(targetDir, envVars);
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(`Failed to merge auth config for ${auth}:`, error);
+    throw error;
   }
-  await mergeEnvFile(targetDir, envVars);
 }

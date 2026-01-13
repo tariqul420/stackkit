@@ -98,8 +98,8 @@
               "@/*": ["./src/*"]
             }
           },
-          "include": ["src/**/*"],
-          "exclude": ["node_modules", "dist", "prisma/migrations"]
+          "include": ["lib/**/*"],
+          "exclude": ["generated/prisma"]
         }
       }
     },
@@ -110,8 +110,7 @@
             "paths": {
               "@/*": ["./*"]
             }
-          },
-          "exclude": ["node_modules", ".next", "out", "prisma/migrations"]
+          }
         }
       }
     }
@@ -131,9 +130,9 @@
     },
     {
       "type": "create-file",
-      "description": "Create Prisma client singleton",
-      "source": "lib/prisma.ts",
-      "destination": "{{lib}}/prisma.ts"
+      "description": "{{dbDescription}}",
+      "source": "lib/{{dbFile}}",
+      "destination": "{{lib}}/{{dbFile}}"
     }
   ],
   "postInstall": ["npx prisma generate"]

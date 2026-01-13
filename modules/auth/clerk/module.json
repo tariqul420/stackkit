@@ -51,9 +51,9 @@
       "patches": [
         {
           "type": "create-file",
-          "description": "Create Clerk auth provider",
-          "source": "nextjs/auth-provider.tsx",
-          "destination": "{{lib}}/auth-provider.tsx"
+          "description": "{{authDescription}}",
+          "source": "nextjs/{{authFile}}",
+          "destination": "{{lib}}/{{authFile}}"
         },
         {
           "type": "create-file",
@@ -84,9 +84,9 @@
       "patches": [
         {
           "type": "create-file",
-          "description": "Create Clerk auth utilities",
-          "source": "express/auth.ts",
-          "destination": "{{lib}}/auth.ts"
+          "description": "{{authDescription}}",
+          "source": "express/{{authFile}}",
+          "destination": "{{lib}}/{{authFile}}"
         }
       ]
     },
@@ -105,9 +105,9 @@
       "patches": [
         {
           "type": "create-file",
-          "description": "Create Clerk auth provider",
-          "source": "react/auth-provider.tsx",
-          "destination": "{{lib}}/auth-provider.tsx"
+          "description": "{{authDescription}}",
+          "source": "react/{{authFile}}",
+          "destination": "{{lib}}/{{authFile}}"
         }
       ]
     }

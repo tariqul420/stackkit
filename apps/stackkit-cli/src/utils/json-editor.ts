@@ -2,7 +2,7 @@ import fs from "fs-extra";
 
 export async function modifyJson(
   filePath: string,
-  modifier: (_json: Record<string, unknown>) => Record<string, unknown>,
+  modifier: (json: Record<string, unknown>) => Record<string, unknown>,
   options: { create?: boolean; force?: boolean } = {},
 ): Promise<void> {
   const exists = await fs.pathExists(filePath);
@@ -20,10 +20,10 @@ export async function addToPackageJson(
   section: "dependencies" | "devDependencies" | "scripts",
   additions: Record<string, string>,
 ): Promise<void> {
-  await modifyJson(filePath, (_json) => {
-    _json[section] = (_json[section] as Record<string, unknown>) || {};
-    Object.assign(_json[section] as Record<string, unknown>, additions);
-    return _json;
+  await modifyJson(filePath, (json) => {
+    json[section] = (json[section] as Record<string, unknown>) || {};
+    Object.assign(json[section] as Record<string, unknown>, additions);
+    return json;
   });
 }
 
@@ -33,9 +33,9 @@ export async function setJsonValue(
   value: unknown,
   options: { merge?: boolean } = {},
 ): Promise<void> {
-  await modifyJson(filePath, (_json) => {
+  await modifyJson(filePath, (json) => {
     const keys = path.split(".");
-    let current = _json;
+    let current = json;
 
     for (let i = 0; i < keys.length - 1; i++) {
       const key = keys[i];
@@ -53,6 +53,6 @@ export async function setJsonValue(
       current[lastKey] = value;
     }
 
-    return _json;
+    return json;
   });
 }

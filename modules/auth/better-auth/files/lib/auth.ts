@@ -1,5 +1,7 @@
 import { betterAuth } from "better-auth";
+{{dbImport}}
 
+export const auth = betterAuth({
 {{databaseAdapter}}
   emailAndPassword: {
     enabled: true,

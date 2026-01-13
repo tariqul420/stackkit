@@ -7,7 +7,7 @@
   "supportedFrameworks": ["nextjs", "express", "react-vite"],
   "databaseAdapters": {
     "prisma-postgresql": {
-      "adapterCode": "import { prisma } from \"{{dbImport}}\";\nimport { prismaAdapter } from \"@better-auth/prisma\";\n\nexport const auth = betterAuth({\n  database: prismaAdapter(prisma, {\n    provider: \"postgresql\",\n  }),",
+      "adapterCode": "database: prismaAdapter(prisma, {\n    provider: \"postgresql\",\n  }),",
       "schema": "files/schemas/prisma-schema.prisma",
       "schemaDestination": "prisma/schema.prisma",
       "dependencies": {
@@ -15,7 +15,7 @@
       }
     },
     "prisma-mongodb": {
-      "adapterCode": "import { prisma } from \"{{dbImport}}\";\nimport { prismaAdapter } from \"@better-auth/prisma\";\n\nexport const auth = betterAuth({\n  database: prismaAdapter(prisma, {\n    provider: \"mongodb\",\n  }),",
+      "adapterCode": "database: prismaAdapter(prisma, {\n    provider: \"mongodb\",\n  }),",
       "schema": "files/schemas/prisma-schema.prisma",
       "schemaDestination": "prisma/schema.prisma",
       "dependencies": {
@@ -23,9 +23,10 @@
       }
     },
     "mongoose-mongodb": {
-      "adapterCode": "import { client } from \"{{dbImport}}\";\nimport { mongodbAdapter } from \"better-auth/adapters/mongodb\";\n\nexport const auth = betterAuth({\n  database: mongodbAdapter(client),",
+      "adapterCode": "database: mongodbAdapter(db),",
       "dependencies": {
-        "better-auth": "^1.1.4"
+        "better-auth": "^1.1.4",
+        "mongodb": "^6.10.0"
       }
     }
   },
@@ -46,9 +47,9 @@
   "patches": [
     {
       "type": "create-file",
-      "description": "Create Better Auth configuration",
-      "source": "files/lib/auth.ts",
-      "destination": "{{lib}}/auth.ts"
+      "description": "{{authDescription}}",
+      "source": "lib/{{authFile}}",
+      "destination": "{{lib}}/{{authFile}}"
     }
   ]
 }

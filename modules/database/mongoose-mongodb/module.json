@@ -8,6 +8,7 @@
   "supportedFrameworks": ["nextjs", "express"],
   "dependencies": {
     "mongoose": "^8.8.4",
+    "mongodb": "^6.10.0",
     "dotenv": "^17.2.3"
   },
   "devDependencies": {
@@ -56,9 +57,9 @@
   "patches": [
     {
       "type": "create-file",
-      "description": "Create MongoDB connection with Mongoose",
-      "source": "lib/db.ts",
-      "destination": "{{lib}}/db.ts"
+      "description": "{{dbDescription}}",
+      "source": "lib/{{dbFile}}",
+      "destination": "{{lib}}/{{dbFile}}"
     },
     {
       "type": "create-file",

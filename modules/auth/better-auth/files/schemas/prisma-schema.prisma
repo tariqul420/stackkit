@@ -1,4 +1,4 @@
-// Better Auth models
+
 model User {
     id            String    @id {{idDefault}}
     name          String

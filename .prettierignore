@@ -1,0 +1,6 @@
+modules/
+apps/*/dist/
+apps/*/templates/
+apps/*/modules/
+node_modules/
+*.min.js
