@@ -1,6 +1,6 @@
 {
   "name": "stackkit-cli",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "CLI for StackKit - Production-ready project generator and module system",
   "main": "dist/index.js",
   "bin": {
