@@ -6,8 +6,6 @@ import { mergeEnvFile, mergePackageJson } from "./file-utils";
 interface PatchOperation {
   type: string;
   imports?: string[];
-  oldString?: string;
-  newString?: string;
   after?: string;
   code?: string;
 }
@@ -102,19 +100,31 @@ function generateVariables(
     // Override dbImport for auth modules
     if (framework === "nextjs") {
       if (database === "prisma") {
-        variables.dbImport = 'import { prisma } from "@/lib/prisma";\nimport { prismaAdapter } from "better-auth/adapters/prisma";';
+        variables.dbImport = `import { prisma } from "@/lib/prisma";
+import { prismaAdapter } from "better-auth/adapters/prisma";`;
       } else if (database === "mongoose-mongodb") {
         // For Better Auth, we need MongoDB client, not Mongoose
-        variables.dbImport = 'import { MongoClient } from "mongodb";\n\nconst client = new MongoClient(process.env.DATABASE_URL!);\nconst db = client.db();\n\nimport { mongodbAdapter } from "better-auth/adapters/mongodb";';
+        variables.dbImport = `import { MongoClient } from "mongodb";
+
+const client = new MongoClient(process.env.DATABASE_URL!);
+const db = client.db();
+
+import { mongodbAdapter } from "better-auth/adapters/mongodb";`;
       } else {
         variables.dbImport = database === "prisma" ? 'import { prisma } from "@/lib/prisma";' : 'import { client } from "@/lib/db";';
       }
     } else {
       if (database === "prisma") {
-        variables.dbImport = 'import { prisma } from "./prisma";\nimport { prismaAdapter } from "better-auth/adapters/prisma";';
+        variables.dbImport = `import { prisma } from "./prisma";
+import { prismaAdapter } from "better-auth/adapters/prisma";`;
       } else if (database === "mongoose-mongodb") {
         // For Better Auth, we need MongoDB client, not Mongoose
-        variables.dbImport = 'import { MongoClient } from "mongodb";\n\nconst client = new MongoClient(process.env.DATABASE_URL!);\nconst db = client.db();\n\nimport { mongodbAdapter } from "better-auth/adapters/mongodb";';
+        variables.dbImport = `import { MongoClient } from "mongodb";
+
+const client = new MongoClient(process.env.DATABASE_URL!);
+const db = client.db();
+
+import { mongodbAdapter } from "better-auth/adapters/mongodb";`;
       } else {
         variables.dbImport = database === "prisma" ? 'import { prisma } from "./prisma";' : 'import { client } from "./db";';
       }
@@ -160,8 +170,7 @@ const prisma = new PrismaClient()
         break;
       case "mysql":
         variables.connectionString = "mysql://user:password@localhost:3306/mydb";
-        variables.prismaClientInit = `
-import { PrismaMariaDb } from '@prisma/adapter-mariadb';
+        variables.prismaClientInit = `import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 
 const adapter = new PrismaMariaDb({
   host: process.env.DATABASE_HOST,
@@ -175,8 +184,7 @@ const prisma = new PrismaClient({ adapter });
         break;
       case "sqlite":
         variables.connectionString = "file:./dev.db";
-        variables.prismaClientInit = `
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+        variables.prismaClientInit = `import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 
 const adapter = new PrismaBetterSqlite3({ url: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
