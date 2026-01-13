@@ -100,11 +100,8 @@
           },
           "include": ["src/**/*", "lib/**/*"],
           "exclude": ["node_modules", "dist", "lib/generated/prisma"]
-        }      },
-      "src/lib/prisma.ts": {
-        "replace": {
-          "./generated/prisma/client": "../../lib/generated/prisma/client"
-        }      }
+        }
+      }
     },
     "nextjs": {
       "tsconfig.json": {

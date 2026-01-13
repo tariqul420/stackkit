@@ -3,11 +3,29 @@ import path, { join } from "path";
 import { applyFrameworkPatches } from "./config-utils";
 import { mergeEnvFile, mergePackageJson } from "./file-utils";
 
+interface PatchOperation {
+  type: string;
+  imports?: string[];
+  oldString?: string;
+  newString?: string;
+  after?: string;
+  code?: string;
+}
+
+interface Patch {
+  type: string;
+  description: string;
+  source?: string;
+  destination?: string;
+  file?: string;
+  operations?: PatchOperation[];
+}
+
 interface FrameworkConfig {
   dependencies?: Record<string, string>;
   devDependencies?: Record<string, string>;
   envVars?: Array<{ key: string; value: string; description?: string; required?: boolean }>;
-  patches?: Array<{ type: string; description: string; source: string; destination: string }>;
+  patches?: Patch[];
 }
 
 interface ModuleData {
@@ -117,8 +135,7 @@ function generateVariables(
     switch (dbProvider) {
       case "postgresql":
         variables.connectionString = "postgresql://user:password@localhost:5432/mydb?schema=public";
-        variables.prismaClientInit = `
-import { PrismaPg } from "@prisma/adapter-pg";
+        variables.prismaClientInit = `import { PrismaPg } from "@prisma/adapter-pg";
 
 const globalForPrisma = global as unknown as {
   prisma: PrismaClient | undefined;
@@ -175,58 +192,105 @@ const prisma = new PrismaClient({ adapter });
  * Process a single patch with variable replacement
  */
 async function processPatch(
-  patch: { type: string; description: string; source: string; destination: string },
+  patch: Patch,
   filesDir: string,
   targetDir: string,
   variables: ModuleVariables,
   frameworkPaths: FrameworkPaths,
 ): Promise<void> {
-  if (patch.type !== "create-file") return;
+  if (patch.type === "create-file") {
+    if (!patch.source || !patch.destination) return;
 
-  try {
-    // Replace variables in source and destination
-    const sourcePath = patch.source.replace(
-      /\{\{(\w+)\}\}/g,
-      (match: string, key: string) => variables[key] || match,
-    );
-    const sourceFile = join(filesDir, sourcePath);
-
-    let destFile = join(
-      targetDir,
-      patch.destination.replace(
+    try {
+      // Replace variables in source and destination
+      const sourcePath = patch.source.replace(
         /\{\{(\w+)\}\}/g,
         (match: string, key: string) => variables[key] || match,
-      ),
-    );
+      );
+      const sourceFile = join(filesDir, sourcePath);
 
-    // Apply framework-specific path replacements
-    destFile = destFile
-      .replace("{{lib}}", frameworkPaths.lib)
-      .replace("{{router}}", frameworkPaths.router)
-      .replace("{{models}}", frameworkPaths.models);
+      let destFile = join(
+        targetDir,
+        patch.destination.replace(
+          /\{\{(\w+)\}\}/g,
+          (match: string, key: string) => variables[key] || match,
+        ),
+      );
 
-    if (!(await fs.pathExists(sourceFile))) {
-      // eslint-disable-next-line no-console
-      console.warn(`Source file not found: ${sourceFile}`);
-      return;
-    }
+      // Apply framework-specific path replacements
+      destFile = destFile
+        .replace("{{lib}}", frameworkPaths.lib)
+        .replace("{{router}}", frameworkPaths.router)
+        .replace("{{models}}", frameworkPaths.models);
 
-    await fs.ensureDir(path.dirname(destFile));
-
-    const ext = path.extname(sourceFile);
-    if ([".ts", ".js", ".tsx", ".prisma", ".json"].includes(ext)) {
-      let content = await fs.readFile(sourceFile, "utf-8");
-      for (const [key, value] of Object.entries(variables)) {
-        content = content.replace(new RegExp(`{{${key}}}`, "g"), value);
+      if (!(await fs.pathExists(sourceFile))) {
+        // eslint-disable-next-line no-console
+        console.warn(`Source file not found: ${sourceFile}`);
+        return;
       }
-      await fs.writeFile(destFile, content);
-    } else {
-      await fs.copy(sourceFile, destFile, { overwrite: false });
+
+      await fs.ensureDir(path.dirname(destFile));
+
+      const ext = path.extname(sourceFile);
+      if ([".ts", ".js", ".tsx", ".prisma", ".json"].includes(ext)) {
+        let content = await fs.readFile(sourceFile, "utf-8");
+        for (const [key, value] of Object.entries(variables)) {
+          content = content.replace(new RegExp(`{{${key}}}`, "g"), value);
+        }
+        await fs.writeFile(destFile, content);
+      } else {
+        await fs.copy(sourceFile, destFile, { overwrite: false });
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(`Failed to process patch ${patch.description}:`, error);
+      throw error;
     }
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(`Failed to process patch ${patch.description}:`, error);
-    throw error;
+  } else if (patch.type === "patch-file") {
+    if (!patch.file) return;
+
+    try {
+      const filePath = join(targetDir, patch.file);
+      if (!(await fs.pathExists(filePath))) {
+        // eslint-disable-next-line no-console
+        console.warn(`File to patch not found: ${filePath}`);
+        return;
+      }
+
+      let content = await fs.readFile(filePath, "utf-8");
+
+      for (const operation of patch.operations || []) {
+        if (operation.type === "add-import" && operation.imports) {
+          // Add imports at the top of the file, after existing imports
+          const imports = operation.imports.join("\n");
+          // Find the last import statement
+          const importRegex = /^import\s+.*$/gm;
+          const matches = [...content.matchAll(importRegex)];
+          if (matches.length > 0) {
+            const lastImport = matches[matches.length - 1];
+            const insertIndex = (lastImport.index ?? 0) + lastImport[0].length;
+            content = content.slice(0, insertIndex) + "\n" + imports + content.slice(insertIndex);
+          } else {
+            // No imports found, add at the beginning
+            content = imports + "\n\n" + content;
+          }
+        } else if (operation.type === "add-code") {
+          if (operation.after && operation.code) {
+            const insertIndex = content.indexOf(operation.after);
+            if (insertIndex !== -1) {
+              const afterIndex = insertIndex + operation.after.length;
+              content = content.slice(0, afterIndex) + operation.code + content.slice(afterIndex);
+            }
+          }
+        }
+      }
+
+      await fs.writeFile(filePath, content);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(`Failed to process patch-file ${patch.description}:`, error);
+      throw error;
+    }
   }
 }
 
@@ -460,6 +524,16 @@ export async function mergeAuthConfig(
       envVars[envVar.key] = envVar.value;
     }
     await mergeEnvFile(targetDir, envVars);
+
+    // Apply framework-specific patches
+    if (moduleData.frameworkPatches) {
+      const frameworkKey = framework === "react-vite" ? "react" : framework;
+      const patches = moduleData.frameworkPatches[frameworkKey];
+
+      if (patches) {
+        await applyFrameworkPatches(targetDir, patches);
+      }
+    }
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(`Failed to merge auth config for ${auth}:`, error);

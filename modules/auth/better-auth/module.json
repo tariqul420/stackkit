@@ -77,14 +77,14 @@
             {
               "type": "add-import",
               "imports": [
-                "import { auth } from \"./lib/auth\";",
+                "import { auth } from \"@/lib/auth\";",
                 "import { toNodeHandler } from \"better-auth/node\";"
               ]
             },
             {
               "type": "add-code",
-              "after": "// routes\napp.use(\"/api/auth\", authRoutes);",
-              "code": "\napp.all(\"/api/auth/*\", toNodeHandler(auth));"
+              "after": "// routes",
+              "code": "\napp.all(\"/api/auth/*splat\", toNodeHandler(auth));"
             }
           ]
         }

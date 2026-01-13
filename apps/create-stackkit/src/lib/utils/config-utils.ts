@@ -43,7 +43,7 @@ export async function applyFrameworkPatches(
           fileContent = fileContent.replace(new RegExp(oldStr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), newStr);
         }
         await fs.writeFile(filePath, fileContent);
-      } else if (patchConfig && typeof patchConfig === "object" && "operations" in patchConfig) {
+      } else if (patchConfig && typeof patchConfig === "object" && ("operations" in patchConfig || ("type" in patchConfig && (patchConfig as any).type === "patch-file"))) {
         let fileContent = await fs.readFile(filePath, "utf-8");
         const operations = (patchConfig as { operations: unknown[] }).operations;
         
@@ -76,6 +76,10 @@ export async function applyFrameworkPatches(
                 const insertPos = afterIndex + after.length;
                 fileContent = fileContent.slice(0, insertPos) + code + fileContent.slice(insertPos);
               }
+            } else if (op.type === "replace" && "oldString" in op && "newString" in op) {
+              const oldString = op.oldString as string;
+              const newString = op.newString as string;
+              fileContent = fileContent.replace(oldString, newString);
             }
           }
         }
