@@ -38,7 +38,7 @@ Every module must have a `module.json` file:
 
   "dependencies": {
     // npm dependencies
-    "better-auth": "^1.1.4"
+    "better-auth": "^1.4.12"
   },
 
   "devDependencies": {}, // npm dev dependencies
