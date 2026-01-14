@@ -1,4 +1,5 @@
 import { execSync } from "child_process";
+import { logger } from "./logger";
 
 export async function installDependencies(cwd: string, packageManager: string): Promise<void> {
   const commands: Record<string, string> = {
@@ -23,8 +24,7 @@ export async function installDependencies(cwd: string, packageManager: string): 
     const fallbacks = ["pnpm", "npm", "yarn", "bun"];
     const found = fallbacks.find((p) => isAvailable(p));
     if (found) {
-      // eslint-disable-next-line no-console
-      console.warn(
+      logger.warn(
         `Selected package manager '${chosen}' was not found. Falling back to '${found}'.`,
       );
       chosen = found;

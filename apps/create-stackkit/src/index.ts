@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { createProject } from "./lib/create-project";
+import { logger } from "./lib/utils/logger";
 
 interface CliOptions {
   framework?: string;
@@ -56,8 +57,7 @@ function parseArgs(args: string[]): { projectName: string | undefined; options: 
 }
 
 function showHelp() {
-  // eslint-disable-next-line no-console
-  console.log(`
+  logger.log(`
 Create StackKit App
 
 Usage:
@@ -87,8 +87,7 @@ async function main() {
   try {
     await createProject(projectName, options);
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error("Error:", (error as Error).message);
+    logger.error(`Error: ${(error as Error).message}`);
     process.exit(1);
   }
 }

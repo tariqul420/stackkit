@@ -2,6 +2,7 @@ import fs from "fs-extra";
 import path, { join } from "path";
 import { applyFrameworkPatches } from "./config-utils";
 import { mergeEnvFile, mergePackageJson } from "./file-utils";
+import { logger } from "./logger";
 
 interface PatchOperation {
   type: string;
@@ -228,8 +229,7 @@ async function processPatch(
         .replace("{{models}}", frameworkPaths.models);
 
       if (!(await fs.pathExists(sourceFile))) {
-        // eslint-disable-next-line no-console
-        console.warn(`Source file not found: ${sourceFile}`);
+        logger.warn(`Source file not found: ${sourceFile}`);
         return;
       }
 
@@ -246,8 +246,7 @@ async function processPatch(
         await fs.copy(sourceFile, destFile, { overwrite: false });
       }
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(`Failed to process patch ${patch.description}:`, error);
+      logger.error(`Failed to process patch ${patch.description}: ${(error as Error).message}`);
       throw error;
     }
   } else if (patch.type === "patch-file") {
@@ -256,8 +255,7 @@ async function processPatch(
     try {
       const filePath = join(targetDir, patch.file);
       if (!(await fs.pathExists(filePath))) {
-        // eslint-disable-next-line no-console
-        console.warn(`File to patch not found: ${filePath}`);
+        logger.warn(`File to patch not found: ${filePath}`);
         return;
       }
 
@@ -291,8 +289,7 @@ async function processPatch(
 
       await fs.writeFile(filePath, content);
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(`Failed to process patch-file ${patch.description}:`, error);
+      logger.error(`Failed to process patch-file ${patch.description}: ${(error as Error).message}`);
       throw error;
     }
   }
@@ -327,8 +324,7 @@ export async function mergeDatabaseConfig(
     const dbModulePath = join(modulesDir, "database", database);
 
     if (!(await fs.pathExists(dbModulePath))) {
-      // eslint-disable-next-line no-console
-      console.warn(`Database module not found: ${database}`);
+      logger.warn(`Database module not found: ${database}`);
       return [];
     }
 
@@ -401,8 +397,7 @@ export async function mergeDatabaseConfig(
 
     return moduleData.postInstall || [];
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(`Failed to merge database config for ${database}:`, error);
+    logger.error(`Failed to merge database config for ${database}: ${(error as Error).message}`);
     throw error;
   }
 }
@@ -420,16 +415,14 @@ export async function mergeAuthConfig(
     const authModulePath = join(modulesDir, "auth", auth);
 
     if (!(await fs.pathExists(authModulePath))) {
-      // eslint-disable-next-line no-console
-      console.warn(`Auth module not found: ${auth}`);
+      logger.warn(`Auth module not found: ${auth}`);
       return;
     }
 
     const moduleData = await loadModuleData(authModulePath);
 
     if (moduleData.supportedFrameworks && !moduleData.supportedFrameworks.includes(framework)) {
-      // eslint-disable-next-line no-console
-      console.warn(`Auth ${auth} does not support framework ${framework}`);
+      logger.warn(`Auth ${auth} does not support framework ${framework}`);
       return;
     }
 
@@ -437,8 +430,7 @@ export async function mergeAuthConfig(
     if (moduleData.frameworkConfigs) {
       frameworkConfig = moduleData.frameworkConfigs[framework];
       if (!frameworkConfig) {
-        // eslint-disable-next-line no-console
-        console.warn(`No config for framework ${framework} in ${auth}`);
+        logger.warn(`No config for framework ${framework} in ${auth}`);
         return;
       }
       const shared = moduleData.frameworkConfigs.shared;
@@ -554,8 +546,7 @@ export async function mergeAuthConfig(
       }
     }
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(`Failed to merge auth config for ${auth}:`, error);
+    logger.error(`Failed to merge auth config for ${auth}: ${(error as Error).message}`);
     throw error;
   }
 }

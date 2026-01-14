@@ -8,6 +8,7 @@ import validateNpmPackageName from "validate-npm-package-name";
 import { copyBaseFramework } from "./utils/file-utils";
 import { initGit } from "./utils/git-utils";
 import { convertToJavaScript } from "./utils/js-conversion";
+import { logger } from "./utils/logger";
 import { mergeAuthConfig, mergeDatabaseConfig } from "./utils/module-utils";
 import { installDependencies } from "./utils/package-utils";
 
@@ -51,17 +52,14 @@ interface CliOptions {
 }
 
 export async function createProject(projectName?: string, options?: CliOptions): Promise<void> {
-  // eslint-disable-next-line no-console
-  console.log(chalk.bold.cyan("\n Create StackKit App\n"));
+  logger.header("Create StackKit App");
 
   const config = await getProjectConfig(projectName, options);
 
   const targetDir = path.join(process.cwd(), config.projectName);
   if (await fs.pathExists(targetDir)) {
-    // eslint-disable-next-line no-console
-    console.log(chalk.red(`\n✖ Directory "${config.projectName}" already exists`));
-    // eslint-disable-next-line no-console
-    console.log(chalk.gray("Please choose a different name or remove the existing directory.\n"));
+    logger.error(`Directory "${config.projectName}" already exists`);
+    logger.log(chalk.gray("Please choose a different name or remove the existing directory.\n"));
     process.exit(1);
   }
 
@@ -390,12 +388,9 @@ async function composeTemplate(config: ProjectConfig, targetDir: string): Promis
 }
 
 function showNextSteps(config: ProjectConfig): void {
-  // eslint-disable-next-line no-console
-  console.log(chalk.green.bold(`\n✓ Created ${config.projectName}\n`));
-  // eslint-disable-next-line no-console
-  console.log(chalk.bold("Next steps:"));
-  // eslint-disable-next-line no-console
-  console.log(chalk.cyan(`  cd ${config.projectName}`));
-  // eslint-disable-next-line no-console
-  console.log(chalk.cyan(`  ${config.packageManager} run dev\n`));
+  logger.success(`Created ${config.projectName}`);
+  logger.log(chalk.bold("Next steps:"));
+  logger.log(chalk.cyan(`  cd ${config.projectName}`));
+  logger.log(chalk.cyan(`  ${config.packageManager} run dev`));
+  logger.footer();
 }

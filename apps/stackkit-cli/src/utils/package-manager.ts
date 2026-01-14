@@ -18,27 +18,19 @@ export async function installDependencies(
   pm: PackageManager,
   // dev argument removed as it is unused
 ): Promise<void> {
-  const spinner = logger.startSpinner(`Installing dependencies with ${pm}...`);
+  const args: string[] = [];
 
-  try {
-    const args: string[] = [];
-
-    if (pm === "npm") {
-      args.push("install");
-    } else if (pm === "yarn") {
-      args.push("install");
-    } else if (pm === "pnpm") {
-      args.push("install");
-    } else if (pm === "bun") {
-      args.push("install");
-    }
-
-    await execa(pm, args, { cwd, stdio: "pipe" });
-    spinner.succeed(`Dependencies installed successfully`);
-  } catch (error) {
-    spinner.fail(`Failed to install dependencies`);
-    throw new Error(`Failed to install dependencies: ${error}`);
+  if (pm === "npm") {
+    args.push("install");
+  } else if (pm === "yarn") {
+    args.push("install");
+  } else if (pm === "pnpm") {
+    args.push("install");
+  } else if (pm === "bun") {
+    args.push("install");
   }
+
+  await execa(pm, args, { cwd, stdio: "pipe" });
 }
 
 export async function addDependencies(
@@ -76,15 +68,7 @@ export async function addDependencies(
 }
 
 export async function initGit(cwd: string): Promise<void> {
-  const spinner = logger.startSpinner("Initializing git repository...");
-
-  try {
-    await execa("git", ["init"], { cwd });
-    await execa("git", ["add", "."], { cwd });
-    await execa("git", ["commit", "-m", "Initial commit from StackKit"], { cwd });
-    spinner.succeed("Git repository initialized");
-  } catch {
-    spinner.fail("Failed to initialize git repository");
-    // Don't throw - git init is optional
-  }
+  await execa("git", ["init"], { cwd });
+  await execa("git", ["add", "."], { cwd });
+  await execa("git", ["commit", "-m", "Initial commit from StackKit"], { cwd });
 }

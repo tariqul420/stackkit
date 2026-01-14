@@ -325,7 +325,7 @@ async function generateProject(config: ProjectConfig, targetDir: string, options
     try {
       await initGit(targetDir);
       gitSpinner.succeed("Git repository initialized");
-    } catch {
+    } catch (error) {
       gitSpinner.warn("Failed to initialize git repository");
     }
   }
