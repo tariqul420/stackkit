@@ -249,9 +249,7 @@ export default function HomePage() {
                   <ul className="space-y-3 text-fd-muted-foreground">
                     {category.items.map((item, itemIndex) => (
                       <li key={itemIndex} className="flex items-center gap-3">
-                        <div className="flex size-6 items-center justify-center rounded-md bg-fd-primary/10">
-                          <div className="size-2 rounded-full bg-fd-primary" />
-                        </div>
+                        <span>✔</span>
                         <span>{item}</span>
                       </li>
                     ))}
@@ -298,7 +296,7 @@ export default function HomePage() {
                 </p>
               </div>
               <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-                <Link href="/docs" className={styles.primaryButton}>
+                <Link href="/docs/getting-started/quickstart" className={styles.primaryButton}>
                   Get Started →
                 </Link>
                 <Link href="/docs" className={styles.secondaryButton}>
