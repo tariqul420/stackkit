@@ -14,24 +14,28 @@ export async function listCommand(options: ListOptions): Promise<void> {
   const showModules = !options.frameworks || options.modules;
 
   try {
+    logger.header("StackKit Resources");
     logger.newLine();
+
+    let hasFrameworks = false;
+    let hasModules = false;
 
     // List frameworks
     if (showFrameworks) {
       const templatesDir = path.join(__dirname, "..", "..", "templates");
       const frameworks = await getAvailableFrameworks(templatesDir);
 
-      logger.log(chalk.bold.cyan("▸ FRAMEWORKS") + chalk.gray(` (${frameworks.length})`));
-      logger.newLine();
+      if (frameworks.length > 0) {
+        hasFrameworks = true;
+        logger.log(chalk.bold.blue("FRAMEWORKS"));
 
-      if (frameworks.length === 0) {
-        logger.log(chalk.dim("  No frameworks available"));
-      } else {
-        frameworks.forEach((framework) => {
-          logger.log(`  ${chalk.cyan("•")} ${framework.displayName}`);
+        frameworks.forEach((framework, index) => {
+          const isLast = index === frameworks.length - 1;
+          const prefix = isLast ? "└──" : "├──";
+          logger.log(`  ${chalk.gray(prefix)} ${chalk.cyan(framework.displayName)}`);
         });
+        logger.newLine();
       }
-      logger.newLine();
     }
 
     // List modules
@@ -39,13 +43,10 @@ export async function listCommand(options: ListOptions): Promise<void> {
       const modulesDir = path.join(__dirname, "..", "..", "modules");
       const modules = await getAvailableModules(modulesDir);
 
-      logger.log(chalk.bold.cyan("▸ MODULES") + chalk.gray(` (${modules.length})`));
+      if (modules.length > 0) {
+        hasModules = true;
+        logger.log(chalk.bold.magenta("MODULES"));
 
-      if (modules.length === 0) {
-        logger.newLine();
-        logger.log(chalk.dim("  No modules available"));
-        logger.newLine();
-      } else {
         // Group by category
         const grouped = modules.reduce(
           (acc, mod) => {
@@ -58,18 +59,38 @@ export async function listCommand(options: ListOptions): Promise<void> {
           {} as Record<string, ModuleMetadata[]>,
         );
 
-        for (const [category, mods] of Object.entries(grouped)) {
-          logger.newLine();
-          logger.log(
-            `  ${chalk.yellow("→")} ${chalk.bold.yellow(category.toUpperCase())} ${chalk.dim(`(${mods.length})`)}`,
-          );
-          mods.forEach((mod) => {
-            logger.log(`    ${chalk.cyan("•")} ${mod.displayName}`);
+        const categories = Object.keys(grouped);
+        categories.forEach((category, categoryIndex) => {
+          const mods = grouped[category];
+          const isLastCategory = categoryIndex === categories.length - 1;
+          const categoryPrefix = isLastCategory ? "└──" : "├──";
+
+          logger.log(`  ${chalk.gray(categoryPrefix)} ${chalk.yellow(formatCategoryName(category))} ${chalk.dim(`(${mods.length})`)}`);
+
+          mods.forEach((mod, modIndex) => {
+            const isLastMod = modIndex === mods.length - 1;
+            const modPrefix = isLastCategory ? (isLastMod ? "    └──" : "    ├──") : (isLastMod ? "│   └──" : "│   ├──");
+            logger.log(`  ${chalk.gray(modPrefix)} ${chalk.green(mod.displayName)}`);
+
+            // Show additional details for database modules
+            if (mod.category === "database" && mod.name === "prisma") {
+              const providerPrefix = isLastCategory ? (isLastMod ? "        └──" : "        ├──") : (isLastMod ? "│       └──" : "│       ├──");
+              logger.log(`  ${chalk.gray(providerPrefix)} ${chalk.dim("Providers: PostgreSQL, MongoDB, MySQL, SQLite")}`);
+            }
           });
-        }
+        });
         logger.newLine();
       }
     }
+
+    if (!hasFrameworks && !hasModules) {
+      logger.log(chalk.dim("No resources available"));
+      logger.newLine();
+    }
+
+    logger.log(chalk.dim("Use 'stackkit add <module>' to add modules to your project"));
+    logger.newLine();
+
   } catch (error) {
     logger.error(`Failed to list resources: ${(error as Error).message}`);
     process.exit(1);
@@ -86,10 +107,21 @@ async function getAvailableFrameworks(templatesDir: string): Promise<{ name: str
     .filter((dir) => dir !== "node_modules" && dir !== ".git")
     .map((dir) => ({
       name: dir,
-      displayName: dir.charAt(0).toUpperCase() + dir.slice(1).replace("-", " "),
+      displayName: formatFrameworkName(dir),
     }));
 
   return frameworks;
+}
+
+function formatFrameworkName(name: string): string {
+  return name
+    .split("-")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function formatCategoryName(name: string): string {
+  return name.charAt(0).toUpperCase() + name.slice(1);
 }
 
 async function getAvailableModules(modulesDir: string): Promise<ModuleMetadata[]> {

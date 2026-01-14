@@ -2,7 +2,6 @@
 import chalk from "chalk";
 import { Command } from "commander";
 import { addCommand } from "./commands/add";
-import { initCommand } from "./commands/init";
 import { listCommand } from "./commands/list";
 
 const program = new Command();
@@ -11,20 +10,6 @@ program
   .name("stackkit")
   .description("Production-ready project generator and module CLI")
   .version("0.3.2");
-
-// Init command
-program
-  .command("init [project-name]")
-  .description("Create a new project")
-  .option("-f, --framework <framework>", "Framework: nextjs, express, react-vite")
-  .option("-d, --database <database>", "Database: prisma-postgresql, prisma-mongodb, prisma-mysql, prisma-sqlite, mongoose-mongodb, none")
-  .option("-a, --auth <auth>", "Auth: better-auth, authjs, none")
-  .option("-l, --language <language>", "Language: typescript, javascript")
-  .option("-p, --package-manager <pm>", "Package manager: pnpm, npm, yarn, bun")
-  .option("--skip-install", "Skip dependency installation")
-  .option("--no-git", "Skip git initialization")
-  .option("-y, --yes", "Use default options")
-  .action(initCommand);
 
 // List command
 program
