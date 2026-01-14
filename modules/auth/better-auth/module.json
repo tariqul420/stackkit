@@ -43,11 +43,6 @@
         "@prisma/adapter-better-sqlite3": "^5.0.0",
         "better-sqlite3": "^9.0.0"
       }
-    },
-    "mongoose-mongodb": {
-      "dependencies": {
-        "mongodb": "^6.10.0"
-      }
     }
   },
   "envVars": [

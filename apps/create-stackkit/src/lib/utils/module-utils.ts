@@ -125,13 +125,6 @@ function generateVariables(
     if (database === "prisma") {
       variables.dbImport = `import { prisma } from "${libPath}/prisma";
 ${adapterImport}`;
-    } else if (database === "mongoose-mongodb") {
-      variables.dbImport = `import { MongoClient } from "mongodb";
-
-const client = new MongoClient(process.env.DATABASE_URL!);
-const db = client.db();
-
-${adapterImport}`;
     } else {
       variables.dbImport =
         database === "prisma"
@@ -468,8 +461,6 @@ export async function mergeAuthConfig(
         // Generate adapter code based on database type
         if (database === "prisma" && dbProvider) {
           variables.databaseAdapter = `database: prismaAdapter(prisma, {\n    provider: "${dbProvider}",\n  }),`;
-        } else if (database === "mongoose-mongodb") {
-          variables.databaseAdapter = "database: mongodbAdapter(db),";
         }
 
         if (adapterConfig.schema && adapterConfig.schemaDestination) {

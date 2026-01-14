@@ -1,6 +1,6 @@
 {
-  "name": "mongoose-mongodb",
-  "displayName": "Mongoose + MongoDB",
+  "name": "mongoose",
+  "displayName": "Mongoose (MongoDB)",
   "description": "Mongoose ODM for MongoDB database",
   "category": "database",
   "provider": "mongoose",

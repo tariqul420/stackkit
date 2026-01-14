@@ -278,7 +278,7 @@ npx ../apps/stackkit-cli/bin/stackkit.js add auth --provider auth0-nextjs
 
 **Location**: `modules/database/`
 
-**Example providers**: prisma-postgresql, mongoose-mongodb
+**Example providers**: prisma-postgresql, mongoose
 
 ## Common Patterns
 

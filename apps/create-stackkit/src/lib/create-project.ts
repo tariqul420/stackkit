@@ -14,7 +14,7 @@ import { installDependencies } from "./utils/package-utils";
 interface ProjectConfig {
   projectName: string;
   framework: "nextjs" | "express" | "react-vite";
-  database: "prisma" | "mongoose-mongodb" | "none";
+  database: "prisma" | "mongoose" | "none";
   dbProvider?: "postgresql" | "mongodb" | "mysql" | "sqlite";
   auth: "better-auth" | "authjs" | "none";
   language: "typescript" | "javascript";
@@ -24,7 +24,7 @@ interface ProjectConfig {
 interface Answers {
   projectName?: string;
   framework: "nextjs" | "express" | "react-vite";
-  database?: "prisma" | "mongoose-mongodb" | "none";
+  database?: "prisma" | "mongoose" | "none";
   dbProvider?: "postgresql" | "mongodb" | "mysql" | "sqlite";
   auth?: "better-auth" | "authjs" | "none";
   language: "typescript" | "javascript";
@@ -87,7 +87,7 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
       when: (answers: Answers) => answers.framework !== "react-vite",
       choices: [
         { name: "Prisma", value: "prisma" },
-        { name: "Mongoose + MongoDB", value: "mongoose-mongodb" },
+        { name: "Mongoose (MongoDB)", value: "mongoose" },
         { name: "None", value: "none" },
       ],
     },
@@ -107,7 +107,7 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
       type: "list",
       name: "auth",
       message: "Select authentication:",
-      when: (answers: Answers) => answers.database !== "none" || answers.framework === "react-vite",
+      when: (answers: Answers) => (answers.database !== "none" && answers.database !== "mongoose") || answers.framework === "react-vite",
       choices: (answers: Answers) => {
         if (answers.framework === "react-vite") {
           return [
@@ -116,7 +116,6 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
           ];
         }
 
-        // Next.js apps
         if (answers.framework === "nextjs") {
           return [
             { name: "Better Auth", value: "better-auth" },
@@ -125,7 +124,6 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
           ];
         }
 
-        // Express apps
         if (answers.framework === "express") {
           return [
             { name: "Better Auth", value: "better-auth" },
@@ -133,7 +131,6 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
           ];
         }
 
-        // Default - no auth
         return [{ name: "None", value: "none" }];
       },
     },
