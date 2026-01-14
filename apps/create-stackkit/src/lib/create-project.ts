@@ -31,11 +31,30 @@ interface Answers {
   packageManager: "pnpm" | "npm" | "yarn" | "bun";
 }
 
-export async function createProject(projectName?: string): Promise<void> {
+interface CliOptions {
+  framework?: string;
+  f?: string;
+  database?: string;
+  d?: string;
+  auth?: string;
+  a?: string;
+  language?: string;
+  l?: string;
+  packageManager?: string;
+  p?: string;
+  install?: boolean;
+  'skip-install'?: boolean;
+  git?: boolean;
+  'no-git'?: boolean;
+  yes?: boolean;
+  y?: boolean;
+}
+
+export async function createProject(projectName?: string, options?: CliOptions): Promise<void> {
   // eslint-disable-next-line no-console
   console.log(chalk.bold.cyan("\n Create StackKit App\n"));
 
-  const config = await getProjectConfig(projectName);
+  const config = await getProjectConfig(projectName, options);
 
   const targetDir = path.join(process.cwd(), config.projectName);
   if (await fs.pathExists(targetDir)) {
@@ -46,12 +65,102 @@ export async function createProject(projectName?: string): Promise<void> {
     process.exit(1);
   }
 
-  await generateProject(config, targetDir);
+  await generateProject(config, targetDir, options);
 
   showNextSteps(config);
 }
 
-async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
+async function getProjectConfig(projectName?: string, options?: CliOptions): Promise<ProjectConfig> {
+  if (options && Object.keys(options).length > 0) {
+    if (options.yes || options.y) {
+      return {
+        projectName: projectName || "my-app",
+        framework: "nextjs",
+        database: "prisma",
+        dbProvider: "postgresql",
+        auth: "better-auth",
+        language: "typescript",
+        packageManager: "pnpm",
+      };
+    }
+    // Validate options
+    const validFrameworks = ['nextjs', 'express', 'react-vite'];
+    const framework = options.framework || options.f;
+    if (framework && !validFrameworks.includes(framework)) {
+      throw new Error(`Invalid framework: ${framework}. Valid options: ${validFrameworks.join(', ')}`);
+    }
+
+    const validDatabases = ['prisma-postgresql', 'prisma-mongodb', 'prisma-mysql', 'prisma-sqlite', 'mongoose-mongodb', 'none'];
+    const db = options.database || options.d;
+    if (db && !validDatabases.includes(db)) {
+      throw new Error(`Invalid database: ${db}. Valid options: ${validDatabases.join(', ')}`);
+    }
+
+    const validAuth = ['better-auth', 'authjs', 'none'];
+    const authOpt = options.auth || options.a;
+    if (authOpt && !validAuth.includes(authOpt)) {
+      throw new Error(`Invalid auth: ${authOpt}. Valid options: ${validAuth.join(', ')}`);
+    }
+
+    const validLanguages = ['typescript', 'javascript'];
+    const language = options.language || options.l;
+    if (language && !validLanguages.includes(language)) {
+      throw new Error(`Invalid language: ${language}. Valid options: ${validLanguages.join(', ')}`);
+    }
+
+    const validPackageManagers = ['pnpm', 'npm', 'yarn', 'bun'];
+    const pm = options.packageManager || options.p;
+    if (pm && !validPackageManagers.includes(pm)) {
+      throw new Error(`Invalid package manager: ${pm}. Valid options: ${validPackageManagers.join(', ')}`);
+    }
+
+    let database: "prisma" | "mongoose" | "none" = "none";
+    let dbProvider: "postgresql" | "mongodb" | "mysql" | "sqlite" | undefined;
+
+    if (db && db !== "none") {
+      if (db.startsWith("prisma-")) {
+        database = "prisma";
+        const provider = db.split("-")[1];
+        if (!["postgresql", "mongodb", "mysql", "sqlite"].includes(provider)) {
+          throw new Error(`Invalid Prisma provider: ${provider}`);
+        }
+        dbProvider = provider as "postgresql" | "mongodb" | "mysql" | "sqlite";
+      } else if (db === "mongoose-mongodb") {
+        database = "mongoose";
+      } else {
+        throw new Error(`Unsupported database: ${db}`);
+      }
+    }
+
+    let auth: "better-auth" | "authjs" | "none" = "none";
+    if (authOpt && authOpt !== "none") {
+      auth = authOpt as "better-auth" | "authjs";
+    }
+
+    const finalFramework = (framework || "nextjs") as "nextjs" | "express" | "react-vite";
+    if (finalFramework === "react-vite") {
+      database = "none";
+      dbProvider = undefined;
+    }
+
+    // Validate auth compatibility
+    if (auth === "authjs" && (database !== "prisma" || finalFramework !== "nextjs")) {
+      throw new Error("Auth.js is only supported with Next.js and Prisma database");
+    }
+    if (auth === "better-auth" && database === "none" && finalFramework !== "react-vite") {
+      throw new Error("Better Auth requires a database for server frameworks");
+    }
+
+    return {
+      projectName: projectName || "my-app",
+      framework: finalFramework,
+      database,
+      dbProvider,
+      auth,
+      language: (language || "typescript") as "typescript" | "javascript",
+      packageManager: (pm || "pnpm") as "pnpm" | "npm" | "yarn" | "bun",
+    };
+  }
   const answers = (await inquirer.prompt([
     {
       type: "input",
@@ -107,7 +216,7 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
       type: "list",
       name: "auth",
       message: "Select authentication:",
-      when: (answers: Answers) => (answers.database !== "none" && answers.database !== "mongoose") || answers.framework === "react-vite",
+      when: (answers: Answers) => (answers.database !== "none" || answers.framework === "react-vite") && answers.database !== "mongoose",
       choices: (answers: Answers) => {
         if (answers.framework === "react-vite") {
           return [
@@ -115,22 +224,25 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
             { name: "None", value: "none" },
           ];
         }
-
-        if (answers.framework === "nextjs") {
+        if (answers.database === "mongoose") {
+          return [
+            { name: "Better Auth", value: "better-auth" },
+            { name: "None", value: "none" },
+          ];
+        }
+        if (answers.framework === "nextjs" && answers.database === "prisma") {
           return [
             { name: "Better Auth", value: "better-auth" },
             { name: "Auth.js", value: "authjs" },
             { name: "None", value: "none" },
           ];
         }
-
-        if (answers.framework === "express") {
+        if (answers.framework === "express" && answers.database === "prisma") {
           return [
             { name: "Better Auth", value: "better-auth" },
             { name: "None", value: "none" },
           ];
         }
-
         return [{ name: "None", value: "none" }];
       },
     },
@@ -165,13 +277,13 @@ async function getProjectConfig(projectName?: string): Promise<ProjectConfig> {
       ? "none"
       : answers.database) as ProjectConfig["database"],
     dbProvider: answers.dbProvider,
-    auth: answers.auth || "none",
+    auth: answers.database === "mongoose" ? "better-auth" : (answers.auth || "none"),
     language: answers.language,
     packageManager: answers.packageManager,
   };
 }
 
-async function generateProject(config: ProjectConfig, targetDir: string): Promise<void> {
+async function generateProject(config: ProjectConfig, targetDir: string, options?: CliOptions): Promise<void> {
   const copySpinner = ora("Creating project files...").start();
   let postInstallCommands: string[] = [];
   try {
@@ -183,13 +295,15 @@ async function generateProject(config: ProjectConfig, targetDir: string): Promis
   }
 
   // Install dependencies
-  const installSpinner = ora("Installing dependencies...").start();
-  try {
-    await installDependencies(targetDir, config.packageManager);
-    installSpinner.succeed("Dependencies installed");
-  } catch (error) {
-    installSpinner.fail("Failed to install dependencies");
-    throw error;
+  if (options?.install !== false && !options?.['skip-install']) {
+    const installSpinner = ora("Installing dependencies...").start();
+    try {
+      await installDependencies(targetDir, config.packageManager);
+      installSpinner.succeed("Dependencies installed");
+    } catch (error) {
+      installSpinner.fail("Failed to install dependencies");
+      throw error;
+    }
   }
 
   // Run post-install commands
@@ -207,12 +321,14 @@ async function generateProject(config: ProjectConfig, targetDir: string): Promis
   }
 
   // Initialize git
-  const gitSpinner = ora("Initializing git repository...").start();
-  try {
-    await initGit(targetDir);
-    gitSpinner.succeed("Git repository initialized");
-  } catch {
-    gitSpinner.warn("Failed to initialize git repository");
+  if (options?.git !== false && !options?.['no-git']) {
+    const gitSpinner = ora("Initializing git repository...").start();
+    try {
+      await initGit(targetDir);
+      gitSpinner.succeed("Git repository initialized");
+    } catch {
+      gitSpinner.warn("Failed to initialize git repository");
+    }
   }
 }
 
