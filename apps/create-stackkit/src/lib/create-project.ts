@@ -2,7 +2,6 @@ import chalk from "chalk";
 import { execSync } from "child_process";
 import fs from "fs-extra";
 import inquirer from "inquirer";
-import ora from "ora";
 import path from "path";
 import validateNpmPackageName from "validate-npm-package-name";
 import { copyBaseFramework } from "./utils/file-utils";
@@ -52,7 +51,9 @@ interface CliOptions {
 }
 
 export async function createProject(projectName?: string, options?: CliOptions): Promise<void> {
-  logger.header("Create StackKit App");
+  logger.newLine();
+  logger.log(chalk.bold.cyan("Create StackKit App"));
+  logger.newLine();
 
   const config = await getProjectConfig(projectName, options);
 
@@ -282,7 +283,7 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
 }
 
 async function generateProject(config: ProjectConfig, targetDir: string, options?: CliOptions): Promise<void> {
-  const copySpinner = ora("Creating project files...").start();
+  const copySpinner = logger.startSpinner("Creating project files...");
   let postInstallCommands: string[] = [];
   try {
     postInstallCommands = await composeTemplate(config, targetDir);
@@ -294,7 +295,7 @@ async function generateProject(config: ProjectConfig, targetDir: string, options
 
   // Install dependencies
   if (options?.install !== false && !options?.['skip-install']) {
-    const installSpinner = ora("Installing dependencies...").start();
+    const installSpinner = logger.startSpinner("Installing dependencies...");
     try {
       await installDependencies(targetDir, config.packageManager);
       installSpinner.succeed("Dependencies installed");
@@ -306,7 +307,7 @@ async function generateProject(config: ProjectConfig, targetDir: string, options
 
   // Run post-install commands
   if (postInstallCommands.length > 0) {
-    const postInstallSpinner = ora("Running post-install commands...").start();
+    const postInstallSpinner = logger.startSpinner("Running post-install commands...");
     try {
       for (const command of postInstallCommands) {
         execSync(command, { cwd: targetDir, stdio: "pipe" });
@@ -320,7 +321,7 @@ async function generateProject(config: ProjectConfig, targetDir: string, options
 
   // Initialize git
   if (options?.git !== false && !options?.['no-git']) {
-    const gitSpinner = ora("Initializing git repository...").start();
+    const gitSpinner = logger.startSpinner("Initializing git repository...");
     try {
       await initGit(targetDir);
       gitSpinner.succeed("Git repository initialized");
@@ -388,9 +389,11 @@ async function composeTemplate(config: ProjectConfig, targetDir: string): Promis
 }
 
 function showNextSteps(config: ProjectConfig): void {
+  logger.newLine();
   logger.success(`Created ${config.projectName}`);
-  logger.log(chalk.bold("Next steps:"));
-  logger.log(chalk.cyan(`  cd ${config.projectName}`));
-  logger.log(chalk.cyan(`  ${config.packageManager} run dev`));
-  logger.footer();
+  logger.newLine();
+  logger.log("Next steps:");
+  logger.log(`  cd ${config.projectName}`);
+  logger.log(`  ${config.packageManager} run dev`);
+  logger.newLine();
 }

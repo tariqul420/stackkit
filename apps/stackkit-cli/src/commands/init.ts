@@ -5,10 +5,9 @@ import inquirer from "inquirer";
 import path from "path";
 import validateNpmPackageName from "validate-npm-package-name";
 import { copyBaseFramework } from "../utils/files";
-import { initGit } from "../utils/package-manager";
+import { initGit, installDependencies } from "../utils/package-manager";
 import { convertToJavaScript } from "../utils/js-conversion";
 import { mergeAuthConfig, mergeDatabaseConfig } from "../utils/module-utils";
-import { installDependencies } from "../utils/package-manager";
 import { logger } from "../utils/logger";
 
 interface ProjectConfig {
@@ -325,7 +324,7 @@ async function generateProject(config: ProjectConfig, targetDir: string, options
     try {
       await initGit(targetDir);
       gitSpinner.succeed("Git repository initialized");
-    } catch (error) {
+    } catch {
       gitSpinner.warn("Failed to initialize git repository");
     }
   }
