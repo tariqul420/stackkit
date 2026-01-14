@@ -1,0 +1,13 @@
+{
+  "title": "StackKit Documentation",
+  "root": true,
+  "pages": [
+    "index",
+    "getting-started",
+    "concepts",
+    "cli",
+    "modules",
+    "reference",
+    "community"
+  ]
+}

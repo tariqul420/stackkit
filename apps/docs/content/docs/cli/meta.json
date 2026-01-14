@@ -1,0 +1,12 @@
+{
+  "title": "CLI",
+  "defaultOpen": true,
+  "pages": [
+    "create-stackkit-app",
+    "stackkit-cli",
+    "overview",
+    "add",
+    "list",
+    "doctor"
+  ]
+}

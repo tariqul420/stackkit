@@ -1,0 +1,9 @@
+{
+  "title": "Concepts",
+  "defaultOpen": true,
+  "pages": [
+    "what-is-stackkit",
+    "create-vs-add",
+    "templates-vs-modules"
+  ]
+}
