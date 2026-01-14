@@ -21,6 +21,12 @@ npx stackkit-cli add auth
 npx stackkit-cli add database
 ```
 
+**Check project health:**
+
+```bash
+npx stackkit-cli doctor
+```
+
 ## Features
 
 - 🧙 **Interactive wizard** - Choose framework, database, and auth

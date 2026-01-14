@@ -2,6 +2,7 @@
 import chalk from "chalk";
 import { Command } from "commander";
 import { addCommand } from "./commands/add";
+import { doctorCommand } from "./commands/doctor";
 import { listCommand } from "./commands/list";
 
 const program = new Command();
@@ -28,6 +29,15 @@ program
   .option("--dry-run", "Show what would be changed without making changes")
   .option("--no-install", "Skip installing dependencies")
   .action(addCommand);
+
+// Doctor command
+program
+  .command("doctor")
+  .description("Check project health and compatibility with StackKit modules")
+  .option("--json", "Output results in JSON format")
+  .option("--verbose", "Show detailed information")
+  .option("--strict", "Treat warnings as errors")
+  .action(doctorCommand);
 
 // Error handling
 program.on("command:*", () => {

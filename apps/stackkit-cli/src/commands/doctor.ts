@@ -1,0 +1,590 @@
+import chalk from "chalk";
+import fs from "fs-extra";
+import path from "path";
+import { logger } from "../utils/logger";
+
+// Constants for consistent messaging
+const MESSAGES = {
+  NO_PACKAGE_JSON: "No package.json found in current directory or any parent directory.",
+  UNSUPPORTED_PROJECT: "Unsupported project type. Only Next.js, Express, and React projects are supported.",
+  NODE_TOO_OLD: (version: string) => `Node.js version ${version} is not supported. Minimum required: Node 18.`,
+  NODE_WARNING: (version: string) => `Node.js version ${version} is supported but Node 20+ is recommended.`,
+  NODE_SUCCESS: (version: string) => `Node.js version ${version} is supported.`,
+  ENV_EXAMPLE_MISSING: ".env.example file missing (recommended for documentation)",
+  ENV_EXAMPLE_FOUND: ".env.example file found",
+  ENV_MISSING: "No .env or .env.local file found",
+  ENV_FOUND: ".env/.env.local file found",
+  PRISMA_SCHEMA_MISSING: "Prisma schema missing (required for Prisma)",
+  PRISMA_SCHEMA_FOUND: "Prisma schema found",
+  AUTH_ROUTES_MISSING: "Auth routes not found (may need configuration)",
+  AUTH_ROUTES_FOUND: "Auth routes configured",
+  ENV_VARS_MISSING: (vars: string[]) => `Missing: ${vars.join(", ")}`,
+  ENV_VARS_PRESENT: (vars: string[]) => `Present: ${vars.join(", ")}`,
+} as const;
+
+interface DoctorOptions {
+  json?: boolean;
+  verbose?: boolean;
+  strict?: boolean;
+}
+
+interface PackageJson {
+  dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+  [key: string]: unknown;
+}
+
+interface CheckResult {
+  status: "success" | "warning" | "error";
+  message: string;
+  details?: string;
+}
+
+interface DoctorReport {
+  project: {
+    type: string;
+    root: string;
+    packageManager: string;
+  };
+  runtime: {
+    nodeVersion: string;
+    nodeVersionStatus: "success" | "warning" | "error";
+  };
+  modules: {
+    auth: string[];
+    database: string[];
+  };
+  files: {
+    envExample: boolean;
+    env: boolean;
+    prismaSchema?: boolean;
+    authRoutes?: boolean;
+  };
+  env: {
+    missing: string[];
+    present: string[];
+  };
+  conflicts: string[];
+  checks: CheckResult[];
+  summary: {
+    errors: number;
+    warnings: number;
+    suggestions: string[];
+  };
+}
+
+/**
+ * Main doctor command function that performs health checks on a StackKit project
+ * @param options Command line options
+ */
+export async function doctorCommand(options: DoctorOptions): Promise<void> {
+  try {
+    const report = await runDoctorChecks();
+
+    if (options.json) {
+      process.stdout.write(JSON.stringify(report, null, 2) + "\n");
+      return;
+    }
+
+    printDoctorReport(report, options.verbose || false);
+
+    // Exit with proper codes
+    const hasErrors = report.summary.errors > 0;
+    const hasWarnings = report.summary.warnings > 0;
+    const strictMode = options.strict || false;
+
+    if (hasErrors || (strictMode && hasWarnings)) {
+      process.exit(1);
+    } else {
+      process.exit(0);
+    }
+  } catch (error) {
+    logger.error(`Doctor check failed: ${error instanceof Error ? error.message : String(error)}`);
+    process.exit(1);
+  }
+}
+
+/**
+ * Runs all doctor checks and generates a comprehensive health report
+ * @returns Promise resolving to a DoctorReport
+ */
+async function runDoctorChecks(): Promise<DoctorReport> {
+  const checks: CheckResult[] = [];
+
+  // Find project root
+  const projectRoot = await findProjectRoot();
+  checks.push({
+    status: "success",
+    message: `Found project root: ${projectRoot}`,
+  });
+
+  // Read package.json
+  const packageJson = await readPackageJson(projectRoot);
+
+  // Detect package manager
+  const packageManager = await detectPackageManager(projectRoot);
+
+  // Detect project type
+  const projectType = detectProjectType(packageJson);
+  if (projectType === "unknown") {
+    checks.push({
+      status: "error",
+      message: MESSAGES.UNSUPPORTED_PROJECT,
+    });
+  } else {
+    checks.push({
+      status: "success",
+      message: `Detected project type: ${projectType}`,
+    });
+  }
+
+  // Check Node version
+  const nodeVersionCheck = checkNodeVersion();
+  checks.push(nodeVersionCheck);
+
+  // Detect installed modules
+  const authModules = detectAuthModules(packageJson);
+  const databaseModules = detectDatabaseModules(packageJson);
+
+  // Check key files
+  const filesCheck = await checkKeyFiles(projectRoot, projectType, authModules, databaseModules);
+  checks.push(...filesCheck);
+
+  // Check env files
+  const envCheck = await checkEnvFiles(projectRoot, authModules, databaseModules);
+  checks.push(...envCheck.checks);
+
+  // Check conflicts
+  const conflicts = checkConflicts(authModules, databaseModules);
+  conflicts.forEach(conflict => {
+    checks.push({
+      status: "warning",
+      message: conflict,
+    });
+  });
+
+  // Build report
+  const report: DoctorReport = {
+    project: {
+      type: projectType,
+      root: projectRoot,
+      packageManager,
+    },
+    runtime: {
+      nodeVersion: process.version,
+      nodeVersionStatus: nodeVersionCheck.status,
+    },
+    modules: {
+      auth: authModules,
+      database: databaseModules,
+    },
+    files: {
+      envExample: await fs.pathExists(path.join(projectRoot, ".env.example")),
+      env: await fs.pathExists(path.join(projectRoot, ".env")) || await fs.pathExists(path.join(projectRoot, ".env.local")),
+      prismaSchema: databaseModules.includes("prisma") ? await fs.pathExists(path.join(projectRoot, "prisma", "schema.prisma")) : undefined,
+      authRoutes: authModules.length > 0 ? await checkAuthRoutesExist(projectRoot, projectType) : undefined,
+    },
+    env: envCheck.envStatus,
+    conflicts,
+    checks,
+    summary: {
+      errors: checks.filter(c => c.status === "error").length,
+      warnings: checks.filter(c => c.status === "warning").length,
+      suggestions: generateSuggestions(),
+    },
+  };
+
+  return report;
+}
+
+/**
+ * Finds the project root by walking up directories until package.json is found
+ * @returns Promise resolving to the absolute path of the project root
+ * @throws Error if no package.json is found
+ */
+async function findProjectRoot(): Promise<string> {
+  let currentDir = process.cwd();
+
+  while (currentDir !== path.dirname(currentDir)) {
+    const packageJsonPath = path.join(currentDir, "package.json");
+    if (await fs.pathExists(packageJsonPath)) {
+      return currentDir;
+    }
+    currentDir = path.dirname(currentDir);
+  }
+
+    throw new Error(MESSAGES.NO_PACKAGE_JSON);
+}
+
+/**
+ * Reads and parses package.json from the project root
+ * @param projectRoot Absolute path to the project root
+ * @returns Promise resolving to the parsed package.json object
+ */
+async function readPackageJson(projectRoot: string): Promise<PackageJson> {
+  const packageJsonPath = path.join(projectRoot, "package.json");
+  return await fs.readJSON(packageJsonPath);
+}
+
+async function detectPackageManager(projectRoot: string): Promise<string> {
+  const checks = [
+    { file: "pnpm-lock.yaml", manager: "pnpm" },
+    { file: "yarn.lock", manager: "yarn" },
+    { file: "package-lock.json", manager: "npm" },
+  ];
+
+  for (const check of checks) {
+    if (await fs.pathExists(path.join(projectRoot, check.file))) {
+      return check.manager;
+    }
+  }
+
+  return "npm";
+}
+
+function detectProjectType(packageJson: PackageJson): string {
+  const deps = { ...packageJson.dependencies, ...packageJson.devDependencies };
+
+  if (deps.next) {
+    return "nextjs";
+  } else if (deps.express) {
+    return "express";
+  } else if (deps.vite && deps.react) {
+    return "react-vite";
+  } else if (deps.react) {
+    return "react";
+  }
+
+  return "unknown";
+}
+
+function checkNodeVersion(): CheckResult {
+  const version = process.version;
+  const majorVersion = parseInt(version.slice(1).split(".")[0]);
+
+  if (majorVersion < 18) {
+    return {
+      status: "error",
+      message: MESSAGES.NODE_TOO_OLD(version),
+    };
+  } else if (majorVersion < 20) {
+    return {
+      status: "warning",
+      message: MESSAGES.NODE_WARNING(version),
+    };
+  } else {
+    return {
+      status: "success",
+      message: MESSAGES.NODE_SUCCESS(version),
+    };
+  }
+}
+
+function detectAuthModules(packageJson: PackageJson): string[] {
+  const deps = { ...packageJson.dependencies, ...packageJson.devDependencies };
+  const modules: string[] = [];
+
+  if (deps["better-auth"]) {
+    modules.push("better-auth");
+  }
+  if (deps["next-auth"]) {
+    modules.push("authjs");
+  }
+
+  return modules;
+}
+
+function detectDatabaseModules(packageJson: PackageJson): string[] {
+  const deps = { ...packageJson.dependencies, ...packageJson.devDependencies };
+  const modules: string[] = [];
+
+  if (deps["@prisma/client"] || deps["prisma"]) {
+    modules.push("prisma");
+  }
+  if (deps["mongoose"]) {
+    modules.push("mongoose");
+  }
+
+  return modules;
+}
+
+async function checkKeyFiles(
+  projectRoot: string,
+  projectType: string,
+  authModules: string[],
+  databaseModules: string[]
+): Promise<CheckResult[]> {
+  const checks: CheckResult[] = [];
+
+  // Check .env.example
+  const envExampleExists = await fs.pathExists(path.join(projectRoot, ".env.example"));
+  checks.push({
+    status: envExampleExists ? "success" : "warning",
+    message: envExampleExists ? ".env.example file found" : ".env.example file missing (recommended for documentation)",
+  });
+
+  // Check Prisma schema
+  if (databaseModules.includes("prisma")) {
+    const schemaExists = await fs.pathExists(path.join(projectRoot, "prisma", "schema.prisma"));
+    checks.push({
+      status: schemaExists ? "success" : "error",
+      message: schemaExists ? "Prisma schema found" : "Prisma schema missing (required for Prisma)",
+    });
+  }
+
+  // Check auth routes
+  if (authModules.length > 0 && projectType === "nextjs") {
+    const authRoutesExist = await checkAuthRoutesExist(projectRoot, projectType);
+    checks.push({
+      status: authRoutesExist ? "success" : "warning",
+      message: authRoutesExist ? "Auth routes configured" : "Auth routes not found (may need configuration)",
+    });
+  }
+
+  return checks;
+}
+
+async function checkAuthRoutesExist(projectRoot: string, projectType: string): Promise<boolean> {
+  if (projectType !== "nextjs") return true; // Skip for non-Next.js
+
+  const possiblePaths = [
+    "app/api/auth/[...nextauth]/route.ts",
+    "app/api/auth/[...nextauth]/route.js",
+    "src/app/api/auth/[...nextauth]/route.ts",
+    "src/app/api/auth/[...nextauth]/route.js",
+    "pages/api/auth/[...nextauth].ts",
+    "pages/api/auth/[...nextauth].js",
+    "src/pages/api/auth/[...nextauth].ts",
+    "src/pages/api/auth/[...nextauth].js",
+  ];
+
+  for (const routePath of possiblePaths) {
+    if (await fs.pathExists(path.join(projectRoot, routePath))) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+async function checkEnvFiles(
+  projectRoot: string,
+  authModules: string[],
+  databaseModules: string[]
+): Promise<{ checks: CheckResult[]; envStatus: { missing: string[]; present: string[] } }> {
+  const checks: CheckResult[] = [];
+  const requiredKeys: string[] = [];
+  const missing: string[] = [];
+  const present: string[] = [];
+
+  // Determine required env keys
+  if (databaseModules.includes("prisma")) {
+    requiredKeys.push("DATABASE_URL");
+  }
+  if (authModules.includes("authjs")) {
+    requiredKeys.push("NEXTAUTH_SECRET", "NEXTAUTH_URL");
+  }
+  if (authModules.includes("better-auth")) {
+    requiredKeys.push("BETTER_AUTH_SECRET", "BETTER_AUTH_URL");
+  }
+
+  // Check env files
+  const envPaths = [".env", ".env.local"];
+  let envContent = "";
+
+  for (const envPath of envPaths) {
+    const fullPath = path.join(projectRoot, envPath);
+    if (await fs.pathExists(fullPath)) {
+      envContent = await fs.readFile(fullPath, "utf-8");
+      break;
+    }
+  }
+
+  if (!envContent) {
+    checks.push({
+      status: "warning",
+      message: "No .env or .env.local file found",
+    });
+    return { checks, envStatus: { missing: requiredKeys, present: [] } };
+  }
+
+  // Parse env content
+  const envLines = envContent.split("\n").map(line => line.trim()).filter(line => line && !line.startsWith("#"));
+  const envVars = new Set(envLines.map(line => line.split("=")[0]));
+
+  for (const key of requiredKeys) {
+    if (envVars.has(key)) {
+      present.push(key);
+    } else {
+      missing.push(key);
+    }
+  }
+
+  if (missing.length > 0) {
+    checks.push({
+      status: "error",
+      message: `Missing required environment variables: ${missing.join(", ")}`,
+    });
+  } else if (requiredKeys.length > 0) {
+    checks.push({
+      status: "success",
+      message: "All required environment variables are present",
+    });
+  }
+
+  return { checks, envStatus: { missing, present } };
+}
+
+function checkConflicts(authModules: string[], databaseModules: string[]): string[] {
+  const conflicts: string[] = [];
+
+  if (authModules.length > 1) {
+    conflicts.push(`Multiple auth providers detected: ${authModules.join(", ")}. Consider using only one.`);
+  }
+
+  if (databaseModules.length > 1) {
+    conflicts.push(`Multiple database providers detected: ${databaseModules.join(", ")}. Consider using only one.`);
+  }
+
+  return conflicts;
+}
+
+function generateSuggestions(): string[] {
+  const suggestions: string[] = [];
+
+  // Always show available commands
+  suggestions.push("stackkit add auth     - Add authentication module");
+  suggestions.push("stackkit add db       - Add database module");
+  suggestions.push("stackkit list         - View available modules");
+
+  return suggestions;
+}
+
+/**
+ * Prints the doctor report to the console with appropriate formatting
+ * @param report The doctor report to print
+ * @param verbose Whether to show detailed check information
+ */
+function printDoctorReport(report: DoctorReport, verbose: boolean): void {
+  logger.header("🔍 StackKit Doctor Report");
+  logger.newLine();
+
+  // Project info
+  logger.log(chalk.bold("Project"));
+  logger.log(`  Type: ${report.project.type}`);
+  logger.log(`  Root: ${report.project.root}`);
+  logger.log(`  Package Manager: ${report.project.packageManager}`);
+  logger.newLine();
+
+  // Runtime
+  logger.log(chalk.bold("Runtime"));
+  if (report.runtime.nodeVersionStatus === "success") {
+    logger.success(`Node.js: ${report.runtime.nodeVersion}`);
+  } else if (report.runtime.nodeVersionStatus === "warning") {
+    logger.warn(`Node.js: ${report.runtime.nodeVersion}`);
+  } else {
+    logger.error(`Node.js: ${report.runtime.nodeVersion}`);
+  }
+  logger.newLine();
+
+  // Modules
+  logger.log(chalk.bold("Modules"));
+  if (report.modules.auth.length > 0) {
+    logger.log(`  Auth: ${report.modules.auth.join(", ")}`);
+  } else {
+    logger.info("Auth: None");
+  }
+  if (report.modules.database.length > 0) {
+    logger.log(`  Database: ${report.modules.database.join(", ")}`);
+  } else {
+    logger.info("Database: None");
+  }
+  logger.newLine();
+
+  // Files
+  logger.log(chalk.bold("Files"));
+  if (report.files.envExample) {
+    logger.success(MESSAGES.ENV_EXAMPLE_FOUND);
+  } else {
+    logger.warn(MESSAGES.ENV_EXAMPLE_MISSING);
+    logger.log("  Hint: Helps other developers understand required environment variables");
+  }
+
+  if (report.files.env) {
+    logger.success(MESSAGES.ENV_FOUND);
+  } else {
+    logger.warn(MESSAGES.ENV_MISSING);
+    logger.log("  Hint: Required for local development and production deployment");
+  }
+
+  if (report.files.prismaSchema !== undefined) {
+    if (report.files.prismaSchema) {
+      logger.success(MESSAGES.PRISMA_SCHEMA_FOUND);
+    } else {
+      logger.error(MESSAGES.PRISMA_SCHEMA_MISSING);
+      logger.log("  Hint: Defines your database schema and is required for Prisma to work");
+    }
+  }
+
+  if (report.files.authRoutes !== undefined) {
+    if (report.files.authRoutes) {
+      logger.success(MESSAGES.AUTH_ROUTES_FOUND);
+    } else {
+      logger.warn(MESSAGES.AUTH_ROUTES_MISSING);
+      logger.log("  Hint: Authentication routes handle login/logout flows");
+    }
+  }
+  logger.newLine();
+
+  // Environment
+  if (report.env.missing.length > 0 || report.env.present.length > 0) {
+    logger.log(chalk.bold("Environment Variables"));
+    if (report.env.present.length > 0) {
+      logger.success(MESSAGES.ENV_VARS_PRESENT(report.env.present));
+    }
+    if (report.env.missing.length > 0) {
+      logger.error(MESSAGES.ENV_VARS_MISSING(report.env.missing));
+    }
+    logger.newLine();
+  }
+
+  // Conflicts
+  if (report.conflicts.length > 0) {
+    logger.log(chalk.bold("Conflicts"));
+    report.conflicts.forEach(conflict => {
+      logger.warn(conflict);
+    });
+    logger.newLine();
+  }
+
+  // Detailed checks if verbose
+  if (verbose) {
+    logger.log(chalk.bold("Detailed Checks"));
+    report.checks.forEach(check => {
+      if (check.status === "success") {
+        logger.success(check.message);
+      } else if (check.status === "warning") {
+        logger.warn(check.message);
+      } else {
+        logger.error(check.message);
+      }
+      if (check.details) {
+        logger.log(`    ${chalk.gray(check.details)}`);
+      }
+    });
+    logger.newLine();
+  }
+
+  // Summary
+  logger.log(chalk.bold("Summary"));
+  logger.log(`  Errors: ${report.summary.errors}`);
+  logger.log(`  Warnings: ${report.summary.warnings}`);
+  logger.newLine();
+
+  if (report.summary.suggestions.length > 0) {
+    logger.log(chalk.bold("Suggestions"));
+    report.summary.suggestions.forEach(suggestion => {
+      logger.log(`  • ${suggestion}`);
+    });
+  }
+}
