@@ -49,43 +49,36 @@
     {
       "key": "BETTER_AUTH_SECRET",
       "value": "",
-      "description": "Secret key for Better Auth. Generate with: openssl rand -base64 32",
       "required": true
     },
     {
       "key": "BETTER_AUTH_URL",
       "value": "http://localhost:3000",
-      "description": "Base URL of your application (change in production)",
       "required": true
     },
     {
       "key": "EMAIL_HOST",
       "value": "smtp.gmail.com",
-      "description": "SMTP host for sending emails (e.g., smtp.gmail.com)",
       "required": true
     },
     {
       "key": "EMAIL_PORT",
       "value": "587",
-      "description": "SMTP port (587 for TLS, 465 for SSL)",
       "required": true
     },
     {
       "key": "EMAIL_USER",
       "value": "",
-      "description": "SMTP username (your email)",
       "required": true
     },
     {
       "key": "EMAIL_PASS",
       "value": "",
-      "description": "SMTP password or app password",
       "required": true
     },
     {
       "key": "EMAIL_FROM",
       "value": "noreply@yourapp.com",
-      "description": "From email address",
       "required": true
     }
   ],

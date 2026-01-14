@@ -1,5 +1,5 @@
-/* eslint-disable no-console */
 import mongoose from "mongoose";
+import { ServerApiVersion } from "mongodb";
 
 type MongooseCache = {
   conn: typeof mongoose | null;
@@ -33,7 +33,7 @@ async function dbConnect(): Promise<typeof mongoose> {
       connectTimeoutMS: 10000,
       serverSelectionTimeoutMS: 10000,
       serverApi: {
-        version: '1',
+        version: ServerApiVersion.v1,
         strict: true,
         deprecationErrors: true,
       },
@@ -43,8 +43,10 @@ async function dbConnect(): Promise<typeof mongoose> {
       .connect(uri, opts)
       .then(async (mongooseInstance: typeof mongoose) => {
         console.info("MongoDB connected successfully");
-        await mongoose.connection.db.admin().command({ ping: 1 });
-        console.info("Pinged your deployment. You successfully connected to MongoDB!");
+        if (mongoose.connection.db) {
+          await mongoose.connection.db.admin().command({ ping: 1 });
+          console.info("Pinged your deployment. You successfully connected to MongoDB!");
+        }
         return mongooseInstance;
       })
       .catch((error: Error) => {

@@ -45,37 +45,31 @@
     {
       "key": "NEXTAUTH_SECRET",
       "value": "",
-      "description": "Secret key for Auth.js. Generate with: openssl rand -base64 32",
       "required": true
     },
     {
       "key": "NEXTAUTH_URL",
       "value": "http://localhost:3000",
-      "description": "Base URL of your application (change in production)",
       "required": true
     },
     {
       "key": "GOOGLE_CLIENT_ID",
       "value": "",
-      "description": "Google OAuth Client ID (optional)",
       "required": false
     },
     {
       "key": "GOOGLE_CLIENT_SECRET",
       "value": "",
-      "description": "Google OAuth Client Secret (optional)",
       "required": false
     },
     {
       "key": "GITHUB_ID",
       "value": "",
-      "description": "GitHub OAuth Client ID (optional)",
       "required": false
     },
     {
       "key": "GITHUB_SECRET",
       "value": "",
-      "description": "GitHub OAuth Client Secret (optional)",
       "required": false
     }
   ],

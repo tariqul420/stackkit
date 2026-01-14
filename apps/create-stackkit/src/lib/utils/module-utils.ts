@@ -117,10 +117,7 @@ function generateVariables(
 
     // Dynamic dbImport for auth modules
     const libPath = framework === "nextjs" ? "@/lib" : ".";
-    const adapterImport =
-      database === "prisma"
-        ? 'import { prismaAdapter } from "better-auth/adapters/prisma";'
-        : 'import { mongodbAdapter } from "better-auth/adapters/mongodb";';
+    const adapterImport = 'import { prismaAdapter } from "better-auth/adapters/prisma";';
 
     if (database === "prisma") {
       variables.dbImport = `import { prisma } from "${libPath}/prisma";

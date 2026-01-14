@@ -8,8 +8,7 @@
   "supportedFrameworks": ["nextjs", "express"],
   "dependencies": {
     "mongoose": "^8.8.4",
-    "mongodb": "^6.10.0",
-    "dotenv": "^17.2.3"
+    "mongodb": "^6.10.0"
   },
   "devDependencies": {
     "@types/mongoose": "^5.11.97"
@@ -18,8 +17,7 @@
     "common": [
       {
         "key": "DATABASE_URL",
-        "value": "mongodb://localhost:27017/myapp",
-        "description": "MongoDB connection string",
+        "value": "mongodb+srv://username:password@cluster.mongodb.net/mydb",
         "required": true
       }
     ]

@@ -49,7 +49,6 @@
       {
         "key": "DATABASE_URL",
         "value": "{{connectionString}}",
-        "description": "Database connection URL",
         "required": true
       }
     ],
@@ -58,31 +57,26 @@
         {
           "key": "DATABASE_HOST",
           "value": "localhost",
-          "description": "MySQL host",
           "required": true
         },
         {
           "key": "DATABASE_USER",
           "value": "",
-          "description": "MySQL username",
           "required": true
         },
         {
           "key": "DATABASE_PASSWORD",
           "value": "",
-          "description": "MySQL password",
           "required": true
         },
         {
           "key": "DATABASE_NAME",
           "value": "mydb",
-          "description": "MySQL database name",
           "required": true
         },
         {
           "key": "DATABASE_PORT",
           "value": "3306",
-          "description": "MySQL port",
           "required": false
         }
       ]
