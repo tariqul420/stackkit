@@ -7,36 +7,30 @@
   "supportedFrameworks": ["nextjs"],
   "databaseAdapters": {
     "common": {
-      "dependencies": {},
+      "dependencies": {
+        "@auth/prisma-adapter": "^2.7.1"
+      },
       "devDependencies": {}
     },
     "prisma-postgresql": {
       "schema": "files/schemas/prisma-schema.prisma",
       "schemaDestination": "prisma/schema.prisma",
-      "dependencies": {
-        "@auth/prisma-adapter": "^2.7.1"
-      }
+      "dependencies": {}
     },
     "prisma-mongodb": {
       "schema": "files/schemas/prisma-schema.prisma",
       "schemaDestination": "prisma/schema.prisma",
-      "dependencies": {
-        "@auth/prisma-adapter": "^2.7.1"
-      }
+      "dependencies": {}
     },
     "prisma-mysql": {
       "schema": "files/schemas/prisma-schema.prisma",
       "schemaDestination": "prisma/schema.prisma",
-      "dependencies": {
-        "@auth/prisma-adapter": "^2.7.1"
-      }
+      "dependencies": {}
     },
     "prisma-sqlite": {
       "schema": "files/schemas/prisma-schema.prisma",
       "schemaDestination": "prisma/schema.prisma",
-      "dependencies": {
-        "@auth/prisma-adapter": "^2.7.1"
-      }
+      "dependencies": {}
     }
   },
   "frameworkConfigs": {
