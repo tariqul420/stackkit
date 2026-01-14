@@ -1,0 +1,37 @@
+---
+title: Mongoose
+description: Add Mongoose ODM to your project
+---
+
+## When to use
+
+Using Mongoose ODM with MongoDB.
+
+## Installation
+
+### New project
+
+```bash
+npx create-stackkit-app my-app --database mongoose-mongodb
+```
+
+### Existing project
+
+```bash
+npx stackkit-cli add mongoose
+```
+
+## What gets generated
+
+- `lib/db.ts`: MongoDB connection
+- `lib/models/User.ts`: Example model
+- Environment variables
+
+## Setup
+
+1. Set `MONGODB_URI` in `.env`
+2. Connection is handled automatically
+
+Next steps:
+- [Environment Variables](/docs/reference/environment-variables)
+- [Prisma](/docs/modules/database/prisma) for alternatives

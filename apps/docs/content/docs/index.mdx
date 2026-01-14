@@ -1,12 +1,13 @@
 ---
-title: Introduction
-description: Production-ready project generator with modular composition
+title: StackKit
+description: Production-ready project generator and modular CLI
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 
-Create production-ready full-stack applications with your preferred stack in seconds. No more hours spent on project setup, configuration, and boilerplate code.
+StackKit generates full-stack projects and adds features to existing ones.
+
+## Quick Start
 
 <Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
   <Tab value="pnpm">
@@ -31,68 +32,12 @@ Create production-ready full-stack applications with your preferred stack in sec
   </Tab>
 </Tabs>
 
-## Features
+## What it does
 
-- **Interactive CLI** - Choose framework, database, and auth in one command
-- **Type-Safe** - Full TypeScript support with strict mode
-- **Modular** - Add or remove features anytime using `stackkit-cli`
-- **Production Ready** - Environment configs, error handling, and best practices included
-- **Zero Config** - Everything works out of the box
+- Generates projects with Next.js, Express, or React
+- Adds databases (Prisma, Mongoose) and auth (Better Auth, Auth.js)
+- Handles dependencies, configs, and environment setup
 
-## Quick Example
-
-```bash
-npx create-stackkit-app my-app
-# ✔ Framework: Next.js
-# ✔ Database: Prisma (PostgreSQL)  
-# ✔ Authentication: Better Auth
-# ✔ Install dependencies: Yes
-
-cd my-app && npm run dev
-```
-
-Get a full-stack app with:
-- Authentication routes and middleware
-- Database schema and migrations
-- API endpoints configured
-- Environment variables templated
-
-## Add Modules Anytime
-
-Start simple, add features later:
-
-<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
-  <Tab value="pnpm">
-    ```bash
-    pnpm dlx stackkit-cli add auth
-    pnpm dlx stackkit-cli add database
-    ```
-  </Tab>
-  <Tab value="npm">
-    ```bash
-    npx stackkit-cli add auth
-    npx stackkit-cli add database
-    ```
-  </Tab>
-  <Tab value="yarn">
-    ```bash
-    yarn dlx stackkit-cli add auth
-    yarn dlx stackkit-cli add database
-    ```
-  </Tab>
-  <Tab value="bun">
-    ```bash
-    bunx stackkit-cli add auth
-    bunx stackkit-cli add database
-    ```
-  </Tab>
-</Tabs>
-
-## Supported Technologies
-
-| Category | Options |
-|----------|---------|  
-| **Frameworks** | Next.js 16 (App Router), Express, React + Vite |
-| **Databases** | Prisma (PostgreSQL/MongoDB), Mongoose (MongoDB) |
-| **Authentication** | Better Auth, Auth.js |
-| **Package Managers** | pnpm, npm, yarn, bun |
+Next steps:
+- [Quick Start](/docs/getting-started/quickstart) for your first project
+- [Concepts](/docs/concepts/what-is-stackkit) to understand StackKit

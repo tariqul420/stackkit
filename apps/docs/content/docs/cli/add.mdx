@@ -1,0 +1,54 @@
+---
+title: add
+description: Add modules to existing projects
+---
+
+## When to use
+
+Adding authentication or database features to your current project.
+
+## Command
+
+```bash
+npx stackkit-cli add <module> [options]
+```
+
+## Modules
+
+| Module | Type | Description |
+|--------|------|-------------|
+| `better-auth` | Auth | Better Auth library |
+| `authjs` | Auth | Auth.js (NextAuth.js v5) |
+| `prisma` | Database | Prisma ORM |
+| `mongoose` | Database | Mongoose ODM |
+
+## Options
+
+- `--provider <provider>`: Database provider (e.g., `postgresql`, `mongodb`)
+- `--force`: Overwrite existing files
+- `--dry-run`: Show changes without applying
+- `--no-install`: Skip dependency installation
+
+## Examples
+
+```bash
+# Add Better Auth
+npx stackkit-cli add better-auth
+
+# Add Prisma with specific provider
+npx stackkit-cli add prisma --provider postgresql
+
+# Preview changes
+npx stackkit-cli add authjs --dry-run
+```
+
+## What gets generated
+
+- Source files (auth configs, database clients)
+- Dependencies added to package.json
+- Environment variables in .env.example
+- Schema files (for databases)
+
+Next steps:
+- [Environment Variables](/docs/reference/environment-variables) for setup
+- [Doctor](/docs/cli/doctor) to verify

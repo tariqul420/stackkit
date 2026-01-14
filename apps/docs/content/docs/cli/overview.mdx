@@ -1,0 +1,41 @@
+---
+title: CLI Reference
+description: Overview of StackKit's command-line tools
+---
+
+StackKit provides two CLI tools: `create-stackkit-app` for new projects and `stackkit-cli` for existing ones.
+
+## create-stackkit-app
+
+Generates new projects with frameworks and modules.
+
+```bash
+npx create-stackkit-app [project-name] [options]
+```
+
+**Key options**:
+- `--framework`: nextjs | express | react-vite
+- `--database`: prisma-* | mongoose-mongodb | none
+- `--auth`: better-auth | authjs | none
+
+## stackkit-cli
+
+Adds features to existing projects.
+
+```bash
+npx stackkit-cli <command> [options]
+```
+
+**Commands**:
+- `add <module>`: Add auth/database
+- `list`: Show available modules
+- `doctor`: Check project health
+
+## Common workflows
+
+1. **New project**: `create-stackkit-app my-app --framework nextjs --database prisma-postgresql --auth better-auth`
+2. **Add to existing**: `stackkit-cli add better-auth`
+
+Next steps:
+- [create-stackkit-app](/docs/cli/create-stackkit-app) for full options
+- [stackkit-cli](/docs/cli/stackkit-cli) for commands

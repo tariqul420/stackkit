@@ -1,0 +1,40 @@
+---
+title: Environment Variables
+description: Required environment variables for each module
+---
+
+## Better Auth
+
+```bash
+BETTER_AUTH_SECRET="your-secret-key"
+BETTER_AUTH_URL="http://localhost:3000"
+```
+
+## Auth.js
+
+```bash
+NEXTAUTH_SECRET="your-secret-key"
+NEXTAUTH_URL="http://localhost:3000"
+# Optional OAuth
+GOOGLE_CLIENT_ID="..."
+GOOGLE_CLIENT_SECRET="..."
+```
+
+## Prisma
+
+```bash
+DATABASE_URL="postgresql://user:pass@localhost:5432/db"
+# Or for other providers
+DATABASE_URL="mongodb://localhost:27017/db"
+DATABASE_URL="mysql://user:pass@localhost:3306/db"
+DATABASE_URL="file:./dev.db"
+```
+
+## Mongoose
+
+```bash
+MONGODB_URI="mongodb://localhost:27017/db"
+```
+
+Next steps:
+- [Doctor](/docs/cli/doctor) to check setup

@@ -1,0 +1,33 @@
+---
+title: Contributing
+description: How to contribute to StackKit
+---
+
+## Development Setup
+
+1. Clone the repo
+2. Install dependencies: `pnpm install`
+3. Build packages: `pnpm build`
+
+## Project Structure
+
+- `apps/create-stackkit/`: Project generator
+- `apps/stackkit-cli/`: Modular CLI
+- `apps/docs/`: Documentation
+- `modules/`: Feature modules
+- `templates/`: Base project templates
+
+## Adding a Module
+
+1. Create `modules/<category>/<name>/module.json`
+2. Add files in `modules/<category>/<name>/files/`
+3. Update CLI detection logic
+
+## Testing
+
+- Test generators with `pnpm test`
+- Manual testing of CLI commands
+- Validate docs build
+
+Next steps:
+- [Issues](https://github.com/tariqul420/stackkit/issues) for bug reports

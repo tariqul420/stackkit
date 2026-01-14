@@ -1,0 +1,43 @@
+---
+title: Better Auth
+description: Add Better Auth to your project
+---
+
+## When to use
+
+Implementing authentication with Better Auth (TypeScript-first, open source).
+
+## Installation
+
+### New project
+
+```bash
+npx create-stackkit-app my-app --auth better-auth
+```
+
+### Existing project
+
+```bash
+npx stackkit-cli add better-auth
+```
+
+## Compatible frameworks
+
+- Next.js
+- Express
+- React + Vite
+
+## What gets generated
+
+- `lib/auth.ts`: Auth configuration
+- API routes (Next.js)
+- Environment variables in `.env.example`
+
+## Setup
+
+1. Set `BETTER_AUTH_SECRET` in `.env`
+2. Set `BETTER_AUTH_URL` for production
+
+Next steps:
+- [Environment Variables](/docs/reference/environment-variables)
+- [Auth.js](/docs/modules/auth/authjs) for alternatives

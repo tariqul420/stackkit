@@ -1,0 +1,51 @@
+---
+title: Create vs Add
+description: When to use create-stackkit-app vs stackkit-cli
+---
+
+StackKit has two main tools: `create-stackkit-app` for new projects and `stackkit-cli` for enhancing existing ones.
+
+## create-stackkit-app
+
+**When to use**: Starting a new project from scratch.
+
+Generates a complete project with your chosen framework, database, and auth. Includes all boilerplate, dependencies, and configurations.
+
+```bash
+npx create-stackkit-app my-app --framework nextjs --database prisma-postgresql --auth better-auth
+```
+
+**What it does**:
+- Creates project directory
+- Copies framework template
+- Merges selected modules
+- Installs dependencies
+- Initializes git
+
+## stackkit-cli
+
+**When to use**: Adding features to an existing project.
+
+Detects your current framework and adds modules like auth or database without disrupting your code.
+
+```bash
+npx stackkit-cli add better-auth
+```
+
+**What it does**:
+- Detects project type from `package.json`
+- Checks compatibility
+- Adds files and dependencies
+- Updates configurations
+
+## Choosing between them
+
+| Scenario | Tool | Example |
+|----------|------|---------|
+| New Next.js app with auth | create-stackkit-app | `create-stackkit-app my-app --framework nextjs --auth better-auth` |
+| Add database to existing Express app | stackkit-cli | `stackkit-cli add prisma` |
+| Prototype React + auth | create-stackkit-app | `create-stackkit-app my-app --framework react-vite --auth better-auth` |
+
+Next steps:
+- [Templates vs Modules](/docs/concepts/templates-vs-modules) for more on components
+- [CLI Reference](/docs/cli/overview) for command details

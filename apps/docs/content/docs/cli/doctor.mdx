@@ -1,0 +1,43 @@
+---
+title: doctor
+description: Check project health
+---
+
+## When to use
+
+Verifying your StackKit project setup and compatibility.
+
+## Command
+
+```bash
+npx stackkit-cli doctor [options]
+```
+
+## Options
+
+- `--json`: Output as JSON
+- `--verbose`: Show detailed information
+- `--strict`: Treat warnings as errors
+
+## Checks performed
+
+- Node.js version (minimum 18)
+- Package manager detection
+- Framework compatibility
+- Required dependencies
+- Environment variables
+- Database schemas
+- Auth configurations
+
+## Example output
+
+```
+✓ Node.js version: 20.10.0
+✓ Framework: nextjs
+✓ Database: prisma
+⚠ Missing: DATABASE_URL in .env
+✗ Invalid: NEXTAUTH_SECRET not set
+```
+
+Next steps:
+- [Troubleshooting](/docs/reference/troubleshooting) for fixes

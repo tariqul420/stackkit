@@ -1,0 +1,35 @@
+---
+title: Supported Technologies
+description: Compatibility matrix for frameworks, databases, and auth
+---
+
+## Frameworks
+
+| Framework | Status | Description |
+|-----------|--------|-------------|
+| Next.js | Stable | Full-stack with App Router |
+| Express | Stable | Backend API |
+| React + Vite | Stable | Frontend only |
+
+## Databases
+
+| Database | ORM/ODM | Providers | Status |
+|----------|---------|-----------|--------|
+| Prisma | ORM | PostgreSQL, MongoDB, MySQL, SQLite | Stable |
+| Mongoose | ODM | MongoDB | Stable |
+
+## Authentication
+
+| Provider | Frameworks | Databases | Status |
+|----------|------------|-----------|--------|
+| Better Auth | All | All (except none for server) | Stable |
+| Auth.js | Next.js | Prisma | Stable |
+
+## Compatibility Notes
+
+- Auth.js requires Next.js + Prisma
+- React + Vite skips database selection
+- Mongoose auth defaults to Better Auth
+
+Next steps:
+- [Create vs Add](/docs/concepts/create-vs-add) for workflows

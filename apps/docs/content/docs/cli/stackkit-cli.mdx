@@ -1,181 +1,95 @@
 ---
 title: stackkit-cli
-description: Add modules to existing projects
+description: Add features to existing projects
 ---
 
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { Callout } from 'fumadocs-ui/components/callout';
 
+## When to use
+
+Adding authentication or database support to an existing project.
+
 ## Usage
 
-Run directly without installation:
-
 ```bash
-npx stackkit-cli [command]
-```
-
-Or install globally:
-
-```bash
-npm install -g stackkit-cli
+npx stackkit-cli <command> [options]
 ```
 
 <Callout type="info">
-  Run commands from your project root directory (where `package.json` is located).
+Run from your project root (where `package.json` is).
 </Callout>
 
 ## Commands
 
-### `add`
+### add
 
-Add a module to your project:
-
-```bash
-npx stackkit-cli add <module-type>
-```
-
-**Available modules:**
-- `auth` - Authentication (Better Auth, Auth.js)
-- `database` - Database (Prisma, Mongoose)
-
-### `add auth`
-
-Add authentication to your project:
+Add a module to your project.
 
 ```bash
-npx stackkit-cli add auth
+npx stackkit-cli add <module> [options]
 ```
 
-The CLI will:
-1. Detect your framework (Next.js, Express, or React)
-2. Show compatible providers (Better Auth, Auth.js)
-3. Install dependencies and configure files
+**Available modules**:
+- `better-auth` (auth)
+- `authjs` (auth, Next.js + Prisma only)
+- `prisma` (database)
+- `mongoose` (database)
 
-**Options:**
-```bash
-npx stackkit-cli add auth --provider better-auth  # Skip selection
-npx stackkit-cli add auth --skip-install           # Don't install packages
-```
+**Options**:
+- `--provider <provider>`: Specify provider (e.g., `postgresql` for Prisma)
+- `--force`: Overwrite conflicts
+- `--dry-run`: Preview changes
+- `--no-install`: Skip dependencies
 
-### `add database`
+### list
 
-Add database support to your project:
-
-```bash
-npx stackkit-cli add database
-```
-
-The CLI will:
-1. Detect your framework
-2. Show compatible adapters (Prisma, Mongoose)
-3. Install dependencies and configure files
-
-**Options:**
-```bash
-npx stackkit-cli add database --adapter prisma-postgresql  # Skip selection
-npx stackkit-cli add database --skip-install                # Don't install packages
-```
-
-### `list`
-
-List all available modules for your framework:
+List available modules for your framework.
 
 ```bash
 npx stackkit-cli list
 ```
 
-### `info`
+### doctor
 
-Get detailed information about a specific module:
-
-```bash
-npx stackkit-cli info <module-name>
-```
-
-Example:
-```bash
-npx stackkit-cli info better-auth-nextjs
-```
-
-Shows module description, compatible frameworks, dependencies, and setup steps.
-
-### `--version, -v`
-
-Display CLI version:
+Check project health and compatibility.
 
 ```bash
-npx stackkit-cli --version
+npx stackkit-cli doctor [options]
 ```
 
-### `--help, -h`
-
-Display help information:
-
-```bash
-npx stackkit-cli --help
-npx stackkit-cli add --help
-```
+**Options**:
+- `--json`: JSON output
+- `--verbose`: Detailed info
+- `--strict`: Warnings as errors
 
 ## Examples
 
-### Add Authentication to Next.js
+### Add Better Auth
 
 ```bash
-cd my-nextjs-app
-npx stackkit-cli add auth
-# Select: Better Auth
+npx stackkit-cli add better-auth
 ```
 
-**Generated files:**
-- `lib/auth.ts` - Better Auth configuration
-- `app/api/auth/[...all]/route.ts` - Auth API routes
-- `.env.local` - Environment variables
-
-### Add Database to Express
+### Add Prisma with PostgreSQL
 
 ```bash
-cd my-express-api
-npx stackkit-cli add database
-# Select: Prisma (PostgreSQL)
+npx stackkit-cli add prisma --provider postgresql
 ```
 
-**Generated files:**
-- `prisma/schema.prisma` - Database schema
-- `src/config/db.ts` - Prisma client
-- `.env` - DATABASE_URL variable
+### Check project health
 
-
-### Database (Prisma)
-
-1. **Configure DATABASE_URL** in `.env`:
 ```bash
-# PostgreSQL
-DATABASE_URL="postgresql://user:password@localhost:5432/mydb"
-
-# MongoDB
-DATABASE_URL="mongodb://localhost:27017/mydb"
+npx stackkit-cli doctor
 ```
 
-2. **Run migrations**:
-```bash
-npx prisma migrate dev --name init
-npx prisma generate
-```
+## What gets changed
 
-### Authentication (Better Auth)
+- Adds source files and configs
+- Installs dependencies
+- Updates environment variables
+- Merges schemas and routes
 
-1. **Generate secret**:
-```bash
-openssl rand -base64 32
-```
-
-2. **Update `.env`**:
-```bash
-BETTER_AUTH_SECRET="your-generated-secret"
-BETTER_AUTH_URL="http://localhost:3000"
-```
-
-## Next Steps
-
-- [Authentication Configuration](/docs/modules/auth)
-- [Database Setup](/docs/modules/database)
+Next steps:
+- [Modules](/docs/modules) for setup details
+- [Troubleshooting](/docs/reference/troubleshooting) for issues

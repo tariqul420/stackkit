@@ -1,0 +1,45 @@
+---
+title: Prisma
+description: Add Prisma ORM to your project
+---
+
+## When to use
+
+Using Prisma ORM with PostgreSQL, MongoDB, MySQL, or SQLite.
+
+## Installation
+
+### New project
+
+```bash
+npx create-stackkit-app my-app --database prisma-postgresql
+```
+
+### Existing project
+
+```bash
+npx stackkit-cli add prisma --provider postgresql
+```
+
+## Providers
+
+- `postgresql`
+- `mongodb`
+- `mysql`
+- `sqlite`
+
+## What gets generated
+
+- `prisma/schema.prisma`: Database schema
+- `lib/db.ts`: Prisma client
+- Migrations directory
+
+## Setup
+
+1. Set `DATABASE_URL` in `.env`
+2. Run `npx prisma migrate dev`
+3. Run `npx prisma generate`
+
+Next steps:
+- [Environment Variables](/docs/reference/environment-variables)
+- [Mongoose](/docs/modules/database/mongoose) for alternatives

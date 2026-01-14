@@ -1,0 +1,44 @@
+---
+title: Auth.js
+description: Add Auth.js (NextAuth.js v5) to your project
+---
+
+## When to use
+
+Implementing authentication with Auth.js for Next.js + Prisma projects.
+
+## Requirements
+
+- Next.js framework
+- Prisma database
+
+## Installation
+
+### New project
+
+```bash
+npx create-stackkit-app my-app --framework nextjs --database prisma-postgresql --auth authjs
+```
+
+### Existing project
+
+```bash
+npx stackkit-cli add authjs
+```
+
+## What gets generated
+
+- `lib/auth.ts`: Auth configuration
+- API routes in `app/api/auth/[...nextauth]/route.ts`
+- Prisma models added to schema
+- Environment variables
+
+## Setup
+
+1. Set `NEXTAUTH_SECRET` in `.env.local`
+2. Set `NEXTAUTH_URL` for production
+3. Configure OAuth providers if needed
+
+Next steps:
+- [Environment Variables](/docs/reference/environment-variables)
+- [Better Auth](/docs/modules/auth/better-auth) for other frameworks
