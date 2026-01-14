@@ -52,7 +52,16 @@ export async function detectProjectInfo(targetDir: string): Promise<ProjectInfo>
 
   // Detect TypeScript vs JavaScript
   const tsconfigExists = await fs.pathExists(path.join(targetDir, "tsconfig.json"));
-  const language = tsconfigExists ? "ts" : "js";
+  const jsconfigExists = await fs.pathExists(path.join(targetDir, "jsconfig.json"));
+  let language: "ts" | "js";
+  if (tsconfigExists) {
+    language = "ts";
+  } else if (jsconfigExists) {
+    language = "js";
+  } else {
+    // Default to TypeScript if neither exists
+    language = "ts";
+  }
 
   // Detect package manager
   const yarnLockExists = await fs.pathExists(path.join(targetDir, "yarn.lock"));

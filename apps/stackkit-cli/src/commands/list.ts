@@ -1,34 +1,34 @@
 import chalk from "chalk";
 import fs from "fs-extra";
 import path from "path";
-import { ModuleMetadata, TemplateMetadata } from "../types";
+import { ModuleMetadata } from "../types";
 import { logger } from "../utils/logger";
 
 interface ListOptions {
-  templates?: boolean;
+  frameworks?: boolean;
   modules?: boolean;
 }
 
 export async function listCommand(options: ListOptions): Promise<void> {
-  const showTemplates = !options.modules || options.templates;
-  const showModules = !options.templates || options.modules;
+  const showFrameworks = !options.modules || options.frameworks;
+  const showModules = !options.frameworks || options.modules;
 
   try {
     logger.newLine();
 
-    // List templates
-    if (showTemplates) {
+    // List frameworks
+    if (showFrameworks) {
       const templatesDir = path.join(__dirname, "..", "..", "templates");
-      const templates = await getAvailableTemplates(templatesDir);
+      const frameworks = await getAvailableFrameworks(templatesDir);
 
-      logger.log(chalk.bold.cyan("▸ TEMPLATES") + chalk.gray(` (${templates.length})`));
+      logger.log(chalk.bold.cyan("▸ FRAMEWORKS") + chalk.gray(` (${frameworks.length})`));
       logger.newLine();
 
-      if (templates.length === 0) {
-        logger.log(chalk.dim("  No templates available"));
+      if (frameworks.length === 0) {
+        logger.log(chalk.dim("  No frameworks available"));
       } else {
-        templates.forEach((template) => {
-          logger.log(`  ${chalk.cyan("•")} ${template.displayName}`);
+        frameworks.forEach((framework) => {
+          logger.log(`  ${chalk.cyan("•")} ${framework.displayName}`);
         });
       }
       logger.newLine();
@@ -76,23 +76,20 @@ export async function listCommand(options: ListOptions): Promise<void> {
   }
 }
 
-async function getAvailableTemplates(templatesDir: string): Promise<TemplateMetadata[]> {
+async function getAvailableFrameworks(templatesDir: string): Promise<{ name: string; displayName: string }[]> {
   if (!(await fs.pathExists(templatesDir))) {
     return [];
   }
 
-  const templateDirs = await fs.readdir(templatesDir);
-  const templates: TemplateMetadata[] = [];
+  const frameworkDirs = await fs.readdir(templatesDir);
+  const frameworks = frameworkDirs
+    .filter((dir) => dir !== "node_modules" && dir !== ".git")
+    .map((dir) => ({
+      name: dir,
+      displayName: dir.charAt(0).toUpperCase() + dir.slice(1).replace("-", " "),
+    }));
 
-  for (const dir of templateDirs) {
-    const metadataPath = path.join(templatesDir, dir, "template.json");
-    if (await fs.pathExists(metadataPath)) {
-      const metadata = await fs.readJSON(metadataPath);
-      templates.push(metadata);
-    }
-  }
-
-  return templates;
+  return frameworks;
 }
 
 async function getAvailableModules(modulesDir: string): Promise<ModuleMetadata[]> {

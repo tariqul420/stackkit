@@ -63,49 +63,20 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
     const mergedDeps: Record<string, string> = {};
     const mergedDevDeps: Record<string, string> = {};
 
-    if (
-      typeof moduleMetadata.dependencies === "object" &&
-      !("common" in moduleMetadata.dependencies)
-    ) {
-      // Already flat
-      Object.assign(mergedDeps, moduleMetadata.dependencies);
-    } else if (
-      typeof moduleMetadata.dependencies === "object" &&
-      "common" in moduleMetadata.dependencies
-    ) {
-      Object.assign(mergedDeps, moduleMetadata.dependencies.common);
-      if (
-        selectedProvider &&
-        typeof moduleMetadata.dependencies === "object" &&
-        "providers" in moduleMetadata.dependencies &&
-        typeof moduleMetadata.dependencies.providers === "object" &&
-        selectedProvider in moduleMetadata.dependencies.providers
-      ) {
-        Object.assign(mergedDeps, moduleMetadata.dependencies.providers[selectedProvider]);
-      }
+    // Add shared dependencies
+    if (moduleMetadata.frameworkConfigs?.shared?.dependencies) {
+      Object.assign(mergedDeps, moduleMetadata.frameworkConfigs.shared.dependencies);
+    }
+    if (moduleMetadata.frameworkConfigs?.shared?.devDependencies) {
+      Object.assign(mergedDevDeps, moduleMetadata.frameworkConfigs.shared.devDependencies);
     }
 
-    if (moduleMetadata.devDependencies) {
-      if (
-        typeof moduleMetadata.devDependencies === "object" &&
-        !("common" in moduleMetadata.devDependencies)
-      ) {
-        Object.assign(mergedDevDeps, moduleMetadata.devDependencies);
-      } else if (
-        typeof moduleMetadata.devDependencies === "object" &&
-        "common" in moduleMetadata.devDependencies
-      ) {
-        Object.assign(mergedDevDeps, moduleMetadata.devDependencies.common);
-        if (
-          selectedProvider &&
-          typeof moduleMetadata.devDependencies === "object" &&
-          "providers" in moduleMetadata.devDependencies &&
-          typeof moduleMetadata.devDependencies.providers === "object" &&
-          selectedProvider in moduleMetadata.devDependencies.providers
-        ) {
-          Object.assign(mergedDevDeps, moduleMetadata.devDependencies.providers[selectedProvider]);
-        }
-      }
+    // Add provider specific dependencies
+    if (selectedProvider && moduleMetadata.databaseAdapters?.providers?.[selectedProvider]?.dependencies) {
+      Object.assign(mergedDeps, moduleMetadata.databaseAdapters.providers[selectedProvider].dependencies);
+    }
+    if (selectedProvider && moduleMetadata.databaseAdapters?.providers?.[selectedProvider]?.devDependencies) {
+      Object.assign(mergedDevDeps, moduleMetadata.databaseAdapters.providers[selectedProvider].devDependencies);
     }
 
     // Update metadata with merged deps
@@ -185,8 +156,8 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
     }
 
     // Add dependencies
-    if (Object.keys(moduleMetadata.dependencies).length > 0 && options.install !== false) {
-      const deps = Object.entries(moduleMetadata.dependencies).map(
+    if (Object.keys(mergedDeps).length > 0 && options.install !== false) {
+      const deps = Object.entries(mergedDeps).map(
         ([name, version]) => `${name}@${version}`,
       );
 
@@ -198,12 +169,8 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
     }
 
     // Add dev dependencies
-    if (
-      moduleMetadata.devDependencies &&
-      Object.keys(moduleMetadata.devDependencies).length > 0 &&
-      options.install !== false
-    ) {
-      const devDeps = Object.entries(moduleMetadata.devDependencies).map(
+    if (Object.keys(mergedDevDeps).length > 0 && options.install !== false) {
+      const devDeps = Object.entries(mergedDevDeps).map(
         ([name, version]) => `${name}@${version}`,
       );
 
@@ -215,7 +182,7 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
     }
 
     // Add environment variables
-    if (moduleMetadata.envVars.length > 0) {
+    if (moduleMetadata.envVars && moduleMetadata.envVars.length > 0) {
       // Replace variables in envVars
       const processedEnvVars = moduleMetadata.envVars.map((envVar) => ({
         ...envVar,
@@ -233,7 +200,7 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
     logger.newLine();
 
     // Print next steps
-    if (moduleMetadata.envVars.some((v) => v.required)) {
+    if (moduleMetadata.envVars && moduleMetadata.envVars.some((v) => v.required)) {
       logger.log("Next: Fill in environment variables in .env");
     }
     logger.newLine();
@@ -294,8 +261,6 @@ async function loadModuleMetadata(
   return null;
 }
 
-// (removed duplicate import)
-
 async function applyModulePatches(
   projectRoot: string,
   projectInfo: ProjectInfo,
@@ -304,6 +269,10 @@ async function applyModulePatches(
   moduleName: string,
   options: AddOptions,
 ): Promise<void> {
+  if (!moduleMetadata.patches || !Array.isArray(moduleMetadata.patches)) {
+    return;
+  }
+
   // Find the module path
 
   const moduleBasePath = await findModulePath(modulesDir, moduleName, options.provider);

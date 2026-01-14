@@ -15,19 +15,22 @@ program
 // Init command
 program
   .command("init [project-name]")
-  .description("Create a new project from a template")
-  .option("-t, --template <template>", "Template to use")
-  .option("--pm <pm>", "Package manager to use (npm, yarn, pnpm, bun)")
-  .option("--no-install", "Skip installing dependencies")
+  .description("Create a new project")
+  .option("-f, --framework <framework>", "Framework: nextjs, express, react-vite")
+  .option("-d, --database <database>", "Database: prisma-postgresql, prisma-mongodb, prisma-mysql, prisma-sqlite, mongoose-mongodb, none")
+  .option("-a, --auth <auth>", "Auth: better-auth, authjs, none")
+  .option("-l, --language <language>", "Language: typescript, javascript")
+  .option("-p, --package-manager <pm>", "Package manager: pnpm, npm, yarn, bun")
+  .option("--skip-install", "Skip dependency installation")
   .option("--no-git", "Skip git initialization")
-  .option("-y, --yes", "Skip prompts and use defaults")
+  .option("-y, --yes", "Use default options")
   .action(initCommand);
 
 // List command
 program
   .command("list")
-  .description("List available templates and modules")
-  .option("-t, --templates", "List only templates")
+  .description("List available frameworks and modules")
+  .option("-f, --frameworks", "List only frameworks")
   .option("-m, --modules", "List only modules")
   .action(listCommand);
 
