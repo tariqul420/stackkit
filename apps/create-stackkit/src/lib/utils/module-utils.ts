@@ -441,6 +441,13 @@ export async function mergeAuthConfig(
         console.warn(`No config for framework ${framework} in ${auth}`);
         return;
       }
+      const shared = moduleData.frameworkConfigs.shared;
+      if (shared) {
+        frameworkConfig = {
+          ...shared,
+          ...frameworkConfig,
+        };
+      }
     }
 
     const variables = generateVariables(database, framework, dbProvider, auth);

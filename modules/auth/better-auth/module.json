@@ -7,13 +7,8 @@
   "supportedFrameworks": ["nextjs", "express", "react-vite"],
   "databaseAdapters": {
     "common": {
-      "dependencies": {
-        "better-auth": "^1.1.4",
-        "nodemailer": "^6.9.0"
-      },
-      "devDependencies": {
-        "@types/nodemailer": "^6.4.0"
-      }
+      "dependencies": {},
+      "devDependencies": {}
     },
     "prisma-postgresql": {
       "schema": "files/schemas/prisma-schema.prisma",
@@ -45,44 +40,53 @@
       }
     }
   },
-  "envVars": [
-    {
-      "key": "BETTER_AUTH_SECRET",
-      "value": "",
-      "required": true
-    },
-    {
-      "key": "BETTER_AUTH_URL",
-      "value": "http://localhost:3000",
-      "required": true
-    },
-    {
-      "key": "EMAIL_HOST",
-      "value": "smtp.gmail.com",
-      "required": true
-    },
-    {
-      "key": "EMAIL_PORT",
-      "value": "587",
-      "required": true
-    },
-    {
-      "key": "EMAIL_USER",
-      "value": "",
-      "required": true
-    },
-    {
-      "key": "EMAIL_PASS",
-      "value": "",
-      "required": true
-    },
-    {
-      "key": "EMAIL_FROM",
-      "value": "noreply@yourapp.com",
-      "required": true
-    }
-  ],
   "frameworkConfigs": {
+    "shared": {
+      "dependencies": {
+        "better-auth": "^1.1.4",
+        "nodemailer": "^6.9.0"
+      },
+      "devDependencies": {
+        "@types/nodemailer": "^6.4.0"
+      },
+      "envVars": [
+        {
+          "key": "BETTER_AUTH_SECRET",
+          "value": "",
+          "required": true
+        },
+        {
+          "key": "BETTER_AUTH_URL",
+          "value": "http://localhost:3000",
+          "required": true
+        },
+        {
+          "key": "EMAIL_HOST",
+          "value": "smtp.gmail.com",
+          "required": true
+        },
+        {
+          "key": "EMAIL_PORT",
+          "value": "587",
+          "required": true
+        },
+        {
+          "key": "EMAIL_USER",
+          "value": "",
+          "required": true
+        },
+        {
+          "key": "EMAIL_PASS",
+          "value": "",
+          "required": true
+        },
+        {
+          "key": "EMAIL_FROM",
+          "value": "noreply@yourapp.com",
+          "required": true
+        }
+      ]
+    },
     "nextjs": {
       "patches": [
         {
@@ -159,24 +163,27 @@
       ]
     },
     "react-vite": {
+      "dependencies": {
+        "better-auth": "^1.1.4"
+      },
+      "envVars": [
+        {
+          "key": "BETTER_AUTH_SECRET",
+          "value": "",
+          "required": true
+        },
+        {
+          "key": "BETTER_AUTH_URL",
+          "value": "http://localhost:3000",
+          "required": true
+        }
+      ],
       "patches": [
         {
           "type": "create-file",
           "description": "Create Better Auth client for React",
           "source": "lib/auth-client.ts",
           "destination": "{{lib}}/auth-client.ts"
-        },
-        {
-          "type": "create-file",
-          "description": "Create email service for sending emails",
-          "source": "lib/email-service.ts",
-          "destination": "{{lib}}/email/email-service.ts"
-        },
-        {
-          "type": "create-file",
-          "description": "Create email templates",
-          "source": "lib/email-templates.ts",
-          "destination": "{{lib}}/email/email-templates.ts"
         }
       ]
     }

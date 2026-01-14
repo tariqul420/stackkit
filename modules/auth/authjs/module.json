@@ -7,74 +7,75 @@
   "supportedFrameworks": ["nextjs"],
   "databaseAdapters": {
     "common": {
-      "dependencies": {
-        "next-auth": "beta"
-      },
+      "dependencies": {},
       "devDependencies": {}
     },
     "prisma-postgresql": {
       "schema": "files/schemas/prisma-schema.prisma",
       "schemaDestination": "prisma/schema.prisma",
       "dependencies": {
-        "@auth/prisma-adapter": "^2.0.0"
+        "@auth/prisma-adapter": "^2.7.1"
       }
     },
     "prisma-mongodb": {
       "schema": "files/schemas/prisma-schema.prisma",
       "schemaDestination": "prisma/schema.prisma",
       "dependencies": {
-        "@auth/prisma-adapter": "^2.0.0"
+        "@auth/prisma-adapter": "^2.7.1"
       }
     },
     "prisma-mysql": {
       "schema": "files/schemas/prisma-schema.prisma",
       "schemaDestination": "prisma/schema.prisma",
       "dependencies": {
-        "@auth/prisma-adapter": "^2.0.0"
+        "@auth/prisma-adapter": "^2.7.1"
       }
     },
     "prisma-sqlite": {
       "schema": "files/schemas/prisma-schema.prisma",
       "schemaDestination": "prisma/schema.prisma",
       "dependencies": {
-        "@auth/prisma-adapter": "^2.0.0"
+        "@auth/prisma-adapter": "^2.7.1"
       }
     }
   },
-  "envVars": [
-    {
-      "key": "NEXTAUTH_SECRET",
-      "value": "",
-      "required": true
-    },
-    {
-      "key": "NEXTAUTH_URL",
-      "value": "http://localhost:3000",
-      "required": true
-    },
-    {
-      "key": "GOOGLE_CLIENT_ID",
-      "value": "",
-      "required": false
-    },
-    {
-      "key": "GOOGLE_CLIENT_SECRET",
-      "value": "",
-      "required": false
-    },
-    {
-      "key": "GITHUB_ID",
-      "value": "",
-      "required": false
-    },
-    {
-      "key": "GITHUB_SECRET",
-      "value": "",
-      "required": false
-    }
-  ],
   "frameworkConfigs": {
     "nextjs": {
+      "dependencies": {
+        "next-auth": "^5.0.0"
+      },
+      "envVars": [
+        {
+          "key": "NEXTAUTH_SECRET",
+          "value": "",
+          "required": true
+        },
+        {
+          "key": "NEXTAUTH_URL",
+          "value": "http://localhost:3000",
+          "required": true
+        },
+        {
+          "key": "GOOGLE_CLIENT_ID",
+          "value": "",
+          "required": false
+        },
+        {
+          "key": "GOOGLE_CLIENT_SECRET",
+          "value": "",
+          "required": false
+        },
+        {
+          "key": "GITHUB_ID",
+          "value": "",
+          "required": false
+        },
+        {
+          "key": "GITHUB_SECRET",
+          "value": "",
+          "required": false
+        }
+      ],
       "patches": [
         {
           "type": "create-file",
