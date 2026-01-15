@@ -7,7 +7,7 @@ import validateNpmPackageName from "validate-npm-package-name";
 import { initGit } from "./utils/git-utils";
 import { convertToJavaScript } from "./utils/js-conversion";
 import { logger } from "./utils/logger";
-import { AdvancedCodeGenerator } from "./advanced-code-generator";
+import { AdvancedCodeGenerator } from "./code-generator";
 import { FrameworkUtils } from "./framework-utils";
 import { installDependencies } from "./utils/package-utils";
 import { discoverModules, getValidDatabaseOptions, getValidAuthOptions, parseDatabaseOption, getCompatibleAuthOptions, getDatabaseChoices } from "./utils/module-discovery";
@@ -16,7 +16,7 @@ interface ProjectConfig {
   projectName: string;
   framework: "nextjs" | "express" | "react-vite";
   database: "prisma" | "mongoose" | "none";
-  dbProvider?: "postgresql" | "mongodb" | "mysql" | "sqlite";
+  prismaProvider?: "postgresql" | "mongodb" | "mysql" | "sqlite";
   auth: "better-auth" | "authjs" | "none";
   language: "typescript" | "javascript";
   packageManager: "pnpm" | "npm" | "yarn" | "bun";
@@ -26,7 +26,7 @@ interface Answers {
   projectName?: string;
   framework: "nextjs" | "express" | "react-vite";
   database?: "prisma" | "mongoose" | "none";
-  dbProvider?: "postgresql" | "mongodb" | "mysql" | "sqlite";
+  prismaProvider?: "postgresql" | "mongodb" | "mysql" | "sqlite";
   auth?: "better-auth" | "authjs" | "none";
   language: "typescript" | "javascript";
   packageManager: "pnpm" | "npm" | "yarn" | "bun";
@@ -81,7 +81,7 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
         projectName: projectName || "my-app",
         framework: "nextjs",
         database: "prisma",
-        dbProvider: "postgresql",
+        prismaProvider: "postgresql",
         auth: "better-auth",
         language: "typescript",
         packageManager: "pnpm",
@@ -123,12 +123,12 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
     }
 
     let database: "prisma" | "mongoose" | "none" = "none";
-    let dbProvider: "postgresql" | "mongodb" | "mysql" | "sqlite" | undefined;
+    let prismaProvider: "postgresql" | "mongodb" | "mysql" | "sqlite" | undefined;
 
     if (db && db !== "none") {
       const parsed = parseDatabaseOption(db);
       database = parsed.database as "prisma" | "mongoose";
-      dbProvider = parsed.provider as "postgresql" | "mongodb" | "mysql" | "sqlite";
+      prismaProvider = parsed.provider as "postgresql" | "mongodb" | "mysql" | "sqlite";
     }
 
     let auth: "better-auth" | "authjs" | "none" = "none";
@@ -139,7 +139,7 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
     const finalFramework = (framework || "nextjs") as "nextjs" | "express" | "react-vite";
     if (finalFramework === "react-vite") {
       database = "none";
-      dbProvider = undefined;
+      prismaProvider = undefined;
     }
 
     // Validate auth compatibility
@@ -154,7 +154,7 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
       projectName: projectName || "my-app",
       framework: finalFramework,
       database,
-      dbProvider,
+      prismaProvider,
       auth,
       language: (language || "typescript") as "typescript" | "javascript",
       packageManager: (pm || "pnpm") as "pnpm" | "npm" | "yarn" | "bun",
@@ -197,7 +197,7 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
     },
     {
       type: "list",
-      name: "dbProvider",
+      name: "prismaProvider",
       message: "Select database provider for Prisma:",
       when: (answers: Answers) => answers.database === "prisma",
       choices: [
@@ -250,7 +250,7 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
     database: (answers.framework === "react-vite"
       ? "none"
       : parsedDb.database) as ProjectConfig["database"],
-    dbProvider: answers.dbProvider || (parsedDb.provider as "postgresql" | "mongodb" | "mysql" | "sqlite" | undefined),
+    prismaProvider: answers.prismaProvider || (parsedDb.provider as "postgresql" | "mongodb" | "mysql" | "sqlite" | undefined),
     auth: (answers.auth || "none"),
     language: answers.language,
     packageManager: answers.packageManager,
@@ -327,7 +327,7 @@ async function composeTemplate(config: ProjectConfig, targetDir: string): Promis
       framework: config.framework,
       database: config.database === 'none' ? undefined : config.database,
       auth: config.auth === 'none' ? undefined : config.auth,
-      dbProvider: config.dbProvider,
+      prismaProvider: config.prismaProvider,
     },
     features,
     targetDir

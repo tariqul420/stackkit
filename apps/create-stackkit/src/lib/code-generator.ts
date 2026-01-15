@@ -272,7 +272,7 @@ export class AdvancedCodeGenerator {
   }
 
   async generate(
-    selectedModules: { framework: string; database?: string; auth?: string; dbProvider?: string },
+    selectedModules: { framework: string; database?: string; auth?: string; prismaProvider?: string },
     features: string[],
     outputPath: string
   ): Promise<string[]> {
@@ -284,9 +284,9 @@ export class AdvancedCodeGenerator {
       features,
     };
 
-    // Add databaseProvider if dbProvider is specified
-    if (selectedModules.dbProvider) {
-      context.databaseProvider = selectedModules.dbProvider;
+    // Add prismaProvider if prismaProvider is specified
+    if (selectedModules.prismaProvider) {
+      context.prismaProvider = selectedModules.prismaProvider;
     }
 
     // Collect all applicable operations
@@ -601,7 +601,7 @@ export class AdvancedCodeGenerator {
   }
 
   private async generatePackageJson(
-    selectedModules: { framework: string; database?: string; auth?: string; dbProvider?: string },
+    selectedModules: { framework: string; database?: string; auth?: string; prismaProvider?: string },
     features: string[],
     outputPath: string
   ): Promise<void> {

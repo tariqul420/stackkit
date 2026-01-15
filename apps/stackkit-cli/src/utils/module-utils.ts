@@ -98,7 +98,7 @@ function getFrameworkPaths(framework: string): FrameworkPaths {
 function generateVariables(
   database: string,
   framework: string,
-  dbProvider?: string,
+  prismaProvider?: string,
   auth?: string,
 ): ModuleVariables {
   const variables: ModuleVariables = {};
@@ -121,10 +121,10 @@ function generateVariables(
   }
 
   // Provider-specific variables
-  if (dbProvider) {
-    variables.provider = dbProvider;
+  if (prismaProvider) {
+    variables.provider = prismaProvider;
 
-    switch (dbProvider) {
+    switch (prismaProvider) {
       case "postgresql":
         variables.connectionString = "postgresql://user:password@localhost:5432/mydb?schema=public";
         variables.prismaClientInit = `import { PrismaPg } from "@prisma/adapter-pg";
@@ -302,7 +302,7 @@ export async function mergeDatabaseConfig(
   targetDir: string,
   database: string,
   framework: string,
-  dbProvider?: string,
+  prismaProvider?: string,
 ): Promise<string[]> {
   try {
     const modulesDir = join(templatesDir, "..", "modules");
@@ -314,7 +314,7 @@ export async function mergeDatabaseConfig(
     }
 
     const moduleData = await loadModuleData(dbModulePath);
-    const variables = generateVariables(database, framework, dbProvider);
+    const variables = generateVariables(database, framework, prismaProvider);
     const frameworkPaths = getFrameworkPaths(framework);
 
     const filesDir = join(dbModulePath, "files");
@@ -333,7 +333,7 @@ export async function mergeDatabaseConfig(
         // Structured dependencies (common + providers)
         dependencies = {
           ...moduleData.dependencies.common,
-          ...(dbProvider ? moduleData.dependencies.providers?.[dbProvider] : {}),
+          ...(prismaProvider ? moduleData.dependencies.providers?.[prismaProvider] : {}),
         };
       } else {
         // Flat dependencies structure
@@ -346,7 +346,7 @@ export async function mergeDatabaseConfig(
         // Structured devDependencies
         devDependencies = {
           ...moduleData.devDependencies.common,
-          ...(dbProvider ? moduleData.devDependencies.providers?.[dbProvider] : {}),
+          ...(prismaProvider ? moduleData.devDependencies.providers?.[prismaProvider] : {}),
         };
       } else {
         // Flat devDependencies structure
@@ -362,8 +362,8 @@ export async function mergeDatabaseConfig(
       ? moduleData.envVars
       : moduleData.envVars?.common || [];
     const providerEnvVars =
-      dbProvider && moduleData.envVars?.providers?.[dbProvider]
-        ? moduleData.envVars.providers[dbProvider]
+      prismaProvider && moduleData.envVars?.providers?.[prismaProvider]
+        ? moduleData.envVars.providers[prismaProvider]
         : [];
     const allEnvVars = [...commonEnvVars, ...providerEnvVars];
 
@@ -393,7 +393,7 @@ export async function mergeAuthConfig(
   framework: string,
   auth: string,
   database: string = "none",
-  dbProvider?: string,
+  prismaProvider?: string,
 ): Promise<void> {
   try {
     const modulesDir = join(templatesDir, "..", "modules");
@@ -427,14 +427,14 @@ export async function mergeAuthConfig(
       }
     }
 
-    const variables = generateVariables(database, framework, dbProvider, auth);
+    const variables = generateVariables(database, framework, prismaProvider, auth);
     const frameworkPaths = getFrameworkPaths(framework);
 
     // Handle database adapters first to set variables
     if (database !== "none" && moduleData.databaseAdapters) {
       let adapterKey = database;
-      if (database === "prisma" && dbProvider) {
-        adapterKey = `prisma-${dbProvider}`;
+      if (database === "prisma" && prismaProvider) {
+        adapterKey = `prisma-${prismaProvider}`;
       }
       const adapterConfig = moduleData.databaseAdapters[adapterKey];
 

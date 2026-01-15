@@ -60,13 +60,13 @@ If framework equals 'nextjs', outputs '@/lib', otherwise outputs '.'.
 
 ### Switch Expressions
 ```
-{{switch dbProvider postgresql: @default(cuid()), mysql: @default(uuid()), sqlite: @default(uuid()), default: @default(cuid())}}
+{{switch prismaProvider postgresql: @default(cuid()), mysql: @default(uuid()), sqlite: @default(uuid()), default: @default(cuid())}}
 ```
-Outputs different values based on the `dbProvider` value.
+Outputs different values based on the `prismaProvider` value.
 
 ### Conditional Expressions
 ```
-{{if dbProvider==postgresql then:@default(cuid()) else:@default(uuid())}}
+{{if prismaProvider==postgresql then:@default(cuid()) else:@default(uuid())}}
 ```
 If condition is met, outputs the 'then' value, otherwise the 'else' value.
 
@@ -81,13 +81,13 @@ If condition is met, outputs the 'then' value, otherwise the 'else' value.
 
 ### Advanced If Blocks with Operators
 ```
-{{#if dbProvider == postgresql}}
+{{#if prismaProvider == postgresql}}
 @default(cuid())
 {{/if}}
-{{#if dbProvider == mysql}}
+{{#if prismaProvider == mysql}}
 @default(uuid())
 {{/if}}
-{{#if dbProvider includes socialAuth}}
+{{#if prismaProvider includes socialAuth}}
 // Social auth code
 {{/if}}
 ```
@@ -101,7 +101,7 @@ Supported operators:
 
 ### Switch Blocks
 ```
-{{#switch dbProvider}}
+{{#switch prismaProvider}}
 {{#case postgresql}}
 @default(cuid())
 {{/case}}
@@ -133,7 +133,7 @@ The following variables are available in templates:
 
 ### Database Variables
 - `database` - The selected database ('prisma', 'mongoose', 'none')
-- `dbProvider` - The database provider ('postgresql', 'mysql', 'mongodb', 'sqlite')
+- `prismaProvider` - The database provider ('postgresql', 'mysql', 'mongodb', 'sqlite')
 - `hasDatabase` - Boolean, true if database is not 'none'
 
 ### Auth Variables
@@ -151,7 +151,7 @@ The following variables are available in templates:
 ### Database-Specific ID Defaults
 ```prisma
 model User {
-    id String @id {{#if dbProvider == postgresql}}@default(cuid()){{/if}}{{#if dbProvider == mysql}}@default(uuid()){{/if}}
+    id String @id {{#if prismaProvider == postgresql}}@default(cuid()){{/if}}{{#if prismaProvider == mysql}}@default(uuid()){{/if}}
     email String @unique
 }
 ```
@@ -176,7 +176,7 @@ import express from 'express';
 ### Switch-Based Configuration
 ```json
 {
-  "database": "{{switch dbProvider postgresql: postgresql, mysql: mysql, mongodb: mongodb, default: sqlite}}"
+  "database": "{{switch prismaProvider postgresql: postgresql, mysql: mysql, mongodb: mongodb, default: sqlite}}"
 }
 ```
 

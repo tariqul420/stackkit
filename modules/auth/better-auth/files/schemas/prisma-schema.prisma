@@ -1,6 +1,6 @@
 
 model User {
-    id            String    @id {{#if dbProvider == postgresql}}@default(cuid()){{/if}}{{#if dbProvider == mysql}}@default(uuid()){{/if}}{{#if dbProvider == sqlite}}@default(uuid()){{/if}}
+    id            String    @id {{#if prismaProvider == postgresql}}@default(cuid()){{/if}}{{#if prismaProvider == mysql}}@default(uuid()){{/if}}{{#if prismaProvider == sqlite}}@default(uuid()){{/if}}
     name          String
     email         String
     emailVerified Boolean   @default(false)
@@ -16,14 +16,14 @@ model User {
 }
 
 model Session {
-    id        String   @id {{#if dbProvider == postgresql}}@default(cuid()){{/if}}{{#if dbProvider == mysql}}@default(uuid()){{/if}}{{#if dbProvider == sqlite}}@default(uuid()){{/if}}
+    id        String   @id {{#if prismaProvider == postgresql}}@default(cuid()){{/if}}{{#if prismaProvider == mysql}}@default(uuid()){{/if}}{{#if prismaProvider == sqlite}}@default(uuid()){{/if}}
     expiresAt DateTime
     token     String   @unique
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     ipAddress String?
     userAgent String?
-    userId    String {{#if dbProvider == postgresql}}{{/if}}{{#if dbProvider == mysql}}{{/if}}{{#if dbProvider == sqlite}}{{/if}}
+    userId    String {{#if prismaProvider == postgresql}}{{/if}}{{#if prismaProvider == mysql}}{{/if}}{{#if prismaProvider == sqlite}}{{/if}}
     user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@index([userId])
@@ -31,10 +31,10 @@ model Session {
 }
 
 model Account {
-    id                    String    @id {{#if dbProvider == postgresql}}@default(cuid()){{/if}}{{#if dbProvider == mysql}}@default(uuid()){{/if}}{{#if dbProvider == sqlite}}@default(uuid()){{/if}}
+    id                    String    @id {{#if prismaProvider == postgresql}}@default(cuid()){{/if}}{{#if prismaProvider == mysql}}@default(uuid()){{/if}}{{#if prismaProvider == sqlite}}@default(uuid()){{/if}}
     accountId             String
     providerId            String
-    userId                String {{#if dbProvider == postgresql}}{{/if}}{{#if dbProvider == mysql}}{{/if}}{{#if dbProvider == sqlite}}{{/if}}
+    userId                String {{#if prismaProvider == postgresql}}{{/if}}{{#if prismaProvider == mysql}}{{/if}}{{#if prismaProvider == sqlite}}{{/if}}
     user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
     accessToken           String?
     refreshToken          String?
@@ -51,7 +51,7 @@ model Account {
 }
 
 model Verification {
-    id         String   @id {{#if dbProvider == postgresql}}@default(cuid()){{/if}}{{#if dbProvider == mysql}}@default(uuid()){{/if}}{{#if dbProvider == sqlite}}@default(uuid()){{/if}}
+    id         String   @id {{#if prismaProvider == postgresql}}@default(cuid()){{/if}}{{#if prismaProvider == mysql}}@default(uuid()){{/if}}{{#if prismaProvider == sqlite}}@default(uuid()){{/if}}
     identifier String
     value      String
     expiresAt  DateTime

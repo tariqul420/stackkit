@@ -1,8 +1,12 @@
 {
-  "name": "react-vite-base",
+  "name": "react-vite",
   "displayName": "React (Vite)",
   "framework": "react-vite",
   "description": "Production-ready React 19 + Vite with TypeScript, Router, TanStack Query, and more",
+  "compatibility": {
+    "databases": [],
+    "auth": ["better-auth"]
+  },
   "files": [
     "src/",
     "public/",
@@ -30,17 +34,5 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "preview": "vite preview"
-  },
-  "fileReplacements": [
-    {
-      "file": "index.html",
-      "from": "/src/main.tsx",
-      "to": "/src/main.jsx"
-    },
-    {
-      "file": "vite.config.ts",
-      "from": "main.tsx",
-      "to": "main.jsx"
-    }
-  ]
+  }
 }

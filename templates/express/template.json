@@ -1,8 +1,12 @@
 {
-  "name": "express-base",
+  "name": "express",
   "displayName": "Express.js",
   "framework": "express",
   "description": "Express.js REST API with TypeScript",
+  "compatibility": {
+    "databases": ["prisma", "mongoose"],
+    "auth": ["better-auth"]
+  },
   "files": ["src/", ".gitignore", "package.json", "tsconfig.json", ".env.example"],
   "scripts": {
     "dev": "tsx watch src/server.ts",
@@ -19,22 +23,5 @@
     "lint:fix": "eslint src --ext .js --fix",
     "start": "node src/server.js",
     "start:prod": "cross-env NODE_ENV=production node src/server.js"
-  },
-  "fileReplacements": [
-    {
-      "file": "src/server.js",
-      "from": "import app from './app'",
-      "to": "import app from './app.js'"
-    },
-    {
-      "file": "src/app.js",
-      "from": "import { env } from './config/env'",
-      "to": "import { env } from './config/env.js'"
-    },
-    {
-      "file": "src/app.js",
-      "from": "import { errorHandler } from './middlewares/error.middleware'",
-      "to": "import { errorHandler } from './middlewares/error.middleware.js'"
-    }
-  ]
+  }
 }
