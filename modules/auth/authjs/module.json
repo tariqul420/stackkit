@@ -58,16 +58,6 @@
           "key": "GOOGLE_CLIENT_SECRET",
           "value": "",
           "required": false
-        },
-        {
-          "key": "GITHUB_ID",
-          "value": "",
-          "required": false
-        },
-        {
-          "key": "GITHUB_SECRET",
-          "value": "",
-          "required": false
         }
       ],
       "patches": [

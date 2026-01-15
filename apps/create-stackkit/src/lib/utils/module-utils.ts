@@ -118,21 +118,15 @@ function generateVariables(
 
     // Dynamic dbImport for auth modules
     const libPath = framework === "nextjs" ? "@/lib" : ".";
-    const adapterImport = 'import { prismaAdapter } from "better-auth/adapters/prisma";';
 
     if (database === "prisma") {
       variables.dbImport = `import { prisma } from "${libPath}/prisma";
-${adapterImport}`;
-    } else {
-      variables.dbImport =
-        database === "prisma"
-          ? `import { prisma } from "${libPath}/prisma";`
-          : `import { client } from "${libPath}/db";`;
+      'import { prismaAdapter } from "better-auth/adapters/prisma";`;
+    } else if (database === "mongoose") {
+      variables.dbImport = `
+      import { mongoClient: client, db } from "${libPath}/db
+      import { mongodbAdapter } from "better-auth/adapters/mongodb";`;
     }
-  } else {
-    // Framework-specific database import for database modules
-    const libPath = framework === "nextjs" ? "@/lib" : ".";
-    variables.dbImport = database === "prisma" ? `${libPath}/prisma` : `${libPath}/db`;
   }
 
   // Provider-specific variables
@@ -457,6 +451,8 @@ export async function mergeAuthConfig(
         // Generate adapter code based on database type
         if (database === "prisma" && dbProvider) {
           variables.databaseAdapter = `database: prismaAdapter(prisma, {\n    provider: "${dbProvider}",\n  }),`;
+        }else if (database === "mongoose") {
+          variables.databaseAdapter = `database: prismaAdapter(db, {\n    client,\n  }),`;
         }
 
         if (adapterConfig.schema && adapterConfig.schemaDestination) {

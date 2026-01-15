@@ -123,6 +123,10 @@ function generateVariables(
     if (database === "prisma") {
       variables.dbImport = `import { prisma } from "${libPath}/prisma";
 ${adapterImport}`;
+    } else if (database === "mongoose") {
+      variables.dbImport = `import { mongoClient: client, db } from "${libPath}/db";
+import { mongodbAdapter } from "better-auth/adapters/mongodb";
+`;
     } else {
       variables.dbImport =
         database === "prisma"
@@ -130,7 +134,6 @@ ${adapterImport}`;
           : `import { client } from "${libPath}/db";`;
     }
   } else {
-    // Framework-specific database import for database modules
     const libPath = framework === "nextjs" ? "@/lib" : ".";
     variables.dbImport = database === "prisma" ? `${libPath}/prisma` : `${libPath}/db`;
   }
@@ -457,6 +460,8 @@ export async function mergeAuthConfig(
         // Generate adapter code based on database type
         if (database === "prisma" && dbProvider) {
           variables.databaseAdapter = `database: prismaAdapter(prisma, {\n    provider: "${dbProvider}",\n  }),`;
+        } else if (database === "mongoose") {
+          variables.databaseAdapter = `database: mongodbAdapter(db, {\n    client\n  }),`;
         }
 
         if (adapterConfig.schema && adapterConfig.schemaDestination) {

@@ -215,7 +215,7 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
       type: "list",
       name: "auth",
       message: "Select authentication:",
-      when: (answers: Answers) => (answers.database !== "none" || answers.framework === "react-vite") && answers.database !== "mongoose",
+      when: (answers: Answers) => (answers.database !== "none" || answers.framework === "react-vite"),
       choices: (answers: Answers) => {
         if (answers.framework === "react-vite") {
           return [
@@ -276,7 +276,7 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
       ? "none"
       : answers.database) as ProjectConfig["database"],
     dbProvider: answers.dbProvider,
-    auth: answers.database === "mongoose" ? "better-auth" : (answers.auth || "none"),
+    auth: (answers.auth || "none"),
     language: answers.language,
     packageManager: answers.packageManager,
   };
