@@ -27,7 +27,7 @@ export interface TemplateCondition {
 }
 
 export interface Operation {
-  type: 'create-file' | 'patch-file' | 'add-dependency' | 'add-script' | 'add-env';
+  type: 'create-file' | 'patch-file' | 'add-dependency' | 'add-script' | 'add-env' | 'run-command';
   description?: string;
   condition?: TemplateCondition;
   priority?: number;
@@ -50,6 +50,9 @@ export interface Operation {
 
   // add-env
   envVars?: Record<string, string>;
+
+  // run-command
+  command?: string;
 }
 
 export interface PatchOperation {
@@ -84,6 +87,7 @@ export interface GeneratorConfig {
 export class AdvancedCodeGenerator {
   private generators: Map<string, GeneratorConfig> = new Map();
   private frameworkConfig: FrameworkConfig;
+  private postInstallCommands: string[] = [];
 
   constructor(frameworkConfig: FrameworkConfig) {
     this.frameworkConfig = frameworkConfig;
@@ -102,6 +106,7 @@ export class AdvancedCodeGenerator {
           if (await fs.pathExists(generatorPath)) {
             try {
               const config: GeneratorConfig = await fs.readJson(generatorPath);
+              logger.log(`Loaded generator: ${type}:${moduleName}`);
               this.generators.set(`${type}:${moduleName}`, config);
             } catch {
               // Silently skip invalid generator files
@@ -281,7 +286,8 @@ export class AdvancedCodeGenerator {
     selectedModules: { framework: string; database?: string; auth?: string; dbProvider?: string },
     features: string[],
     outputPath: string
-  ): Promise<void> {
+  ): Promise<string[]> {
+    logger.log(`Starting generation for framework: ${selectedModules.framework}, database: ${selectedModules.database}, auth: ${selectedModules.auth}`);
     // First, copy the base template
     await this.copyTemplate(selectedModules.framework, outputPath);
 
@@ -304,10 +310,13 @@ export class AdvancedCodeGenerator {
       // Check if this generator is selected
       if (genType === 'framework' && name === selectedModules.framework) {
         // Framework is always included
+        logger.log(`Selected framework generator: ${name}`);
       } else if (genType === 'database' && name === selectedModules.database) {
         // Database is selected
+        logger.log(`Selected database generator: ${name}`);
       } else if (genType === 'auth' && name === selectedModules.auth) {
         // Auth is selected
+        logger.log(`Selected auth generator: ${name}`);
       } else {
         continue; // Skip unselected generators
       }
@@ -352,10 +361,13 @@ export class AdvancedCodeGenerator {
 
     // Generate package.json updates
     await this.generatePackageJson(selectedModules, features, outputPath);
+
+    return this.postInstallCommands;
   }
 
   private async executeOperation(operation: Operation & { generator: string; generatorType: string }, context: GenerationContext, outputPath: string): Promise<void> {
     try {
+      logger.log(`Executing operation: ${operation.type} for ${operation.generator}`);
       // Process templates in operation content
       const processedOperation = this.processOperationTemplates(operation, context);
 
@@ -374,6 +386,9 @@ export class AdvancedCodeGenerator {
           break;
         case 'add-env':
           await this.executeAddEnv(processedOperation as Operation & { generator: string; generatorType: string }, context, outputPath);
+          break;
+        case 'run-command':
+          this.executeRunCommand(processedOperation as Operation & { generator: string; generatorType: string }, context);
           break;
         default:
           logger.warn(`Unknown operation type: ${processedOperation.type}`);
@@ -703,6 +718,15 @@ export class AdvancedCodeGenerator {
     }
 
     await fs.writeFile(envPath, envContent.trim(), 'utf-8');
+  }
+
+  private executeRunCommand(operation: Operation & { generator: string; generatorType: string }, context: GenerationContext): void {
+    if (operation.command) {
+      // Process template variables in the command
+      const processedCommand = this.processTemplate(operation.command, context);
+      logger.log(`Adding post-install command: ${processedCommand}`);
+      this.postInstallCommands.push(processedCommand);
+    }
   }
 
   private async generatePackageJson(

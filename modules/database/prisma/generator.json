@@ -6,7 +6,12 @@
     {
       "type": "create-file",
       "destination": "prisma/schema.prisma",
-      "content": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\ngenerator client {\n  provider = \"prisma-client-js\"\n}\n\ndatasource db {\n  provider = \"{{databaseProvider}}\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id        String   @id {{#if databaseProvider==\"postgresql\"}}@default(cuid()){{/if}}{{#if databaseProvider!=\"postgresql\"}}@default(uuid()){{/if}}\n  email     String   @unique\n  name      String?\n  password  String?\n  role      String   @default(\"USER\")\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  {{#if auth==\"better-auth\"}}accounts Account[]\n  sessions Session[]\n  {{/if}}\n}\n\n{{#if auth==\"better-auth\"}}model Account {\n  id                String  @id {{#if databaseProvider==\"postgresql\"}}@default(cuid()){{/if}}{{#if databaseProvider!=\"postgresql\"}}@default(uuid()){{/if}}\n  accountId         String\n  providerId        String\n  userId            String\n  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@unique([providerId, accountId])\n}\n\nmodel Session {\n  id        String   @id {{#if databaseProvider==\"postgresql\"}}@default(cuid()){{/if}}{{#if databaseProvider!=\"postgresql\"}}@default(uuid()){{/if}}\n  expiresAt DateTime\n  token     String   @unique\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  userId    String\n  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n}\n{{/if}}"
+      "content": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\ngenerator client {\n  provider = \"prisma-client-js\"\n}\n\ndatasource db {\n  provider = \"{{databaseProvider}}\"\n}\n\nmodel User {\n  id        String   @id {{#if databaseProvider==\"postgresql\"}}@default(cuid()){{/if}}{{#if databaseProvider!=\"postgresql\"}}@default(uuid()){{/if}}\n  email     String   @unique\n  name      String?\n  password  String?\n  role      String   @default(\"USER\")\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  {{#if auth==\"better-auth\"}}accounts Account[]\n  sessions Session[]\n  {{/if}}\n}\n\n{{#if auth==\"better-auth\"}}model Account {\n  id                String  @id {{#if databaseProvider==\"postgresql\"}}@default(cuid()){{/if}}{{#if databaseProvider!=\"postgresql\"}}@default(uuid()){{/if}}\n  accountId         String\n  providerId        String\n  userId            String\n  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@unique([providerId, accountId])\n}\n\nmodel Session {\n  id        String   @id {{#if databaseProvider==\"postgresql\"}}@default(cuid()){{/if}}{{#if databaseProvider!=\"postgresql\"}}@default(uuid()){{/if}}\n  expiresAt DateTime\n  token     String   @unique\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  userId    String\n  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n}\n{{/if}}"
+    },
+    {
+      "type": "create-file",
+      "source": "prisma.config.ts",
+      "destination": "prisma.config.ts"
     },
     {
       "type": "create-file",
@@ -21,11 +26,12 @@
     }
   ],
   "dependencies": {
-    "prisma": "^5.22.0",
-    "@prisma/client": "^5.22.0"
+    "prisma": "^7.2.0",
+    "@prisma/client": "^7.2.0",
+    "dotenv": "^16.4.5"
   },
   "devDependencies": {
-    "prisma": "^5.22.0"
+    "prisma": "^7.2.0"
   },
   "scripts": {
     "db:generate": "prisma generate",

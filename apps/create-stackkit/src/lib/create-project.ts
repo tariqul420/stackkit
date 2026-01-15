@@ -325,7 +325,7 @@ async function composeTemplate(config: ProjectConfig, targetDir: string): Promis
     features.push('emailVerification');
   }
 
-  await generator.generate(
+  const postInstallCommands = await generator.generate(
     {
       framework: config.framework,
       database: config.database === 'none' ? undefined : config.database,
@@ -361,7 +361,7 @@ async function composeTemplate(config: ProjectConfig, targetDir: string): Promis
   }
 
   // For now, return empty array as post-install commands are handled by the generator
-  return [];
+  return postInstallCommands;
 }
 
 function showNextSteps(config: ProjectConfig): void {
