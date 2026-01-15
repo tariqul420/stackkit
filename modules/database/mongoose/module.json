@@ -11,50 +11,5 @@
     "databases": ["mongoose"],
     "languages": ["typescript", "javascript"],
     "packageManagers": ["npm", "yarn", "pnpm", "bun"]
-  },
-  "dependencies": {
-    "mongoose": "^8.8.4"
-  },
-  "devDependencies": {
-    "@types/mongoose": "^5.11.97"
-  },
-  "envVars": {
-    "common": [
-      {
-        "key": "DATABASE_URL",
-        "value": "mongodb+srv://username:password@cluster.mongodb.net/mydb",
-        "required": true
-      }
-    ]
-  },
-  "frameworkPatches": {
-    "express": {
-      "tsconfig.json": {
-        "merge": {
-          "compilerOptions": {
-            "baseUrl": ".",
-            "paths": {
-              "@/*": ["./*"]
-            }
-          },
-          "include": ["src/**/*", "lib/**/*"],
-          "exclude": ["node_modules", "dist"]
-        }
-      }
-    }
-  },
-  "patches": [
-    {
-      "type": "create-file",
-      "description": "{{dbDescription}}",
-      "source": "lib/{{dbFile}}",
-      "destination": "{{lib}}/{{dbFile}}"
-    },
-    {
-      "type": "create-file",
-      "description": "Create sample User model",
-      "source": "models/User.ts",
-      "destination": "{{models}}/User.ts"
-    }
-  ]
+  }
 }

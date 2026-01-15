@@ -79,7 +79,6 @@ export interface GeneratorConfig {
   devDependencies?: Record<string, string>;
   scripts?: Record<string, string>;
   envVars?: Record<string, string>;
-  variables?: Record<string, string>;
 }
 
 export class AdvancedCodeGenerator {
@@ -296,26 +295,6 @@ export class AdvancedCodeGenerator {
     if (selectedModules.dbProvider) {
       context.databaseProvider = selectedModules.dbProvider;
     }
-
-    // Collect variables from all selected generators and compute dynamic variables
-    const allVariables: Record<string, unknown> = {};
-    for (const [key, generator] of this.generators) {
-      const [genType, name] = key.split(':');
-
-      if ((genType === 'framework' && name === selectedModules.framework) ||
-          (genType === 'database' && name === selectedModules.database) ||
-          (genType === 'auth' && name === selectedModules.auth)) {
-        Object.assign(allVariables, generator.variables);
-
-        // Compute dynamic variables based on selections
-        if (genType === 'auth' && name === selectedModules.auth) {
-          // No hardcoded conditions needed - logic moved to template files
-        }
-      }
-    }
-
-    // Merge all variables into context
-    Object.assign(context, allVariables);
 
     // Collect all applicable operations
     const applicableOperations: Array<Operation & { generator: string; generatorType: string }> = [];

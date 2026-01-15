@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { ServerApiVersion } from "mongodb";
 
 type MongooseCache = {
   conn: typeof mongoose | null;
@@ -32,11 +31,7 @@ async function dbConnect(): Promise<typeof mongoose> {
       bufferCommands: false,
       connectTimeoutMS: 10000,
       serverSelectionTimeoutMS: 10000,
-      serverApi: {
-        version: ServerApiVersion.v1,
-        strict: true,
-        deprecationErrors: true,
-      },
+      // serverApi removed: not needed for mongoose-only connection
     };
 
     cached.promise = mongoose
@@ -65,4 +60,4 @@ async function dbConnect(): Promise<typeof mongoose> {
   return cached.conn;
 }
 
-export default dbConnect;
+export { dbConnect as mongoose, dbConnect as connectMongoose };

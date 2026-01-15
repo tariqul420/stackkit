@@ -5,7 +5,7 @@
   "operations": [
     {
       "type": "create-file",
-      "description": "Create Better Auth configuration file with conditional logic",
+      "description": "Create Better Auth configuration file",
       "source": "lib/auth.ts",
       "destination": "{{lib}}/auth.ts"
     },
@@ -23,14 +23,21 @@
     },
     {
       "type": "create-file",
-      "description": "Create Better Auth API routes",
+      "description": "Create Better Auth API routes for Next.js",
       "source": "api/auth/[...all]/route.ts",
       "destination": "app/api/auth/[...all]/route.ts",
       "condition": { "framework": "nextjs" }
     },
     {
       "type": "create-file",
-      "description": "Create Better Auth middleware",
+      "description": "Create Better Auth client for React",
+      "source": "lib/auth-client.ts",
+      "destination": "{{lib}}/auth-client.ts",
+      "condition": { "framework": "nextjs" }
+    },
+    {
+      "type": "create-file",
+      "description": "Create Better Auth middleware for Next.js",
       "destination": "middleware.ts",
       "condition": { "framework": "nextjs" },
       "content": "import { auth } from \"@/lib/auth\";\n\nexport default auth((req) => {\n  console.log('middleware', req.auth)\n})\n\nexport const config = {\n  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],\n}"
@@ -72,9 +79,5 @@
     "EMAIL_USER": "",
     "EMAIL_PASS": "",
     "EMAIL_FROM": "noreply@yourapp.com"
-  },
-  "variables": {
-    "authFile": "auth.ts",
-    "lib": "lib"
   }
 }

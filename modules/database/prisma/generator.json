@@ -10,8 +10,8 @@
     },
     {
       "type": "create-file",
-      "destination": "{{lib}}/prisma.ts",
-      "content": "import { PrismaClient } from '@prisma/client'\n\nconst globalForPrisma = globalThis as unknown as {\n  prisma: PrismaClient | undefined\n}\n\nexport const prisma = globalForPrisma.prisma ?? new PrismaClient()\n\nif (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma"
+      "source": "lib/prisma.ts",
+      "destination": "{{lib}}/prisma.ts"
     },
     {
       "type": "create-file",
@@ -36,9 +36,5 @@
   },
   "envVars": {
     "DATABASE_URL": "postgresql://username:password@localhost:5432/database_name"
-  },
-  "variables": {
-    "databaseProvider": "postgresql",
-    "prismaImport": "import { prisma } from '@/lib/prisma'"
   }
 }

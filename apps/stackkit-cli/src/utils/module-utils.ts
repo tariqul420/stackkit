@@ -43,8 +43,7 @@ interface ModuleData {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   frameworkPatches?: Record<string, any>;
   patches?: Array<{ type: string; description: string; source: string; destination: string }>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  databaseAdapters?: Record<string, any>;
+  databaseAdapters?: Record<string, { dependencies?: Record<string, string>; devDependencies?: Record<string, string> }>;
   frameworkConfigs?: Record<string, FrameworkConfig>;
   postInstall?: string[];
 }
@@ -441,18 +440,6 @@ export async function mergeAuthConfig(
 
       if (adapterConfig) {
         // Database adapter logic moved to template files
-
-        if (adapterConfig.schema && adapterConfig.schemaDestination) {
-          const schemaSource = join(authModulePath, adapterConfig.schema);
-          const schemaDest = join(targetDir, adapterConfig.schemaDestination);
-
-          if (await fs.pathExists(schemaSource)) {
-            await fs.ensureDir(path.dirname(schemaDest));
-            let content = await fs.readFile(schemaSource, "utf-8");
-
-            // Schema variable logic moved to template files
-          }
-        }
 
         if (adapterConfig.dependencies) {
           const commonDeps = moduleData.databaseAdapters.common?.dependencies || {};

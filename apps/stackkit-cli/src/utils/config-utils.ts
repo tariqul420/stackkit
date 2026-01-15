@@ -50,7 +50,7 @@ export async function applyFrameworkPatches(
         patchConfig &&
         typeof patchConfig === "object" &&
         ("operations" in patchConfig ||
-          ("type" in patchConfig && (patchConfig as any).type === "patch-file"))
+          ("type" in patchConfig && typeof (patchConfig as Record<string, unknown>).type === "string" && (patchConfig as Record<string, unknown>).type === "patch-file"))
       ) {
         let fileContent = await fs.readFile(filePath, "utf-8");
         const operations = (patchConfig as { operations: unknown[] }).operations;

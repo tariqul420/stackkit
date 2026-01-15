@@ -12,186 +12,26 @@
     "packageManagers": ["npm", "yarn", "pnpm", "bun"]
   },
   "databaseAdapters": {
-    "common": {
-      "dependencies": {},
-      "devDependencies": {}
-    },
     "prisma-postgresql": {
-      "schema": "files/schemas/prisma-schema.prisma",
-      "schemaDestination": "prisma/schema.prisma",
       "dependencies": {
         "@prisma/adapter-pg": "^5.0.0",
         "pg": "^8.0.0"
       }
     },
     "prisma-mongodb": {
-      "schema": "files/schemas/prisma-schema.prisma",
-      "schemaDestination": "prisma/schema.prisma",
       "dependencies": {}
     },
     "prisma-mysql": {
-      "schema": "files/schemas/prisma-schema.prisma",
-      "schemaDestination": "prisma/schema.prisma",
       "dependencies": {
         "@prisma/adapter-mariadb": "^5.0.0",
         "mysql2": "^3.0.0"
       }
     },
     "prisma-sqlite": {
-      "schema": "files/schemas/prisma-schema.prisma",
-      "schemaDestination": "prisma/schema.prisma",
       "dependencies": {
         "@prisma/adapter-better-sqlite3": "^5.0.0",
         "better-sqlite3": "^9.0.0"
       }
-    }
-  },
-  "frameworkConfigs": {
-    "shared": {
-      "dependencies": {
-        "better-auth": "^1.4.12",
-        "nodemailer": "^7.0.12"
-      },
-      "devDependencies": {
-        "@types/nodemailer": "^6.4.17"
-      },
-      "envVars": [
-        {
-          "key": "BETTER_AUTH_SECRET",
-          "value": "",
-          "required": true
-        },
-        {
-          "key": "BETTER_AUTH_URL",
-          "value": "http://localhost:3000",
-          "required": true
-        },
-        {
-          "key": "EMAIL_HOST",
-          "value": "smtp.gmail.com",
-          "required": true
-        },
-        {
-          "key": "EMAIL_PORT",
-          "value": "587",
-          "required": true
-        },
-        {
-          "key": "EMAIL_USER",
-          "value": "",
-          "required": true
-        },
-        {
-          "key": "EMAIL_PASS",
-          "value": "",
-          "required": true
-        },
-        {
-          "key": "EMAIL_FROM",
-          "value": "noreply@yourapp.com",
-          "required": true
-        }
-      ]
-    },
-    "nextjs": {
-      "patches": [
-        {
-          "type": "create-file",
-          "description": "{{authDescription}}",
-          "source": "lib/{{authFile}}",
-          "destination": "{{lib}}/{{authFile}}"
-        },
-        {
-          "type": "create-file",
-          "description": "Create Better Auth API routes",
-          "source": "api/auth/[...all]/route.ts",
-          "destination": "app/api/auth/[...all]/route.ts"
-        },
-        {
-          "type": "create-file",
-          "description": "Create Better Auth client for React",
-          "source": "lib/auth-client.ts",
-          "destination": "{{lib}}/auth-client.ts"
-        },
-        {
-          "type": "create-file",
-          "description": "Create email service for sending emails",
-          "source": "lib/email-service.ts",
-          "destination": "{{lib}}/email/email-service.ts"
-        },
-        {
-          "type": "create-file",
-          "description": "Create email templates",
-          "source": "lib/email-templates.ts",
-          "destination": "{{lib}}/email/email-templates.ts"
-        }
-      ]
-    },
-    "express": {
-      "patches": [
-        {
-          "type": "create-file",
-          "description": "{{authDescription}}",
-          "source": "lib/{{authFile}}",
-          "destination": "{{lib}}/{{authFile}}"
-        },
-        {
-          "type": "patch-file",
-          "description": "Add Better Auth routes to Express app",
-          "file": "src/app.ts",
-          "operations": [
-            {
-              "type": "add-import",
-              "imports": [
-                "import { auth } from \"@/lib/auth\";",
-                "import { toNodeHandler } from \"better-auth/node\";"
-              ]
-            },
-            {
-              "type": "add-code",
-              "after": "// routes",
-              "code": "\napp.all(\"/api/auth/*splat\", toNodeHandler(auth));"
-            }
-          ]
-        },
-        {
-          "type": "create-file",
-          "description": "Create email service for sending emails",
-          "source": "lib/email-service.ts",
-          "destination": "{{lib}}/email/email-service.ts"
-        },
-        {
-          "type": "create-file",
-          "description": "Create email templates",
-          "source": "lib/email-templates.ts",
-          "destination": "{{lib}}/email/email-templates.ts"
-        }
-      ]
-    },
-    "react-vite": {
-      "dependencies": {
-        "better-auth": "^1.4.12"
-      },
-      "envVars": [
-        {
-          "key": "BETTER_AUTH_SECRET",
-          "value": "",
-          "required": true
-        },
-        {
-          "key": "BETTER_AUTH_URL",
-          "value": "http://localhost:3000",
-          "required": true
-        }
-      ],
-      "patches": [
-        {
-          "type": "create-file",
-          "description": "Create Better Auth client for React",
-          "source": "lib/auth-client.ts",
-          "destination": "{{lib}}/auth-client.ts"
-        }
-      ]
     }
   }
 }
