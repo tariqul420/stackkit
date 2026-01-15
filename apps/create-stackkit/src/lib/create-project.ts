@@ -321,9 +321,6 @@ async function composeTemplate(config: ProjectConfig, targetDir: string): Promis
 
   // Generate project using advanced code generator
   const features: string[] = [];
-  if (config.auth === 'better-auth') {
-    features.push('emailVerification');
-  }
 
   const postInstallCommands = await generator.generate(
     {

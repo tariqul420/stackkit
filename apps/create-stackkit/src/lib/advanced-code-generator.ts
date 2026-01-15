@@ -1,15 +1,6 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { FrameworkConfig } from './framework-utils';
-import { logger } from './utils/logger';
-
-export interface TemplateFragment {
-  name: string;
-  content: string;
-  type?: string;
-  condition?: TemplateCondition;
-  priority?: number;
-}
 
 export interface GenerationContext {
   framework: string;
@@ -77,7 +68,6 @@ export interface GeneratorConfig {
   type: 'framework' | 'database' | 'auth';
   priority: number;
   operations?: Operation[];
-  fragments?: TemplateFragment[];
   dependencies?: Record<string, string>;
   devDependencies?: Record<string, string>;
   scripts?: Record<string, string>;
@@ -106,7 +96,6 @@ export class AdvancedCodeGenerator {
           if (await fs.pathExists(generatorPath)) {
             try {
               const config: GeneratorConfig = await fs.readJson(generatorPath);
-              logger.log(`Loaded generator: ${type}:${moduleName}`);
               this.generators.set(`${type}:${moduleName}`, config);
             } catch {
               // Silently skip invalid generator files
@@ -287,7 +276,6 @@ export class AdvancedCodeGenerator {
     features: string[],
     outputPath: string
   ): Promise<string[]> {
-    logger.log(`Starting generation for framework: ${selectedModules.framework}, database: ${selectedModules.database}, auth: ${selectedModules.auth}`);
     // First, copy the base template
     await this.copyTemplate(selectedModules.framework, outputPath);
 
@@ -310,39 +298,23 @@ export class AdvancedCodeGenerator {
       // Check if this generator is selected
       if (genType === 'framework' && name === selectedModules.framework) {
         // Framework is always included
-        logger.log(`Selected framework generator: ${name}`);
       } else if (genType === 'database' && name === selectedModules.database) {
         // Database is selected
-        logger.log(`Selected database generator: ${name}`);
       } else if (genType === 'auth' && name === selectedModules.auth) {
         // Auth is selected
-        logger.log(`Selected auth generator: ${name}`);
       } else {
         continue; // Skip unselected generators
       }
 
-      // Handle both operations and fragments for backward compatibility
-      const items = generator.operations || generator.fragments || [];
+      // Handle operations
+      const items = generator.operations || [];
       for (const item of items) {
         if (this.evaluateCondition(item.condition, context)) {
-          if (generator.operations) {
-            // This is an operation
-            applicableOperations.push({
-              ...(item as Operation),
-              generator: name,
-              generatorType: genType,
-            });
-          } else {
-            // This is a legacy fragment - convert to operation
-            const operation = this.convertFragmentToOperation(item as TemplateFragment);
-            if (operation) {
-              applicableOperations.push({
-                ...operation,
-                generator: name,
-                generatorType: genType,
-              });
-            }
-          }
+          applicableOperations.push({
+            ...(item as Operation),
+            generator: name,
+            generatorType: genType,
+          });
         }
       }
     }
@@ -366,130 +338,30 @@ export class AdvancedCodeGenerator {
   }
 
   private async executeOperation(operation: Operation & { generator: string; generatorType: string }, context: GenerationContext, outputPath: string): Promise<void> {
-    try {
-      logger.log(`Executing operation: ${operation.type} for ${operation.generator}`);
-      // Process templates in operation content
-      const processedOperation = this.processOperationTemplates(operation, context);
+    // Process templates in operation content
+    const processedOperation = this.processOperationTemplates(operation, context);
 
-      switch (processedOperation.type) {
-        case 'create-file':
-          await this.executeCreateFile(processedOperation as Operation & { generator: string; generatorType: string }, context, outputPath);
-          break;
-        case 'patch-file':
-          await this.executePatchFile(processedOperation as Operation & { generator: string; generatorType: string }, context, outputPath);
-          break;
-        case 'add-dependency':
-          await this.executeAddDependency(processedOperation as Operation & { generator: string; generatorType: string }, context, outputPath);
-          break;
-        case 'add-script':
-          await this.executeAddScript(processedOperation as Operation & { generator: string; generatorType: string }, context, outputPath);
-          break;
-        case 'add-env':
-          await this.executeAddEnv(processedOperation as Operation & { generator: string; generatorType: string }, context, outputPath);
-          break;
-        case 'run-command':
-          this.executeRunCommand(processedOperation as Operation & { generator: string; generatorType: string }, context);
-          break;
-        default:
-          logger.warn(`Unknown operation type: ${processedOperation.type}`);
-      }
-    } catch (error) {
-      logger.error(`Error executing operation ${operation.type} for ${operation.generator}: ${(error as Error).message}`);
-      throw error;
-    }
-  }
-
-  private convertFragmentToOperation(fragment: TemplateFragment): Operation | null {
-    // Convert legacy fragments to operations
-    // This is a basic conversion - fragments were simpler than operations
-    switch (fragment.name) {
-      case 'schema':
-        return {
-          type: 'create-file',
-          destination: 'prisma/schema.prisma',
-          content: fragment.content,
-          condition: fragment.condition,
-          priority: fragment.priority,
-        };
-      case 'client':
-        return {
-          type: 'create-file',
-          destination: 'src/lib/prisma.ts',
-          content: fragment.content,
-          condition: fragment.condition,
-          priority: fragment.priority,
-        };
-      case 'models':
-        return {
-          type: 'create-file',
-          destination: 'src/lib/models.ts',
-          content: fragment.content,
-          condition: fragment.condition,
-          priority: fragment.priority,
-        };
-      case 'connection':
-        return {
-          type: 'create-file',
-          destination: 'src/lib/db.ts',
-          content: fragment.content,
-          condition: fragment.condition,
-          priority: fragment.priority,
-        };
-      case 'seed':
-        return {
-          type: 'create-file',
-          destination: 'scripts/seed.ts',
-          content: fragment.content,
-          condition: fragment.condition,
-          priority: fragment.priority,
-        };
-      case 'env-example':
-        return {
-          type: 'create-file',
-          destination: '.env.example',
-          content: fragment.content,
-          condition: fragment.condition,
-          priority: fragment.priority,
-        };
-      case 'middleware':
-        return {
-          type: 'create-file',
-          destination: 'middleware.ts',
-          content: fragment.content,
-          condition: fragment.condition,
-          priority: fragment.priority,
-        };
-      case 'api-auth':
-        return {
-          type: 'create-file',
-          destination: 'app/api/auth/[...better-auth]/route.ts',
-          content: fragment.content,
-          condition: fragment.condition,
-          priority: fragment.priority,
-        };
-      case 'layout-auth':
-        return {
-          type: 'patch-file',
-          file: 'app/layout.tsx',
-          operations: [{
-            type: 'replace-code',
-            replace: fragment.content,
-            content: fragment.content,
-          }],
-          condition: fragment.condition,
-          priority: fragment.priority,
-        };
-      case 'page-dashboard':
-        return {
-          type: 'create-file',
-          destination: 'app/dashboard/page.tsx',
-          content: fragment.content,
-          condition: fragment.condition,
-          priority: fragment.priority,
-        };
+    switch (processedOperation.type) {
+      case 'create-file':
+        await this.executeCreateFile(processedOperation as Operation & { generator: string; generatorType: string }, context, outputPath);
+        break;
+      case 'patch-file':
+        await this.executePatchFile(processedOperation as Operation & { generator: string; generatorType: string }, context, outputPath);
+        break;
+      case 'add-dependency':
+        await this.executeAddDependency(processedOperation as Operation & { generator: string; generatorType: string }, context, outputPath);
+        break;
+      case 'add-script':
+        await this.executeAddScript(processedOperation as Operation & { generator: string; generatorType: string }, context, outputPath);
+        break;
+      case 'add-env':
+        await this.executeAddEnv(processedOperation as Operation & { generator: string; generatorType: string }, context, outputPath);
+        break;
+      case 'run-command':
+        this.executeRunCommand(processedOperation as Operation & { generator: string; generatorType: string }, context);
+        break;
       default:
-        // Unknown fragment type - skip
-        return null;
+        // Unknown operation type - skip silently
     }
   }
 
@@ -724,7 +596,6 @@ export class AdvancedCodeGenerator {
     if (operation.command) {
       // Process template variables in the command
       const processedCommand = this.processTemplate(operation.command, context);
-      logger.log(`Adding post-install command: ${processedCommand}`);
       this.postInstallCommands.push(processedCommand);
     }
   }
