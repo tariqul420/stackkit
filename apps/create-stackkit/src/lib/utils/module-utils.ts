@@ -3,6 +3,7 @@ import path, { join } from "path";
 import { applyFrameworkPatches } from "./config-utils";
 import { mergeEnvFile, mergePackageJson } from "./file-utils";
 import { logger } from "./logger";
+import { processAllModules, type ProcessingContext } from "./module-processor";
 
 interface PatchOperation {
   type: string;
@@ -313,87 +314,16 @@ export async function mergeDatabaseConfig(
   framework: string,
   dbProvider?: string,
 ): Promise<string[]> {
-  try {
-    const modulesDir = join(templatesDir, "..", "modules");
-    const dbModulePath = join(modulesDir, "database", database);
+  const context: ProcessingContext = {
+    framework,
+    database,
+    dbProvider,
+    targetDir,
+    modulesDir: path.join(templatesDir, '..', 'modules'),
+    templatesDir,
+  };
 
-    if (!(await fs.pathExists(dbModulePath))) {
-      logger.warn(`Database module not found: ${database}`);
-      return [];
-    }
-
-    const moduleData = await loadModuleData(dbModulePath);
-    const variables = generateVariables(database, framework, dbProvider);
-    const frameworkPaths = getFrameworkPaths(framework);
-
-    const filesDir = join(dbModulePath, "files");
-    if (await fs.pathExists(filesDir)) {
-      for (const patch of moduleData.patches || []) {
-        await processPatch(patch, filesDir, targetDir, variables, frameworkPaths);
-      }
-    }
-
-    // Merge dependencies
-    let dependencies: Record<string, string> = {};
-    let devDependencies: Record<string, string> = {};
-
-    if (moduleData.dependencies) {
-      if (moduleData.dependencies.common || moduleData.dependencies.providers) {
-        // Structured dependencies (common + providers)
-        dependencies = {
-          ...moduleData.dependencies.common,
-          ...(dbProvider ? moduleData.dependencies.providers?.[dbProvider] : {}),
-        };
-      } else {
-        // Flat dependencies structure
-        dependencies = { ...moduleData.dependencies };
-      }
-    }
-
-    if (moduleData.devDependencies) {
-      if (moduleData.devDependencies.common || moduleData.devDependencies.providers) {
-        // Structured devDependencies
-        devDependencies = {
-          ...moduleData.devDependencies.common,
-          ...(dbProvider ? moduleData.devDependencies.providers?.[dbProvider] : {}),
-        };
-      } else {
-        // Flat devDependencies structure
-        devDependencies = { ...moduleData.devDependencies };
-      }
-    }
-
-    await mergePackageJson(targetDir, { dependencies, devDependencies });
-
-    // Process environment variables
-    const envVars: Record<string, string> = {};
-    const commonEnvVars = Array.isArray(moduleData.envVars)
-      ? moduleData.envVars
-      : moduleData.envVars?.common || [];
-    const providerEnvVars =
-      dbProvider && moduleData.envVars?.providers?.[dbProvider]
-        ? moduleData.envVars.providers[dbProvider]
-        : [];
-    const allEnvVars = [...commonEnvVars, ...providerEnvVars];
-
-    Object.assign(envVars, processEnvVars(allEnvVars, variables));
-    await mergeEnvFile(targetDir, envVars);
-
-    // Apply framework-specific patches
-    if (moduleData.frameworkPatches) {
-      const frameworkKey = framework === "react-vite" ? "react" : framework;
-      const patches = moduleData.frameworkPatches[frameworkKey];
-
-      if (patches) {
-        await applyFrameworkPatches(targetDir, patches);
-      }
-    }
-
-    return moduleData.postInstall || [];
-  } catch (error) {
-    logger.error(`Failed to merge database config for ${database}: ${(error as Error).message}`);
-    throw error;
-  }
+  return await processAllModules(context);
 }
 
 export async function mergeAuthConfig(
@@ -404,145 +334,15 @@ export async function mergeAuthConfig(
   database: string = "none",
   dbProvider?: string,
 ): Promise<void> {
-  try {
-    const modulesDir = join(templatesDir, "..", "modules");
-    const authModulePath = join(modulesDir, "auth", auth);
+  const context: ProcessingContext = {
+    framework,
+    database,
+    dbProvider,
+    auth,
+    targetDir,
+    modulesDir: path.join(templatesDir, '..', 'modules'),
+    templatesDir,
+  };
 
-    if (!(await fs.pathExists(authModulePath))) {
-      logger.warn(`Auth module not found: ${auth}`);
-      return;
-    }
-
-    const moduleData = await loadModuleData(authModulePath);
-
-    if (moduleData.supportedFrameworks && !moduleData.supportedFrameworks.includes(framework)) {
-      logger.warn(`Auth ${auth} does not support framework ${framework}`);
-      return;
-    }
-
-    let frameworkConfig: FrameworkConfig | null = null;
-    if (moduleData.frameworkConfigs) {
-      frameworkConfig = moduleData.frameworkConfigs[framework];
-      if (!frameworkConfig) {
-        logger.warn(`No config for framework ${framework} in ${auth}`);
-        return;
-      }
-      const shared = moduleData.frameworkConfigs.shared;
-      if (shared) {
-        frameworkConfig = {
-          ...shared,
-          ...frameworkConfig,
-        };
-      }
-    }
-
-    const variables = generateVariables(database, framework, dbProvider, auth);
-    const frameworkPaths = getFrameworkPaths(framework);
-
-    // Handle database adapters first to set variables
-    if (database !== "none" && moduleData.databaseAdapters) {
-      let adapterKey = database;
-      if (database === "prisma" && dbProvider) {
-        adapterKey = `prisma-${dbProvider}`;
-      }
-      const adapterConfig = moduleData.databaseAdapters[adapterKey];
-
-      if (adapterConfig) {
-        // Generate adapter code based on database type
-        if (database === "prisma" && dbProvider) {
-          variables.databaseAdapter = `database: prismaAdapter(prisma, {\n    provider: "${dbProvider}",\n  }),`;
-        }else if (database === "mongoose") {
-          variables.databaseAdapter = `database: prismaAdapter(db, {\n    client,\n  }),`;
-        }
-
-        if (adapterConfig.schema && adapterConfig.schemaDestination) {
-          const schemaSource = join(authModulePath, adapterConfig.schema);
-          const schemaDest = join(targetDir, adapterConfig.schemaDestination);
-
-          if (await fs.pathExists(schemaSource)) {
-            await fs.ensureDir(path.dirname(schemaDest));
-            let content = await fs.readFile(schemaSource, "utf-8");
-
-            // Set schema variables for Prisma
-            if (dbProvider === "postgresql") {
-              variables.provider = "postgresql";
-              variables.idDefault = "@default(cuid())";
-              variables.userIdType = "";
-            } else if (dbProvider === "mongodb") {
-              variables.provider = "mongodb";
-              variables.idDefault = '@default(auto()) @map("_id") @db.ObjectId';
-              variables.userIdType = "@db.ObjectId";
-            } else if (dbProvider === "mysql") {
-              variables.provider = "mysql";
-              variables.idDefault = "@default(cuid())";
-              variables.userIdType = "";
-            } else if (dbProvider === "sqlite") {
-              variables.provider = "sqlite";
-              variables.idDefault = "@default(cuid())";
-              variables.userIdType = "";
-            }
-
-            for (const [key, value] of Object.entries(variables)) {
-              content = content.replace(new RegExp(`{{${key}}}`, "g"), value);
-            }
-            await fs.writeFile(schemaDest, content, { flag: "a" }); // append
-          }
-        }
-
-        if (adapterConfig.dependencies) {
-          const commonDeps = moduleData.databaseAdapters.common?.dependencies || {};
-          const commonDevDeps = moduleData.databaseAdapters.common?.devDependencies || {};
-          const specificDeps = adapterConfig.dependencies;
-          const specificDevDeps = adapterConfig.devDependencies || {};
-          await mergePackageJson(targetDir, {
-            dependencies: { ...commonDeps, ...specificDeps },
-            devDependencies: { ...commonDevDeps, ...specificDevDeps },
-          });
-        }
-      }
-    }
-
-    const filesDir = join(authModulePath, "files");
-    if (await fs.pathExists(filesDir)) {
-      const patches = frameworkConfig?.patches || moduleData.patches || [];
-      for (const patch of patches) {
-        await processPatch(patch, filesDir, targetDir, variables, frameworkPaths);
-      }
-    }
-
-    // Add framework-specific patches
-    if (framework === "nextjs") {
-      const apiSource = join(filesDir, "api/auth/[...all]/route.ts");
-      const apiDest = join(targetDir, "app/api/auth/[...all]/route.ts");
-      if (await fs.pathExists(apiSource)) {
-        await fs.ensureDir(path.dirname(apiDest));
-        await fs.copy(apiSource, apiDest, { overwrite: false });
-      }
-    }
-
-    // Merge package.json
-    await mergePackageJson(targetDir, {
-      dependencies: frameworkConfig?.dependencies || moduleData.dependencies,
-      devDependencies: frameworkConfig?.devDependencies || moduleData.devDependencies,
-    });
-
-    // Process environment variables
-    const envVars: Record<string, string> = {};
-    const envVarList = frameworkConfig?.envVars || moduleData.envVars || [];
-    Object.assign(envVars, processEnvVars(envVarList, variables));
-    await mergeEnvFile(targetDir, envVars);
-
-    // Apply framework-specific patches
-    if (moduleData.frameworkPatches) {
-      const frameworkKey = framework === "react-vite" ? "react" : framework;
-      const patches = moduleData.frameworkPatches[frameworkKey];
-
-      if (patches) {
-        await applyFrameworkPatches(targetDir, patches);
-      }
-    }
-  } catch (error) {
-    logger.error(`Failed to merge auth config for ${auth}: ${(error as Error).message}`);
-    throw error;
-  }
+  await processAllModules(context);
 }

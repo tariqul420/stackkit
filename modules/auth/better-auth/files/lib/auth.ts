@@ -1,10 +1,22 @@
 import { betterAuth } from "better-auth";
 import { sendEmail } from "./email/email-service";
 import { getVerificationEmailTemplate, getPasswordResetEmailTemplate } from "./email/email-templates";
-{{dbImport}}
+{{#if database=='prisma'}}
+import { prisma } from "{{framework=='nextjs' ? '@/lib' : '.'}}/prisma";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+{{/if}}
+{{#if database=='mongoose'}}
+import { mongoClient, db } from "{{framework=='nextjs' ? '@/lib' : '.'}}/db";
+import { mongodbAdapter } from "better-auth/adapters/mongodb";
+{{/if}}
 
 export const auth = betterAuth({
-{{databaseAdapter}}
+{{#if database=='prisma'}}
+  database: prismaAdapter(prisma),
+{{/if}}
+{{#if database=='mongoose'}}
+  database: mongodbAdapter(db),
+{{/if}}
   user: {
     additionalFields: {
       role: {
@@ -16,14 +28,16 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: true,
+    requireEmailVerification: {{feature:emailVerification}},
   },
+{{#if features.includes('socialAuth')}}
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     },
   },
+{{/if}}
   emailVerification: {
     sendVerificationEmail: async ({ user, url }) => {
       const { html, text } = getVerificationEmailTemplate(user, url);

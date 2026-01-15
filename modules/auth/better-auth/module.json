@@ -5,6 +5,12 @@
   "category": "auth",
   "provider": "better-auth",
   "supportedFrameworks": ["nextjs", "express", "react-vite"],
+  "compatibility": {
+    "frameworks": ["nextjs", "express", "react-vite"],
+    "databases": ["prisma", "mongoose"],
+    "languages": ["typescript", "javascript"],
+    "packageManagers": ["npm", "yarn", "pnpm", "bun"]
+  },
   "databaseAdapters": {
     "common": {
       "dependencies": {},

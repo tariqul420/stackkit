@@ -5,6 +5,12 @@
   "category": "database",
   "provider": "prisma",
   "supportedFrameworks": ["nextjs", "express"],
+  "compatibility": {
+    "frameworks": ["nextjs", "express"],
+    "databases": ["prisma"],
+    "languages": ["typescript", "javascript"],
+    "packageManagers": ["npm", "yarn", "pnpm", "bun"]
+  },
   "dependencies": {
     "common": {
       "@prisma/client": "^7.2.0",

@@ -4,12 +4,13 @@ import fs from "fs-extra";
 import inquirer from "inquirer";
 import path from "path";
 import validateNpmPackageName from "validate-npm-package-name";
-import { copyBaseFramework } from "./utils/file-utils";
 import { initGit } from "./utils/git-utils";
 import { convertToJavaScript } from "./utils/js-conversion";
 import { logger } from "./utils/logger";
-import { mergeAuthConfig, mergeDatabaseConfig } from "./utils/module-utils";
+import { AdvancedCodeGenerator } from "./advanced-code-generator";
+import { FrameworkUtils } from "./framework-utils";
 import { installDependencies } from "./utils/package-utils";
+import { discoverModules, getValidDatabaseOptions, getValidAuthOptions, parseDatabaseOption, getCompatibleAuthOptions, getDatabaseChoices } from "./utils/module-discovery";
 
 interface ProjectConfig {
   projectName: string;
@@ -70,6 +71,10 @@ export async function createProject(projectName?: string, options?: CliOptions):
 }
 
 async function getProjectConfig(projectName?: string, options?: CliOptions): Promise<ProjectConfig> {
+  // Discover available modules
+  const modulesDir = path.join(__dirname, "..", "..", "modules");
+  const discoveredModules = await discoverModules(modulesDir);
+
   if (options && Object.keys(options).length > 0) {
     if (options.yes || options.y) {
       return {
@@ -82,20 +87,24 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
         packageManager: "pnpm",
       };
     }
-    // Validate options
-    const validFrameworks = ['nextjs', 'express', 'react-vite'];
+    // Validate options using discovered modules
+    const validFrameworks = discoveredModules.frameworks.map(f => f.name);
     const framework = options.framework || options.f;
     if (framework && !validFrameworks.includes(framework)) {
       throw new Error(`Invalid framework: ${framework}. Valid options: ${validFrameworks.join(', ')}`);
     }
 
-    const validDatabases = ['prisma-postgresql', 'prisma-mongodb', 'prisma-mysql', 'prisma-sqlite', 'mongoose-mongodb', 'none'];
+    const validDatabases = getValidDatabaseOptions(discoveredModules.databases);
+    // Also allow base database names like 'prisma', 'mongoose'
+    const validBaseDatabases = discoveredModules.databases.map(db => db.name);
+    const allValidDatabases = [...validDatabases, ...validBaseDatabases];
+    
     const db = options.database || options.d;
-    if (db && !validDatabases.includes(db)) {
-      throw new Error(`Invalid database: ${db}. Valid options: ${validDatabases.join(', ')}`);
+    if (db && !allValidDatabases.includes(db)) {
+      throw new Error(`Invalid database: ${db}. Valid options: ${allValidDatabases.filter((v, i, arr) => arr.indexOf(v) === i).join(', ')}`);
     }
 
-    const validAuth = ['better-auth', 'authjs', 'none'];
+    const validAuth = getValidAuthOptions(discoveredModules.auth);
     const authOpt = options.auth || options.a;
     if (authOpt && !validAuth.includes(authOpt)) {
       throw new Error(`Invalid auth: ${authOpt}. Valid options: ${validAuth.join(', ')}`);
@@ -117,18 +126,9 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
     let dbProvider: "postgresql" | "mongodb" | "mysql" | "sqlite" | undefined;
 
     if (db && db !== "none") {
-      if (db.startsWith("prisma-")) {
-        database = "prisma";
-        const provider = db.split("-")[1];
-        if (!["postgresql", "mongodb", "mysql", "sqlite"].includes(provider)) {
-          throw new Error(`Invalid Prisma provider: ${provider}`);
-        }
-        dbProvider = provider as "postgresql" | "mongodb" | "mysql" | "sqlite";
-      } else if (db === "mongoose-mongodb") {
-        database = "mongoose";
-      } else {
-        throw new Error(`Unsupported database: ${db}`);
-      }
+      const parsed = parseDatabaseOption(db);
+      database = parsed.database as "prisma" | "mongoose";
+      dbProvider = parsed.provider as "postgresql" | "mongodb" | "mysql" | "sqlite";
     }
 
     let auth: "better-auth" | "authjs" | "none" = "none";
@@ -160,6 +160,7 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
       packageManager: (pm || "pnpm") as "pnpm" | "npm" | "yarn" | "bun",
     };
   }
+  // Use discovered modules for interactive prompts
   const answers = (await inquirer.prompt([
     {
       type: "input",
@@ -182,22 +183,17 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
       type: "list",
       name: "framework",
       message: "Select framework:",
-      choices: [
-        { name: "Next.js", value: "nextjs" },
-        { name: "Express.js", value: "express" },
-        { name: "React (Vite)", value: "react-vite" },
-      ],
+      choices: discoveredModules.frameworks.map(f => ({
+        name: f.displayName,
+        value: f.name
+      })),
     },
     {
       type: "list",
       name: "database",
       message: "Select database/ORM:",
       when: (answers: Answers) => answers.framework !== "react-vite",
-      choices: [
-        { name: "Prisma", value: "prisma" },
-        { name: "Mongoose (MongoDB)", value: "mongoose" },
-        { name: "None", value: "none" },
-      ],
+      choices: (answers: Answers) => getDatabaseChoices(discoveredModules.databases, answers.framework),
     },
     {
       type: "list",
@@ -216,34 +212,11 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
       name: "auth",
       message: "Select authentication:",
       when: (answers: Answers) => (answers.database !== "none" || answers.framework === "react-vite"),
-      choices: (answers: Answers) => {
-        if (answers.framework === "react-vite") {
-          return [
-            { name: "Better Auth", value: "better-auth" },
-            { name: "None", value: "none" },
-          ];
-        }
-        if (answers.database === "mongoose") {
-          return [
-            { name: "Better Auth", value: "better-auth" },
-            { name: "None", value: "none" },
-          ];
-        }
-        if (answers.framework === "nextjs" && answers.database === "prisma") {
-          return [
-            { name: "Better Auth", value: "better-auth" },
-            { name: "Auth.js", value: "authjs" },
-            { name: "None", value: "none" },
-          ];
-        }
-        if (answers.framework === "express" && answers.database === "prisma") {
-          return [
-            { name: "Better Auth", value: "better-auth" },
-            { name: "None", value: "none" },
-          ];
-        }
-        return [{ name: "None", value: "none" }];
-      },
+      choices: (answers: Answers) => getCompatibleAuthOptions(
+        discoveredModules.auth,
+        answers.framework,
+        answers.database || "none"
+      ),
     },
     {
       type: "list",
@@ -269,13 +242,15 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
     },
   ])) as Answers;
 
+  const parsedDb = answers.database ? parseDatabaseOption(answers.database) : { database: 'none' as const };
+
   return {
     projectName: (projectName || answers.projectName) as string,
     framework: answers.framework,
     database: (answers.framework === "react-vite"
       ? "none"
-      : answers.database) as ProjectConfig["database"],
-    dbProvider: answers.dbProvider,
+      : parsedDb.database) as ProjectConfig["database"],
+    dbProvider: answers.dbProvider || (parsedDb.provider as "postgresql" | "mongodb" | "mysql" | "sqlite" | undefined),
     auth: (answers.auth || "none"),
     language: answers.language,
     packageManager: answers.packageManager,
@@ -333,10 +308,41 @@ async function generateProject(config: ProjectConfig, targetDir: string, options
 
 async function composeTemplate(config: ProjectConfig, targetDir: string): Promise<string[]> {
   const templatesDir = path.join(__dirname, "..", "..", "templates");
+  const modulesDir = path.join(__dirname, "..", "..", "modules");
 
   await fs.ensureDir(targetDir);
 
-  await copyBaseFramework(templatesDir, targetDir, config.framework);
+  // Load framework configuration
+  const frameworkConfig = await FrameworkUtils.loadFrameworkConfig(config.framework, templatesDir);
+
+  // Initialize advanced code generator
+  const generator = new AdvancedCodeGenerator(frameworkConfig);
+  await generator.loadGenerators(modulesDir);
+
+  // Generate project using advanced code generator
+  const features: string[] = [];
+  if (config.auth === 'better-auth') {
+    features.push('emailVerification');
+  }
+
+  await generator.generate(
+    {
+      framework: config.framework,
+      database: config.database === 'none' ? undefined : config.database,
+      auth: config.auth === 'none' ? undefined : config.auth,
+      dbProvider: config.dbProvider,
+    },
+    features,
+    targetDir
+  );
+
+  // Update project name in package.json
+  const packageJsonPath = path.join(targetDir, "package.json");
+  if (await fs.pathExists(packageJsonPath)) {
+    const packageJson = await fs.readJson(packageJsonPath);
+    packageJson.name = config.projectName;
+    await fs.writeJson(packageJsonPath, packageJson, { spaces: 2 });
+  }
 
   // Ensure .env exists: if .env.example was copied from the template, create .env from it
   try {
@@ -350,42 +356,12 @@ async function composeTemplate(config: ProjectConfig, targetDir: string): Promis
     // non-fatal
   }
 
-  const postInstallCommands: string[] = [];
-
-  if (config.database !== "none") {
-    const dbPostInstall = await mergeDatabaseConfig(
-      templatesDir,
-      targetDir,
-      config.database,
-      config.framework,
-      config.dbProvider,
-    );
-    postInstallCommands.push(...dbPostInstall);
-  }
-
-  if (config.auth !== "none") {
-    await mergeAuthConfig(
-      templatesDir,
-      targetDir,
-      config.framework,
-      config.auth,
-      config.database,
-      config.dbProvider,
-    );
-  }
-
-  const packageJsonPath = path.join(targetDir, "package.json");
-  if (await fs.pathExists(packageJsonPath)) {
-    const packageJson = await fs.readJson(packageJsonPath);
-    packageJson.name = config.projectName;
-    await fs.writeJson(packageJsonPath, packageJson, { spaces: 2 });
-  }
-
   if (config.language === "javascript") {
     await convertToJavaScript(targetDir, config.framework);
   }
 
-  return postInstallCommands;
+  // For now, return empty array as post-install commands are handled by the generator
+  return [];
 }
 
 function showNextSteps(config: ProjectConfig): void {

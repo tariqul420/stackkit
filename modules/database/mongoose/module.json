@@ -6,6 +6,12 @@
   "provider": "mongoose",
   "database": "mongodb",
   "supportedFrameworks": ["nextjs", "express"],
+  "compatibility": {
+    "frameworks": ["nextjs", "express"],
+    "databases": ["mongoose"],
+    "languages": ["typescript", "javascript"],
+    "packageManagers": ["npm", "yarn", "pnpm", "bun"]
+  },
   "dependencies": {
     "mongoose": "^8.8.4"
   },

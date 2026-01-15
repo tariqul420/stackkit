@@ -64,9 +64,9 @@ Usage:
   create-stackkit-app [project-name] [options]
 
 Options:
-  -f, --framework <framework>    Framework: nextjs, express, react-vite
-  -d, --database <database>      Database: prisma-postgresql, prisma-mongodb, prisma-mysql, prisma-sqlite, mongoose-mongodb, none
-  -a, --auth <auth>              Auth: better-auth, authjs, none
+  -f, --framework <framework>    Framework (discovered dynamically)
+  -d, --database <database>      Database (discovered dynamically)
+  -a, --auth <auth>              Auth (discovered dynamically)
   -l, --language <language>      Language: typescript, javascript
   -p, --package-manager <pm>     Package manager: pnpm, npm, yarn, bun
   --skip-install                 Skip dependency installation

@@ -3,6 +3,25 @@
   "displayName": "Next.js",
   "framework": "nextjs",
   "description": "Next.js 16 App Router with TypeScript",
+  "paths": {
+    "lib": "lib",
+    "router": "app",
+    "models": "lib",
+    "config": ".",
+    "public": "public",
+    "src": "."
+  },
+  "extensions": {
+    "typescript": ".ts",
+    "javascript": ".js"
+  },
+  "fileStructure": {
+    "hasAppRouter": true,
+    "hasPagesRouter": false,
+    "hasSrcDir": false,
+    "hasPublicDir": true,
+    "configFiles": ["next.config.ts", "tailwind.config.ts"]
+  },
   "files": [
     "app/",
     "public/",

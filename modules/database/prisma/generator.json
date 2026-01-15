@@ -1,0 +1,44 @@
+{
+  "name": "prisma",
+  "type": "database",
+  "priority": 5,
+  "operations": [
+    {
+      "type": "create-file",
+      "destination": "prisma/schema.prisma",
+      "content": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\ngenerator client {\n  provider = \"prisma-client-js\"\n}\n\ndatasource db {\n  provider = \"{{databaseProvider}}\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id        String   @id {{#if databaseProvider==\"postgresql\"}}@default(cuid()){{/if}}{{#if databaseProvider!=\"postgresql\"}}@default(uuid()){{/if}}\n  email     String   @unique\n  name      String?\n  password  String?\n  role      String   @default(\"USER\")\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  {{#if auth==\"better-auth\"}}accounts Account[]\n  sessions Session[]\n  {{/if}}\n}\n\n{{#if auth==\"better-auth\"}}model Account {\n  id                String  @id {{#if databaseProvider==\"postgresql\"}}@default(cuid()){{/if}}{{#if databaseProvider!=\"postgresql\"}}@default(uuid()){{/if}}\n  accountId         String\n  providerId        String\n  userId            String\n  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@unique([providerId, accountId])\n}\n\nmodel Session {\n  id        String   @id {{#if databaseProvider==\"postgresql\"}}@default(cuid()){{/if}}{{#if databaseProvider!=\"postgresql\"}}@default(uuid()){{/if}}\n  expiresAt DateTime\n  token     String   @unique\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  userId    String\n  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n}\n{{/if}}"
+    },
+    {
+      "type": "create-file",
+      "destination": "{{lib}}/prisma.ts",
+      "content": "import { PrismaClient } from '@prisma/client'\n\nconst globalForPrisma = globalThis as unknown as {\n  prisma: PrismaClient | undefined\n}\n\nexport const prisma = globalForPrisma.prisma ?? new PrismaClient()\n\nif (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma"
+    },
+    {
+      "type": "create-file",
+      "destination": "prisma/seed.ts",
+      "condition": { "features": ["seed"] },
+      "content": "import { PrismaClient } from '@prisma/client'\n\nconst prisma = new PrismaClient()\n\nasync function main() {\n  // Create a default user\n  const user = await prisma.user.upsert({\n    where: { email: 'admin@example.com' },\n    update: {},\n    create: {\n      email: 'admin@example.com',\n      name: 'Admin User',\n      role: 'ADMIN',\n    },\n  })\n  console.log('Created user:', user)\n}\n\nmain()\n  .then(async () => {\n    await prisma.$disconnect()\n  })\n  .catch(async (e) => {\n    console.error(e)\n    await prisma.$disconnect()\n    process.exit(1)\n  })"
+    }
+  ],
+  "dependencies": {
+    "prisma": "^5.22.0",
+    "@prisma/client": "^5.22.0"
+  },
+  "devDependencies": {
+    "prisma": "^5.22.0"
+  },
+  "scripts": {
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio"
+  },
+  "envVars": {
+    "DATABASE_URL": "postgresql://username:password@localhost:5432/database_name"
+  },
+  "variables": {
+    "databaseProvider": "postgresql",
+    "prismaImport": "import { prisma } from '@/lib/prisma'"
+  }
+}

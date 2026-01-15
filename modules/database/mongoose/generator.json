@@ -1,0 +1,37 @@
+{
+  "name": "mongoose",
+  "type": "database",
+  "priority": 5,
+  "operations": [
+    {
+      "type": "create-file",
+      "destination": "src/lib/models.ts",
+      "content": "import mongoose, { Schema, Document } from 'mongoose'\n\nexport interface IUser extends Document {\n  email: string\n  name?: string\n  password?: string\n  role: string\n  createdAt: Date\n  updatedAt: Date\n  {{#if auth==\"better-auth\"}}accounts: mongoose.Types.ObjectId[]\n  {{/if}}\n}\n\nconst UserSchema = new Schema<IUser>({\n  email: { type: String, required: true, unique: true },\n  name: { type: String },\n  password: { type: String },\n  role: { type: String, default: 'USER' },\n  {{#if auth==\"better-auth\"}}accounts: [{ type: Schema.Types.ObjectId, ref: 'Account' }],\n  {{/if}}\n}, {\n  timestamps: true,\n})\n\nexport const User = mongoose.models.User || mongoose.model<IUser>('User', UserSchema)\n\n{{#if auth==\"better-auth\"}}export interface IAccount extends Document {\n  accountId: string\n  providerId: string\n  userId: mongoose.Types.ObjectId\n}\n\nconst AccountSchema = new Schema<IAccount>({\n  accountId: { type: String, required: true },\n  providerId: { type: String, required: true },\n  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },\n})\n\nexport const Account = mongoose.models.Account || mongoose.model<IAccount>('Account', AccountSchema)\n{{/if}}"
+    },
+    {
+      "type": "create-file",
+      "destination": "src/lib/db.ts",
+      "content": "import mongoose from 'mongoose'\n\ndeclare global {\n  var mongoose: any // This must be a `var` and not a `let / const`\n}\n\nconst MONGODB_URI = process.env.MONGODB_URI!\n\nif (!MONGODB_URI) {\n  throw new Error('Please define the MONGODB_URI environment variable inside .env.local')\n}\n\nlet cached = global.mongoose\n\nif (!cached) {\n  cached = global.mongoose = { conn: null, promise: null }\n}\n\nasync function dbConnect() {\n  if (cached.conn) {\n    return cached.conn\n  }\n\n  if (!cached.promise) {\n    const opts = {\n      bufferCommands: false,\n    }\n\n    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {\n      return mongoose\n    })\n  }\n\n  try {\n    cached.conn = await cached.promise\n  } catch (e) {\n    cached.promise = null\n    throw e\n  }\n\n  return cached.conn\n}\n\nexport default dbConnect"
+    },
+    {
+      "type": "create-file",
+      "destination": "scripts/seed.ts",
+      "condition": { "features": ["seed"] },
+      "content": "import dbConnect from '../src/lib/db'\nimport { User } from '../src/lib/models'\n\nasync function main() {\n  await dbConnect()\n\n  // Create a default user\n  const user = await User.findOneAndUpdate(\n    { email: 'admin@example.com' },\n    {\n      email: 'admin@example.com',\n      name: 'Admin User',\n      role: 'ADMIN',\n    },\n    { upsert: true, new: true }\n  )\n\n  console.log('Created user:', user)\n}\n\nmain().catch(console.error)"
+    }
+  ],
+  "dependencies": {
+    "mongoose": "^8.8.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "db:seed": "tsx scripts/seed.ts"
+  },
+  "envVars": {
+    "MONGODB_URI": "mongodb://localhost:27017/database_name"
+  },
+  "variables": {
+    "dbImport": "import dbConnect from '@/lib/db'",
+    "userModel": "import { User } from '@/lib/models'"
+  }
+}

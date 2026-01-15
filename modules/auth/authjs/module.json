@@ -5,6 +5,12 @@
   "category": "auth",
   "provider": "authjs",
   "supportedFrameworks": ["nextjs"],
+  "compatibility": {
+    "frameworks": ["nextjs"],
+    "databases": ["prisma"],
+    "languages": ["typescript", "javascript"],
+    "packageManagers": ["npm", "yarn", "pnpm", "bun"]
+  },
   "databaseAdapters": {
     "common": {
       "dependencies": {
