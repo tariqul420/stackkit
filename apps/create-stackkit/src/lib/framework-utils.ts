@@ -4,7 +4,7 @@ import * as path from 'path';
 export interface FrameworkConfig {
   name: string;
   displayName: string;
-  variables: Record<string, any>;
+  variables: Record<string, unknown>;
   compatibility: {
     databases: string[];
     auth: string[];
@@ -21,6 +21,7 @@ export interface ModuleConfig {
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class FrameworkUtils {
   private static frameworkConfigs: Map<string, FrameworkConfig> = new Map();
 
@@ -69,7 +70,7 @@ export class FrameworkUtils {
     database?: string,
     auth?: string,
     dbProvider?: string
-  ): Record<string, any> {
+  ): Record<string, unknown> {
     const config = this.frameworkConfigs.get(framework);
     const baseVars = config?.variables || {};
 

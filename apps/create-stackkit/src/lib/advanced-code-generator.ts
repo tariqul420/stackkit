@@ -1,6 +1,7 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { FrameworkConfig, ModuleConfig } from './framework-utils';
+import { FrameworkConfig } from './framework-utils';
+import { logger } from './utils/logger';
 
 export interface TemplateFragment {
   name: string;
@@ -15,7 +16,7 @@ export interface GenerationContext {
   database?: string;
   auth?: string;
   features?: string[];
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface TemplateCondition {
@@ -397,10 +398,10 @@ export class AdvancedCodeGenerator {
           await this.executeAddEnv(processedOperation as Operation & { generator: string; generatorType: string }, context, outputPath);
           break;
         default:
-          console.warn(`Unknown operation type: ${processedOperation.type}`);
+          logger.warn(`Unknown operation type: ${processedOperation.type}`);
       }
     } catch (error) {
-      console.error(`Error executing operation ${operation.type} for ${operation.generator}:`, error);
+      logger.error(`Error executing operation ${operation.type} for ${operation.generator}: ${(error as Error).message}`);
       throw error;
     }
   }
