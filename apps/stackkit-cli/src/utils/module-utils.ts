@@ -115,24 +115,7 @@ function generateVariables(
   if (auth) {
     variables.authFile = "auth.ts";
     variables.authDescription = `Create ${auth} authentication configuration`;
-
-    // Dynamic dbImport for auth modules
-    const libPath = framework === "nextjs" ? "@/lib" : ".";
-    const adapterImport = 'import { prismaAdapter } from "better-auth/adapters/prisma";';
-
-    if (database === "prisma") {
-      variables.dbImport = `import { prisma } from "${libPath}/prisma";
-${adapterImport}`;
-    } else if (database === "mongoose") {
-      variables.dbImport = `import { mongoClient: client, db } from "${libPath}/db";
-import { mongodbAdapter } from "better-auth/adapters/mongodb";
-`;
-    } else {
-      variables.dbImport =
-        database === "prisma"
-          ? `import { prisma } from "${libPath}/prisma";`
-          : `import { client } from "${libPath}/db";`;
-    }
+    // dbImport logic moved to template files
   } else {
     const libPath = framework === "nextjs" ? "@/lib" : ".";
     variables.dbImport = database === "prisma" ? `${libPath}/prisma` : `${libPath}/db`;
@@ -457,12 +440,7 @@ export async function mergeAuthConfig(
       const adapterConfig = moduleData.databaseAdapters[adapterKey];
 
       if (adapterConfig) {
-        // Generate adapter code based on database type
-        if (database === "prisma" && dbProvider) {
-          variables.databaseAdapter = `database: prismaAdapter(prisma, {\n    provider: "${dbProvider}",\n  }),`;
-        } else if (database === "mongoose") {
-          variables.databaseAdapter = `database: mongodbAdapter(db, {\n    client\n  }),`;
-        }
+        // Database adapter logic moved to template files
 
         if (adapterConfig.schema && adapterConfig.schemaDestination) {
           const schemaSource = join(authModulePath, adapterConfig.schema);
@@ -472,29 +450,7 @@ export async function mergeAuthConfig(
             await fs.ensureDir(path.dirname(schemaDest));
             let content = await fs.readFile(schemaSource, "utf-8");
 
-            // Set schema variables for Prisma
-            if (dbProvider === "postgresql") {
-              variables.provider = "postgresql";
-              variables.idDefault = "@default(cuid())";
-              variables.userIdType = "";
-            } else if (dbProvider === "mongodb") {
-              variables.provider = "mongodb";
-              variables.idDefault = '@default(auto()) @map("_id") @db.ObjectId';
-              variables.userIdType = "@db.ObjectId";
-            } else if (dbProvider === "mysql") {
-              variables.provider = "mysql";
-              variables.idDefault = "@default(cuid())";
-              variables.userIdType = "";
-            } else if (dbProvider === "sqlite") {
-              variables.provider = "sqlite";
-              variables.idDefault = "@default(cuid())";
-              variables.userIdType = "";
-            }
-
-            for (const [key, value] of Object.entries(variables)) {
-              content = content.replace(new RegExp(`{{${key}}}`, "g"), value);
-            }
-            await fs.writeFile(schemaDest, content, { flag: "a" }); // append
+            // Schema variable logic moved to template files
           }
         }
 

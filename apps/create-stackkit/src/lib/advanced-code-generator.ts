@@ -308,29 +308,7 @@ export class AdvancedCodeGenerator {
 
         // Compute dynamic variables based on selections
         if (genType === 'auth' && name === selectedModules.auth) {
-          // Database-specific imports and adapters
-          if (selectedModules.database === 'prisma') {
-            allVariables.dbImport = `import { prisma } from "${selectedModules.framework === 'nextjs' ? '@/lib' : '.'}/prisma";\nimport { prismaAdapter } from "better-auth/adapters/prisma";`;
-            allVariables.databaseAdapter = 'database: prismaAdapter(prisma),';
-          } else if (selectedModules.database === 'mongoose') {
-            allVariables.dbImport = `import { mongoClient, db } from "${selectedModules.framework === 'nextjs' ? '@/lib' : '.'}/db";\nimport { mongodbAdapter } from "better-auth/adapters/mongodb";`;
-            allVariables.databaseAdapter = 'database: mongodbAdapter(db),';
-          }
-
-          // Email verification
-          allVariables.emailVerificationEnabled = features.includes('emailVerification') ? 'true' : 'false';
-
-          // Social providers
-          if (features.includes('socialAuth')) {
-            allVariables.socialProviders = `socialProviders: {
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    },
-  },`;
-          } else {
-            allVariables.socialProviders = '';
-          }
+          // No hardcoded conditions needed - logic moved to template files
         }
       }
     }
@@ -525,13 +503,10 @@ export class AdvancedCodeGenerator {
     const templatesPath = path.resolve(__dirname, '..', '..', 'templates');
     const templatePath = path.join(templatesPath, frameworkName);
 
-    // Create a test file to verify this method is called
-    await fs.writeFile(path.join(outputPath, 'TEMPLATE_COPIED.txt'), `Template: ${frameworkName}\nPath: ${templatePath}\n`);
-
     if (await fs.pathExists(templatePath)) {
       // Copy all files except template.json and node_modules
       await fs.copy(templatePath, outputPath, {
-        filter: (src, dest) => {
+        filter: (src) => {
           const relativePath = path.relative(templatePath, src);
           return relativePath !== 'template.json' &&
                  relativePath !== 'node_modules' &&
