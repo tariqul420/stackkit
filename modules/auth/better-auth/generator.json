@@ -7,19 +7,22 @@
       "type": "create-file",
       "description": "Create Better Auth configuration file",
       "source": "lib/auth.ts",
-      "destination": "{{lib}}/auth.ts"
+      "destination": "lib/auth.ts",
+      "condition": { "framework": ["nextjs", "express"] }
     },
     {
       "type": "create-file",
       "description": "Create email service for sending emails",
       "source": "lib/email-service.ts",
-      "destination": "{{lib}}/email/email-service.ts"
+      "destination": "lib/email/email-service.ts",
+      "condition": { "framework": ["nextjs", "express"] }
     },
     {
       "type": "create-file",
       "description": "Create email templates",
       "source": "lib/email-templates.ts",
-      "destination": "{{lib}}/email/email-templates.ts"
+      "destination": "lib/email/email-templates.ts",
+      "condition": { "framework": ["nextjs", "express"] }
     },
     {
       "type": "create-file",
@@ -32,13 +35,13 @@
       "type": "create-file",
       "description": "Create Better Auth client for React",
       "source": "lib/auth-client.ts",
-      "destination": "{{lib}}/auth-client.ts",
-      "condition": { "framework": "nextjs" }
+      "destination": "lib/auth-client.ts",
+      "condition": { "framework": ["nextjs", "react-vite"] }
     },
     {
       "type": "create-file",
       "description": "Create Better Auth middleware for Next.js",
-      "destination": "middleware.ts",
+      "destination": "proxy.ts",
       "condition": { "framework": "nextjs" },
       "content": "import { auth } from \"@/lib/auth\";\n\nexport default auth((req) => {\n  console.log('middleware', req.auth)\n})\n\nexport const config = {\n  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],\n}"
     },

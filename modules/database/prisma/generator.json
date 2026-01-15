@@ -16,7 +16,10 @@
     {
       "type": "create-file",
       "source": "lib/prisma.ts",
-      "destination": "{{lib}}/prisma.ts"
+      "destination": "lib/prisma.ts",
+      "condition": {
+        "framework": ["nextjs", "express"]
+      }
     }
   ],
   "dependencies": {

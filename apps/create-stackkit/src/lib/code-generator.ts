@@ -11,9 +11,9 @@ export interface GenerationContext {
 }
 
 export interface TemplateCondition {
-  framework?: string;
-  database?: string;
-  auth?: string;
+  framework?: string | string[];
+  database?: string | string[];
+  auth?: string | string[];
   features?: string[];
 }
 
@@ -117,8 +117,14 @@ export class AdvancedCodeGenerator {
           return false;
         }
       } else {
-        if (context[key] !== value) {
-          return false;
+        if (Array.isArray(value)) {
+          if (!value.includes(context[key])) {
+            return false;
+          }
+        } else {
+          if (context[key] !== value) {
+            return false;
+          }
         }
       }
     }
