@@ -288,7 +288,6 @@ export class AdvancedCodeGenerator {
     const context: GenerationContext = {
       ...selectedModules,
       features,
-      ...this.frameworkConfig.variables,
     };
 
     // Add databaseProvider if dbProvider is specified

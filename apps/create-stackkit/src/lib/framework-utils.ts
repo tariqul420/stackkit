@@ -4,7 +4,6 @@ import * as path from 'path';
 export interface FrameworkConfig {
   name: string;
   displayName: string;
-  variables: Record<string, unknown>;
   compatibility: {
     databases: string[];
     auth: string[];
@@ -37,9 +36,6 @@ export class FrameworkUtils {
     const defaultConfig: FrameworkConfig = {
       name: frameworkName,
       displayName: frameworkName.charAt(0).toUpperCase() + frameworkName.slice(1),
-      variables: {
-        framework: frameworkName,
-      },
       compatibility: {
         databases: ['prisma', 'mongoose'],
         auth: ['better-auth', 'authjs'],
@@ -63,28 +59,5 @@ export class FrameworkUtils {
     }
 
     return true;
-  }
-
-  static generateDynamicVariables(
-    framework: string,
-    database?: string,
-    auth?: string,
-    dbProvider?: string
-  ): Record<string, unknown> {
-    const config = this.frameworkConfigs.get(framework);
-    const baseVars = config?.variables || {};
-
-    return {
-      ...baseVars,
-      framework,
-      database: database || 'none',
-      auth: auth || 'none',
-      dbProvider: dbProvider || '',
-      hasDatabase: database && database !== 'none',
-      hasAuth: auth && auth !== 'none',
-      isNextJs: framework === 'nextjs',
-      isExpress: framework === 'express',
-      isReactVite: framework === 'react-vite',
-    };
   }
 }
