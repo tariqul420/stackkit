@@ -170,9 +170,7 @@ export function getCompatibleAuthOptions(
   framework: string,
   database: string
 ): Array<{ name: string; value: string }> {
-  const compatible: Array<{ name: string; value: string }> = [
-    { name: 'None', value: 'none' }
-  ];
+  const compatible: Array<{ name: string; value: string }> = [];
 
   for (const auth of authModules) {
     // Check if auth supports the framework
@@ -195,6 +193,9 @@ export function getCompatibleAuthOptions(
     });
   }
 
+    // Add "None" at the end
+  compatible.push({ name: 'None', value: 'none' });
+
   return compatible;
 }
 
@@ -202,9 +203,7 @@ export function getCompatibleAuthOptions(
  * Get database choices for inquirer prompts
  */
 export function getDatabaseChoices(databases: ModuleMetadata[], framework: string): Array<{ name: string; value: string }> {
-  const choices: Array<{ name: string; value: string }> = [
-    { name: 'None', value: 'none' }
-  ];
+  const choices: Array<{ name: string; value: string }> = [];
 
   for (const db of databases) {
     // Check framework compatibility
@@ -225,6 +224,9 @@ export function getDatabaseChoices(databases: ModuleMetadata[], framework: strin
       choices.push({ name: db.displayName, value: db.name });
     }
   }
+
+  // Add "None" at the end
+  choices.push({ name: 'None', value: 'none' });
 
   return choices;
 }
