@@ -1,10 +1,10 @@
 {
   "name": "stackkit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Production-ready CLI to create and extend JavaScript or TypeScript apps with modular stacks.",
   "main": "dist/index.js",
   "bin": {
-    "stackkit": "./bin/stackkit.js"
+    "stackkit": "bin/stackkit.js"
   },
   "type": "commonjs",
   "files": [
@@ -15,8 +15,8 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/tariqul420/stackkit.git",
-    "directory": "apps/create-stackkit"
+    "url": "git+https://github.com/tariqul420/stackkit.git",
+    "directory": "apps/stackkit"
   },
   "homepage": "https://stackkit.tariqul.dev",
   "bugs": {
@@ -36,20 +36,16 @@
     "project-generator",
     "scaffold",
     "boilerplate",
-
     "javascript",
     "typescript",
-
     "nextjs",
     "react",
     "vite",
     "express",
-
     "prisma",
     "mongoose",
     "mongodb",
     "postgresql",
-
     "authentication"
   ],
   "author": "Tariqul Islam",

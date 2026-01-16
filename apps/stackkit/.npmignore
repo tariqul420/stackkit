@@ -1,0 +1,16 @@
+src/
+node_modules/
+.git/
+.github/
+*.log
+.env*
+.nyc_output/
+coverage/
+.eslintrc*
+.prettierrc*
+tsconfig*.json
+*.tsbuildinfo
+.vscode/
+.idea/
+*.tgz
+*.tar.gz

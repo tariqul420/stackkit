@@ -2,7 +2,7 @@
 
 ⚡ **Production-ready project generator with modular composition**
 
-[![npm](https://img.shields.io/npm/v/create-stackkit-app)](https://www.npmjs.com/package/create-stackkit-app)
+[![npm](https://img.shields.io/npm/v/stackkit)](https://www.npmjs.com/package/stackkit)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ## Quick Start
