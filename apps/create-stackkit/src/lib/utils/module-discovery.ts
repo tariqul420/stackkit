@@ -71,6 +71,12 @@ export async function discoverModules(modulesDir: string): Promise<DiscoveredMod
   const databaseDir = path.join(modulesDir, 'database');
   if (await fs.pathExists(databaseDir)) {
     const dbModules = await fs.readdir(databaseDir);
+    // Sort to ensure consistent order: prisma first, then others
+    dbModules.sort((a, b) => {
+      if (a === 'prisma') return -1;
+      if (b === 'prisma') return 1;
+      return a.localeCompare(b);
+    });
     for (const moduleName of dbModules) {
       const modulePath = path.join(databaseDir, moduleName);
       const moduleJsonPath = path.join(modulePath, 'module.json');
@@ -119,7 +125,7 @@ export function getValidDatabaseOptions(databases: ModuleMetadata[]): string[] {
       // For Prisma, add provider-specific options
       options.push('prisma-postgresql', 'prisma-mongodb', 'prisma-mysql', 'prisma-sqlite');
     } else if (db.name === 'mongoose') {
-      options.push('mongoose-mongodb');
+      options.push('mongoose-mongodb', 'mongoose');
     } else {
       // For other databases, add the name directly
       options.push(db.name);
@@ -155,7 +161,7 @@ export function parseDatabaseOption(dbOption: string): { database: string; provi
     return { database: 'prisma', provider };
   }
 
-  if (dbOption === 'mongoose-mongodb') {
+  if (dbOption === 'mongoose-mongodb' || dbOption === 'mongoose') {
     return { database: 'mongoose' };
   }
 

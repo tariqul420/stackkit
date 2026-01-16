@@ -10,7 +10,7 @@ import { logger } from "./utils/logger";
 import { AdvancedCodeGenerator } from "./code-generator";
 import { FrameworkUtils } from "./framework-utils";
 import { installDependencies } from "./utils/package-utils";
-import { discoverModules, getValidDatabaseOptions, getValidAuthOptions, parseDatabaseOption, getCompatibleAuthOptions, getDatabaseChoices } from "./utils/module-discovery";
+import { discoverModules, getValidDatabaseOptions, getValidAuthOptions, parseDatabaseOption, getCompatibleAuthOptions } from "./utils/module-discovery";
 
 interface ProjectConfig {
   projectName: string;
@@ -189,7 +189,11 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
       name: "database",
       message: "Select database/ORM:",
       when: (answers: Answers) => answers.framework !== "react-vite",
-      choices: (answers: Answers) => getDatabaseChoices(discoveredModules.databases, answers.framework),
+      choices: [
+        { name: "Prisma", value: "prisma" },
+        { name: "Mongoose", value: "mongoose" },
+        { name: "None", value: "none" },
+      ],
     },
     {
       type: "list",
@@ -238,15 +242,13 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
     },
   ])) as Answers;
 
-  const parsedDb = answers.database ? parseDatabaseOption(answers.database) : { database: 'none' as const };
-
   return {
     projectName: (projectName || answers.projectName) as string,
     framework: answers.framework,
     database: (answers.framework === "react-vite"
       ? "none"
-      : parsedDb.database) as ProjectConfig["database"],
-    prismaProvider: answers.prismaProvider || (parsedDb.provider as "postgresql" | "mongodb" | "mysql" | "sqlite" | undefined),
+      : answers.database) as ProjectConfig["database"],
+    prismaProvider: answers.prismaProvider as "postgresql" | "mongodb" | "mysql" | "sqlite" | undefined,
     auth: (answers.auth || "none"),
     language: answers.language,
     packageManager: answers.packageManager,
