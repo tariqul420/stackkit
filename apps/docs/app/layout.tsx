@@ -14,11 +14,11 @@ export const metadata: Metadata = {
   },
   description:
     "Modern CLI tool for creating production-ready web applications with modular architecture. Build with Next.js, Express, or React.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_URL ?? "https://stackkit.dev"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_URL ?? "https://stack-kit.dev"),
   openGraph: {
     title: "StackKit",
     description: "Production-ready project generator with modular composition",
-    url: "https://stackkit.dev",
+    url: "https://stack-kit.dev",
     siteName: "StackKit",
     locale: "en_US",
     type: "website",

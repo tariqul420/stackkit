@@ -13,20 +13,20 @@ pnpm install && pnpm build
 ## Adding a Module
 
 1. Create directory: `modules/{category}/{provider}/`
-2. Add `module.json` (see [MODULE_GUIDE.md](docs/MODULE_GUIDE.md))
-3. Add files in `files/` subdirectory
-4. Test with both CLIs
+2. Add `module.json` configuration
+3. Add template files in `files/` subdirectory
+4. Test with CLI: `npx stackkit add {module}`
 5. Submit PR
 
 ## Testing
 
 ```bash
-# Test create-stackkit-app
-cd apps/create-stackkit && npm run build
-node bin/create-stackkit.js my-test-app
+# Test new project creation
+cd apps/stackkit && npm run build
+node bin/stackkit.js my-test-app
 
-# Test stackkit-cli
-cd apps/stackkit-cli && npm run build
+# Test module addition
+cd apps/stackkit && npm run build
 cd /tmp/my-test-app
 node /path/to/bin/stackkit.js add auth
 ```
@@ -59,5 +59,3 @@ docs: update guide
 
 - [Discussions](https://github.com/tariqul420/stackkit/discussions)
 - [Issues](https://github.com/tariqul420/stackkit/issues)
-
-Thank you! 🚀
