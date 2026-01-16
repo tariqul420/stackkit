@@ -98,14 +98,14 @@ const stackCategories = [
       <path d="M12 0L1.75 6v12L12 24l10.25-6V6L12 0zm0 2.15l8.5 4.97v9.76L12 21.85l-8.5-4.97V7.12L12 2.15z" />
     ),
     title: "Frameworks",
-    items: ["Next.js 16 (App Router)", "React + Vite", "Express"],
+    items: ["Next.js", "React", "Express"],
   },
   {
     icon: (
       <path d="M12 1C8.5 1 5.5 2.5 5.5 4.5v15c0 2 3 3.5 6.5 3.5s6.5-1.5 6.5-3.5v-15C18.5 2.5 15.5 1 12 1zm0 2c2.5 0 4.5 1 4.5 1.5S14.5 6 12 6 7.5 5 7.5 4.5 9.5 3 12 3zm0 18c-2.5 0-4.5-1-4.5-1.5V18c1 .5 2.7.8 4.5.8s3.5-.3 4.5-.8v1.5c0 .5-2 1.5-4.5 1.5z" />
     ),
     title: "Databases",
-    items: ["Prisma (PostgreSQL/MongoDB)", "Mongoose (MongoDB)"],
+    items: ["Prisma", "Mongoose"],
   },
   {
     icon: (

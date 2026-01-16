@@ -1,4 +1,4 @@
-# React + Vite Template
+# React Template
 
 Production-ready React starter with TypeScript, Vite, and essential libraries.
 

@@ -40,7 +40,7 @@ npx stackkit doctor
 
 - Next.js 16 (App Router)
 - Express
-- React (Vite)
+- React
 
 ### Authentication
 

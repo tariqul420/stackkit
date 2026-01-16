@@ -31,11 +31,11 @@ npx stackkit doctor
 
 ## Supported Technologies
 
-- **Frameworks**: Next.js, React (Vite), Express
+- **Frameworks**: Next.js, React, Express
 - **Databases**: Prisma (PostgreSQL, MySQL, SQLite), Mongoose (MongoDB)
 - **Auth**: Better Auth, Auth.js
 
 ## Documentation
 
-- [StackKit Docs](https://stack-kit.dev)
+- [StackKit Docs](https://stack-kit.com)[https://stackkit.tariqul.dev]
 - [GitHub Repository](https://github.com/tariqul420/stackkit)
