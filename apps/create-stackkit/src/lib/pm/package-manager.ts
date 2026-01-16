@@ -1,6 +1,6 @@
 import { detect } from "detect-package-manager";
 import execa from "execa";
-import { logger } from "./logger";
+import { logger } from "../ui/logger";
 
 export type PackageManager = "npm" | "yarn" | "pnpm" | "bun";
 

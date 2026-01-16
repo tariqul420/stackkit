@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import fs from "fs-extra";
 import path from "path";
-import { logger } from "../utils/logger";
+import { logger } from "../lib/ui/logger";
 
 // Constants for consistent messaging
 const MESSAGES = {

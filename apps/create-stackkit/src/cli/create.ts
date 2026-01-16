@@ -4,13 +4,13 @@ import fs from "fs-extra";
 import inquirer from "inquirer";
 import path from "path";
 import validateNpmPackageName from "validate-npm-package-name";
-import { initGit } from "./utils/git-utils";
-import { convertToJavaScript } from "./utils/js-conversion";
-import { logger } from "./utils/logger";
-import { AdvancedCodeGenerator } from "./code-generator";
-import { FrameworkUtils } from "./framework-utils";
-import { installDependencies } from "./utils/package-utils";
-import { discoverModules, getValidDatabaseOptions, getValidAuthOptions, parseDatabaseOption, getCompatibleAuthOptions } from "./utils/module-discovery";
+import { initGit } from "../lib/git-utils";
+import { convertToJavaScript } from "../lib/conversion/js-conversion";
+import { installDependencies } from "../lib/pm/package-manager";
+import { logger } from "../lib/ui/logger";
+import { FrameworkUtils } from "../lib/framework/framework-utils";
+import { discoverModules, getValidDatabaseOptions, getValidAuthOptions, parseDatabaseOption, getCompatibleAuthOptions } from "../lib/discovery/module-discovery";
+import { AdvancedCodeGenerator } from "../lib/generation/code-generator";
 
 interface ProjectConfig {
   projectName: string;

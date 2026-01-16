@@ -1,6 +1,6 @@
 import fs from "fs-extra";
 import path from "path";
-import { logger } from "./logger";
+import { logger } from "../ui/logger";
 
 const ENV_MARKER_START = "# StackKit:";
 const ENV_MARKER_END = "# End StackKit";

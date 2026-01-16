@@ -2,7 +2,6 @@
 
 ⚡ **Production-ready project generator with modular composition**
 
-[![npm](https://img.shields.io/npm/v/stackkit-cli)](https://www.npmjs.com/package/stackkit-cli)
 [![npm](https://img.shields.io/npm/v/create-stackkit-app)](https://www.npmjs.com/package/create-stackkit-app)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
@@ -11,20 +10,20 @@
 **Create a new project:**
 
 ```bash
-npx create-stackkit-app my-app
+npx stackkit create my-app
 ```
 
 **Add modules to existing project:**
 
 ```bash
-npx stackkit-cli add auth
-npx stackkit-cli add database
+npx stackkit add auth
+npx stackkit add database
 ```
 
 **Check project health:**
 
 ```bash
-npx stackkit-cli doctor
+npx stackkit doctor
 ```
 
 ## Features

@@ -1,94 +1,71 @@
 #!/usr/bin/env node
-import { createProject } from "./lib/create-project";
-import { logger } from "./lib/utils/logger";
+import { Command } from "commander";
+import { createProject } from "./cli/create";
+import { addCommand } from "./cli/add";
+import { doctorCommand } from "./cli/doctor";
+import { listCommand } from "./cli/list";
+import { logger } from "./lib/ui/logger";
 
-interface CliOptions {
-  framework?: string;
-  f?: string;
-  database?: string;
-  d?: string;
-  auth?: string;
-  a?: string;
-  language?: string;
-  l?: string;
-  packageManager?: string;
-  p?: string;
-  install?: boolean;
-  'skip-install'?: boolean;
-  git?: boolean;
-  'no-git'?: boolean;
-  yes?: boolean;
-  y?: boolean;
-  [key: string]: string | boolean | undefined;
-}
+const program = new Command();
 
-function parseArgs(args: string[]): { projectName: string | undefined; options: CliOptions } {
-  const options: CliOptions = {};
-  let projectName: string | undefined;
+program
+  .name("stackkit")
+  .description("CLI for creating and managing StackKit projects")
+  .version("0.4.6");
 
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
-    if (arg === '--help' || arg === '-h') {
-      showHelp();
-      process.exit(0);
+// Create command
+program
+  .command("create <project-name>")
+  .description("Create a new StackKit project")
+  .option("-f, --framework <framework>", "Framework: nextjs, express, react-vite")
+  .option("-d, --database <database>", "Database: prisma, mongoose, none")
+  .option("-a, --auth <auth>", "Auth: better-auth, authjs, none")
+  .option("-l, --language <language>", "Language: typescript, javascript")
+  .option("-p, --package-manager <pm>", "Package manager: pnpm, npm, yarn, bun")
+  .option("--skip-install", "Skip dependency installation")
+  .option("--no-git", "Skip git initialization")
+  .option("-y, --yes", "Use default options")
+  .action(async (projectName: string, options: any) => {
+    try {
+      await createProject(projectName, options);
+    } catch (error) {
+      logger.error(`Error: ${(error as Error).message}`);
+      process.exit(1);
     }
-    if (arg.startsWith('--')) {
-      const key = arg.slice(2);
-      if (args[i + 1] && !args[i + 1].startsWith('--')) {
-        options[key] = args[i + 1];
-        i++;
-      } else {
-        options[key] = true;
-      }
-    } else if (arg.startsWith('-') && arg.length === 2) {
-      const key = arg.slice(1);
-      if (args[i + 1] && !args[i + 1].startsWith('-')) {
-        options[key] = args[i + 1];
-        i++;
-      } else {
-        options[key] = true;
-      }
-    } else if (!projectName) {
-      projectName = arg;
-    }
-  }
+  });
 
-  return { projectName, options };
-}
+// Add command
+program
+  .command("add <module>")
+  .description("Add a module to your existing project")
+  .option("--provider <provider>", "Specific provider/variant to use")
+  .option("--force", "Overwrite existing files")
+  .option("--dry-run", "Show what would be changed without making changes")
+  .option("--no-install", "Skip installing dependencies")
+  .action(addCommand);
 
-function showHelp() {
-  logger.log(`
-Create StackKit App
+// Doctor command
+program
+  .command("doctor")
+  .description("Check project health and compatibility with StackKit modules")
+  .option("--json", "Output results in JSON format")
+  .option("--verbose", "Show detailed information")
+  .option("--strict", "Treat warnings as errors")
+  .action(doctorCommand);
 
-Usage:
-  create-stackkit-app [project-name] [options]
+// List command
+program
+  .command("list")
+  .description("List available frameworks and modules")
+  .option("-f, --frameworks", "List only frameworks")
+  .option("-m, --modules", "List only modules")
+  .action(listCommand);
 
-Options:
-  -f, --framework <framework>    Framework: nextjs, express, react-vite
-  -d, --database <database>      Database: prisma, mongoose, none
-  -a, --auth <auth>              Auth: better-auth, authjs, none
-  -l, --language <language>      Language: typescript, javascript
-  -p, --package-manager <pm>     Package manager: pnpm, npm, yarn, bun
-  --skip-install                 Skip dependency installation
-  --no-git                       Skip git initialization
-  -y, --yes                      Use default options
-  -h, --help                     Show this help
+// Error handling
+program.on("command:*", () => {
+  logger.error(`Invalid command: ${program.args.join(" ")}`);
+  logger.log("Run stackkit --help for a list of available commands.");
+  process.exit(1);
+});
 
-Examples:
-  create-stackkit-app my-app --framework nextjs --database prisma-postgresql --auth better-auth
-`);
-}
-
-async function main() {
-  const args = process.argv.slice(2);
-  const { projectName, options } = parseArgs(args);
-
-  try {
-    await createProject(projectName, options);
-  } catch (error) {
-    logger.error(`Error: ${(error as Error).message}`);
-    process.exit(1);
-  }
-}
-
-main();
+program.parse();

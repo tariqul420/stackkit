@@ -1,6 +1,6 @@
 import fs from "fs-extra";
 import path from "path";
-import { logger } from "./logger";
+import { logger } from "../ui/logger";
 
 export interface PackageJsonConfig {
   dependencies?: Record<string, string>;

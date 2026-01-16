@@ -4,12 +4,12 @@ import fs from "fs-extra";
 import inquirer from "inquirer";
 import path from "path";
 import { CreateFilePatch, ModuleMetadata, ProjectInfo } from "../types";
-import { detectProjectInfo, getLibPath, getRouterBasePath } from "../utils/detect";
-import { addEnvVariables } from "../utils/env-editor";
-import { createFile, fileExists } from "../utils/files";
-import { logger } from "../utils/logger";
-import { addDependencies } from "../utils/package-manager";
-import { DATABASE_CONNECTION_STRINGS } from "../utils/database-config";
+import { detectProjectInfo, getLibPath, getRouterBasePath } from "../lib/project/detect";
+import { addEnvVariables } from "../lib/env/env-editor";
+import { createFile, fileExists } from "../lib/fs/files";
+import { logger } from "../lib/ui/logger";
+import { addDependencies } from "../lib/pm/package-manager";
+import { DATABASE_CONNECTION_STRINGS } from "../lib/database/database-config";
 
 interface AddOptions {
   provider?: string;
@@ -28,7 +28,7 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
       `Detected ${projectInfo.framework} (${projectInfo.router} router, ${projectInfo.language})`,
     );
 
-    const moduleMetadata = await loadModuleMetadata(path.join(__dirname, "..", "..", "modules"), module, options.provider);
+    const moduleMetadata = await loadModuleMetadata(path.join(__dirname, "..", "..", "..", "..", "modules"), module, options.provider);
 
     if (!moduleMetadata) {
       logger.error(`Module "${module}" not found`);
@@ -108,7 +108,7 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
       logger.newLine();
     }
 
-    await applyModulePatches(projectRoot, projectInfo, moduleMetadata, path.join(__dirname, "..", "..", "modules"), module, options);
+    await applyModulePatches(projectRoot, projectInfo, moduleMetadata, path.join(__dirname, "..", "..", "..", "..", "modules"), module, options);
 
     if (moduleMetadata.frameworkPatches && !options.dryRun) {
       await applyFrameworkPatches(
@@ -208,7 +208,7 @@ async function loadModuleMetadata(modulesDir: string, moduleName: string, provid
           return await loadGeneratorAndMerge(metadata, modulePath);
         }
 
-        if (!provider && metadata.name === moduleName) {
+        if (!provider && metadata.category === moduleName) {
           return await loadGeneratorAndMerge(metadata, modulePath);
         }
       }

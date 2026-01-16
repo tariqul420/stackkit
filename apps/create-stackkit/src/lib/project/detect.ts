@@ -1,6 +1,6 @@
 import fs from "fs-extra";
 import path from "path";
-import { ProjectInfo } from "../types";
+import { ProjectInfo } from "../../types";
 
 export async function detectProjectInfo(targetDir: string): Promise<ProjectInfo> {
   const packageJsonPath = path.join(targetDir, "package.json");

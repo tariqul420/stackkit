@@ -1,6 +1,6 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { FrameworkConfig } from './framework-utils';
+import { FrameworkConfig } from '../framework/framework-utils';
 
 export interface GenerationContext {
   framework: string;
