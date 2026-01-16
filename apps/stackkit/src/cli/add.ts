@@ -10,6 +10,7 @@ import { createFile, fileExists } from "../lib/fs/files";
 import { logger } from "../lib/ui/logger";
 import { addDependencies } from "../lib/pm/package-manager";
 import { DATABASE_CONNECTION_STRINGS } from "../lib/database/database-config";
+import { getPackageRoot } from "../lib/utils/package-root";
 
 interface AddOptions {
   provider?: string;
@@ -28,7 +29,7 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
       `Detected ${projectInfo.framework} (${projectInfo.router} router, ${projectInfo.language})`,
     );
 
-    const moduleMetadata = await loadModuleMetadata(path.join(__dirname, "..", "..", "..", "modules"), module, options.provider);
+    const moduleMetadata = await loadModuleMetadata(path.join(getPackageRoot(), "modules"), module, options.provider);
 
     if (!moduleMetadata) {
       logger.error(`Module "${module}" not found`);
@@ -108,7 +109,7 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
       logger.newLine();
     }
 
-    await applyModulePatches(projectRoot, projectInfo, moduleMetadata, path.join(__dirname, "..", "..", "modules"), module, options);
+    await applyModulePatches(projectRoot, projectInfo, moduleMetadata, path.join(getPackageRoot(), "modules"), module, options);
 
     if (moduleMetadata.frameworkPatches && !options.dryRun) {
       await applyFrameworkPatches(

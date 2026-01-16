@@ -3,6 +3,7 @@ import fs from "fs-extra";
 import path from "path";
 import { ModuleMetadata } from "../types";
 import { logger } from "../lib/ui/logger";
+import { getPackageRoot } from "../lib/utils/package-root";
 
 interface ListOptions {
   frameworks?: boolean;
@@ -21,7 +22,7 @@ export async function listCommand(options: ListOptions): Promise<void> {
     let hasModules = false;
 
     if (showFrameworks) {
-      const templatesDir = path.join(__dirname, "..", "..", "..", "..", "templates");
+      const templatesDir = path.join(getPackageRoot(), "templates");
       const frameworks = await getAvailableFrameworks(templatesDir);
 
       if (frameworks.length > 0) {
@@ -39,7 +40,7 @@ export async function listCommand(options: ListOptions): Promise<void> {
 
     // List modules
     if (showModules) {
-      const modulesDir = path.join(__dirname, "..", "..", "..", "modules");
+      const modulesDir = path.join(getPackageRoot(), "modules");
       const modules = await getAvailableModules(modulesDir);
 
       if (modules.length > 0) {

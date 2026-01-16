@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 import fs from "fs-extra";
 import path from "path";
+import { getPackageRoot } from "../utils/package-root";
 
 const baseDirs: Record<string, string> = {
   express: "./src",
@@ -163,7 +164,7 @@ export async function convertToJavaScript(targetDir: string, framework: string):
     await replaceAliases(targetDir);
   }
 
-  const templatesRoot = path.join(__dirname, "..", "..", "..", "templates");
+  const templatesRoot = path.join(getPackageRoot(), "templates");
   const templateName = framework;
 
   let fileReplacements = [];

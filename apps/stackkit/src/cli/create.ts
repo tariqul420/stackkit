@@ -11,6 +11,7 @@ import { logger } from "../lib/ui/logger";
 import { FrameworkUtils } from "../lib/framework/framework-utils";
 import { discoverModules, getValidDatabaseOptions, getValidAuthOptions, parseDatabaseOption, getCompatibleAuthOptions } from "../lib/discovery/module-discovery";
 import { AdvancedCodeGenerator } from "../lib/generation/code-generator";
+import { getPackageRoot } from "../lib/utils/package-root";
 
 interface ProjectConfig {
   projectName: string;
@@ -73,21 +74,10 @@ export async function createProject(projectName?: string, options?: CliOptions):
 }
 
 async function getProjectConfig(projectName?: string, options?: CliOptions): Promise<ProjectConfig> {
-  // Resolve modules directory (dist first, then package root)
-  const modulesCandidates = [
-    path.join(__dirname, "..", "..", "..", "modules"),
-    path.join(__dirname, "..", "..", "..", "..", "modules"),
-  ];
+  // Resolve modules directory
+  const modulesDir = getPackageRoot();
 
-  let modulesDir: string | undefined;
-  for (const c of modulesCandidates) {
-    if (await fs.pathExists(c)) {
-      modulesDir = c;
-      break;
-    }
-  }
-
-  const discoveredModules = await discoverModules(modulesDir || modulesCandidates[1]);
+  const discoveredModules = await discoverModules(modulesDir);
 
   // Detect flags or `--yes` after `create`; project-name-only remains interactive
   const argv = process.argv.slice(2);
@@ -206,10 +196,13 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
       type: "list",
       name: "framework",
       message: "Select framework:",
-      choices: discoveredModules.frameworks.map(f => ({
-        name: f.displayName,
-        value: f.name
-      })),
+      choices: (discoveredModules.frameworks && discoveredModules.frameworks.length > 0)
+        ? discoveredModules.frameworks.map(f => ({ name: f.displayName, value: f.name }))
+        : [
+            { name: 'Next.js', value: 'nextjs' },
+            { name: 'Express.js', value: 'express' },
+            { name: 'React (Vite)', value: 'react' },
+          ],
     },
     {
       type: "list",
@@ -333,17 +326,9 @@ async function generateProject(config: ProjectConfig, targetDir: string, options
 
 async function composeTemplate(config: ProjectConfig, targetDir: string): Promise<string[]> {
   // Resolve templates/modules paths
-  const templatesCandidates = [
-    path.join(__dirname, "..", "..", "..", "templates"),
-    path.join(__dirname, "..", "..", "..", "..", "templates"),
-  ];
-  const modulesCandidates2 = [
-    path.join(__dirname, "..", "..", "..", "modules"),
-    path.join(__dirname, "..", "..", "..", "..", "modules"),
-  ];
-
-  const templatesDir = (await (async () => { for (const c of templatesCandidates) if (await fs.pathExists(c)) return c; return templatesCandidates[1]; })());
-  const modulesDirForGenerator = (await (async () => { for (const c of modulesCandidates2) if (await fs.pathExists(c)) return c; return modulesCandidates2[1]; })());
+  const packageRoot = getPackageRoot();
+  const templatesDir = path.join(packageRoot, 'templates');
+  const modulesDirForGenerator = path.join(packageRoot, 'modules');
 
   await fs.ensureDir(targetDir);
 

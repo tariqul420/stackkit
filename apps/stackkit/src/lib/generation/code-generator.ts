@@ -1,6 +1,7 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { FrameworkConfig } from '../framework/framework-utils';
+import { getPackageRoot } from '../utils/package-root';
 
 export interface GenerationContext {
   framework: string;
@@ -462,30 +463,19 @@ export class AdvancedCodeGenerator {
     }
   }
   private async copyTemplate(frameworkName: string, outputPath: string): Promise<void> {
-    const candidates = [
-      path.resolve(__dirname, '..', '..', 'templates'), // dist/templates (when bundled)
-      path.resolve(__dirname, '..', '..', '..', 'templates'), // package root templates
-    ];
+    const packageRoot = getPackageRoot();
+    const templatePath = path.join(packageRoot, 'templates', frameworkName);
 
-    let templateBase: string | undefined;
-    for (const c of candidates) {
-      const p = path.join(c, frameworkName);
-      if (await fs.pathExists(p)) {
-        templateBase = p;
-        break;
-      }
+    if (await fs.pathExists(templatePath)) {
+      await fs.copy(templatePath, outputPath, {
+        filter: (src) => {
+          const relativePath = path.relative(templatePath, src);
+          return relativePath !== 'template.json' &&
+                 relativePath !== 'node_modules' &&
+                 !relativePath.startsWith('node_modules/');
+        }
+      });
     }
-
-    if (!templateBase) return;
-
-    await fs.copy(templateBase, outputPath, {
-      filter: (src) => {
-        const relativePath = path.relative(templateBase as string, src);
-        return relativePath !== 'template.json' &&
-               relativePath !== 'node_modules' &&
-               !relativePath.startsWith('node_modules/');
-      }
-    });
   }
 
   private processOperationTemplates(operation: Operation, context: GenerationContext): Operation {
@@ -554,29 +544,13 @@ export class AdvancedCodeGenerator {
       content = this.processTemplate(operation.content, context);
     } else if (operation.source) {
       // Find the source file path relative to the module/template directory
-      // Resolve modules/templates base paths (try both dist and package root)
-      const modulesCandidates = [
-        path.resolve(__dirname, '..', '..', 'modules'),
-        path.resolve(__dirname, '..', '..', '..', 'modules'),
-      ];
-      const templatesCandidates = [
-        path.resolve(__dirname, '..', '..', 'templates'),
-        path.resolve(__dirname, '..', '..', '..', 'templates'),
-      ];
-
-      const resolveExisting = async (cands: string[]) => {
-        for (const c of cands) {
-          if (await fs.pathExists(c)) return c;
-        }
-        return undefined;
-      };
-
-      const modulesPathResolved = await resolveExisting(modulesCandidates);
-      const templatesPathResolved = await resolveExisting(templatesCandidates);
+      const packageRoot = getPackageRoot();
+      const modulesPath = path.join(packageRoot, 'modules');
+      const templatesPath = path.join(packageRoot, 'templates');
 
       const moduleBasePath = operation.generatorType === 'framework'
-        ? path.join(templatesPathResolved || templatesCandidates[0], operation.generator)
-        : path.join(modulesPathResolved || modulesCandidates[0], operation.generatorType, operation.generator);
+        ? path.join(templatesPath, operation.generator)
+        : path.join(modulesPath, operation.generatorType, operation.generator);
 
       const sourcePath = path.join(moduleBasePath, 'files', operation.source);
 
@@ -656,7 +630,7 @@ export class AdvancedCodeGenerator {
             if (patchOp.content) {
               processedContentTop = this.processTemplate(patchOp.content, context).trim();
             } else if (patchOp.source) {
-              const modulesPath = path.join(__dirname, '..', '..', 'modules');
+              const modulesPath = path.join(getPackageRoot(), 'modules');
               const sourcePath = path.join(modulesPath, operation.generatorType, operation.generator, 'files', patchOp.source);
               if (await fs.pathExists(sourcePath)) {
                 processedContentTop = await fs.readFile(sourcePath, 'utf-8');
@@ -674,7 +648,7 @@ export class AdvancedCodeGenerator {
             if (patchOp.content) {
               processedContentBottom = this.processTemplate(patchOp.content, context).trim();
             } else if (patchOp.source) {
-              const modulesPath = path.join(__dirname, '..', '..', 'modules');
+              const modulesPath = path.join(getPackageRoot(), 'modules');
               const sourcePath = path.join(modulesPath, operation.generatorType, operation.generator, 'files', patchOp.source);
               if (await fs.pathExists(sourcePath)) {
                 processedContentBottom = await fs.readFile(sourcePath, 'utf-8');

@@ -1,5 +1,6 @@
 import fs from "fs-extra";
 import path from "path";
+import { getPackageRoot } from "../utils/package-root";
 
 export interface ModuleMetadata {
   name: string;
@@ -42,9 +43,22 @@ export async function discoverModules(modulesDir: string): Promise<DiscoveredMod
     auth: [],
   };
 
-  if (!(await fs.pathExists(modulesDir))) {
-    return discovered;
+  // If modulesDir isn't provided or doesn't exist, try common locations
+  const candidates = [] as string[];
+  if (modulesDir) candidates.push(modulesDir);
+  candidates.push(path.join(getPackageRoot(), 'modules')); // package root
+
+  let resolvedModulesDir: string | undefined;
+  for (const c of candidates) {
+    if (await fs.pathExists(c)) {
+      resolvedModulesDir = c;
+      break;
+    }
   }
+
+  if (!resolvedModulesDir) return discovered;
+
+  modulesDir = resolvedModulesDir;
 
   // Discover frameworks from templates directory
   const templatesDir = path.join(modulesDir, '..', 'templates');
@@ -84,6 +98,9 @@ export async function discoverModules(modulesDir: string): Promise<DiscoveredMod
       if (await fs.pathExists(moduleJsonPath)) {
         try {
           const metadata = await fs.readJson(moduleJsonPath) as ModuleMetadata;
+          // Ensure name/displayName fallbacks
+          if (!metadata.name) metadata.name = moduleName;
+          if (!metadata.displayName) metadata.displayName = moduleName;
           discovered.databases.push(metadata);
         } catch {
           // Silently skip invalid modules
@@ -103,6 +120,8 @@ export async function discoverModules(modulesDir: string): Promise<DiscoveredMod
       if (await fs.pathExists(moduleJsonPath)) {
         try {
           const metadata = await fs.readJson(moduleJsonPath) as ModuleMetadata;
+          if (!metadata.name) metadata.name = moduleName;
+          if (!metadata.displayName) metadata.displayName = moduleName;
           discovered.auth.push(metadata);
         } catch {
           // Silently skip invalid modules

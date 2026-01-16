@@ -182,7 +182,7 @@ export default function HomePage() {
               <div className="p-8">
                 <div className="flex items-center gap-4 font-mono text-lg">
                   <span className="text-fd-primary">$</span>
-                  <span className="select-all font-semibold">npx stackkit create my-app</span>
+                  <span className="select-all font-semibold">npx stackkit create</span>
                 </div>
               </div>
             </div>
