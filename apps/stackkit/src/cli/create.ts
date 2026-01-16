@@ -73,10 +73,10 @@ export async function createProject(projectName?: string, options?: CliOptions):
 }
 
 async function getProjectConfig(projectName?: string, options?: CliOptions): Promise<ProjectConfig> {
-  // Resolve modules directory (try dist and package root)
+  // Resolve modules directory (dist first, then package root)
   const modulesCandidates = [
-    path.join(__dirname, "..", "..", "..", "modules"), // dist/modules when running from dist
-    path.join(__dirname, "..", "..", "..", "..", "modules"), // package root modules when running from source
+    path.join(__dirname, "..", "..", "..", "modules"),
+    path.join(__dirname, "..", "..", "..", "..", "modules"),
   ];
 
   let modulesDir: string | undefined;
@@ -89,14 +89,12 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
 
   const discoveredModules = await discoverModules(modulesDir || modulesCandidates[1]);
 
-  // Determine if the user passed any arguments or flags after the `create` command
-  // (Commander populates an options object even when no flags are passed). We
-  // consider the CLI non-interactive only when the user actually provided a
-  // project name or flags on the command line.
+  // Detect flags or `--yes` after `create`; project-name-only remains interactive
   const argv = process.argv.slice(2);
   const createIndex = argv.indexOf('create');
   const argsAfterCreate = createIndex >= 0 ? argv.slice(createIndex + 1) : [];
-  const optionsProvided = argsAfterCreate.length > 0 || !!projectName;
+  const flagsProvided = argsAfterCreate.some(arg => arg.startsWith('-'));
+  const optionsProvided = flagsProvided || !!(options && (options.yes || options.y));
 
   if (optionsProvided) {
     if ((options && (options.yes || options.y))) {
@@ -185,7 +183,7 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
       packageManager: (pm || "pnpm") as "pnpm" | "npm" | "yarn" | "bun",
     };
   }
-  // Use discovered modules for interactive prompts
+  // Interactive prompts
   const answers = (await inquirer.prompt([
     {
       type: "input",
@@ -334,7 +332,7 @@ async function generateProject(config: ProjectConfig, targetDir: string, options
 }
 
 async function composeTemplate(config: ProjectConfig, targetDir: string): Promise<string[]> {
-  // Resolve templates and modules directories (try dist then package root)
+  // Resolve templates/modules paths
   const templatesCandidates = [
     path.join(__dirname, "..", "..", "..", "templates"),
     path.join(__dirname, "..", "..", "..", "..", "templates"),
@@ -344,15 +342,8 @@ async function composeTemplate(config: ProjectConfig, targetDir: string): Promis
     path.join(__dirname, "..", "..", "..", "..", "modules"),
   ];
 
-  const templatesDir = (await (async () => {
-    for (const c of templatesCandidates) if (await fs.pathExists(c)) return c;
-    return templatesCandidates[1];
-  })());
-
-  const modulesDirForGenerator = (await (async () => {
-    for (const c of modulesCandidates2) if (await fs.pathExists(c)) return c;
-    return modulesCandidates2[1];
-  })());
+  const templatesDir = (await (async () => { for (const c of templatesCandidates) if (await fs.pathExists(c)) return c; return templatesCandidates[1]; })());
+  const modulesDirForGenerator = (await (async () => { for (const c of modulesCandidates2) if (await fs.pathExists(c)) return c; return modulesCandidates2[1]; })());
 
   await fs.ensureDir(targetDir);
 
