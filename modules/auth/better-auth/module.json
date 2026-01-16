@@ -4,9 +4,9 @@
   "description": "Modern authentication with Better Auth",
   "category": "auth",
   "provider": "better-auth",
-  "supportedFrameworks": ["nextjs", "express", "react-vite"],
+  "supportedFrameworks": ["nextjs", "express", "react"],
   "compatibility": {
-    "frameworks": ["nextjs", "express", "react-vite"],
+    "frameworks": ["nextjs", "express", "react"],
     "databases": ["prisma", "mongoose"],
     "languages": ["typescript", "javascript"],
     "packageManagers": ["npm", "yarn", "pnpm", "bun"]

@@ -252,7 +252,7 @@ function detectProjectType(packageJson: PackageJson): string {
   } else if (deps.express) {
     return "express";
   } else if (deps.vite && deps.react) {
-    return "react-vite";
+    return "react";
   } else if (deps.react) {
     return "react";
   }

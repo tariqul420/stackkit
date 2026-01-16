@@ -6,6 +6,35 @@ import { doctorCommand } from "./cli/doctor";
 import { listCommand } from "./cli/list";
 import { logger } from "./lib/ui/logger";
 
+interface CreateOptions {
+  framework?: "nextjs" | "express" | "react";
+  database?: "prisma" | "mongoose" | "none";
+  auth?: "better-auth" | "authjs" | "none";
+  language?: "typescript" | "javascript";
+  packageManager?: "pnpm" | "npm" | "yarn" | "bun";
+  skipInstall?: boolean;
+  git?: boolean;
+  yes?: boolean;
+}
+
+interface AddOptions {
+  provider?: string;
+  force?: boolean;
+  dryRun?: boolean;
+  install?: boolean;
+}
+
+interface DoctorOptions {
+  json?: boolean;
+  verbose?: boolean;
+  strict?: boolean;
+}
+
+interface ListOptions {
+  frameworks?: boolean;
+  modules?: boolean;
+}
+
 const program = new Command();
 
 program
@@ -17,7 +46,7 @@ program
 program
   .command("create <project-name>")
   .description("Create a new StackKit project")
-  .option("-f, --framework <framework>", "Framework: nextjs, express, react-vite")
+  .option("-f, --framework <framework>", "Framework: nextjs, express, react")
   .option("-d, --database <database>", "Database: prisma, mongoose, none")
   .option("-a, --auth <auth>", "Auth: better-auth, authjs, none")
   .option("-l, --language <language>", "Language: typescript, javascript")
@@ -25,7 +54,7 @@ program
   .option("--skip-install", "Skip dependency installation")
   .option("--no-git", "Skip git initialization")
   .option("-y, --yes", "Use default options")
-  .action(async (projectName: string, options: any) => {
+  .action(async (projectName: string, options: CreateOptions) => {
     try {
       await createProject(projectName, options);
     } catch (error) {
@@ -42,7 +71,14 @@ program
   .option("--force", "Overwrite existing files")
   .option("--dry-run", "Show what would be changed without making changes")
   .option("--no-install", "Skip installing dependencies")
-  .action(addCommand);
+  .action(async (module: string, options: AddOptions) => {
+    try {
+      await addCommand(module, options);
+    } catch (error) {
+      logger.error(`Error: ${(error as Error).message}`);
+      process.exit(1);
+    }
+  });
 
 // Doctor command
 program
@@ -51,7 +87,14 @@ program
   .option("--json", "Output results in JSON format")
   .option("--verbose", "Show detailed information")
   .option("--strict", "Treat warnings as errors")
-  .action(doctorCommand);
+  .action(async (options: DoctorOptions) => {
+    try {
+      await doctorCommand(options);
+    } catch (error) {
+      logger.error(`Error: ${(error as Error).message}`);
+      process.exit(1);
+    }
+  });
 
 // List command
 program
@@ -59,7 +102,14 @@ program
   .description("List available frameworks and modules")
   .option("-f, --frameworks", "List only frameworks")
   .option("-m, --modules", "List only modules")
-  .action(listCommand);
+  .action(async (options: ListOptions) => {
+    try {
+      await listCommand(options);
+    } catch (error) {
+      logger.error(`Error: ${(error as Error).message}`);
+      process.exit(1);
+    }
+  });
 
 // Error handling
 program.on("command:*", () => {

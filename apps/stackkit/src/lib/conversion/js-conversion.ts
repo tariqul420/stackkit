@@ -4,7 +4,7 @@ import path from "path";
 
 const baseDirs: Record<string, string> = {
   express: "./src",
-  "react-vite": "./src",
+  "react": "./src",
   nextjs: ".",
 };
 

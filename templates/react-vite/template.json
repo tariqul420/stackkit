@@ -1,7 +1,7 @@
 {
-  "name": "react-vite",
-  "displayName": "React (Vite)",
-  "framework": "react-vite",
+  "name": "react",
+  "displayName": "React",
+  "framework": "react",
   "description": "Production-ready React 19 + Vite with TypeScript, Router, TanStack Query, and more",
   "compatibility": {
     "databases": ["prisma"],

@@ -14,7 +14,7 @@ import { AdvancedCodeGenerator } from "../lib/generation/code-generator";
 
 interface ProjectConfig {
   projectName: string;
-  framework: "nextjs" | "express" | "react-vite";
+  framework: "nextjs" | "express" | "react";
   database: "prisma" | "mongoose" | "none";
   prismaProvider?: "postgresql" | "mongodb" | "mysql" | "sqlite";
   auth: "better-auth" | "authjs" | "none";
@@ -24,7 +24,7 @@ interface ProjectConfig {
 
 interface Answers {
   projectName?: string;
-  framework: "nextjs" | "express" | "react-vite";
+  framework: "nextjs" | "express" | "react";
   database?: "prisma" | "mongoose" | "none";
   prismaProvider?: "postgresql" | "mongodb" | "mysql" | "sqlite";
   auth?: "better-auth" | "authjs" | "none";
@@ -136,13 +136,13 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
       auth = authOpt as "better-auth" | "authjs";
     }
 
-    const finalFramework = (framework || "nextjs") as "nextjs" | "express" | "react-vite";
+    const finalFramework = (framework || "nextjs") as "nextjs" | "express" | "react";
 
     // Validate auth compatibility
     if (auth === "authjs" && (database !== "prisma" || finalFramework !== "nextjs")) {
       throw new Error("Auth.js is only supported with Next.js and Prisma database");
     }
-    if (auth === "better-auth" && database === "none" && finalFramework !== "react-vite") {
+    if (auth === "better-auth" && database === "none" && finalFramework !== "react") {
       throw new Error("Better Auth requires a database for server frameworks");
     }
 
@@ -188,7 +188,7 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
       type: "list",
       name: "database",
       message: "Select database/ORM:",
-      when: (answers: Answers) => answers.framework !== "react-vite",
+      when: (answers: Answers) => answers.framework !== "react",
       choices: [
         { name: "Prisma", value: "prisma" },
         { name: "Mongoose", value: "mongoose" },
@@ -211,7 +211,7 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
       type: "list",
       name: "auth",
       message: "Select authentication:",
-      when: (answers: Answers) => (answers.database !== "none" || answers.framework === "react-vite"),
+      when: (answers: Answers) => (answers.database !== "none" || answers.framework === "react"),
       choices: (answers: Answers) => getCompatibleAuthOptions(
         discoveredModules.auth,
         answers.framework,
@@ -245,7 +245,7 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
   return {
     projectName: (projectName || answers.projectName) as string,
     framework: answers.framework,
-    database: (answers.framework === "react-vite"
+    database: (answers.framework === "react"
       ? "none"
       : answers.database) as ProjectConfig["database"],
     prismaProvider: answers.prismaProvider as "postgresql" | "mongodb" | "mysql" | "sqlite" | undefined,

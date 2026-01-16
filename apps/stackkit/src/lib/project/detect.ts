@@ -17,13 +17,13 @@ export async function detectProjectInfo(targetDir: string): Promise<ProjectInfo>
   const isReact = packageJson.dependencies?.react || packageJson.devDependencies?.react;
   const isVite = packageJson.dependencies?.vite || packageJson.devDependencies?.vite;
 
-  let framework: "nextjs" | "express" | "react" | "react-vite" | "unknown";
+  let framework: "nextjs" | "express" | "react" | "unknown";
   if (isNextJs) {
     framework = "nextjs";
   } else if (isExpress) {
     framework = "express";
   } else if (isReact && isVite) {
-    framework = "react-vite";
+    framework = "react";
   } else if (isReact) {
     framework = "react";
   } else {

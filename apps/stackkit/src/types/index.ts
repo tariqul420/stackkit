@@ -80,7 +80,7 @@ export interface ModifyJsonPatch extends ModulePatch {
 }
 
 export interface ProjectInfo {
-  framework: "nextjs" | "express" | "react" | "react-vite" | "unknown";
+  framework: "nextjs" | "express" | "react" | "unknown";
   router: "app" | "pages" | "unknown";
   language: "ts" | "js";
   packageManager: "npm" | "yarn" | "pnpm" | "bun";

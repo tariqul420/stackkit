@@ -189,7 +189,7 @@ export function getCompatibleAuthOptions(
       continue;
     }
 
-    if (auth.name === 'better-auth' && database === 'none' && framework !== 'react-vite') {
+    if (auth.name === 'better-auth' && database === 'none' && framework !== 'react') {
       continue;
     }
 

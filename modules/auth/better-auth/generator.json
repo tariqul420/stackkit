@@ -36,7 +36,7 @@
       "description": "Create Better Auth client for React",
       "source": "lib/auth-client.ts",
       "destination": "lib/auth-client.ts",
-      "condition": { "framework": ["nextjs", "react-vite"] }
+      "condition": { "framework": ["nextjs", "react"] }
     },
     {
       "type": "create-file",
