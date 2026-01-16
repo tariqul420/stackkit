@@ -137,11 +137,6 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
     }
 
     const finalFramework = (framework || "nextjs") as "nextjs" | "express" | "react-vite";
-    // Note: React-Vite can now support databases
-    // if (finalFramework === "react-vite") {
-    //   database = "none";
-    //   prismaProvider = undefined;
-    // }
 
     // Validate auth compatibility
     if (auth === "authjs" && (database !== "prisma" || finalFramework !== "nextjs")) {

@@ -132,7 +132,68 @@ export class AdvancedCodeGenerator {
   }
 
   private processTemplate(content: string, context: GenerationContext): string {
-    // Handle advanced conditional blocks {{#if condition operator value}}...{{/if}}
+    // Create a copy of context for template variables
+    const templateContext = { ...context };
+
+    // Handle variable definitions {{#var name = value}} at the top of the file
+    content = this.processVariableDefinitions(content, templateContext);
+
+    // Process the rest of the template with the extended context
+    return this.processTemplateRecursive(content, templateContext);
+  }
+
+  private processVariableDefinitions(content: string, context: GenerationContext): string {
+    let result = content;
+    let index = 0;
+
+    while (true) {
+      const varStart = result.indexOf('{{#var ', index);
+      if (varStart === -1) break;
+
+      const equalsIndex = result.indexOf('=', varStart);
+      if (equalsIndex === -1) break;
+
+      const varNameMatch = result.substring(varStart + 7, equalsIndex).trim();
+      if (!varNameMatch) break;
+
+      // Find the end of the variable value by counting braces
+      // Start with braceCount = 1 because {{#var is already open
+      let braceCount = 1;
+      const valueStart = equalsIndex + 1;
+      let valueEnd = valueStart;
+
+      for (let i = valueStart; i < result.length; i++) {
+        if (result[i] === '{' && result[i + 1] === '{') {
+          braceCount++;
+          i++; // Skip next character
+        } else if (result[i] === '}' && result[i + 1] === '}') {
+          braceCount--;
+          if (braceCount === 0) {
+            valueEnd = i;
+            break;
+          }
+          i++; // Skip next character
+        }
+      }
+
+      if (valueEnd === valueStart) break;
+
+      const varValue = result.substring(valueStart, valueEnd).trim();
+      const fullMatch = result.substring(varStart, valueEnd + 2);
+
+      // Process the variable value with current context (allowing nested variables/conditionals)
+      const processedValue = this.processTemplateRecursive(varValue, context);
+      context[varNameMatch] = processedValue;
+
+      // Remove the variable definition
+      result = result.replace(fullMatch, '');
+      index = varStart;
+    }
+
+    return result;
+  }
+
+  private processTemplateRecursive(content: string, context: GenerationContext): string {
     content = content.replace(/\{\{#if\s+([^}\s]+)\s+([^}\s]+)\s+([^}]+)\}\}([\s\S]*?)\{\{\/if\}\}/g, (match, varName, operator, expectedValue, blockContent) => {
       const actualVal = context[varName.trim()];
       const cleanExpectedVal = expectedValue.trim().replace(/['"]/g, '');
@@ -158,7 +219,7 @@ export class AdvancedCodeGenerator {
           break;
       }
 
-      return conditionMet ? this.processTemplate(blockContent, context) : '';
+      return conditionMet ? this.processTemplateRecursive(blockContent, context) : '';
     });
 
     // Handle simple conditional blocks {{#if condition}}...{{/if}} (backward compatibility)
@@ -167,7 +228,7 @@ export class AdvancedCodeGenerator {
       if (conditionParts.length === 2) {
         const [varName, expectedValue] = conditionParts.map((s: string) => s.trim().replace(/['"]/g, ''));
         if (context[varName] === expectedValue) {
-          return this.processTemplate(blockContent, context);
+          return this.processTemplateRecursive(blockContent, context);
         }
         return '';
       }
@@ -178,7 +239,7 @@ export class AdvancedCodeGenerator {
         const itemValue = item.replace(')', '').replace(/['"]/g, '');
         const array = context[arrayName] || [];
         if (Array.isArray(array) && array.includes(itemValue)) {
-          return this.processTemplate(blockContent, context);
+          return this.processTemplateRecursive(blockContent, context);
         }
         return '';
       }
@@ -290,9 +351,9 @@ export class AdvancedCodeGenerator {
       features,
     };
 
-    // Add prismaProvider if prismaProvider is specified
-    if (selectedModules.prismaProvider) {
-      context.prismaProvider = selectedModules.prismaProvider;
+    // Set default prismaProvider if database is prisma but no provider specified
+    if (selectedModules.database === 'prisma' && !context.prismaProvider) {
+      context.prismaProvider = 'postgresql';
     }
 
     // Collect all applicable operations
@@ -320,6 +381,7 @@ export class AdvancedCodeGenerator {
             ...(item as Operation),
             generator: name,
             generatorType: genType,
+            priority: generator.priority,
           });
         }
       }

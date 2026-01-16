@@ -1,6 +1,8 @@
 
+{{#var defaultId = {{#if prismaProvider == postgresql}}@default(cuid()){{/if}}{{#if prismaProvider == mysql}}@default(uuid()){{/if}}{{#if prismaProvider == sqlite}}@default(uuid()){{/if}}}}
+
 model User {
-    id            String    @id {{#if prismaProvider == postgresql}}@default(cuid()){{/if}}{{#if prismaProvider == mysql}}@default(uuid()){{/if}}{{#if prismaProvider == sqlite}}@default(uuid()){{/if}}
+    id            String    @id {{defaultId}}
     name          String
     email         String
     emailVerified Boolean   @default(false)
@@ -16,14 +18,14 @@ model User {
 }
 
 model Session {
-    id        String   @id {{#if prismaProvider == postgresql}}@default(cuid()){{/if}}{{#if prismaProvider == mysql}}@default(uuid()){{/if}}{{#if prismaProvider == sqlite}}@default(uuid()){{/if}}
+    id        String   @id {{defaultId}}
     expiresAt DateTime
     token     String   @unique
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     ipAddress String?
     userAgent String?
-    userId    String {{#if prismaProvider == postgresql}}{{/if}}{{#if prismaProvider == mysql}}{{/if}}{{#if prismaProvider == sqlite}}{{/if}}
+    userId    String
     user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@index([userId])
@@ -31,10 +33,10 @@ model Session {
 }
 
 model Account {
-    id                    String    @id {{#if prismaProvider == postgresql}}@default(cuid()){{/if}}{{#if prismaProvider == mysql}}@default(uuid()){{/if}}{{#if prismaProvider == sqlite}}@default(uuid()){{/if}}
+    id                    String    @id {{defaultId}}
     accountId             String
     providerId            String
-    userId                String {{#if prismaProvider == postgresql}}{{/if}}{{#if prismaProvider == mysql}}{{/if}}{{#if prismaProvider == sqlite}}{{/if}}
+    userId                String
     user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
     accessToken           String?
     refreshToken          String?
@@ -51,7 +53,7 @@ model Account {
 }
 
 model Verification {
-    id         String   @id {{#if prismaProvider == postgresql}}@default(cuid()){{/if}}{{#if prismaProvider == mysql}}@default(uuid()){{/if}}{{#if prismaProvider == sqlite}}@default(uuid()){{/if}}
+    id         String   @id {{defaultId}}
     identifier String
     value      String
     expiresAt  DateTime
