@@ -461,22 +461,31 @@ export class AdvancedCodeGenerator {
         // Unknown operation type - skip silently
     }
   }
-
   private async copyTemplate(frameworkName: string, outputPath: string): Promise<void> {
-    const templatesPath = path.resolve(__dirname, '..', '..', 'templates');
-    const templatePath = path.join(templatesPath, frameworkName);
+    const candidates = [
+      path.resolve(__dirname, '..', '..', 'templates'), // dist/templates (when bundled)
+      path.resolve(__dirname, '..', '..', '..', 'templates'), // package root templates
+    ];
 
-    if (await fs.pathExists(templatePath)) {
-      // Copy all files except template.json and node_modules
-      await fs.copy(templatePath, outputPath, {
-        filter: (src) => {
-          const relativePath = path.relative(templatePath, src);
-          return relativePath !== 'template.json' &&
-                 relativePath !== 'node_modules' &&
-                 !relativePath.startsWith('node_modules/');
-        }
-      });
+    let templateBase: string | undefined;
+    for (const c of candidates) {
+      const p = path.join(c, frameworkName);
+      if (await fs.pathExists(p)) {
+        templateBase = p;
+        break;
+      }
     }
+
+    if (!templateBase) return;
+
+    await fs.copy(templateBase, outputPath, {
+      filter: (src) => {
+        const relativePath = path.relative(templateBase as string, src);
+        return relativePath !== 'template.json' &&
+               relativePath !== 'node_modules' &&
+               !relativePath.startsWith('node_modules/');
+      }
+    });
   }
 
   private processOperationTemplates(operation: Operation, context: GenerationContext): Operation {
@@ -545,12 +554,29 @@ export class AdvancedCodeGenerator {
       content = this.processTemplate(operation.content, context);
     } else if (operation.source) {
       // Find the source file path relative to the module/template directory
-      const modulesPath = path.join(__dirname, '..', '..', 'modules');
-      const templatesPath = path.join(__dirname, '..', '..', 'templates');
+      // Resolve modules/templates base paths (try both dist and package root)
+      const modulesCandidates = [
+        path.resolve(__dirname, '..', '..', 'modules'),
+        path.resolve(__dirname, '..', '..', '..', 'modules'),
+      ];
+      const templatesCandidates = [
+        path.resolve(__dirname, '..', '..', 'templates'),
+        path.resolve(__dirname, '..', '..', '..', 'templates'),
+      ];
+
+      const resolveExisting = async (cands: string[]) => {
+        for (const c of cands) {
+          if (await fs.pathExists(c)) return c;
+        }
+        return undefined;
+      };
+
+      const modulesPathResolved = await resolveExisting(modulesCandidates);
+      const templatesPathResolved = await resolveExisting(templatesCandidates);
 
       const moduleBasePath = operation.generatorType === 'framework'
-        ? path.join(templatesPath, operation.generator)
-        : path.join(modulesPath, operation.generatorType, operation.generator);
+        ? path.join(templatesPathResolved || templatesCandidates[0], operation.generator)
+        : path.join(modulesPathResolved || modulesCandidates[0], operation.generatorType, operation.generator);
 
       const sourcePath = path.join(moduleBasePath, 'files', operation.source);
 

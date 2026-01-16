@@ -9,6 +9,7 @@ import { logger } from "./lib/ui/logger";
 interface CreateOptions {
   framework?: "nextjs" | "express" | "react";
   database?: "prisma" | "mongoose" | "none";
+  prismaProvider?: "postgresql" | "mongodb" | "mysql" | "sqlite";
   auth?: "better-auth" | "authjs" | "none";
   language?: "typescript" | "javascript";
   packageManager?: "pnpm" | "npm" | "yarn" | "bun";
@@ -44,17 +45,18 @@ program
 
 // Create command
 program
-  .command("create <project-name>")
+  .command("create [project-name]")
   .description("Create a new StackKit project")
   .option("-f, --framework <framework>", "Framework: nextjs, express, react")
   .option("-d, --database <database>", "Database: prisma, mongoose, none")
+  .option("--prisma-provider <provider>", "Prisma provider: postgresql, mongodb, mysql, sqlite")
   .option("-a, --auth <auth>", "Auth: better-auth, authjs, none")
   .option("-l, --language <language>", "Language: typescript, javascript")
   .option("-p, --package-manager <pm>", "Package manager: pnpm, npm, yarn, bun")
   .option("--skip-install", "Skip dependency installation")
   .option("--no-git", "Skip git initialization")
   .option("-y, --yes", "Use default options")
-  .action(async (projectName: string, options: CreateOptions) => {
+  .action(async (projectName: string | undefined, options: CreateOptions) => {
     try {
       await createProject(projectName, options);
     } catch (error) {

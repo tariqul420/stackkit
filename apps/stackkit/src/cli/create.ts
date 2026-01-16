@@ -45,15 +45,17 @@ interface CliOptions {
   p?: string;
   install?: boolean;
   'skip-install'?: boolean;
+  skipInstall?: boolean;
   git?: boolean;
   'no-git'?: boolean;
+  noGit?: boolean;
   yes?: boolean;
   y?: boolean;
 }
 
 export async function createProject(projectName?: string, options?: CliOptions): Promise<void> {
   logger.newLine();
-  logger.log(chalk.bold.cyan("Create StackKit App"));
+  logger.log(chalk.bold.cyan("📦 Create StackKit App"));
   logger.newLine();
 
   const config = await getProjectConfig(projectName, options);
@@ -71,12 +73,33 @@ export async function createProject(projectName?: string, options?: CliOptions):
 }
 
 async function getProjectConfig(projectName?: string, options?: CliOptions): Promise<ProjectConfig> {
-  // Discover available modules
-  const modulesDir = path.join(__dirname, "..", "..", "..", "modules");
-  const discoveredModules = await discoverModules(modulesDir);
+  // Resolve modules directory (try dist and package root)
+  const modulesCandidates = [
+    path.join(__dirname, "..", "..", "..", "modules"), // dist/modules when running from dist
+    path.join(__dirname, "..", "..", "..", "..", "modules"), // package root modules when running from source
+  ];
 
-  if (options && Object.keys(options).length > 0) {
-    if (options.yes || options.y) {
+  let modulesDir: string | undefined;
+  for (const c of modulesCandidates) {
+    if (await fs.pathExists(c)) {
+      modulesDir = c;
+      break;
+    }
+  }
+
+  const discoveredModules = await discoverModules(modulesDir || modulesCandidates[1]);
+
+  // Determine if the user passed any arguments or flags after the `create` command
+  // (Commander populates an options object even when no flags are passed). We
+  // consider the CLI non-interactive only when the user actually provided a
+  // project name or flags on the command line.
+  const argv = process.argv.slice(2);
+  const createIndex = argv.indexOf('create');
+  const argsAfterCreate = createIndex >= 0 ? argv.slice(createIndex + 1) : [];
+  const optionsProvided = argsAfterCreate.length > 0 || !!projectName;
+
+  if (optionsProvided) {
+    if ((options && (options.yes || options.y))) {
       return {
         projectName: projectName || "my-app",
         framework: "nextjs",
@@ -87,37 +110,43 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
         packageManager: "pnpm",
       };
     }
-    // Validate options using discovered modules
-    const validFrameworks = discoveredModules.frameworks.map(f => f.name);
-    const framework = options.framework || options.f;
-    if (framework && !validFrameworks.includes(framework)) {
-      throw new Error(`Invalid framework: ${framework}. Valid options: ${validFrameworks.join(', ')}`);
+    // Validate options using discovered modules (if any discovered)
+    const framework = (options && (options.framework || options.f)) || undefined;
+    if (discoveredModules.frameworks && discoveredModules.frameworks.length > 0) {
+      const validFrameworks = discoveredModules.frameworks.map(f => f.name);
+      if (framework && !validFrameworks.includes(framework)) {
+        throw new Error(`Invalid framework: ${framework}. Valid options: ${validFrameworks.join(', ')}`);
+      }
     }
 
-    const validDatabases = getValidDatabaseOptions(discoveredModules.databases);
-    // Also allow base database names like 'prisma', 'mongoose'
-    const validBaseDatabases = discoveredModules.databases.map(db => db.name);
-    const allValidDatabases = [...validDatabases, ...validBaseDatabases];
-    
-    const db = options.database || options.d;
-    if (db && !allValidDatabases.includes(db)) {
-      throw new Error(`Invalid database: ${db}. Valid options: ${allValidDatabases.filter((v, i, arr) => arr.indexOf(v) === i).join(', ')}`);
+    const db = (options && (options.database || options.d)) || undefined;
+    let allValidDatabases: string[] = [];
+    if (discoveredModules.databases && discoveredModules.databases.length > 0) {
+      const validDatabases = getValidDatabaseOptions(discoveredModules.databases);
+      // Also allow base database names like 'prisma', 'mongoose'
+      const validBaseDatabases = discoveredModules.databases.map(db => db.name);
+      allValidDatabases = [...validDatabases, ...validBaseDatabases];
+      if (db && !allValidDatabases.includes(db)) {
+        throw new Error(`Invalid database: ${db}. Valid options: ${allValidDatabases.filter((v, i, arr) => arr.indexOf(v) === i).join(', ')}`);
+      }
     }
 
-    const validAuth = getValidAuthOptions(discoveredModules.auth);
-    const authOpt = options.auth || options.a;
-    if (authOpt && !validAuth.includes(authOpt)) {
-      throw new Error(`Invalid auth: ${authOpt}. Valid options: ${validAuth.join(', ')}`);
+    const authOpt = (options && (options.auth || options.a)) || undefined;
+    if (discoveredModules.auth && discoveredModules.auth.length > 0) {
+      const validAuth = getValidAuthOptions(discoveredModules.auth);
+      if (authOpt && !validAuth.includes(authOpt)) {
+        throw new Error(`Invalid auth: ${authOpt}. Valid options: ${validAuth.join(', ')}`);
+      }
     }
 
     const validLanguages = ['typescript', 'javascript'];
-    const language = options.language || options.l;
+    const language = (options && (options.language || options.l)) || undefined;
     if (language && !validLanguages.includes(language)) {
       throw new Error(`Invalid language: ${language}. Valid options: ${validLanguages.join(', ')}`);
     }
 
     const validPackageManagers = ['pnpm', 'npm', 'yarn', 'bun'];
-    const pm = options.packageManager || options.p;
+    const pm = (options && (options.packageManager || options.p)) || undefined;
     if (pm && !validPackageManagers.includes(pm)) {
       throw new Error(`Invalid package manager: ${pm}. Valid options: ${validPackageManagers.join(', ')}`);
     }
@@ -267,7 +296,7 @@ async function generateProject(config: ProjectConfig, targetDir: string, options
   }
 
   // Install dependencies
-  if (options?.install !== false && !options?.['skip-install']) {
+  if (options?.install !== false && !(options?.['skip-install'] || options?.skipInstall)) {
     const installSpinner = logger.startSpinner("Installing dependencies...");
     try {
       await installDependencies(targetDir, config.packageManager);
@@ -278,8 +307,8 @@ async function generateProject(config: ProjectConfig, targetDir: string, options
     }
   }
 
-  // Run post-install commands
-  if (postInstallCommands.length > 0) {
+  // Run post-install commands (skip if install was skipped)
+  if (postInstallCommands.length > 0 && options?.install !== false && !(options?.['skip-install'] || options?.skipInstall)) {
     const postInstallSpinner = logger.startSpinner("Running post-install commands...");
     try {
       for (const command of postInstallCommands) {
@@ -293,7 +322,7 @@ async function generateProject(config: ProjectConfig, targetDir: string, options
   }
 
   // Initialize git
-  if (options?.git !== false && !options?.['no-git']) {
+  if (options?.git !== false && !(options?.['no-git'] || options?.noGit)) {
     const gitSpinner = logger.startSpinner("Initializing git repository...");
     try {
       await initGit(targetDir);
@@ -305,8 +334,25 @@ async function generateProject(config: ProjectConfig, targetDir: string, options
 }
 
 async function composeTemplate(config: ProjectConfig, targetDir: string): Promise<string[]> {
-  const templatesDir = path.join(__dirname, "..", "..", "..", "templates");
-  const modulesDir = path.join(__dirname, "..", "..", "..", "modules");
+  // Resolve templates and modules directories (try dist then package root)
+  const templatesCandidates = [
+    path.join(__dirname, "..", "..", "..", "templates"),
+    path.join(__dirname, "..", "..", "..", "..", "templates"),
+  ];
+  const modulesCandidates2 = [
+    path.join(__dirname, "..", "..", "..", "modules"),
+    path.join(__dirname, "..", "..", "..", "..", "modules"),
+  ];
+
+  const templatesDir = (await (async () => {
+    for (const c of templatesCandidates) if (await fs.pathExists(c)) return c;
+    return templatesCandidates[1];
+  })());
+
+  const modulesDirForGenerator = (await (async () => {
+    for (const c of modulesCandidates2) if (await fs.pathExists(c)) return c;
+    return modulesCandidates2[1];
+  })());
 
   await fs.ensureDir(targetDir);
 
@@ -315,7 +361,7 @@ async function composeTemplate(config: ProjectConfig, targetDir: string): Promis
 
   // Initialize advanced code generator
   const generator = new AdvancedCodeGenerator(frameworkConfig);
-  await generator.loadGenerators(modulesDir);
+  await generator.loadGenerators(modulesDirForGenerator);
 
   // Generate project using advanced code generator
   const features: string[] = [];
