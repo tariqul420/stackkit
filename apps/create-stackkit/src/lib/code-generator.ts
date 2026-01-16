@@ -72,6 +72,7 @@ export interface GeneratorConfig {
   devDependencies?: Record<string, string>;
   scripts?: Record<string, string>;
   envVars?: Record<string, string>;
+  postInstall?: string[];
 }
 
 export class AdvancedCodeGenerator {
@@ -96,6 +97,21 @@ export class AdvancedCodeGenerator {
           if (await fs.pathExists(generatorPath)) {
             try {
               const config: GeneratorConfig = await fs.readJson(generatorPath);
+              
+              // Also load module.json for additional metadata like postInstall
+              const modulePath = path.join(typePath, moduleName, 'module.json');
+              if (await fs.pathExists(modulePath)) {
+                try {
+                  const moduleConfig = await fs.readJson(modulePath);
+                  if (moduleConfig.postInstall && Array.isArray(moduleConfig.postInstall)) {
+                    // Store postInstall commands with the generator for later use
+                    config.postInstall = moduleConfig.postInstall;
+                  }
+                } catch {
+                  // Silently skip if module.json is invalid
+                }
+              }
+              
               this.generators.set(`${type}:${moduleName}`, config);
             } catch {
               // Silently skip invalid generator files
@@ -379,6 +395,11 @@ export class AdvancedCodeGenerator {
         // Auth is selected
       } else {
         continue; // Skip unselected generators
+      }
+
+      // Collect postInstall commands from selected generators
+      if (generator.postInstall && Array.isArray(generator.postInstall)) {
+        this.postInstallCommands.push(...generator.postInstall);
       }
 
       // Handle operations

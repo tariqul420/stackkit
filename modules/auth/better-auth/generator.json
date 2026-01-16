@@ -63,7 +63,7 @@
     "nodemailer": "^7.0.12"
   },
   "devDependencies": {
-    "@types/nodemailer": "^6.4.17"
+    "@types/nodemailer": "^7.0.5"
   },
   "scripts": {},
   "envVars": {

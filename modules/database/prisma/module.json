@@ -10,5 +10,8 @@
     "databases": ["prisma"],
     "languages": ["typescript", "javascript"],
     "packageManagers": ["npm", "yarn", "pnpm", "bun"]
-  }
+  },
+  "postInstall": [
+    "npx prisma generate"
+  ]
 }
