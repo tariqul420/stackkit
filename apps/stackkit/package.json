@@ -1,7 +1,7 @@
 {
-  "name": "create-stackkit-app",
+  "name": "stackkit",
   "version": "0.4.6",
-  "description": "Create a new StackKit project with modular composition",
+  "description": "Production-ready CLI to create and extend JavaScript or TypeScript apps with modular stacks.",
   "main": "dist/index.js",
   "bin": {
     "stackkit": "./bin/stackkit.js"
@@ -18,7 +18,7 @@
     "url": "https://github.com/tariqul420/stackkit.git",
     "directory": "apps/create-stackkit"
   },
-  "homepage": "https://github.com/tariqul420/stackkit#readme",
+  "homepage": "https://stackkit.tariqul.dev",
   "bugs": {
     "url": "https://github.com/tariqul420/stackkit/issues"
   },
