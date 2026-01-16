@@ -28,7 +28,7 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
       `Detected ${projectInfo.framework} (${projectInfo.router} router, ${projectInfo.language})`,
     );
 
-    const moduleMetadata = await loadModuleMetadata(path.join(__dirname, "..", "..", "..", "..", "modules"), module, options.provider);
+    const moduleMetadata = await loadModuleMetadata(path.join(__dirname, "..", "..", "..", "modules"), module, options.provider);
 
     if (!moduleMetadata) {
       logger.error(`Module "${module}" not found`);
@@ -108,7 +108,7 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
       logger.newLine();
     }
 
-    await applyModulePatches(projectRoot, projectInfo, moduleMetadata, path.join(__dirname, "..", "..", "..", "..", "modules"), module, options);
+    await applyModulePatches(projectRoot, projectInfo, moduleMetadata, path.join(__dirname, "..", "..", "modules"), module, options);
 
     if (moduleMetadata.frameworkPatches && !options.dryRun) {
       await applyFrameworkPatches(

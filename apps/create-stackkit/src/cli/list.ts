@@ -39,7 +39,7 @@ export async function listCommand(options: ListOptions): Promise<void> {
 
     // List modules
     if (showModules) {
-      const modulesDir = path.join(__dirname, "..", "..", "..", "..", "modules");
+      const modulesDir = path.join(__dirname, "..", "..", "..", "modules");
       const modules = await getAvailableModules(modulesDir);
 
       if (modules.length > 0) {

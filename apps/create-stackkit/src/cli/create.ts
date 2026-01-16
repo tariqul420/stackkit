@@ -72,7 +72,7 @@ export async function createProject(projectName?: string, options?: CliOptions):
 
 async function getProjectConfig(projectName?: string, options?: CliOptions): Promise<ProjectConfig> {
   // Discover available modules
-  const modulesDir = path.join(__dirname, "..", "..", "modules");
+  const modulesDir = path.join(__dirname, "..", "..", "..", "modules");
   const discoveredModules = await discoverModules(modulesDir);
 
   if (options && Object.keys(options).length > 0) {
@@ -305,8 +305,8 @@ async function generateProject(config: ProjectConfig, targetDir: string, options
 }
 
 async function composeTemplate(config: ProjectConfig, targetDir: string): Promise<string[]> {
-  const templatesDir = path.join(__dirname, "..", "..", "templates");
-  const modulesDir = path.join(__dirname, "..", "..", "modules");
+  const templatesDir = path.join(__dirname, "..", "..", "..", "templates");
+  const modulesDir = path.join(__dirname, "..", "..", "..", "modules");
 
   await fs.ensureDir(targetDir);
 
