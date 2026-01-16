@@ -139,7 +139,15 @@ export class AdvancedCodeGenerator {
     content = this.processVariableDefinitions(content, templateContext);
 
     // Process the rest of the template with the extended context
-    return this.processTemplateRecursive(content, templateContext);
+    content = this.processTemplateRecursive(content, templateContext);
+
+    // Remove leading newlines that might be left from {{#var}} removal
+    content = content.replace(/^\n+/, '');
+
+    // Reduce multiple consecutive newlines to maximum 2
+    content = content.replace(/\n{3,}/g, '\n\n');
+
+    return content;
   }
 
   private processVariableDefinitions(content: string, context: GenerationContext): string {
@@ -219,7 +227,7 @@ export class AdvancedCodeGenerator {
           break;
       }
 
-      return conditionMet ? this.processTemplateRecursive(blockContent, context) : '';
+      return conditionMet ? this.processTemplateRecursive(blockContent, context).replace(/^\n+/, '').replace(/\n+$/, '') : '';
     });
 
     // Handle simple conditional blocks {{#if condition}}...{{/if}} (backward compatibility)
@@ -228,7 +236,7 @@ export class AdvancedCodeGenerator {
       if (conditionParts.length === 2) {
         const [varName, expectedValue] = conditionParts.map((s: string) => s.trim().replace(/['"]/g, ''));
         if (context[varName] === expectedValue) {
-          return this.processTemplateRecursive(blockContent, context);
+          return this.processTemplateRecursive(blockContent, context).replace(/^\n+/, '').replace(/\n+$/, '');
         }
         return '';
       }
@@ -239,7 +247,7 @@ export class AdvancedCodeGenerator {
         const itemValue = item.replace(')', '').replace(/['"]/g, '');
         const array = context[arrayName] || [];
         if (Array.isArray(array) && array.includes(itemValue)) {
-          return this.processTemplateRecursive(blockContent, context);
+          return this.processTemplateRecursive(blockContent, context).replace(/^\n+/, '').replace(/\n+$/, '');
         }
         return '';
       }
@@ -552,7 +560,7 @@ export class AdvancedCodeGenerator {
     let content = await fs.readFile(filePath, 'utf-8');
 
     if (operation.content) {
-      content += this.processTemplate(operation.content, context);
+      content += this.processTemplate(operation.content, context).trim();
     } else if (operation.operations) {
       // Execute patch operations
       for (const patchOp of operation.operations) {
@@ -599,13 +607,13 @@ export class AdvancedCodeGenerator {
           case 'add-to-top': {
             let processedContentTop: string = '';
             if (patchOp.content) {
-              processedContentTop = this.processTemplate(patchOp.content, context);
+              processedContentTop = this.processTemplate(patchOp.content, context).trim();
             } else if (patchOp.source) {
               const modulesPath = path.join(__dirname, '..', '..', 'modules');
               const sourcePath = path.join(modulesPath, operation.generatorType, operation.generator, 'files', patchOp.source);
               if (await fs.pathExists(sourcePath)) {
                 processedContentTop = await fs.readFile(sourcePath, 'utf-8');
-                processedContentTop = this.processTemplate(processedContentTop, context);
+                processedContentTop = this.processTemplate(processedContentTop, context).trim();
               }
             }
             if (processedContentTop) {
@@ -617,13 +625,13 @@ export class AdvancedCodeGenerator {
           case 'add-to-bottom': {
             let processedContentBottom: string = '';
             if (patchOp.content) {
-              processedContentBottom = this.processTemplate(patchOp.content, context);
+              processedContentBottom = this.processTemplate(patchOp.content, context).trim();
             } else if (patchOp.source) {
               const modulesPath = path.join(__dirname, '..', '..', 'modules');
               const sourcePath = path.join(modulesPath, operation.generatorType, operation.generator, 'files', patchOp.source);
               if (await fs.pathExists(sourcePath)) {
                 processedContentBottom = await fs.readFile(sourcePath, 'utf-8');
-                processedContentBottom = this.processTemplate(processedContentBottom, context);
+                processedContentBottom = this.processTemplate(processedContentBottom, context).trim();
               }
             }
             if (processedContentBottom) {

@@ -12,21 +12,12 @@
       "type": "create-file",
       "source": "models/User.ts",
       "destination": "src/lib/models.ts"
-    },
-    {
-      "type": "create-file",
-      "destination": "scripts/seed.ts",
-      "condition": { "features": ["seed"] },
-      "content": "import dbConnect from '../src/lib/db'\nimport { User } from '../src/lib/models'\n\nasync function main() {\n  await dbConnect()\n\n  // Create a default user\n  const user = await User.findOneAndUpdate(\n    { email: 'admin@example.com' },\n    {\n      email: 'admin@example.com',\n      name: 'Admin User',\n      role: 'ADMIN',\n    },\n    { upsert: true, new: true }\n  )\n\n  console.log('Created user:', user)\n}\n\nmain().catch(console.error)"
     }
   ],
   "dependencies": {
     "mongoose": "^8.8.0"
   },
   "devDependencies": {},
-  "scripts": {
-    "db:seed": "tsx scripts/seed.ts"
-  },
   "envVars": {
     "MONGODB_URI": "mongodb://localhost:27017/database_name"
   }

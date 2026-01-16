@@ -12,7 +12,9 @@ import { mongodbAdapter } from "better-auth/adapters/mongodb";
 
 export const auth = betterAuth({
 {{#if database=='prisma'}}
-  database: prismaAdapter(prisma),
+  database: prismaAdapter(prisma, {
+      provider: {{prismaProvider}},
+  }),
 {{/if}}
 {{#if database=='mongoose'}}
   database: mongodbAdapter(db),
@@ -28,16 +30,14 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: {{feature:emailVerification}},
+    requireEmailVerification: true,
   },
-{{#if features.includes('socialAuth')}}
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     },
   },
-{{/if}}
   emailVerification: {
     sendVerificationEmail: async ({ user, url }) => {
       const { html, text } = getVerificationEmailTemplate(user, url);
@@ -63,7 +63,6 @@ export const auth = betterAuth({
       },
     },
   },
-  // Additional production-ready options
   rateLimit: {
     window: 10, // 10 seconds
     max: 100, // max requests per window
@@ -80,10 +79,5 @@ export const auth = betterAuth({
     },
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24, // 1 day
-  },
-  user: {
-    changeEmail: {
-      enabled: true,
-    },
-  },
+  }
 });
