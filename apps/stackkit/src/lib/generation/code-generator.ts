@@ -88,7 +88,6 @@ export class AdvancedCodeGenerator {
   async loadGenerators(modulesPath: string): Promise<void> {
     const moduleTypes = ['auth', 'database'];
 
-    // Load module generators
     for (const type of moduleTypes) {
       const typePath = path.join(modulesPath, type);
       if (await fs.pathExists(typePath)) {
@@ -98,21 +97,19 @@ export class AdvancedCodeGenerator {
           if (await fs.pathExists(generatorPath)) {
             try {
               const config: GeneratorConfig = await fs.readJson(generatorPath);
-              
-              // Also load module.json for additional metadata like postInstall
+
               const modulePath = path.join(typePath, moduleName, 'module.json');
               if (await fs.pathExists(modulePath)) {
                 try {
                   const moduleConfig = await fs.readJson(modulePath);
                   if (moduleConfig.postInstall && Array.isArray(moduleConfig.postInstall)) {
-                    // Store postInstall commands with the generator for later use
                     config.postInstall = moduleConfig.postInstall;
                   }
                 } catch {
                   // Silently skip if module.json is invalid
                 }
               }
-              
+
               this.generators.set(`${type}:${moduleName}`, config);
             } catch {
               // Silently skip invalid generator files

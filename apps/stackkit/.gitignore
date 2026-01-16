@@ -1,5 +1,6 @@
 node_modules/
 dist/
 templates/
+modules/
 *.log
 .DS_Store

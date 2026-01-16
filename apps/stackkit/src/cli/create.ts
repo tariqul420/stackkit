@@ -74,12 +74,10 @@ export async function createProject(projectName?: string, options?: CliOptions):
 }
 
 async function getProjectConfig(projectName?: string, options?: CliOptions): Promise<ProjectConfig> {
-  // Resolve modules directory
   const modulesDir = getPackageRoot();
 
   const discoveredModules = await discoverModules(modulesDir);
 
-  // Detect flags or `--yes` after `create`; project-name-only remains interactive
   const argv = process.argv.slice(2);
   const createIndex = argv.indexOf('create');
   const argsAfterCreate = createIndex >= 0 ? argv.slice(createIndex + 1) : [];
@@ -98,7 +96,6 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
         packageManager: "pnpm",
       };
     }
-    // Validate options using discovered modules (if any discovered)
     const framework = (options && (options.framework || options.f)) || undefined;
     if (discoveredModules.frameworks && discoveredModules.frameworks.length > 0) {
       const validFrameworks = discoveredModules.frameworks.map(f => f.name);
@@ -111,7 +108,6 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
     let allValidDatabases: string[] = [];
     if (discoveredModules.databases && discoveredModules.databases.length > 0) {
       const validDatabases = getValidDatabaseOptions(discoveredModules.databases);
-      // Also allow base database names like 'prisma', 'mongoose'
       const validBaseDatabases = discoveredModules.databases.map(db => db.name);
       allValidDatabases = [...validDatabases, ...validBaseDatabases];
       if (db && !allValidDatabases.includes(db)) {
@@ -155,7 +151,6 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
 
     const finalFramework = (framework || "nextjs") as "nextjs" | "express" | "react";
 
-    // Validate auth compatibility
     if (auth === "authjs" && (database !== "prisma" || finalFramework !== "nextjs")) {
       throw new Error("Auth.js is only supported with Next.js and Prisma database");
     }
@@ -173,7 +168,7 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
       packageManager: (pm || "pnpm") as "pnpm" | "npm" | "yarn" | "bun",
     };
   }
-  // Interactive prompts
+
   const answers = (await inquirer.prompt([
     {
       type: "input",
@@ -286,7 +281,6 @@ async function generateProject(config: ProjectConfig, targetDir: string, options
     throw error;
   }
 
-  // Install dependencies
   if (options?.install !== false && !(options?.['skip-install'] || options?.skipInstall)) {
     const installSpinner = logger.startSpinner("Installing dependencies...");
     try {
@@ -298,7 +292,6 @@ async function generateProject(config: ProjectConfig, targetDir: string, options
     }
   }
 
-  // Run post-install commands (skip if install was skipped)
   if (postInstallCommands.length > 0 && options?.install !== false && !(options?.['skip-install'] || options?.skipInstall)) {
     const postInstallSpinner = logger.startSpinner("Running post-install commands...");
     try {
@@ -312,7 +305,6 @@ async function generateProject(config: ProjectConfig, targetDir: string, options
     }
   }
 
-  // Initialize git
   if (options?.git !== false && !(options?.['no-git'] || options?.noGit)) {
     const gitSpinner = logger.startSpinner("Initializing git repository...");
     try {
@@ -325,21 +317,17 @@ async function generateProject(config: ProjectConfig, targetDir: string, options
 }
 
 async function composeTemplate(config: ProjectConfig, targetDir: string): Promise<string[]> {
-  // Resolve templates/modules paths
   const packageRoot = getPackageRoot();
   const templatesDir = path.join(packageRoot, 'templates');
   const modulesDirForGenerator = path.join(packageRoot, 'modules');
 
   await fs.ensureDir(targetDir);
 
-  // Load framework configuration
   const frameworkConfig = await FrameworkUtils.loadFrameworkConfig(config.framework, templatesDir);
 
-  // Initialize advanced code generator
   const generator = new AdvancedCodeGenerator(frameworkConfig);
   await generator.loadGenerators(modulesDirForGenerator);
 
-  // Generate project using advanced code generator
   const features: string[] = [];
 
   const postInstallCommands = await generator.generate(
@@ -353,7 +341,6 @@ async function composeTemplate(config: ProjectConfig, targetDir: string): Promis
     targetDir
   );
 
-  // Update project name in package.json
   const packageJsonPath = path.join(targetDir, "package.json");
   if (await fs.pathExists(packageJsonPath)) {
     const packageJson = await fs.readJson(packageJsonPath);
@@ -361,7 +348,6 @@ async function composeTemplate(config: ProjectConfig, targetDir: string): Promis
     await fs.writeJson(packageJsonPath, packageJson, { spaces: 2 });
   }
 
-  // Ensure .env exists: if .env.example was copied from the template, create .env from it
   try {
     const envExamplePath = path.join(targetDir, ".env.example");
     const envPath = path.join(targetDir, ".env");
@@ -370,14 +356,13 @@ async function composeTemplate(config: ProjectConfig, targetDir: string): Promis
       await fs.writeFile(envPath, envContent);
     }
   } catch {
-    // non-fatal
+    // Non-fatal: .env creation from .env.example is optional
   }
 
   if (config.language === "javascript") {
     await convertToJavaScript(targetDir, config.framework);
   }
 
-  // For now, return empty array as post-install commands are handled by the generator
   return postInstallCommands;
 }
 

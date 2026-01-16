@@ -318,14 +318,12 @@ async function checkKeyFiles(
 ): Promise<CheckResult[]> {
   const checks: CheckResult[] = [];
 
-  // Check .env.example
   const envExampleExists = await fs.pathExists(path.join(projectRoot, ".env.example"));
   checks.push({
     status: envExampleExists ? "success" : "warning",
     message: envExampleExists ? ".env.example file found" : ".env.example file missing (recommended for documentation)",
   });
 
-  // Check Prisma schema
   if (databaseModules.includes("prisma")) {
     const schemaExists = await fs.pathExists(path.join(projectRoot, "prisma", "schema.prisma"));
     checks.push({
@@ -334,7 +332,6 @@ async function checkKeyFiles(
     });
   }
 
-  // Check auth routes
   if (authModules.length > 0 && projectType === "nextjs") {
     const authRoutesExist = await checkAuthRoutesExist(projectRoot, projectType);
     checks.push({
@@ -379,7 +376,6 @@ async function checkEnvFiles(
   const missing: string[] = [];
   const present: string[] = [];
 
-  // Determine required env keys
   if (databaseModules.includes("prisma")) {
     requiredKeys.push("DATABASE_URL");
   }
@@ -390,7 +386,6 @@ async function checkEnvFiles(
     requiredKeys.push("BETTER_AUTH_SECRET", "BETTER_AUTH_URL");
   }
 
-  // Check env files
   const envPaths = [".env", ".env.local"];
   let envContent = "";
 
@@ -410,7 +405,6 @@ async function checkEnvFiles(
     return { checks, envStatus: { missing: requiredKeys, present: [] } };
   }
 
-  // Parse env content
   const envLines = envContent.split("\n").map(line => line.trim()).filter(line => line && !line.startsWith("#"));
   const envVars = new Set(envLines.map(line => line.split("=")[0]));
 

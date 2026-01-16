@@ -223,7 +223,6 @@ async function loadGeneratorAndMerge(metadata: ModuleMetadata, modulePath: strin
   const generatorPath = path.join(modulePath, "generator.json");
   if (await fs.pathExists(generatorPath)) {
     const generator = await fs.readJSON(generatorPath);
-    // Merge envVars, dependencies, etc.
     if (generator.envVars) {
       metadata.envVars = metadata.envVars || [];
       for (const [key, value] of Object.entries(generator.envVars)) {
@@ -236,10 +235,6 @@ async function loadGeneratorAndMerge(metadata: ModuleMetadata, modulePath: strin
     if (generator.devDependencies) {
       metadata.devDependencies = { ...metadata.devDependencies, ...generator.devDependencies };
     }
-    if (generator.scripts) {
-      // Perhaps add to metadata, but currently not used
-    }
-    // For operations, perhaps add to patches or something, but for now, keep manual
   }
   return metadata;
 }

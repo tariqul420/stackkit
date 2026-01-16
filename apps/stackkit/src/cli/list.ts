@@ -38,7 +38,6 @@ export async function listCommand(options: ListOptions): Promise<void> {
       }
     }
 
-    // List modules
     if (showModules) {
       const modulesDir = path.join(getPackageRoot(), "modules");
       const modules = await getAvailableModules(modulesDir);
@@ -47,7 +46,6 @@ export async function listCommand(options: ListOptions): Promise<void> {
         hasModules = true;
         logger.log(chalk.bold.magenta("MODULES"));
 
-        // Group by category
         const grouped = modules.reduce(
           (acc, mod) => {
             if (!acc[mod.category]) {
@@ -72,7 +70,6 @@ export async function listCommand(options: ListOptions): Promise<void> {
             const modPrefix = isLastCategory ? (isLastMod ? "    └──" : "    ├──") : (isLastMod ? "│   └──" : "│   ├──");
             logger.log(`  ${chalk.gray(modPrefix)} ${chalk.green(mod.displayName)}`);
 
-            // Show additional details for database modules
             if (mod.category === "database" && mod.name === "prisma") {
               const providerPrefix = isLastCategory ? (isLastMod ? "        └──" : "        ├──") : (isLastMod ? "│       └──" : "│       ├──");
               logger.log(`  ${chalk.gray(providerPrefix)} ${chalk.dim("Providers: PostgreSQL, MongoDB, MySQL, SQLite")}`);
