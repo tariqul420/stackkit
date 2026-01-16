@@ -9,8 +9,8 @@ const program = new Command();
 
 program
   .name("stackkit")
-  .description("Production-ready project generator and module CLI")
-  .version("0.3.2");
+  .description("CLI for managing modules in StackKit projects")
+  .version("0.4.5");
 
 // List command
 program

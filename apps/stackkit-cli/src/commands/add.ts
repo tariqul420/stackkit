@@ -9,6 +9,7 @@ import { addEnvVariables } from "../utils/env-editor";
 import { createFile, fileExists } from "../utils/files";
 import { logger } from "../utils/logger";
 import { addDependencies } from "../utils/package-manager";
+import { DATABASE_CONNECTION_STRINGS } from "../utils/database-config";
 
 interface AddOptions {
   provider?: string;
@@ -21,29 +22,22 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
   try {
     const projectRoot = process.cwd();
 
-    // Detect project info
     const spinner = logger.startSpinner("Detecting project...");
     const projectInfo = await detectProjectInfo(projectRoot);
     spinner.succeed(
       `Detected ${projectInfo.framework} (${projectInfo.router} router, ${projectInfo.language})`,
     );
 
-    // Load module metadata
-    const modulesDir = path.join(__dirname, "..", "..", "modules");
-    const moduleMetadata = await loadModuleMetadata(modulesDir, module, options.provider);
+    const moduleMetadata = await loadModuleMetadata(path.join(__dirname, "..", "..", "modules"), module, options.provider);
 
     if (!moduleMetadata) {
       logger.error(`Module "${module}" not found`);
       process.exit(1);
     }
 
-    // For database modules, ensure provider is selected
     let selectedProvider = options.provider;
     if (moduleMetadata.category === "database" && !selectedProvider) {
-      if (
-        typeof moduleMetadata.dependencies === "object" &&
-        "providers" in moduleMetadata.dependencies
-      ) {
+      if (typeof moduleMetadata.dependencies === "object" && "providers" in moduleMetadata.dependencies) {
         const providers = Object.keys(moduleMetadata.dependencies.providers || {});
         if (providers.length > 0) {
           const { provider } = await inquirer.prompt([
@@ -59,11 +53,9 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
       }
     }
 
-    // Merge dependencies based on provider
     const mergedDeps: Record<string, string> = {};
     const mergedDevDeps: Record<string, string> = {};
 
-    // Add shared dependencies
     if (moduleMetadata.frameworkConfigs?.shared?.dependencies) {
       Object.assign(mergedDeps, moduleMetadata.frameworkConfigs.shared.dependencies);
     }
@@ -71,7 +63,6 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
       Object.assign(mergedDevDeps, moduleMetadata.frameworkConfigs.shared.devDependencies);
     }
 
-    // Add provider specific dependencies
     if (selectedProvider && moduleMetadata.databaseAdapters?.providers?.[selectedProvider]?.dependencies) {
       Object.assign(mergedDeps, moduleMetadata.databaseAdapters.providers[selectedProvider].dependencies);
     }
@@ -79,26 +70,15 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
       Object.assign(mergedDevDeps, moduleMetadata.databaseAdapters.providers[selectedProvider].devDependencies);
     }
 
-    // Update metadata with merged deps
     moduleMetadata.dependencies = mergedDeps;
     moduleMetadata.devDependencies = mergedDevDeps;
 
-    // Set variables for replacements
     const variables: Record<string, string> = {};
     if (selectedProvider) {
       variables.provider = selectedProvider;
-      if (selectedProvider === "postgresql") {
-        variables.connectionString = "postgresql://user:password@localhost:5432/mydb?schema=public";
-      } else if (selectedProvider === "mongodb") {
-        variables.connectionString = "mongodb://localhost:27017/mydb";
-      } else if (selectedProvider === "mysql") {
-        variables.connectionString = "mysql://user:password@localhost:3306/mydb";
-      } else if (selectedProvider === "sqlite") {
-        variables.connectionString = "file:./dev.db";
-      }
+      variables.connectionString = DATABASE_CONNECTION_STRINGS[selectedProvider as keyof typeof DATABASE_CONNECTION_STRINGS] || "";
     }
 
-    // Check if framework is supported
     if (!moduleMetadata.supportedFrameworks.includes(projectInfo.framework)) {
       logger.error(
         `Module "${module}" does not support ${projectInfo.framework}. Supported: ${moduleMetadata.supportedFrameworks.join(", ")}`,
@@ -106,7 +86,6 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
       process.exit(1);
     }
 
-    // Check for conflicts
     if (module === "auth" && projectInfo.hasAuth && !options.force) {
       logger.warn("Auth library already detected in this project");
       const { proceed } = await inquirer.prompt([
@@ -129,10 +108,8 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
       logger.newLine();
     }
 
-    // Apply module patches
-    await applyModulePatches(projectRoot, projectInfo, moduleMetadata, modulesDir, module, options);
+    await applyModulePatches(projectRoot, projectInfo, moduleMetadata, path.join(__dirname, "..", "..", "modules"), module, options);
 
-    // Apply framework patches
     if (moduleMetadata.frameworkPatches && !options.dryRun) {
       await applyFrameworkPatches(
         projectRoot,
@@ -141,7 +118,6 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
       );
     }
 
-    // Run post-install commands
     if (moduleMetadata.postInstall && moduleMetadata.postInstall.length > 0 && !options.dryRun) {
       const postInstallSpinner = logger.startSpinner("Running post-install commands...");
       try {
@@ -155,12 +131,8 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
       }
     }
 
-    // Add dependencies
     if (Object.keys(mergedDeps).length > 0 && options.install !== false) {
-      const deps = Object.entries(mergedDeps).map(
-        ([name, version]) => `${name}@${version}`,
-      );
-
+      const deps = Object.entries(mergedDeps).map(([name, version]) => `${name}@${version}`);
       if (!options.dryRun) {
         await addDependencies(projectRoot, projectInfo.packageManager, deps, false);
       } else {
@@ -168,12 +140,8 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
       }
     }
 
-    // Add dev dependencies
     if (Object.keys(mergedDevDeps).length > 0 && options.install !== false) {
-      const devDeps = Object.entries(mergedDevDeps).map(
-        ([name, version]) => `${name}@${version}`,
-      );
-
+      const devDeps = Object.entries(mergedDevDeps).map(([name, version]) => `${name}@${version}`);
       if (!options.dryRun) {
         await addDependencies(projectRoot, projectInfo.packageManager, devDeps, true);
       } else {
@@ -181,9 +149,7 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
       }
     }
 
-    // Add environment variables
     if (moduleMetadata.envVars && moduleMetadata.envVars.length > 0) {
-      // Replace variables in envVars
       const processedEnvVars = moduleMetadata.envVars.map((envVar) => ({
         ...envVar,
         value: envVar.value?.replace(/\{\{(\w+)\}\}/g, (match, key) => variables[key] || match),
@@ -199,7 +165,6 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
     logger.success(`Added ${chalk.bold(moduleMetadata.displayName)}`);
     logger.newLine();
 
-    // Print next steps
     if (moduleMetadata.envVars && moduleMetadata.envVars.some((v) => v.required)) {
       logger.log("Next: Fill in environment variables in .env");
     }
@@ -213,16 +178,11 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
   }
 }
 
-async function loadModuleMetadata(
-  modulesDir: string,
-  moduleName: string,
-  provider?: string,
-): Promise<ModuleMetadata | null> {
+async function loadModuleMetadata(modulesDir: string, moduleName: string, provider?: string): Promise<ModuleMetadata | null> {
   if (!(await fs.pathExists(modulesDir))) {
     return null;
   }
 
-  // Try to find module in any category
   const categories = await fs.readdir(modulesDir);
 
   for (const category of categories) {
@@ -231,7 +191,6 @@ async function loadModuleMetadata(
 
     if (!stat.isDirectory()) continue;
 
-    // Get all modules in this category
     const moduleDirs = await fs.readdir(categoryPath);
 
     for (const moduleDir of moduleDirs) {
@@ -245,20 +204,43 @@ async function loadModuleMetadata(
       if (await fs.pathExists(metadataPath)) {
         const metadata = await fs.readJSON(metadataPath);
 
-        // If provider is specified, match by directory name (exact match)
         if (provider && moduleDir === provider) {
-          return metadata;
+          return await loadGeneratorAndMerge(metadata, modulePath);
         }
 
-        // Otherwise, match by module name (category)
         if (!provider && metadata.name === moduleName) {
-          return metadata;
+          return await loadGeneratorAndMerge(metadata, modulePath);
         }
       }
     }
   }
 
   return null;
+}
+
+async function loadGeneratorAndMerge(metadata: ModuleMetadata, modulePath: string): Promise<ModuleMetadata> {
+  const generatorPath = path.join(modulePath, "generator.json");
+  if (await fs.pathExists(generatorPath)) {
+    const generator = await fs.readJSON(generatorPath);
+    // Merge envVars, dependencies, etc.
+    if (generator.envVars) {
+      metadata.envVars = metadata.envVars || [];
+      for (const [key, value] of Object.entries(generator.envVars)) {
+        metadata.envVars.push({ key, value: value as string, description: `Environment variable for ${key}`, required: true });
+      }
+    }
+    if (generator.dependencies) {
+      metadata.dependencies = { ...metadata.dependencies, ...generator.dependencies };
+    }
+    if (generator.devDependencies) {
+      metadata.devDependencies = { ...metadata.devDependencies, ...generator.devDependencies };
+    }
+    if (generator.scripts) {
+      // Perhaps add to metadata, but currently not used
+    }
+    // For operations, perhaps add to patches or something, but for now, keep manual
+  }
+  return metadata;
 }
 
 async function applyModulePatches(
@@ -273,8 +255,6 @@ async function applyModulePatches(
     return;
   }
 
-  // Find the module path
-
   const moduleBasePath = await findModulePath(modulesDir, moduleName, options.provider);
 
   if (!moduleBasePath) {
@@ -285,20 +265,18 @@ async function applyModulePatches(
     if (patch.type === "create-file") {
       const filePatch = patch as CreateFilePatch;
 
-      // Check conditions
       if (filePatch.condition) {
         if (filePatch.condition.router && filePatch.condition.router !== projectInfo.router) {
-          continue; // Skip this patch
+          continue;
         }
         if (filePatch.condition.language && filePatch.condition.language !== projectInfo.language) {
-          continue; // Skip this patch
+          continue;
         }
       }
 
       const sourceFile = path.join(moduleBasePath, "files", filePatch.source);
       let destFile = path.join(projectRoot, filePatch.destination);
 
-      // Replace placeholders in destination
       destFile = destFile
         .replace("{{router}}", getRouterBasePath(projectInfo))
         .replace("{{lib}}", getLibPath(projectInfo));
@@ -320,11 +298,7 @@ async function applyModulePatches(
   }
 }
 
-async function findModulePath(
-  modulesDir: string,
-  moduleName: string,
-  provider?: string,
-): Promise<string | null> {
+async function findModulePath(modulesDir: string, moduleName: string, provider?: string): Promise<string | null> {
   const categories = await fs.readdir(modulesDir);
 
   for (const category of categories) {
@@ -346,12 +320,10 @@ async function findModulePath(
       if (await fs.pathExists(metadataPath)) {
         const metadata = await fs.readJSON(metadataPath);
 
-        // If provider is specified, match by directory name (exact match)
         if (provider && moduleDir === provider) {
           return modulePath;
         }
 
-        // Otherwise, match by module name (category)
         if (!provider && metadata.name === moduleName) {
           return modulePath;
         }

@@ -20,7 +20,6 @@ export async function listCommand(options: ListOptions): Promise<void> {
     let hasFrameworks = false;
     let hasModules = false;
 
-    // List frameworks
     if (showFrameworks) {
       const templatesDir = path.join(__dirname, "..", "..", "templates");
       const frameworks = await getAvailableFrameworks(templatesDir);

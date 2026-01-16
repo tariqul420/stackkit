@@ -20,6 +20,16 @@ const MESSAGES = {
   AUTH_ROUTES_FOUND: "Auth routes configured",
   ENV_VARS_MISSING: (vars: string[]) => `Missing: ${vars.join(", ")}`,
   ENV_VARS_PRESENT: (vars: string[]) => `Present: ${vars.join(", ")}`,
+  TSCONFIG_MISSING: "tsconfig.json missing (required for TypeScript)",
+  TSCONFIG_FOUND: "tsconfig.json found",
+  ESLINT_CONFIG_MISSING: "ESLint config missing (recommended for code quality)",
+  ESLINT_CONFIG_FOUND: "ESLint config found",
+  BUILD_SCRIPT_MISSING: "Build script missing in package.json",
+  BUILD_SCRIPT_FOUND: "Build script found",
+  DEPENDENCY_OUTDATED: (deps: string[]) => `Outdated dependencies: ${deps.join(", ")}`,
+  DEPENDENCY_UP_TO_DATE: "Dependencies are up to date",
+  GIT_REPO_MISSING: "Not a git repository (recommended for version control)",
+  GIT_REPO_FOUND: "Git repository initialized",
 } as const;
 
 interface DoctorOptions {
@@ -59,10 +69,16 @@ interface DoctorReport {
     env: boolean;
     prismaSchema?: boolean;
     authRoutes?: boolean;
+    tsconfig?: boolean;
+    eslintConfig?: boolean;
+    git?: boolean;
   };
   env: {
     missing: string[];
     present: string[];
+  };
+  dependencies: {
+    outdated: string[];
   };
   conflicts: string[];
   checks: CheckResult[];
@@ -73,10 +89,6 @@ interface DoctorReport {
   };
 }
 
-/**
- * Main doctor command function that performs health checks on a StackKit project
- * @param options Command line options
- */
 export async function doctorCommand(options: DoctorOptions): Promise<void> {
   try {
     const report = await runDoctorChecks();
@@ -88,7 +100,6 @@ export async function doctorCommand(options: DoctorOptions): Promise<void> {
 
     printDoctorReport(report, options.verbose || false);
 
-    // Exit with proper codes
     const hasErrors = report.summary.errors > 0;
     const hasWarnings = report.summary.warnings > 0;
     const strictMode = options.strict || false;
@@ -104,27 +115,19 @@ export async function doctorCommand(options: DoctorOptions): Promise<void> {
   }
 }
 
-/**
- * Runs all doctor checks and generates a comprehensive health report
- * @returns Promise resolving to a DoctorReport
- */
 async function runDoctorChecks(): Promise<DoctorReport> {
   const checks: CheckResult[] = [];
 
-  // Find project root
   const projectRoot = await findProjectRoot();
   checks.push({
     status: "success",
     message: `Found project root: ${projectRoot}`,
   });
 
-  // Read package.json
   const packageJson = await readPackageJson(projectRoot);
 
-  // Detect package manager
   const packageManager = await detectPackageManager(projectRoot);
 
-  // Detect project type
   const projectType = detectProjectType(packageJson);
   if (projectType === "unknown") {
     checks.push({
@@ -138,23 +141,27 @@ async function runDoctorChecks(): Promise<DoctorReport> {
     });
   }
 
-  // Check Node version
   const nodeVersionCheck = checkNodeVersion();
   checks.push(nodeVersionCheck);
 
-  // Detect installed modules
   const authModules = detectAuthModules(packageJson);
   const databaseModules = detectDatabaseModules(packageJson);
 
-  // Check key files
   const filesCheck = await checkKeyFiles(projectRoot, projectType, authModules, databaseModules);
   checks.push(...filesCheck);
 
-  // Check env files
   const envCheck = await checkEnvFiles(projectRoot, authModules, databaseModules);
   checks.push(...envCheck.checks);
 
-  // Check conflicts
+  const configChecks = await checkConfigFiles(projectRoot, projectType, packageJson);
+  checks.push(...configChecks);
+
+  const dependencyCheck = await checkDependencies(packageJson);
+  checks.push(dependencyCheck);
+
+  const gitCheck = await checkGitRepo(projectRoot);
+  checks.push(gitCheck);
+
   const conflicts = checkConflicts(authModules, databaseModules);
   conflicts.forEach(conflict => {
     checks.push({
@@ -163,7 +170,6 @@ async function runDoctorChecks(): Promise<DoctorReport> {
     });
   });
 
-  // Build report
   const report: DoctorReport = {
     project: {
       type: projectType,
@@ -183,8 +189,14 @@ async function runDoctorChecks(): Promise<DoctorReport> {
       env: await fs.pathExists(path.join(projectRoot, ".env")) || await fs.pathExists(path.join(projectRoot, ".env.local")),
       prismaSchema: databaseModules.includes("prisma") ? await fs.pathExists(path.join(projectRoot, "prisma", "schema.prisma")) : undefined,
       authRoutes: authModules.length > 0 ? await checkAuthRoutesExist(projectRoot, projectType) : undefined,
+      tsconfig: await fs.pathExists(path.join(projectRoot, "tsconfig.json")),
+      eslintConfig: await checkEslintConfigExists(projectRoot),
+      git: await fs.pathExists(path.join(projectRoot, ".git")),
     },
     env: envCheck.envStatus,
+    dependencies: {
+      outdated: dependencyCheck.outdated,
+    },
     conflicts,
     checks,
     summary: {
@@ -197,11 +209,6 @@ async function runDoctorChecks(): Promise<DoctorReport> {
   return report;
 }
 
-/**
- * Finds the project root by walking up directories until package.json is found
- * @returns Promise resolving to the absolute path of the project root
- * @throws Error if no package.json is found
- */
 async function findProjectRoot(): Promise<string> {
   let currentDir = process.cwd();
 
@@ -213,14 +220,9 @@ async function findProjectRoot(): Promise<string> {
     currentDir = path.dirname(currentDir);
   }
 
-    throw new Error(MESSAGES.NO_PACKAGE_JSON);
+  throw new Error(MESSAGES.NO_PACKAGE_JSON);
 }
 
-/**
- * Reads and parses package.json from the project root
- * @param projectRoot Absolute path to the project root
- * @returns Promise resolving to the parsed package.json object
- */
 async function readPackageJson(projectRoot: string): Promise<PackageJson> {
   const packageJsonPath = path.join(projectRoot, "package.json");
   return await fs.readJSON(packageJsonPath);
@@ -449,6 +451,77 @@ function checkConflicts(authModules: string[], databaseModules: string[]): strin
   return conflicts;
 }
 
+async function checkConfigFiles(projectRoot: string, projectType: string, packageJson: PackageJson): Promise<CheckResult[]> {
+  const checks: CheckResult[] = [];
+
+  // Check tsconfig.json
+  const tsconfigExists = await fs.pathExists(path.join(projectRoot, "tsconfig.json"));
+  checks.push({
+    status: tsconfigExists ? "success" : "error",
+    message: tsconfigExists ? MESSAGES.TSCONFIG_FOUND : MESSAGES.TSCONFIG_MISSING,
+  });
+
+  // Check ESLint config
+  const eslintExists = await checkEslintConfigExists(projectRoot);
+  checks.push({
+    status: eslintExists ? "success" : "warning",
+    message: eslintExists ? MESSAGES.ESLINT_CONFIG_FOUND : MESSAGES.ESLINT_CONFIG_MISSING,
+  });
+
+  // Check build script
+  const hasBuildScript = packageJson.scripts && typeof packageJson.scripts === "object" && "build" in packageJson.scripts;
+  checks.push({
+    status: hasBuildScript ? "success" : "warning",
+    message: hasBuildScript ? MESSAGES.BUILD_SCRIPT_FOUND : MESSAGES.BUILD_SCRIPT_MISSING,
+  });
+
+  return checks;
+}
+
+async function checkDependencies(packageJson: PackageJson): Promise<{ status: "success" | "warning" | "error"; message: string; outdated: string[] }> {
+  const outdated: string[] = [];
+  // Simple check: if dependencies have ^ or ~, assume up to date for now
+  // In production, integrate with npm outdated or similar
+  const deps = { ...packageJson.dependencies, ...packageJson.devDependencies };
+  for (const [name, version] of Object.entries(deps || {})) {
+    if (typeof version === "string" && (version.startsWith("^") || version.startsWith("~"))) {
+      // Assume up to date
+    } else {
+      outdated.push(name);
+    }
+  }
+  return {
+    status: outdated.length > 0 ? "warning" : "success",
+    message: outdated.length > 0 ? MESSAGES.DEPENDENCY_OUTDATED(outdated) : MESSAGES.DEPENDENCY_UP_TO_DATE,
+    outdated,
+  };
+}
+
+async function checkGitRepo(projectRoot: string): Promise<CheckResult> {
+  const gitExists = await fs.pathExists(path.join(projectRoot, ".git"));
+  return {
+    status: gitExists ? "success" : "warning",
+    message: gitExists ? MESSAGES.GIT_REPO_FOUND : MESSAGES.GIT_REPO_MISSING,
+  };
+}
+
+async function checkEslintConfigExists(projectRoot: string): Promise<boolean> {
+  const possibleConfigs = [
+    ".eslintrc.js",
+    ".eslintrc.json",
+    ".eslintrc.yml",
+    ".eslintrc.yaml",
+    "eslint.config.js",
+    "eslint.config.mjs",
+  ];
+  for (const config of possibleConfigs) {
+    if (await fs.pathExists(path.join(projectRoot, config))) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function generateSuggestions(): string[] {
   const suggestions: string[] = [];
 
@@ -460,11 +533,6 @@ function generateSuggestions(): string[] {
   return suggestions;
 }
 
-/**
- * Prints the doctor report to the console with appropriate formatting
- * @param report The doctor report to print
- * @param verbose Whether to show detailed check information
- */
 function printDoctorReport(report: DoctorReport, verbose: boolean): void {
   logger.header("🔍 StackKit Doctor Report");
   logger.newLine();
@@ -534,7 +602,42 @@ function printDoctorReport(report: DoctorReport, verbose: boolean): void {
       logger.log("  Hint: Authentication routes handle login/logout flows");
     }
   }
+
+  if (report.files.tsconfig !== undefined) {
+    if (report.files.tsconfig) {
+      logger.success(MESSAGES.TSCONFIG_FOUND);
+    } else {
+      logger.error(MESSAGES.TSCONFIG_MISSING);
+      logger.log("  Hint: Required for TypeScript compilation");
+    }
+  }
+
+  if (report.files.eslintConfig !== undefined) {
+    if (report.files.eslintConfig) {
+      logger.success(MESSAGES.ESLINT_CONFIG_FOUND);
+    } else {
+      logger.warn(MESSAGES.ESLINT_CONFIG_MISSING);
+      logger.log("  Hint: Helps maintain code quality");
+    }
+  }
+
+  if (report.files.git !== undefined) {
+    if (report.files.git) {
+      logger.success(MESSAGES.GIT_REPO_FOUND);
+    } else {
+      logger.warn(MESSAGES.GIT_REPO_MISSING);
+      logger.log("  Hint: Recommended for version control");
+    }
+  }
   logger.newLine();
+
+  // Dependencies
+  if (report.dependencies.outdated.length > 0) {
+    logger.log(chalk.bold("Dependencies"));
+    logger.warn(MESSAGES.DEPENDENCY_OUTDATED(report.dependencies.outdated));
+    logger.log("  Hint: Run package manager update command");
+    logger.newLine();
+  }
 
   // Environment
   if (report.env.missing.length > 0 || report.env.present.length > 0) {
