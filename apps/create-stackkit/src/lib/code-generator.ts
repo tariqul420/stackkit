@@ -23,13 +23,12 @@ export interface Operation {
   condition?: TemplateCondition;
   priority?: number;
 
-  // create-file
+  // create-file | patch-file
   source?: string;
   destination?: string;
   content?: string;
 
   // patch-file
-  file?: string;
   operations?: PatchOperation[];
 
   // add-dependency
@@ -61,6 +60,7 @@ export interface PatchOperation {
 
   // add-to-top, add-to-bottom
   content?: string;
+  source?: string;
 }
 
 export interface GeneratorConfig {
@@ -463,8 +463,8 @@ export class AdvancedCodeGenerator {
     if (processed.content) {
       processed.content = this.processTemplate(processed.content, context);
     }
-    if (processed.file) {
-      processed.file = this.processTemplate(processed.file, context);
+    if (processed.destination) {
+      processed.destination = this.processTemplate(processed.destination, context);
     }
 
     // Process templates in patch operations
@@ -489,6 +489,9 @@ export class AdvancedCodeGenerator {
         }
         if (processedOp.content) {
           processedOp.content = this.processTemplate(processedOp.content, context);
+        }
+        if (processedOp.source) {
+          processedOp.source = this.processTemplate(processedOp.source, context);
         }
 
         return processedOp;
@@ -540,69 +543,95 @@ export class AdvancedCodeGenerator {
     await fs.writeFile(destinationPath, content, 'utf-8');
   }
 
-  private async executePatchFile(operation: Operation, context: GenerationContext, outputPath: string): Promise<void> {
-    if (!operation.file || !operation.operations) return;
+  private async executePatchFile(operation: Operation & { generator: string; generatorType: string }, context: GenerationContext, outputPath: string): Promise<void> {
+    if (!operation.destination) return;
 
-    const filePath = path.join(outputPath, this.processTemplate(operation.file, context));
+    const filePath = path.join(outputPath, this.processTemplate(operation.destination, context));
 
     // Read existing file
     let content = await fs.readFile(filePath, 'utf-8');
 
-    // Execute patch operations
-    for (const patchOp of operation.operations) {
-      if (!this.evaluateCondition(patchOp.condition, context)) continue;
+    if (operation.content) {
+      content += this.processTemplate(operation.content, context);
+    } else if (operation.operations) {
+      // Execute patch operations
+      for (const patchOp of operation.operations) {
+        if (!this.evaluateCondition(patchOp.condition, context)) continue;
 
-      switch (patchOp.type) {
-        case 'add-import':
-          if (patchOp.imports) {
-            const imports = patchOp.imports.map(imp => this.processTemplate(imp, context)).join('\n');
-            // Add imports at the top, after existing imports
-            const lines = content.split('\n');
-            let insertIndex = 0;
-            for (let i = 0; i < lines.length; i++) {
-              if (lines[i].trim().startsWith('import') || lines[i].trim() === '') {
-                insertIndex = i + 1;
-              } else {
-                break;
+        switch (patchOp.type) {
+          case 'add-import':
+            if (patchOp.imports) {
+              const imports = patchOp.imports.map(imp => this.processTemplate(imp, context)).join('\n');
+              // Add imports at the top, after existing imports
+              const lines = content.split('\n');
+              let insertIndex = 0;
+              for (let i = 0; i < lines.length; i++) {
+                if (lines[i].trim().startsWith('import') || lines[i].trim() === '') {
+                  insertIndex = i + 1;
+                } else {
+                  break;
+                }
+              }
+              lines.splice(insertIndex, 0, imports);
+              content = lines.join('\n');
+            }
+            break;
+
+          case 'add-code':
+            if (patchOp.code && patchOp.after) {
+              const processedCode = this.processTemplate(patchOp.code, context);
+              const afterPattern = this.processTemplate(patchOp.after, context);
+              const index = content.indexOf(afterPattern);
+              if (index !== -1) {
+                content = content.slice(0, index + afterPattern.length) + processedCode + content.slice(index + afterPattern.length);
               }
             }
-            lines.splice(insertIndex, 0, imports);
-            content = lines.join('\n');
-          }
-          break;
+            break;
 
-        case 'add-code':
-          if (patchOp.code && patchOp.after) {
-            const processedCode = this.processTemplate(patchOp.code, context);
-            const afterPattern = this.processTemplate(patchOp.after, context);
-            const index = content.indexOf(afterPattern);
-            if (index !== -1) {
-              content = content.slice(0, index + afterPattern.length) + processedCode + content.slice(index + afterPattern.length);
+          case 'replace-code':
+            if (patchOp.code && patchOp.replace) {
+              const processedCode = this.processTemplate(patchOp.code, context);
+              const replacePattern = this.processTemplate(patchOp.replace, context);
+              content = content.replace(replacePattern, processedCode);
             }
-          }
-          break;
+            break;
 
-        case 'replace-code':
-          if (patchOp.code && patchOp.replace) {
-            const processedCode = this.processTemplate(patchOp.code, context);
-            const replacePattern = this.processTemplate(patchOp.replace, context);
-            content = content.replace(replacePattern, processedCode);
+          case 'add-to-top': {
+            let processedContentTop: string = '';
+            if (patchOp.content) {
+              processedContentTop = this.processTemplate(patchOp.content, context);
+            } else if (patchOp.source) {
+              const modulesPath = path.join(__dirname, '..', '..', 'modules');
+              const sourcePath = path.join(modulesPath, operation.generatorType, operation.generator, 'files', patchOp.source);
+              if (await fs.pathExists(sourcePath)) {
+                processedContentTop = await fs.readFile(sourcePath, 'utf-8');
+                processedContentTop = this.processTemplate(processedContentTop, context);
+              }
+            }
+            if (processedContentTop) {
+              content = processedContentTop + '\n' + content;
+            }
+            break;
           }
-          break;
 
-        case 'add-to-top':
-          if (patchOp.content) {
-            const processedContent = this.processTemplate(patchOp.content, context);
-            content = processedContent + '\n' + content;
+          case 'add-to-bottom': {
+            let processedContentBottom: string = '';
+            if (patchOp.content) {
+              processedContentBottom = this.processTemplate(patchOp.content, context);
+            } else if (patchOp.source) {
+              const modulesPath = path.join(__dirname, '..', '..', 'modules');
+              const sourcePath = path.join(modulesPath, operation.generatorType, operation.generator, 'files', patchOp.source);
+              if (await fs.pathExists(sourcePath)) {
+                processedContentBottom = await fs.readFile(sourcePath, 'utf-8');
+                processedContentBottom = this.processTemplate(processedContentBottom, context);
+              }
+            }
+            if (processedContentBottom) {
+              content = content + '\n' + processedContentBottom;
+            }
+            break;
           }
-          break;
-
-        case 'add-to-bottom':
-          if (patchOp.content) {
-            const processedContent = this.processTemplate(patchOp.content, context);
-            content = content + '\n' + processedContent;
-          }
-          break;
+        }
       }
     }
 
