@@ -74,7 +74,7 @@ export async function createProject(projectName?: string, options?: CliOptions):
 }
 
 async function getProjectConfig(projectName?: string, options?: CliOptions): Promise<ProjectConfig> {
-  const modulesDir = getPackageRoot();
+  const modulesDir = path.join(getPackageRoot(), 'modules');
 
   const discoveredModules = await discoverModules(modulesDir);
 
