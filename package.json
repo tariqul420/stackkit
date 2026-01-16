@@ -23,7 +23,7 @@
   ],
   "scripts": {
     "build": "pnpm --filter \"./apps/**\" build",
-    "dev": "pnpm --filter stackkit-cli dev",
+    "dev": "pnpm --filter stackkit dev",
     "clean": "pnpm --filter \"./apps/**\" clean && rm -rf node_modules",
     "typecheck": "pnpm --filter \"./apps/**\" typecheck",
     "lint": "pnpm --filter \"./apps/**\" lint",
@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
-    "@types/node": "^20.11.0",
+    "@types/node": "^25.0.8",
     "eslint": "^9.39.2",
     "prettier": "^3.2.4",
     "typescript": "^5.3.3",

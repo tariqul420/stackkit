@@ -1,6 +1,6 @@
 {
   "name": "stackkit",
-  "version": "0.4.6",
+  "version": "0.1.0",
   "description": "Production-ready CLI to create and extend JavaScript or TypeScript apps with modular stacks.",
   "main": "dist/index.js",
   "bin": {
@@ -31,11 +31,26 @@
     "prepublishOnly": "npm run build"
   },
   "keywords": [
-    "create",
     "stackkit",
-    "generator",
+    "cli",
+    "project-generator",
+    "scaffold",
+    "boilerplate",
+
+    "javascript",
+    "typescript",
+
     "nextjs",
-    "template"
+    "react",
+    "vite",
+    "express",
+
+    "prisma",
+    "mongoose",
+    "mongodb",
+    "postgresql",
+
+    "authentication"
   ],
   "author": "Tariqul Islam",
   "license": "MIT",
@@ -56,7 +71,7 @@
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
     "@types/inquirer": "^9.0.7",
-    "@types/node": "^20.11.0",
+    "@types/node": "^25.0.8",
     "@types/validate-npm-package-name": "^4.0.2",
     "typescript": "^5.3.3",
     "recast": "^0.20.5",

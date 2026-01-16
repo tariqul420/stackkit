@@ -1,184 +1,59 @@
 ---
 title: Installation
-description: Install StackKit and create your first project
+description: System requirements and installation steps
 ---
 
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
-import { Callout } from 'fumadocs-ui/components/callout';
+## Requirements
 
-## Create a New Project
+StackKit requires Node.js 18 or higher.
 
-Run the interactive CLI to create your project:
+**Recommended:**
+- Node.js 20+
+- pnpm (faster package manager)
 
-<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
-  <Tab value="pnpm">
-    ```bash
-    pnpm create stackkit-app my-app
-    ```
-  </Tab>
-  <Tab value="npm">
-    ```bash
-    npx create-stackkit-app my-app
-    ```
-  </Tab>
-  <Tab value="yarn">
-    ```bash
-    yarn create stackkit-app my-app
-    ```
-  </Tab>
-  <Tab value="bun">
-    ```bash
-    bun create stackkit-app my-app
-    ```
-  </Tab>
-</Tabs>
+**Supported package managers:**
+- pnpm
+- npm
+- yarn
+- bun
 
-## Configure Your Project
+## Install StackKit
 
-The CLI will guide you through project setup:
+StackKit is distributed via npm. No separate installation needed.
 
-**Framework Selection:**
-- Next.js 16 (App Router) - Full-stack React framework
-- Express - Node.js REST API
-- React (Vite) - Frontend-only SPA
+```bash
+# Verify Node.js version
+node --version  # Should be 18+
 
-**Database Selection:**
-- Prisma (PostgreSQL) - Recommended for production
-- Prisma (MongoDB) - NoSQL with Prisma ORM
-- Mongoose (MongoDB) - Traditional MongoDB ODM
-- Skip for now
-
-**Authentication Selection:**
-- Better Auth - TypeScript-first, open source
-- Auth.js - NextAuth.js v5 with OAuth providers
-- Skip for now
-
-The CLI will then install dependencies and initialize your project.
-
-## Start Development
-
-Navigate to your project and start the development server:
-
-<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
-  <Tab value="pnpm">
-    ```bash
-    cd my-app
-    pnpm dev
-    ```
-  </Tab>
-  <Tab value="npm">
-    ```bash
-    cd my-app
-    npm run dev
-    ```
-  </Tab>
-  <Tab value="yarn">
-    ```bash
-    cd my-app
-    yarn dev
-    ```
-  </Tab>
-  <Tab value="bun">
-    ```bash
-    cd my-app
-    bun dev
-    ```
-  </Tab>
-</Tabs>
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+# StackKit is ready to use
+npx stackkit --help
+```
 
 ## Project Structure
+
+After creating a project, you'll have:
 
 **Next.js:**
 ```
 my-app/
-├── app/          # Next.js App Router
-├── lib/          # Auth & database clients
+├── app/          # App Router
+├── lib/          # Utilities & clients
 ├── prisma/       # Database schema
-└── .env.local    # Environment variables
+├── .env          # Environment variables
+└── package.json
 ```
 
 **Express:**
 ```
 my-app/
 ├── src/
-│   ├── routes/      # API routes
-│   ├── config/      # Auth & database setup
+│   ├── routes/   # API routes
+│   ├── lib/      # Config & clients
 │   └── server.ts
 └── .env
 ```
 
-## Add Modules to Existing Projects
-
-Already have a project? Use `stackkit-cli` to add features:
-
-<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
-  <Tab value="pnpm">
-    ```bash
-    # Add authentication
-    pnpm dlx stackkit-cli add auth
-
-    # Add database
-    pnpm dlx stackkit-cli add database
-    ```
-  </Tab>
-  <Tab value="npm">
-    ```bash
-    # Add authentication
-    npx stackkit-cli add auth
-
-    # Add database
-    npx stackkit-cli add database
-    ```
-  </Tab>
-  <Tab value="yarn">
-    ```bash
-    # Add authentication
-    yarn dlx stackkit-cli add auth
-
-    # Add database
-    yarn dlx stackkit-cli add database
-    ```
-  </Tab>
-  <Tab value="bun">
-    ```bash
-    # Add authentication
-    bunx stackkit-cli add auth
-
-    # Add database
-    bunx stackkit-cli add database
-    ```
-  </Tab>
-</Tabs>
-
-## Environment Configuration
-
-Configure environment variables in `.env.local` (Next.js) or `.env` (Express):
-
-**Database:**
-```bash
-# PostgreSQL
-DATABASE_URL="postgresql://user:password@localhost:5432/mydb"
-
-# MongoDB
-DATABASE_URL="mongodb://localhost:27017/mydb"
-```
-
-**Better Auth:**
-```bash
-BETTER_AUTH_SECRET="your-secret-key-here"  # Generate: openssl rand -base64 32
-BETTER_AUTH_URL="http://localhost:3000"
-```
-
-<Callout type="warn">
-  Never commit `.env` files to version control. They're automatically added to `.gitignore`.
-</Callout>
-
 ## Next Steps
 
-1. **[Configure Database](/docs/modules/database)** - Run migrations and set up your schema
-2. **[Configure Authentication](/docs/modules/auth)** - Set up OAuth providers and customize
-3. **[Add Modules](/docs/cli/stackkit-cli)** - Add more features to existing projects
-
-For a 60-second overview, see the [Quick Start Guide](/docs/getting-started/quickstart).
+- [Create your first project](/docs/getting-started/quickstart)
+- [Configure environment variables](/docs/reference/environment-variables)

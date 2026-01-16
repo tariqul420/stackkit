@@ -1,86 +1,102 @@
 ---
 title: Quick Start
-description: Get started with StackKit in under 60 seconds
+description: Create your first StackKit project in under 5 minutes
 ---
 
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { Callout } from 'fumadocs-ui/components/callout';
 
 ## Create a New Project
 
-<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
-  <Tab value="pnpm">
-    ```bash
-    pnpm create stackkit-app my-app
-    ```
-  </Tab>
-  <Tab value="npm">
-    ```bash
-    npx create-stackkit-app my-app
-    ```
-  </Tab>
-  <Tab value="yarn">
-    ```bash
-    yarn create stackkit-app my-app
-    ```
-  </Tab>
-  <Tab value="bun">
-    ```bash
-    bun create stackkit-app my-app
-    ```
-  </Tab>
-</Tabs>
+Run the interactive CLI to generate your project:
+
+```bash
+npx stackkit create my-app
+```
 
 ## Choose Your Stack
 
-The CLI will guide you through an interactive setup:
+The CLI will guide you through setup:
 
 ```bash
-✔ What framework would you like? › Next.js
-✔ Choose database › Prisma (PostgreSQL)
-✔ Add authentication? › Better Auth
-✔ Install dependencies? › Yes
+✔ Project name: my-app
+✔ Framework: Next.js
+✔ Database: Prisma (PostgreSQL)
+✔ Auth: Better Auth
+✔ Language: TypeScript
+✔ Package manager: pnpm
 
 ✓ Project created successfully!
 ```
 
-## Start Building
+**Framework Options:**
+- **Next.js**: Full-stack React with App Router
+- **Express**: Node.js REST API
+- **React + Vite**: Frontend-only SPA
 
-<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
-  <Tab value="pnpm">
-    ```bash
-    cd my-app
-    pnpm dev
-    ```
-  </Tab>
-  <Tab value="npm">
-    ```bash
-    cd my-app
-    npm run dev
-    ```
-  </Tab>
-  <Tab value="yarn">
-    ```bash
-    cd my-app
-    yarn dev
-    ```
-  </Tab>
-  <Tab value="bun">
-    ```bash
-    cd my-app
-    bun dev
-    ```
-  </Tab>
-</Tabs>
+**Database Options:**
+- **Prisma**: PostgreSQL, MongoDB, MySQL, SQLite
+- **Mongoose**: MongoDB only
+- **None**: Skip database setup
 
-Your app is running at [http://localhost:3000](http://localhost:3000)
+**Auth Options:**
+- **Better Auth**: TypeScript-first, works with all frameworks
+- **Auth.js**: Next.js + Prisma only
+- **None**: Skip authentication
+
+## Start Development
+
+Navigate to your project and run the dev server:
+
+```bash
+cd my-app
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) to see your app.
+
+## Configure Environment Variables
+
+StackKit generates `.env.example` with required variables. Copy it to `.env`:
+
+```bash
+cp .env.example .env
+```
+
+**For databases:**
+```bash
+# PostgreSQL
+DATABASE_URL="postgresql://user:password@localhost:5432/myapp"
+
+# MongoDB
+DATABASE_URL="mongodb://localhost:27017/myapp"
+```
+
+**For Better Auth:**
+```bash
+BETTER_AUTH_SECRET="your-secret-here"  # Generate: openssl rand -base64 32
+BETTER_AUTH_URL="http://localhost:3000"
+```
+
+<Callout type="warn">
+Never commit `.env` files to version control.
+</Callout>
 
 ## Next Steps
 
-Now that your project is created:
+1. **[Set up your database](/docs/modules/database)** - Run migrations and connect
+2. **[Configure authentication](/docs/modules/authentication)** - Add OAuth providers
+3. **[Check project health](/docs/cli/doctor)** - Verify everything works
 
-1. **[Configure Authentication](/docs/modules/auth)** - Set up OAuth providers and customize auth flows
-2. **[Set Up Database](/docs/modules/database)** - Connect to your database and run migrations
-3. **[Add More Modules](/docs/cli/stackkit-cli)** - Add auth or database to existing projects
+## Adding to Existing Projects
 
-For detailed setup instructions, see the [Installation Guide](/docs/getting-started/installation).
+Already have a project? Use the modular CLI:
+
+```bash
+# Add authentication
+npx stackkit add better-auth
+
+# Add database
+npx stackkit add prisma --provider postgresql
+```
+
+See [CLI Reference](/docs/cli/overview) for all commands.

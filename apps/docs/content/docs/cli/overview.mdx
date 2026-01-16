@@ -1,41 +1,46 @@
 ---
-title: CLI Reference
-description: Overview of StackKit's command-line tools
+title: CLI Overview
+description: Complete reference for StackKit's command-line tools
 ---
 
-StackKit provides two CLI tools: `create-stackkit-app` for new projects and `stackkit-cli` for existing ones.
-
-## create-stackkit-app
-
-Generates new projects with frameworks and modules.
+StackKit provides a unified CLI for generating new projects and adding features to existing ones.
 
 ```bash
-npx create-stackkit-app [project-name] [options]
+npx stackkit <command> [options]
 ```
 
-**Key options**:
-- `--framework`: nextjs | express | react-vite
-- `--database`: prisma-* | mongoose-mongodb | none
-- `--auth`: better-auth | authjs | none
+### Commands
 
-## stackkit-cli
+| Command | Description |
+|---------|-------------|
+| `create <name>` | Generate new project with framework + modules |
+| `add <module>` | Add auth/database module to existing project |
+| `doctor` | Check project health and compatibility |
+| `list` | Show available frameworks and modules |
 
-Adds features to existing projects.
+### Examples
 
 ```bash
-npx stackkit-cli <command> [options]
+# Create new project
+npx stackkit create my-app
+
+# Add authentication
+npx stackkit add better-auth
+
+# Add database with provider
+npx stackkit add prisma --provider postgresql
+
+# Check project setup
+npx stackkit doctor
+
+# List available options
+npx stackkit list
 ```
 
-**Commands**:
-- `add <module>`: Add auth/database
-- `list`: Show available modules
-- `doctor`: Check project health
+### Common Workflows
 
-## Common workflows
+1. **New project**: `npx stackkit create my-app`
+2. **Add features**: `npx stackkit add better-auth`
+3. **Verify setup**: `npx stackkit doctor`
 
-1. **New project**: `create-stackkit-app my-app --framework nextjs --database prisma-postgresql --auth better-auth`
-2. **Add to existing**: `stackkit-cli add better-auth`
-
-Next steps:
-- [create-stackkit-app](/docs/cli/create-stackkit-app) for full options
-- [stackkit-cli](/docs/cli/stackkit-cli) for commands
+See individual command pages for detailed options and examples.

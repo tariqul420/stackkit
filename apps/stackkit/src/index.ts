@@ -11,7 +11,7 @@ const program = new Command();
 program
   .name("stackkit")
   .description("CLI for creating and managing StackKit projects")
-  .version("0.4.6");
+  .version("0.1.0");
 
 // Create command
 program
