@@ -96,11 +96,6 @@ async function getAddConfig(module?: string, options?: AddOptions, projectInfo?:
           throw new Error(`Database provider "${baseProvider}" not found`);
         }
         
-        // Validate that the adapter exists in databaseAdapters
-        if (moduleMetadata.databaseAdapters?.providers && !(adapterProvider in moduleMetadata.databaseAdapters.providers)) {
-          throw new Error(`Database adapter "${adapterProvider}" not found for ${baseProvider}`);
-        }
-        
         return {
           module: "database",
           provider: adapterProvider,
@@ -298,12 +293,7 @@ async function addModuleToProject(projectRoot: string, projectInfo: ProjectInfo,
     Object.assign(mergedDevDeps, moduleMetadata.frameworkConfigs.shared.devDependencies);
   }
 
-  if (selectedProvider && moduleMetadata.databaseAdapters?.providers?.[selectedProvider]?.dependencies) {
-    Object.assign(mergedDeps, moduleMetadata.databaseAdapters.providers[selectedProvider].dependencies);
-  }
-  if (selectedProvider && moduleMetadata.databaseAdapters?.providers?.[selectedProvider]?.devDependencies) {
-    Object.assign(mergedDevDeps, moduleMetadata.databaseAdapters.providers[selectedProvider].devDependencies);
-  }
+  // Adapter-specific dependencies are applied via generator metadata; frameworkConfigs still merge above.
 
   moduleMetadata.dependencies = mergedDeps;
   moduleMetadata.devDependencies = mergedDevDeps;

@@ -9,7 +9,6 @@ export interface ModuleMetadata {
   category: string;
   provider?: string;
   supportedFrameworks?: string[];
-  databaseAdapters?: Record<string, unknown>;
   frameworkConfigs?: Record<string, unknown>;
   dependencies?: Record<string, unknown>;
   devDependencies?: Record<string, unknown>;
