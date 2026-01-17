@@ -23,6 +23,7 @@ interface AddOptions {
   force?: boolean;
   dryRun?: boolean;
   install?: boolean;
+  yes?: boolean;
 }
 
 interface DoctorOptions {
@@ -79,14 +80,15 @@ program
 
 // Add command
 program
-  .command("add <module>")
-  .description("Add a module to your existing project")
-  .usage('<module> [options]')
+  .command("add [module]")
+  .description("Add a module or category to your existing project")
+  .usage('[module] [options]')
   .option("--provider <provider>", "Specific provider/variant to use")
   .option("--force", "Overwrite existing files")
   .option("--dry-run", "Show what would be changed without making changes")
   .option("--no-install", "Skip installing dependencies")
-  .action(async (module: string, options: AddOptions) => {
+  .option("-y, --yes", "Use default options")
+  .action(async (module: string | undefined, options: AddOptions) => {
     try {
       await addCommand(module, options);
     } catch (error) {

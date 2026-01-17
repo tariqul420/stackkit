@@ -12,14 +12,22 @@ import { addDependencies } from "../lib/pm/package-manager";
 import { DATABASE_CONNECTION_STRINGS } from "../lib/database/database-config";
 import { getPackageRoot } from "../lib/utils/package-root";
 
+interface AddConfig {
+  module: string;
+  provider?: string;
+  displayName: string;
+  metadata: ModuleMetadata;
+}
+
 interface AddOptions {
   provider?: string;
   force?: boolean;
   dryRun?: boolean;
   install?: boolean;
+  yes?: boolean;
 }
 
-export async function addCommand(module: string, options: AddOptions): Promise<void> {
+export async function addCommand(module?: string, options?: AddOptions): Promise<void> {
   try {
     const projectRoot = process.cwd();
 
@@ -29,14 +37,87 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
       `Detected ${projectInfo.framework} (${projectInfo.router} router, ${projectInfo.language})`,
     );
 
-    const moduleMetadata = await loadModuleMetadata(path.join(getPackageRoot(), "modules"), module, options.provider);
+    const config = await getAddConfig(module, options, projectInfo);
 
-    if (!moduleMetadata) {
-      logger.error(`Module "${module}" not found`);
-      process.exit(1);
+    await addModuleToProject(projectRoot, projectInfo, config, options);
+
+    logger.newLine();
+    logger.success(`Added ${chalk.bold(config.displayName)}`);
+    logger.newLine();
+
+    if (config.metadata.envVars && config.metadata.envVars.length > 0) {
+      logger.log("Next: Fill in environment variables in .env");
+    }
+    logger.newLine();
+  } catch (error) {
+    logger.error(`Failed to add module: ${(error as Error).message}`);
+    if (error instanceof Error && error.stack) {
+      logger.log(chalk.gray(error.stack));
+    }
+    process.exit(1);
+  }
+}
+
+async function getAddConfig(module?: string, options?: AddOptions, projectInfo?: ProjectInfo): Promise<AddConfig> {
+  const modulesDir = path.join(getPackageRoot(), 'modules');
+
+  // Check if options are provided
+  const argv = process.argv.slice(2);
+  const addIndex = argv.indexOf('add');
+  const argsAfterAdd = addIndex >= 0 ? argv.slice(addIndex + 1) : [];
+  const flagsProvided = argsAfterAdd.some(arg => arg.startsWith('-'));
+  const optionsProvided = flagsProvided || !!(options && (options.yes || options.provider || options.force || options.dryRun));
+
+  if (optionsProvided) {
+    // Use provided options
+    if (!module) {
+      throw new Error("Module name is required when using flags");
     }
 
-    let selectedProvider = options.provider;
+    // Handle category names
+    if (module === "database" || module === "auth") {
+      if (module === "database") {
+        if (!options?.provider) {
+          throw new Error("Provider is required for database. Use --provider <provider>");
+        }
+        const moduleMetadata = await loadModuleMetadata(modulesDir, options.provider, options.provider);
+        if (!moduleMetadata) {
+          throw new Error(`Database provider "${options.provider}" not found`);
+        }
+        return {
+          module: "database",
+          provider: options.provider,
+          displayName: moduleMetadata.displayName,
+          metadata: moduleMetadata,
+        };
+      } else if (module === "auth") {
+        const provider = options?.provider || "better-auth";
+        const moduleMetadata = await loadModuleMetadata(modulesDir, provider, provider);
+        if (!moduleMetadata) {
+          throw new Error(`Auth provider "${provider}" not found`);
+        }
+        return {
+          module: "auth",
+          provider,
+          displayName: moduleMetadata.displayName,
+          metadata: moduleMetadata,
+        };
+      }
+    }
+
+    // Handle direct module/provider names
+    const moduleMetadata = await loadModuleMetadata(modulesDir, module, options?.provider);
+
+    if (!moduleMetadata) {
+      throw new Error(`Module "${module}" not found`);
+    }
+
+    let selectedProvider = options?.provider;
+    if (!selectedProvider && moduleMetadata.category !== module) {
+      // module was a provider name, not category name
+      selectedProvider = module;
+    }
+
     if (moduleMetadata.category === "database" && !selectedProvider) {
       if (typeof moduleMetadata.dependencies === "object" && "providers" in moduleMetadata.dependencies) {
         const providers = Object.keys(moduleMetadata.dependencies.providers || {});
@@ -54,128 +135,219 @@ export async function addCommand(module: string, options: AddOptions): Promise<v
       }
     }
 
-    const mergedDeps: Record<string, string> = {};
-    const mergedDevDeps: Record<string, string> = {};
-
-    if (moduleMetadata.frameworkConfigs?.shared?.dependencies) {
-      Object.assign(mergedDeps, moduleMetadata.frameworkConfigs.shared.dependencies);
-    }
-    if (moduleMetadata.frameworkConfigs?.shared?.devDependencies) {
-      Object.assign(mergedDevDeps, moduleMetadata.frameworkConfigs.shared.devDependencies);
+    // Validate compatibility
+    if (projectInfo && !moduleMetadata.supportedFrameworks.includes(projectInfo.framework)) {
+      throw new Error(`Module "${module}" does not support ${projectInfo.framework}. Supported: ${moduleMetadata.supportedFrameworks.join(", ")}`);
     }
 
-    if (selectedProvider && moduleMetadata.databaseAdapters?.providers?.[selectedProvider]?.dependencies) {
-      Object.assign(mergedDeps, moduleMetadata.databaseAdapters.providers[selectedProvider].dependencies);
-    }
-    if (selectedProvider && moduleMetadata.databaseAdapters?.providers?.[selectedProvider]?.devDependencies) {
-      Object.assign(mergedDevDeps, moduleMetadata.databaseAdapters.providers[selectedProvider].devDependencies);
-    }
+    return {
+      module,
+      provider: selectedProvider,
+      displayName: moduleMetadata.displayName,
+      metadata: moduleMetadata,
+    };
+  }
 
-    moduleMetadata.dependencies = mergedDeps;
-    moduleMetadata.devDependencies = mergedDevDeps;
+  // Interactive mode
+  const answers = await inquirer.prompt([
+    {
+      type: "list",
+      name: "category",
+      message: "What would you like to add?",
+      choices: [
+        { name: "Database", value: "database" },
+        { name: "Authentication", value: "auth" },
+      ],
+    },
+  ]);
 
-    const variables: Record<string, string> = {};
-    if (selectedProvider) {
-      variables.provider = selectedProvider;
-      variables.connectionString = DATABASE_CONNECTION_STRINGS[selectedProvider as keyof typeof DATABASE_CONNECTION_STRINGS] || "";
-    }
+  const category = answers.category;
 
-    if (!moduleMetadata.supportedFrameworks.includes(projectInfo.framework)) {
-      logger.error(
-        `Module "${module}" does not support ${projectInfo.framework}. Supported: ${moduleMetadata.supportedFrameworks.join(", ")}`,
-      );
-      process.exit(1);
-    }
+  if (category === "database") {
+    const dbAnswers = await inquirer.prompt([
+      {
+        type: "list",
+        name: "database",
+        message: "Select database:",
+        choices: [
+          { name: "Prisma", value: "prisma" },
+          { name: "Mongoose (MongoDB)", value: "mongoose" },
+        ],
+      },
+    ]);
 
-    if (module === "auth" && projectInfo.hasAuth && !options.force) {
-      logger.warn("Auth library already detected in this project");
-      const { proceed } = await inquirer.prompt([
+    const selectedDb = dbAnswers.database;
+
+    if (selectedDb === "prisma") {
+      const providerAnswers = await inquirer.prompt([
         {
-          type: "confirm",
-          name: "proceed",
-          message: "Continue anyway? (use --force to skip this prompt)",
-          default: false,
+          type: "list",
+          name: "provider",
+          message: "Select Prisma provider:",
+          choices: [
+            { name: "PostgreSQL", value: "postgresql" },
+            { name: "MongoDB", value: "mongodb" },
+            { name: "MySQL", value: "mysql" },
+            { name: "SQLite", value: "sqlite" },
+          ],
         },
       ]);
 
-      if (!proceed) {
-        logger.info("Cancelled");
-        process.exit(0);
-      }
+      return {
+        module: "database",
+        provider: "prisma",
+        displayName: `Prisma (${providerAnswers.provider})`,
+        metadata: await loadModuleMetadata(modulesDir, "prisma", "prisma") as ModuleMetadata,
+      };
+    } else {
+      return {
+        module: "database",
+        provider: "mongoose",
+        displayName: "Mongoose (MongoDB)",
+        metadata: await loadModuleMetadata(modulesDir, "mongoose", "mongoose") as ModuleMetadata,
+      };
+    }
+  } else if (category === "auth") {
+    const authAnswers = await inquirer.prompt([
+      {
+        type: "list",
+        name: "auth",
+        message: "Select authentication:",
+        choices: [
+          { name: "Better Auth", value: "better-auth" },
+          { name: "Auth.js", value: "authjs" },
+        ],
+      },
+    ]);
+
+    const selectedAuth = authAnswers.auth;
+    const metadata = await loadModuleMetadata(modulesDir, selectedAuth, selectedAuth);
+
+    if (!metadata) {
+      throw new Error(`Auth provider "${selectedAuth}" not found`);
     }
 
-    if (options.dryRun) {
-      logger.warn("Dry run mode - no changes will be made");
-      logger.newLine();
+    // Validate compatibility
+    if (projectInfo && !metadata.supportedFrameworks.includes(projectInfo.framework)) {
+      throw new Error(`Auth provider "${selectedAuth}" does not support ${projectInfo.framework}`);
     }
 
-    await applyModulePatches(projectRoot, projectInfo, moduleMetadata, path.join(getPackageRoot(), "modules"), module, options);
+    return {
+      module: "auth",
+      provider: selectedAuth,
+      displayName: selectedAuth === "better-auth" ? "Better Auth" : "Auth.js",
+      metadata,
+    };
+  }
 
-    if (moduleMetadata.frameworkPatches && !options.dryRun) {
-      await applyFrameworkPatches(
-        projectRoot,
-        moduleMetadata.frameworkPatches,
-        projectInfo.framework,
-      );
+  throw new Error("Invalid selection");
+}
+
+async function addModuleToProject(projectRoot: string, projectInfo: ProjectInfo, config: AddConfig, options?: AddOptions): Promise<void> {
+  const moduleMetadata = config.metadata;
+  const selectedProvider = config.provider;
+
+  // Check for existing auth
+  if (config.module === "auth" && projectInfo.hasAuth && !options?.force) {
+    logger.warn("Auth library already detected in this project");
+    const { proceed } = await inquirer.prompt([
+      {
+        type: "confirm",
+        name: "proceed",
+        message: "Continue anyway? (use --force to skip this prompt)",
+        default: false,
+      },
+    ]);
+
+    if (!proceed) {
+      logger.info("Cancelled");
+      return;
     }
+  }
 
-    if (moduleMetadata.postInstall && moduleMetadata.postInstall.length > 0 && !options.dryRun) {
-      const postInstallSpinner = logger.startSpinner("Running post-install commands...");
-      try {
-        for (const command of moduleMetadata.postInstall) {
-          execSync(command, { cwd: projectRoot, stdio: "pipe" });
-        }
-        postInstallSpinner.succeed("Post-install commands completed");
-      } catch (error) {
-        postInstallSpinner.fail("Failed to run post-install commands");
-        throw error;
-      }
-    }
-
-    if (Object.keys(mergedDeps).length > 0 && options.install !== false) {
-      const deps = Object.entries(mergedDeps).map(([name, version]) => `${name}@${version}`);
-      if (!options.dryRun) {
-        await addDependencies(projectRoot, projectInfo.packageManager, deps, false);
-      } else {
-        logger.info(`Would add dependencies: ${deps.join(", ")}`);
-      }
-    }
-
-    if (Object.keys(mergedDevDeps).length > 0 && options.install !== false) {
-      const devDeps = Object.entries(mergedDevDeps).map(([name, version]) => `${name}@${version}`);
-      if (!options.dryRun) {
-        await addDependencies(projectRoot, projectInfo.packageManager, devDeps, true);
-      } else {
-        logger.info(`Would add dev dependencies: ${devDeps.join(", ")}`);
-      }
-    }
-
-    if (moduleMetadata.envVars && moduleMetadata.envVars.length > 0) {
-      const processedEnvVars = moduleMetadata.envVars.map((envVar) => ({
-        ...envVar,
-        value: envVar.value?.replace(/\{\{(\w+)\}\}/g, (match, key) => variables[key] || match),
-      }));
-      if (!options.dryRun) {
-        await addEnvVariables(projectRoot, processedEnvVars, { force: options.force });
-      } else {
-        logger.log(`  ${chalk.dim("~")} .env.example`);
-      }
-    }
-
+  if (options?.dryRun) {
+    logger.warn("Dry run mode - no changes will be made");
     logger.newLine();
-    logger.success(`Added ${chalk.bold(moduleMetadata.displayName)}`);
-    logger.newLine();
+  }
 
-    if (moduleMetadata.envVars && moduleMetadata.envVars.some((v) => v.required)) {
-      logger.log("Next: Fill in environment variables in .env");
+  // Merge dependencies
+  const mergedDeps: Record<string, string> = {};
+  const mergedDevDeps: Record<string, string> = {};
+
+  if (moduleMetadata.frameworkConfigs?.shared?.dependencies) {
+    Object.assign(mergedDeps, moduleMetadata.frameworkConfigs.shared.dependencies);
+  }
+  if (moduleMetadata.frameworkConfigs?.shared?.devDependencies) {
+    Object.assign(mergedDevDeps, moduleMetadata.frameworkConfigs.shared.devDependencies);
+  }
+
+  if (selectedProvider && moduleMetadata.databaseAdapters?.providers?.[selectedProvider]?.dependencies) {
+    Object.assign(mergedDeps, moduleMetadata.databaseAdapters.providers[selectedProvider].dependencies);
+  }
+  if (selectedProvider && moduleMetadata.databaseAdapters?.providers?.[selectedProvider]?.devDependencies) {
+    Object.assign(mergedDevDeps, moduleMetadata.databaseAdapters.providers[selectedProvider].devDependencies);
+  }
+
+  moduleMetadata.dependencies = mergedDeps;
+  moduleMetadata.devDependencies = mergedDevDeps;
+
+  const variables: Record<string, string> = {};
+  if (selectedProvider) {
+    variables.provider = selectedProvider;
+    variables.connectionString = DATABASE_CONNECTION_STRINGS[selectedProvider as keyof typeof DATABASE_CONNECTION_STRINGS] || "";
+  }
+
+  await applyModulePatches(projectRoot, projectInfo, moduleMetadata, path.join(getPackageRoot(), "modules"), config.module, options || {});
+
+  if (moduleMetadata.frameworkPatches && !options?.dryRun) {
+    await applyFrameworkPatches(
+      projectRoot,
+      moduleMetadata.frameworkPatches,
+      projectInfo.framework,
+    );
+  }
+
+  if (moduleMetadata.postInstall && moduleMetadata.postInstall.length > 0 && !options?.dryRun) {
+    const postInstallSpinner = logger.startSpinner("Running post-install commands...");
+    try {
+      for (const command of moduleMetadata.postInstall) {
+        execSync(command, { cwd: projectRoot, stdio: "pipe" });
+      }
+      postInstallSpinner.succeed("Post-install commands completed");
+    } catch (error) {
+      postInstallSpinner.fail("Failed to run post-install commands");
+      throw error;
     }
-    logger.newLine();
-  } catch (error) {
-    logger.error(`Failed to add module: ${(error as Error).message}`);
-    if (error instanceof Error && error.stack) {
-      logger.log(chalk.gray(error.stack));
+  }
+
+  if (Object.keys(mergedDeps).length > 0 && options?.install !== false) {
+    const deps = Object.entries(mergedDeps).map(([name, version]) => `${name}@${version}`);
+    if (!options?.dryRun) {
+      await addDependencies(projectRoot, projectInfo.packageManager, deps, false);
+    } else {
+      logger.info(`Would add dependencies: ${deps.join(", ")}`);
     }
-    process.exit(1);
+  }
+
+  if (Object.keys(mergedDevDeps).length > 0 && options?.install !== false) {
+    const devDeps = Object.entries(mergedDevDeps).map(([name, version]) => `${name}@${version}`);
+    if (!options?.dryRun) {
+      await addDependencies(projectRoot, projectInfo.packageManager, devDeps, true);
+    } else {
+      logger.info(`Would add dev dependencies: ${devDeps.join(", ")}`);
+    }
+  }
+
+  if (moduleMetadata.envVars && moduleMetadata.envVars.length > 0) {
+    const processedEnvVars = moduleMetadata.envVars.map((envVar) => ({
+      ...envVar,
+      value: envVar.value?.replace(/\{\{(\w+)\}\}/g, (match, key) => variables[key] || match),
+    }));
+    if (!options?.dryRun) {
+      await addEnvVariables(projectRoot, processedEnvVars, { force: options?.force });
+    } else {
+      logger.log(`  ${chalk.dim("~")} .env.example`);
+    }
   }
 }
 
@@ -209,7 +381,7 @@ async function loadModuleMetadata(modulesDir: string, moduleName: string, provid
           return await loadGeneratorAndMerge(metadata, modulePath);
         }
 
-        if (!provider && metadata.category === moduleName) {
+        if (!provider && (metadata.category === moduleName || moduleDir === moduleName)) {
           return await loadGeneratorAndMerge(metadata, modulePath);
         }
       }
