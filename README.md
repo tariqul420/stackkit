@@ -53,7 +53,7 @@ npx stackkit doctor
 
 ## Contributing
 
-Want to add a new module? See [docs/MODULE_GUIDE.md](docs/MODULE_GUIDE.md)
+Want to add a new framework or module? See [Contributing Guide](https://stackkit.tariqul.dev/docs/community/contributing)
 
 ```bash
 git clone https://github.com/tariqul420/stackkit.git

@@ -42,7 +42,7 @@ const program = new Command();
 program
   .name("stackkit")
   .description("CLI for creating and managing StackKit projects")
-  .version("0.1.3")
+  .version("0.1.4")
   .configureHelp({
     subcommandTerm: (cmd) => {
       const name = cmd.name();

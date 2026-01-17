@@ -1,22 +1,22 @@
 import { betterAuth } from "better-auth";
 import { sendEmail } from "./email/email-service";
 import { getVerificationEmailTemplate, getPasswordResetEmailTemplate } from "./email/email-templates";
-{{#if database=='prisma'}}
-import { prisma } from "{{framework=='nextjs' ? '@/lib' : '.'}}/prisma";
+{{#if database == 'prisma'}}
+import { prisma } from "{{framework == 'nextjs' ? '@/lib' : '.'}}/prisma";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 {{/if}}
-{{#if database=='mongoose'}}
-import { mongoClient, db } from "{{framework=='nextjs' ? '@/lib' : '.'}}/db";
+{{#if database == 'mongoose'}}
+import { mongoClient, db } from "{{framework == 'nextjs' ? '@/lib' : '.'}}/db";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 {{/if}}
 
 export const auth = betterAuth({
-{{#if database=='prisma'}}
+{{#if database == 'prisma'}}
   database: prismaAdapter(prisma, {
-      provider: {{prismaProvider}},
+      provider: "{{prismaProvider}}",
   }),
 {{/if}}
-{{#if database=='mongoose'}}
+{{#if database == 'mongoose'}}
   database: mongodbAdapter(db),
 {{/if}}
   user: {

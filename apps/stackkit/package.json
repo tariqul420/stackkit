@@ -1,6 +1,6 @@
 {
   "name": "stackkit",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Production-ready CLI to create and extend JavaScript or TypeScript apps with modular stacks.",
   "main": "dist/index.js",
   "bin": {

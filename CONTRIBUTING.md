@@ -2,6 +2,8 @@
 
 Thank you for contributing! We welcome bug reports, feature requests, and pull requests.
 
+For detailed contributing guide, see [Online Docs](https://stackkit.tariqul.dev/docs/community/contributing).
+
 ## Quick Start
 
 ```bash
