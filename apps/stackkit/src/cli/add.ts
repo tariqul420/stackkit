@@ -220,7 +220,7 @@ async function getAddConfig(module?: string, options?: AddOptions, projectInfo?:
       return {
         module: "database",
         provider: "mongoose",
-        displayName: "Mongoose (MongoDB)",
+        displayName: "Mongoose",
         metadata: await loadModuleMetadata(modulesDir, "mongoose", "mongoose") as ModuleMetadata,
       };
     }

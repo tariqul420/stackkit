@@ -34,7 +34,7 @@ npx stackkit doctor
 ## Supported Technologies
 
 - **Frameworks**: Next.js, React, Express
-- **Databases**: Prisma (PostgreSQL, MySQL, SQLite), Mongoose (MongoDB)
+- **Databases**: Prisma (PostgreSQL, MongoDB, MySQL, SQLite), Mongoose (MongoDB)
 - **Auth**: Better Auth, Auth.js
 
 ## Documentation

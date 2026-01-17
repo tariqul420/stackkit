@@ -48,7 +48,7 @@ npx stackkit doctor
 
 ### Databases
 
-- Prisma (PostgreSQL/MongoDB)
+- Prisma (PostgreSQL/MongoDB/MySQL/SQLite)
 - Mongoose (MongoDB)
 
 ## Contributing
