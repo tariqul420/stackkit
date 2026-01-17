@@ -2,8 +2,6 @@
   "title": "Community",
   "defaultOpen": true,
   "pages": [
-    "roadmap",
-    "contributing",
-    "faq"
+    "contributing"
   ]
 }

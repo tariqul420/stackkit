@@ -1,0 +1,111 @@
+---
+title: create
+description: Create new projects with StackKit
+---
+
+## When to use
+
+Starting a new project from scratch with your preferred framework, database, and authentication.
+
+## Command
+
+```bash
+npx stackkit create <project-name> [options]
+```
+
+## Interactive Mode
+
+When run without options, the CLI guides you through setup:
+
+```bash
+npx stackkit create my-app
+```
+
+You'll be prompted for:
+- **Framework**: Next.js, Express.js, or React
+- **Database**: Prisma, Mongoose, or None
+- **Database Provider** (for Prisma): PostgreSQL, MongoDB, MySQL, or SQLite
+- **Authentication**: Better Auth, Auth.js, or None
+- **Language**: TypeScript or JavaScript
+- **Package Manager**: pnpm, npm, yarn, or bun
+
+## Options
+
+### Framework Options
+- `--framework, -f <framework>`: Framework to use
+  - `nextjs`: Full-stack React with App Router
+  - `express`: Node.js REST API
+  - `react`: Frontend-only SPA
+
+### Database Options
+- `--database, -d <database>`: Database/ORM to use
+  - `prisma`: Prisma ORM
+  - `prisma-postgresql`: Prisma with PostgreSQL
+  - `prisma-mongodb`: Prisma with MongoDB
+  - `prisma-mysql`: Prisma with MySQL
+  - `prisma-sqlite`: Prisma with SQLite
+  - `mongoose`: Mongoose ODM (MongoDB only)
+  - `none`: Skip database setup
+
+### Authentication Options
+- `--auth, -a <auth>`: Authentication library
+  - `better-auth`: TypeScript-first auth
+  - `authjs`: NextAuth.js v5 (Next.js + Prisma only)
+  - `none`: Skip authentication
+
+### Other Options
+- `--language, -l <language>`: `typescript` or `javascript`
+- `--package-manager, -p <pm>`: `pnpm`, `npm`, `yarn`, or `bun`
+- `--yes, -y`: Use default settings (Next.js + Prisma + Better Auth + TypeScript + pnpm)
+- `--install`: Install dependencies (default: true)
+- `--skip-install`: Skip dependency installation
+- `--git`: Initialize git repository (default: true)
+- `--no-git`: Skip git initialization
+
+## Examples
+
+```bash
+# Interactive setup
+npx stackkit create my-app
+
+# Next.js with Prisma and PostgreSQL
+npx stackkit create my-app --framework nextjs --database prisma-postgresql --auth better-auth
+
+# Express API with MongoDB
+npx stackkit create my-api --framework express --database mongoose --auth better-auth
+
+# React SPA with auth
+npx stackkit create my-spa --framework react --auth better-auth
+
+# Use defaults
+npx stackkit create my-app --yes
+```
+
+## What gets generated
+
+- Complete project structure with your chosen framework
+- Database configuration and schema files
+- Authentication setup and routes
+- Environment variables (`.env.example`)
+- Package.json with all dependencies
+- TypeScript/JavaScript configuration
+- Git repository initialized
+- Development scripts configured
+
+## Compatibility Matrix
+
+| Framework | Database | Auth |
+|-----------|----------|------|
+| Next.js | Prisma, Mongoose, None | Better Auth, Auth.js, None |
+| Express | Prisma, Mongoose, None | Better Auth, None |
+| React | None | Better Auth, None |
+
+**Notes:**
+- Auth.js requires Next.js + Prisma
+- Better Auth requires a database for server frameworks
+- React only supports frontend authentication
+
+Next steps:
+- [Quick Start](/docs/getting-started/quickstart) for your first project
+- [Environment Variables](/docs/reference/environment-variables) for configuration
+- [Add Command](/docs/cli/add) to extend existing projects

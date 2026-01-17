@@ -1,32 +1,68 @@
-# docs
+# StackKit Documentation
 
-This is a Next.js application generated with
-[Create Fumadocs](https://github.com/fuma-nama/fumadocs).
+This is the official documentation site for [StackKit](https://github.com/tariqul420/stackkit), a production-ready project generator and modular CLI for building full-stack applications.
 
-Run development server:
+## Development
+
+### Prerequisites
+
+- Node.js 18+
+- pnpm (recommended)
+
+### Setup
 
 ```bash
-npm run dev
-# or
+# Install dependencies
+pnpm install
+
+# Start development server
 pnpm dev
-# or
-yarn dev
 ```
 
-Open http://localhost:3000 with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the documentation.
 
-## Explore
+### Build
 
-In the project, you can see:
+```bash
+# Build for production
+pnpm build
 
-- `lib/source.ts`: Code for content source adapter, [`loader()`](https://fumadocs.dev/docs/headless/source-api) provides the interface to access your content.
-- `lib/layout.shared.tsx`: Shared options for layouts, optional but preferred to keep.
+# Preview production build
+pnpm start
+```
 
-| Route                     | Description                                            |
-| ------------------------- | ------------------------------------------------------ |
-| `app/(home)`              | The route group for your landing page and other pages. |
-| `app/docs`                | The documentation layout and pages.                    |
-| `app/api/search/route.ts` | The Route Handler for search.                          |
+### Content Structure
+
+```
+content/docs/
+├── index.mdx              # Landing page
+├── getting-started/       # Quick start guides
+├── concepts/              # Core concepts
+├── cli/                   # CLI reference
+├── modules/               # Module documentation
+├── reference/             # Technical reference
+└── community/             # Community resources
+```
+
+### Adding Documentation
+
+1. Create `.mdx` files in the appropriate `content/docs/` subdirectory
+2. Update `meta.json` files to include new pages in navigation
+3. Use Fumadocs components for enhanced content (tabs, callouts, etc.)
+
+### Key Files
+
+- `source.config.ts`: Fumadocs configuration
+- `lib/source.ts`: Content source adapter
+- `lib/layout.shared.tsx`: Shared layout options
+
+## Deployment
+
+The documentation is automatically deployed when changes are merged to the main branch.
+
+## Contributing
+
+See the [Contributing Guide](/docs/community/contributing) for information on improving the documentation.
 
 ### Fumadocs MDX
 

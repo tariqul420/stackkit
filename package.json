@@ -28,7 +28,19 @@
     "typecheck": "pnpm --filter \"./apps/**\" typecheck",
     "lint": "pnpm --filter \"./apps/**\" lint",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\""
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "test": "pnpm --filter stackkit test",
+    "test:create": "pnpm --filter stackkit test:create",
+    "test:add": "pnpm --filter stackkit test:add",
+    "test:doctor": "pnpm --filter stackkit test:doctor",
+    "test:list": "pnpm --filter stackkit test:list",
+    "test:version": "pnpm --filter stackkit test:version",
+    "test:help": "pnpm --filter stackkit test:help",
+    "test:help:create": "pnpm --filter stackkit test:help:create",
+    "test:help:add": "pnpm --filter stackkit test:help:add",
+    "test:help:doctor": "pnpm --filter stackkit test:help:doctor",
+    "test:help:list": "pnpm --filter stackkit test:help:list",
+    "test:docs": "cd apps/docs && pnpm run types:check"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",

@@ -3,6 +3,7 @@
   "defaultOpen": true,
   "pages": [
     "overview",
+    "create",
     "add",
     "list",
     "doctor"

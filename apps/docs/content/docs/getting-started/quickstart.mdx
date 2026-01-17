@@ -92,11 +92,11 @@ Never commit `.env` files to version control.
 Already have a project? Use the modular CLI:
 
 ```bash
-# Add authentication
-npx stackkit add better-auth
+# Add authentication (interactive)
+npx stackkit add
 
-# Add database
-npx stackkit add prisma --provider postgresql
+# Add database with provider (non-interactive)
+npx stackkit add database --provider prisma-postgresql
 ```
 
 See [CLI Reference](/docs/cli/overview) for all commands.

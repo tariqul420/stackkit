@@ -3,31 +3,232 @@ title: Contributing
 description: How to contribute to StackKit
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout';
+
+## Ways to Contribute
+
+- 🐛 **Bug Reports**: Found a bug? [Open an issue](https://github.com/tariqul420/stackkit/issues/new?template=bug_report.md)
+- 💡 **Feature Requests**: Have an idea? [Open an issue](https://github.com/tariqul420/stackkit/issues/new?template=feature_request.md)
+- 📖 **Documentation**: Help improve docs or add examples
+- 🔧 **Code**: Fix bugs, add features, or improve performance
+- 🧪 **Testing**: Add tests or improve test coverage
+
 ## Development Setup
 
-1. Clone the repo
-2. Install dependencies: `pnpm install`
-3. Build packages: `pnpm build`
+### Prerequisites
+
+- Node.js 18+
+- pnpm (recommended) or npm/yarn
+- Git
+
+### Setup Steps
+
+1. **Fork and Clone**
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/stackkit.git
+   cd stackkit
+   ```
+
+2. **Install Dependencies**
+   ```bash
+   pnpm install
+   ```
+
+3. **Build Packages**
+   ```bash
+   pnpm build
+   ```
+
+4. **Test Installation**
+   ```bash
+   pnpm test
+   ```
 
 ## Project Structure
 
-- `apps/create-stackkit/`: Project generator
-- `apps/stackkit/`: Unified CLI
-- `apps/docs/`: Documentation
-- `modules/`: Feature modules
-- `templates/`: Base project templates
+```
+stackkit/
+├── apps/
+│   ├── stackkit/          # Main CLI package
+│   └── docs/              # Documentation site
+├── modules/               # Feature modules
+│   ├── auth/              # Authentication modules
+│   └── database/          # Database modules
+├── templates/             # Base project templates
+└── packages.json          # Workspace configuration
+```
+
+### Key Directories
+
+- **`apps/stackkit/`**: CLI commands, generators, and core logic
+- **`apps/docs/`**: Documentation built with Fumadocs
+- **`modules/`**: Reusable feature modules (auth, database, etc.)
+- **`templates/`**: Base project templates for different frameworks
+
+## Development Workflow
+
+### 1. Choose an Issue
+
+- Check [open issues](https://github.com/tariqul420/stackkit/issues) for good first issues
+- Comment on the issue to indicate you're working on it
+- Wait for maintainer approval if needed
+
+### 2. Create a Branch
+
+```bash
+git checkout -b feature/your-feature-name
+# or
+git checkout -b fix/issue-number-description
+```
+
+### 3. Make Changes
+
+- Follow the existing code style
+- Add tests for new features
+- Update documentation if needed
+- Test your changes thoroughly
+
+### 4. Commit Changes
+
+```bash
+git add .
+git commit -m "feat: add new feature description"
+```
+
+Follow [Conventional Commits](https://conventionalcommits.org/) format.
+
+### 5. Push and Create PR
+
+```bash
+git push origin your-branch-name
+```
+
+Create a pull request with:
+- Clear description of changes
+- Reference to related issues
+- Screenshots/videos if UI changes
 
 ## Adding a Module
 
-1. Create `modules/<category>/<name>/module.json`
-2. Add files in `modules/<category>/<name>/files/`
-3. Update CLI detection logic
+### Module Structure
+
+```
+modules/
+└── category/
+    └── module-name/
+        ├── module.json      # Module metadata
+        ├── generator.json   # Code generation config
+        └── files/           # Template files
+```
+
+### Steps to Add a Module
+
+1. **Create Module Directory**
+   ```bash
+   mkdir -p modules/category/module-name/files
+   ```
+
+2. **Create `module.json`**
+   ```json
+   {
+     "name": "module-name",
+     "displayName": "Module Display Name",
+     "description": "What this module does",
+     "category": "category",
+     "supportedFrameworks": ["nextjs", "express"],
+     "dependencies": {
+       "npm": ["package-name@^1.0.0"]
+     }
+   }
+   ```
+
+3. **Create `generator.json`** (if needed)
+   ```json
+   {
+     "files": [
+       {
+         "source": "files/template-file.ts",
+         "target": "lib/module-file.ts"
+       }
+     ]
+   }
+   ```
+
+4. **Add Template Files**
+   Place your template files in the `files/` directory.
+
+5. **Update CLI Logic**
+   Update detection and compatibility logic in `apps/stackkit/src/`.
 
 ## Testing
 
-- Test generators with `pnpm test`
-- Manual testing of CLI commands
-- Validate docs build
+### Running Tests
 
-Next steps:
-- [Issues](https://github.com/tariqul420/stackkit/issues) for bug reports
+```bash
+# Run all tests
+pnpm test
+
+# Test specific CLI commands
+pnpm run test:create
+pnpm run test:add
+pnpm run test:doctor
+
+# Test documentation build
+cd apps/docs && pnpm run types:check
+```
+
+### Manual Testing
+
+1. **Test CLI Commands**
+   ```bash
+   # Build and test locally
+   pnpm build
+   node apps/stackkit/bin/stackkit.js --help
+   ```
+
+2. **Test Project Generation**
+   ```bash
+   # Create a test project
+   mkdir test-project && cd test-project
+   npx ../apps/stackkit/bin/stackkit.js create test-app --yes
+   ```
+
+3. **Test Module Addition**
+   ```bash
+   cd test-project
+   npx ../apps/stackkit/bin/stackkit.js add --dry-run
+   ```
+
+## Code Quality
+
+### TypeScript
+
+- Use strict TypeScript settings
+- Add proper type annotations
+- Avoid `any` types
+
+### Code Style
+
+- Follow existing patterns in the codebase
+- Use meaningful variable and function names
+- Add JSDoc comments for public APIs
+
+### Error Handling
+
+- Use proper error messages
+- Handle edge cases gracefully
+- Provide helpful debugging information
+
+## Documentation
+
+- Update docs for any new features
+- Add code examples where helpful
+- Keep API documentation up to date
+
+<Callout type="info">
+**Need Help?** Join our [Discord](https://discord.gg/stackkit) or ask questions in GitHub issues.
+</Callout>
+
+## License
+
+By contributing to StackKit, you agree that your contributions will be licensed under the MIT License.

@@ -5,42 +5,67 @@ description: Add modules to existing projects
 
 ## When to use
 
-Adding authentication or database features to your current project.
+Adding authentication or database features to an existing project.
 
 ## Command
 
 ```bash
-npx stackkit add <module> [options]
+npx stackkit add [options]
 ```
 
-## Modules
+## Interactive Mode
 
-| Module | Type | Description |
-|--------|------|-------------|
-| `better-auth` | Auth | Better Auth library |
-| `authjs` | Auth | Auth.js (NextAuth.js v5) |
-| `prisma` | Database | Prisma ORM |
-| `mongoose` | Database | Mongoose ODM |
+When run without options, the CLI guides you through adding modules:
+
+```bash
+npx stackkit add
+```
+
+You'll be prompted to choose:
+- **Category**: Database or Authentication
+- **Module**: Specific database/ORM or auth provider
+- **Provider** (for databases): Database type and connection details
 
 ## Options
 
+### Module Options
 - `--provider <provider>`: Database provider (e.g., `postgresql`, `mongodb`)
+
+### Other Options
 - `--force`: Overwrite existing files
 - `--dry-run`: Show changes without applying
 - `--no-install`: Skip dependency installation
+- `--yes, -y`: Skip interactive prompts (requires module name)
 
 ## Examples
 
 ```bash
-# Add Better Auth
-npx stackkit add better-auth
+# Interactive setup
+npx stackkit add
 
-# Add Prisma with specific provider
-npx stackkit add prisma --provider postgresql
+# Add database with specific provider
+npx stackkit add database --provider prisma-postgresql
+
+# Add authentication
+npx stackkit add auth --provider better-auth
 
 # Preview changes
-npx stackkit add authjs --dry-run
+npx stackkit add --dry-run
 ```
+
+## Available Modules
+
+### Database Modules
+| Module | Providers | Description |
+|--------|-----------|-------------|
+| `prisma` | PostgreSQL, MongoDB, MySQL, SQLite | Prisma ORM with multiple database support |
+| `mongoose` | MongoDB | Mongoose ODM for MongoDB |
+
+### Authentication Modules
+| Module | Frameworks | Description |
+|--------|------------|-------------|
+| `better-auth` | Next.js, Express, React | TypeScript-first authentication library |
+| `authjs` | Next.js + Prisma | NextAuth.js v5 integration |
 
 ## What gets generated
 
@@ -48,7 +73,16 @@ npx stackkit add authjs --dry-run
 - Dependencies added to package.json
 - Environment variables in .env.example
 - Schema files (for databases)
+- Configuration updates for your framework
+
+## Compatibility
+
+The CLI automatically detects your project type and ensures compatibility:
+
+- **Framework Detection**: Reads package.json to identify Next.js, Express, or React
+- **Module Validation**: Checks if selected modules support your framework
+- **Dependency Resolution**: Installs appropriate packages for your setup
 
 Next steps:
 - [Environment Variables](/docs/reference/environment-variables) for setup
-- [Doctor](/docs/cli/doctor) to verify
+- [Doctor Command](/docs/cli/doctor) to verify your setup
