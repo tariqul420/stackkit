@@ -2,6 +2,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import { FrameworkConfig } from '../framework/framework-utils';
 import { getPackageRoot } from '../utils/package-root';
+import { mergeModuleIntoGeneratorConfig, locateOperationSource } from './generator-utils';
 
 export interface GenerationContext {
   framework: string;
@@ -98,30 +99,8 @@ export class AdvancedCodeGenerator {
             try {
               const config: GeneratorConfig = await fs.readJson(generatorPath);
 
-              const modulePath = path.join(typePath, moduleName, 'module.json');
-              if (await fs.pathExists(modulePath)) {
-                try {
-                  const moduleConfig = await fs.readJson(modulePath);
-                  if (moduleConfig.postInstall && Array.isArray(moduleConfig.postInstall)) {
-                    config.postInstall = moduleConfig.postInstall;
-                  }
-
-                  if (moduleConfig.dependencies && typeof moduleConfig.dependencies === 'object') {
-                    config.dependencies = { ...(config.dependencies || {}), ...moduleConfig.dependencies };
-                  }
-                  if (moduleConfig.devDependencies && typeof moduleConfig.devDependencies === 'object') {
-                    config.devDependencies = { ...(config.devDependencies || {}), ...moduleConfig.devDependencies };
-                  }
-                  if (moduleConfig.scripts && typeof moduleConfig.scripts === 'object') {
-                    config.scripts = { ...(config.scripts || {}), ...moduleConfig.scripts };
-                  }
-                  if (moduleConfig.envVars && typeof moduleConfig.envVars === 'object') {
-                    config.envVars = { ...(config.envVars || {}), ...moduleConfig.envVars };
-                  }
-                } catch {
-                  // Silently skip if module.json is invalid
-                }
-              }
+              const modulePath = path.join(typePath, moduleName);
+              await mergeModuleIntoGeneratorConfig(config, modulePath);
 
               this.generators.set(`${type}:${moduleName}`, config);
             } catch {
@@ -553,23 +532,10 @@ export class AdvancedCodeGenerator {
       // Use content directly
       content = this.processTemplate(operation.content, context);
     } else if (operation.source) {
-      // Find the source file path relative to the module/template directory
-      const packageRoot = getPackageRoot();
-      const modulesPath = path.join(packageRoot, 'modules');
-      const templatesPath = path.join(packageRoot, 'templates');
+      const sourcePath = locateOperationSource(operation.generatorType, operation.generator, operation.source || '');
 
-      const moduleBasePath = operation.generatorType === 'framework'
-        ? path.join(templatesPath, operation.generator)
-        : path.join(modulesPath, operation.generatorType, operation.generator);
-
-      const sourcePath = path.join(moduleBasePath, 'files', operation.source);
-
-      // Check if source file exists
-      if (await fs.pathExists(sourcePath)) {
-        // Read source file
+      if (sourcePath && await fs.pathExists(sourcePath)) {
         content = await fs.readFile(sourcePath, 'utf-8');
-
-        // Process template content
         content = this.processTemplate(content, context);
       } else {
         throw new Error(`Source file not found: ${sourcePath}`);
@@ -774,6 +740,62 @@ export class AdvancedCodeGenerator {
     await fs.writeJson(packageJsonPath, packageJson, { spaces: 2 });
   }
 
+  /**
+   * Apply generators to an existing project directory instead of creating a new template.
+   * This executes applicable operations and updates package.json in-place.
+   */
+  async applyToProject(
+    selectedModules: { framework: string; database?: string; auth?: string; prismaProvider?: string },
+    features: string[],
+    projectPath: string
+  ): Promise<string[]> {
+    const context: GenerationContext = {
+      ...selectedModules,
+      features,
+    };
+
+    if (selectedModules.database === 'prisma' && !context.prismaProvider) {
+      context.prismaProvider = 'postgresql';
+    }
+
+    const applicableOperations: Array<Operation & { generator: string; generatorType: string }> = [];
+
+    for (const [key, generator] of this.generators) {
+      const [genType, name] = key.split(':');
+
+      if (genType === 'framework' && name === selectedModules.framework) {
+        // framework
+      } else if (genType === 'database' && name === selectedModules.database) {
+        // database
+      } else if (genType === 'auth' && name === selectedModules.auth) {
+        // auth
+      } else {
+        continue;
+      }
+
+      if (generator.postInstall && Array.isArray(generator.postInstall)) {
+        this.postInstallCommands.push(...generator.postInstall);
+      }
+
+      const items = generator.operations || [];
+      for (const item of items) {
+        if (this.evaluateCondition(item.condition, context)) {
+          applicableOperations.push({ ...(item as Operation), generator: name, generatorType: genType, priority: generator.priority });
+        }
+      }
+    }
+
+    applicableOperations.sort((a, b) => (a.priority || 0) - (b.priority || 0));
+
+    for (const operation of applicableOperations) {
+      await this.executeOperation(operation, context, projectPath);
+    }
+
+    await this.generatePackageJson(selectedModules, features, projectPath);
+
+    return this.postInstallCommands;
+  }
+
   getAvailableGenerators(): { frameworks: string[]; databases: string[]; auths: string[] } {
     const frameworks: string[] = [];
     const databases: string[] = [];
@@ -795,5 +817,12 @@ export class AdvancedCodeGenerator {
     }
 
     return { frameworks, databases, auths };
+  }
+
+  /**
+   * Register a generator config dynamically (used for modules that only provide module.json patches).
+   */
+  registerGenerator(type: 'framework' | 'database' | 'auth', name: string, config: GeneratorConfig): void {
+    this.generators.set(`${type}:${name}`, config);
   }
 }

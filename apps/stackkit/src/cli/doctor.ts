@@ -448,21 +448,18 @@ function checkConflicts(authModules: string[], databaseModules: string[]): strin
 async function checkConfigFiles(projectRoot: string, projectType: string, packageJson: PackageJson): Promise<CheckResult[]> {
   const checks: CheckResult[] = [];
 
-  // Check tsconfig.json
   const tsconfigExists = await fs.pathExists(path.join(projectRoot, "tsconfig.json"));
   checks.push({
     status: tsconfigExists ? "success" : "error",
     message: tsconfigExists ? MESSAGES.TSCONFIG_FOUND : MESSAGES.TSCONFIG_MISSING,
   });
 
-  // Check ESLint config
   const eslintExists = await checkEslintConfigExists(projectRoot);
   checks.push({
     status: eslintExists ? "success" : "warning",
     message: eslintExists ? MESSAGES.ESLINT_CONFIG_FOUND : MESSAGES.ESLINT_CONFIG_MISSING,
   });
 
-  // Check build script
   const hasBuildScript = packageJson.scripts && typeof packageJson.scripts === "object" && "build" in packageJson.scripts;
   checks.push({
     status: hasBuildScript ? "success" : "warning",
@@ -479,7 +476,6 @@ async function checkDependencies(packageJson: PackageJson): Promise<{ status: "s
   const deps = { ...packageJson.dependencies, ...packageJson.devDependencies };
   for (const [name, version] of Object.entries(deps || {})) {
     if (typeof version === "string" && (version.startsWith("^") || version.startsWith("~"))) {
-      // Assume up to date
     } else {
       outdated.push(name);
     }

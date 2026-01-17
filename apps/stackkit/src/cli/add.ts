@@ -4,13 +4,15 @@ import fs from "fs-extra";
 import inquirer from "inquirer";
 import path from "path";
 import { CreateFilePatch, ModuleMetadata, ProjectInfo } from "../types";
+import { AdvancedCodeGenerator, Operation, TemplateCondition } from "../lib/generation/code-generator";
 import { detectProjectInfo, getLibPath, getRouterBasePath } from "../lib/project/detect";
 import { addEnvVariables } from "../lib/env/env-editor";
 import { createFile, fileExists } from "../lib/fs/files";
 import { logger } from "../lib/ui/logger";
-import { addDependencies } from "../lib/pm/package-manager";
-import { DATABASE_CONNECTION_STRINGS } from "../lib/database/database-config";
+import { addDependencies, installDependencies } from "../lib/pm/package-manager";
 import { getPackageRoot } from "../lib/utils/package-root";
+import { FrameworkUtils } from "../lib/framework/framework-utils";
+import { mergeGeneratorIntoModuleMetadata } from '../lib/generation/generator-utils';
 
 interface AddConfig {
   module: string;
@@ -61,7 +63,6 @@ export async function addCommand(module?: string, options?: AddOptions): Promise
 async function getAddConfig(module?: string, options?: AddOptions, projectInfo?: ProjectInfo): Promise<AddConfig> {
   const modulesDir = path.join(getPackageRoot(), 'modules');
 
-  // Check if options are provided
   const argv = process.argv.slice(2);
   const addIndex = argv.indexOf('add');
   const argsAfterAdd = addIndex >= 0 ? argv.slice(addIndex + 1) : [];
@@ -69,19 +70,16 @@ async function getAddConfig(module?: string, options?: AddOptions, projectInfo?:
   const optionsProvided = flagsProvided || !!(options && (options.yes || options.provider || options.force || options.dryRun));
 
   if (optionsProvided) {
-    // Use provided options
     if (!module) {
       throw new Error("Module name is required when using flags");
     }
 
-    // Handle category names
     if (module === "database" || module === "auth") {
       if (module === "database") {
         if (!options?.provider) {
           throw new Error("Provider is required for database. Use --provider <provider>");
         }
         
-        // Handle compound provider names like "prisma-postgresql"
         let baseProvider = options.provider;
         let adapterProvider = options.provider;
         
@@ -117,7 +115,6 @@ async function getAddConfig(module?: string, options?: AddOptions, projectInfo?:
       }
     }
 
-    // Handle direct module/provider names
     const moduleMetadata = await loadModuleMetadata(modulesDir, module, options?.provider);
 
     if (!moduleMetadata) {
@@ -126,7 +123,6 @@ async function getAddConfig(module?: string, options?: AddOptions, projectInfo?:
 
     let selectedProvider = options?.provider;
     if (!selectedProvider && moduleMetadata.category !== module) {
-      // module was a provider name, not category name
       selectedProvider = module;
     }
 
@@ -147,7 +143,6 @@ async function getAddConfig(module?: string, options?: AddOptions, projectInfo?:
       }
     }
 
-    // Validate compatibility
     if (projectInfo && !moduleMetadata.supportedFrameworks.includes(projectInfo.framework)) {
       throw new Error(`Module "${module}" does not support ${projectInfo.framework}. Supported: ${moduleMetadata.supportedFrameworks.join(", ")}`);
     }
@@ -160,7 +155,6 @@ async function getAddConfig(module?: string, options?: AddOptions, projectInfo?:
     };
   }
 
-  // Interactive mode
   const answers = await inquirer.prompt([
     {
       type: "list",
@@ -239,7 +233,6 @@ async function getAddConfig(module?: string, options?: AddOptions, projectInfo?:
       throw new Error(`Auth provider "${selectedAuth}" not found`);
     }
 
-    // Validate compatibility
     if (projectInfo && !metadata.supportedFrameworks.includes(projectInfo.framework)) {
       throw new Error(`Auth provider "${selectedAuth}" does not support ${projectInfo.framework}`);
     }
@@ -259,7 +252,6 @@ async function addModuleToProject(projectRoot: string, projectInfo: ProjectInfo,
   const moduleMetadata = config.metadata;
   const selectedProvider = config.provider;
 
-  // Check for existing auth
   if (config.module === "auth" && projectInfo.hasAuth && !options?.force) {
     logger.warn("Auth library already detected in this project");
     const { proceed } = await inquirer.prompt([
@@ -282,7 +274,77 @@ async function addModuleToProject(projectRoot: string, projectInfo: ProjectInfo,
     logger.newLine();
   }
 
-  // Merge dependencies
+  const moduleBasePath = await findModulePath(path.join(getPackageRoot(), 'modules'), config.module, config.provider);
+  if (moduleBasePath) {
+    const frameworkConfig = await FrameworkUtils.loadFrameworkConfig(projectInfo.framework, path.join(getPackageRoot(), 'templates'));
+    const gen = new AdvancedCodeGenerator(frameworkConfig);
+    await gen.loadGenerators(path.join(getPackageRoot(), 'modules'));
+
+    const moduleName = path.basename(moduleBasePath);
+    const available = gen.getAvailableGenerators();
+    const alreadyRegistered = (config.module === 'database' && available.databases.includes(moduleName)) || (config.module === 'auth' && available.auths.includes(moduleName));
+    if (!alreadyRegistered) {
+      const ops: Operation[] = [];
+      if (Array.isArray(moduleMetadata.patches)) {
+        for (const p of moduleMetadata.patches as Array<CreateFilePatch>) {
+          if (p.type === 'create-file') {
+            ops.push({ type: 'create-file', source: p.source, destination: p.destination, condition: p.condition as unknown as TemplateCondition });
+          }
+        }
+      }
+
+      if (ops.length > 0) {
+        gen.registerGenerator(config.module as 'database' | 'auth' | 'framework', moduleName, {
+          name: moduleName,
+          type: config.module as 'database' | 'auth' | 'framework',
+          priority: 0,
+          operations: ops,
+          dependencies: {},
+        });
+      }
+    }
+
+    const selectedModules: { framework: string; database?: string; auth?: string; prismaProvider?: string } = { framework: projectInfo.framework };
+    if (config.module === 'database' && config.provider) {
+      if (config.provider.startsWith('prisma-')) {
+        selectedModules.database = 'prisma';
+        selectedModules.prismaProvider = config.provider.split('-')[1];
+      } else {
+        selectedModules.database = config.provider;
+      }
+    }
+    if (config.module === 'auth' && config.provider) {
+      selectedModules.auth = config.provider;
+    }
+
+    const postInstall = await gen.applyToProject(selectedModules, [], projectRoot);
+    if (postInstall && postInstall.length > 0 && !options?.dryRun) {
+      const postInstallSpinner = logger.startSpinner('Running post-install commands...');
+      try {
+        for (const command of postInstall) {
+          execSync(command, { cwd: projectRoot, stdio: 'pipe' });
+        }
+        postInstallSpinner.succeed('Post-install commands completed');
+      } catch (error) {
+        postInstallSpinner.fail('Failed to run post-install commands');
+        throw error;
+      }
+    }
+
+    if (!options?.dryRun && options?.install !== false) {
+      const installSpinner = logger.startSpinner('Installing dependencies...');
+      try {
+        await installDependencies(projectRoot, projectInfo.packageManager);
+        installSpinner.succeed('Dependencies installed');
+      } catch (err) {
+        installSpinner.fail('Failed to install dependencies');
+        throw err;
+      }
+    }
+
+    return;
+  }
+
   const mergedDeps: Record<string, string> = {};
   const mergedDevDeps: Record<string, string> = {};
 
@@ -294,14 +356,35 @@ async function addModuleToProject(projectRoot: string, projectInfo: ProjectInfo,
   }
 
   // Adapter-specific dependencies are applied via generator metadata; frameworkConfigs still merge above.
-
-  moduleMetadata.dependencies = mergedDeps;
-  moduleMetadata.devDependencies = mergedDevDeps;
+  // Do not mutate the loaded module metadata here; use mergedDeps/mergedDevDeps for installation.
 
   const variables: Record<string, string> = {};
+
   if (selectedProvider) {
     variables.provider = selectedProvider;
-    variables.connectionString = DATABASE_CONNECTION_STRINGS[selectedProvider as keyof typeof DATABASE_CONNECTION_STRINGS] || "";
+  }
+
+  if (moduleMetadata.envVars) {
+    const envArray: Array<{ key?: string; value?: string }> = Array.isArray(moduleMetadata.envVars)
+      ? (moduleMetadata.envVars as Array<{ key?: string; value?: string }>)
+      : Object.entries(moduleMetadata.envVars as Record<string, string>).map(([k, v]) => ({ key: k, value: String(v) }));
+
+    for (const ev of envArray) {
+      if (ev.key && typeof ev.value === 'string') variables[ev.key] = ev.value as string;
+    }
+
+    for (let pass = 0; pass < 5; pass++) {
+      let changed = false;
+      for (const ev of envArray) {
+        if (!ev.key || typeof ev.value !== 'string') continue;
+        const resolved = ev.value.replace(/\{\{(\w+)\}\}/g, (_m, k) => variables[k] ?? _m);
+        if (variables[ev.key] !== resolved) {
+          variables[ev.key] = resolved;
+          changed = true;
+        }
+      }
+      if (!changed) break;
+    }
   }
 
   await applyModulePatches(projectRoot, projectInfo, moduleMetadata, path.join(getPackageRoot(), "modules"), config.module, options || {});
@@ -385,37 +468,17 @@ async function loadModuleMetadata(modulesDir: string, moduleName: string, provid
         const metadata = await fs.readJSON(metadataPath);
 
         if (provider && moduleDir === provider) {
-          return await loadGeneratorAndMerge(metadata, modulePath);
+            return await mergeGeneratorIntoModuleMetadata(metadata, modulePath);
         }
 
         if (!provider && (metadata.category === moduleName || moduleDir === moduleName)) {
-          return await loadGeneratorAndMerge(metadata, modulePath);
+            return await mergeGeneratorIntoModuleMetadata(metadata, modulePath);
         }
       }
     }
   }
 
   return null;
-}
-
-async function loadGeneratorAndMerge(metadata: ModuleMetadata, modulePath: string): Promise<ModuleMetadata> {
-  const generatorPath = path.join(modulePath, "generator.json");
-  if (await fs.pathExists(generatorPath)) {
-    const generator = await fs.readJSON(generatorPath);
-    if (generator.envVars) {
-      metadata.envVars = metadata.envVars || [];
-      for (const [key, value] of Object.entries(generator.envVars)) {
-        metadata.envVars.push({ key, value: value as string, description: `Environment variable for ${key}`, required: true });
-      }
-    }
-    if (generator.dependencies) {
-      metadata.dependencies = { ...metadata.dependencies, ...generator.dependencies };
-    }
-    if (generator.devDependencies) {
-      metadata.devDependencies = { ...metadata.devDependencies, ...generator.devDependencies };
-    }
-  }
-  return metadata;
 }
 
 async function applyModulePatches(

@@ -356,7 +356,6 @@ async function composeTemplate(config: ProjectConfig, targetDir: string): Promis
       await fs.writeFile(envPath, envContent);
     }
   } catch {
-    // Non-fatal: .env creation from .env.example is optional
   }
 
   if (config.language === "javascript") {
