@@ -42,7 +42,7 @@ representative at an online or offline event.
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
 reported to the community leaders responsible for enforcement at
-[conduct@stack-kit.com].
+[tariqul@tariqul.dev](mailto:tariqul@tariqul.dev).
 
 All complaints will be reviewed and investigated promptly and fairly.
 

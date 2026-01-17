@@ -19,6 +19,8 @@ npx stackkit create my-app
 ## Add Features to Existing Project
 
 ```bash
+npx stackkit add
+# or non-interactive
 npx stackkit add auth
 npx stackkit add database
 ```
@@ -37,5 +39,5 @@ npx stackkit doctor
 
 ## Documentation
 
-- [StackKit Docs](https://stack-kit.com)[https://stackkit.tariqul.dev]
+- [StackKit Docs](https://stackkit.tariqul.dev)
 - [GitHub Repository](https://github.com/tariqul420/stackkit)
