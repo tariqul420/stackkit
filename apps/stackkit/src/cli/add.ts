@@ -80,14 +80,31 @@ async function getAddConfig(module?: string, options?: AddOptions, projectInfo?:
         if (!options?.provider) {
           throw new Error("Provider is required for database. Use --provider <provider>");
         }
-        const moduleMetadata = await loadModuleMetadata(modulesDir, options.provider, options.provider);
-        if (!moduleMetadata) {
-          throw new Error(`Database provider "${options.provider}" not found`);
+        
+        // Handle compound provider names like "prisma-postgresql"
+        let baseProvider = options.provider;
+        let adapterProvider = options.provider;
+        
+        if (options.provider.includes('-')) {
+          const parts = options.provider.split('-');
+          baseProvider = parts[0]; // e.g., "prisma"
+          adapterProvider = options.provider; // e.g., "prisma-postgresql"
         }
+        
+        const moduleMetadata = await loadModuleMetadata(modulesDir, baseProvider, baseProvider);
+        if (!moduleMetadata) {
+          throw new Error(`Database provider "${baseProvider}" not found`);
+        }
+        
+        // Validate that the adapter exists in databaseAdapters
+        if (moduleMetadata.databaseAdapters?.providers && !(adapterProvider in moduleMetadata.databaseAdapters.providers)) {
+          throw new Error(`Database adapter "${adapterProvider}" not found for ${baseProvider}`);
+        }
+        
         return {
           module: "database",
-          provider: options.provider,
-          displayName: moduleMetadata.displayName,
+          provider: adapterProvider,
+          displayName: `${moduleMetadata.displayName} (${adapterProvider.split('-')[1] || adapterProvider})`,
           metadata: moduleMetadata,
         };
       } else if (module === "auth") {

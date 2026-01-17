@@ -59,7 +59,6 @@ export async function detectProjectInfo(targetDir: string): Promise<ProjectInfo>
   } else if (jsconfigExists) {
     language = "js";
   } else {
-    // Default to TypeScript if neither exists
     language = "ts";
   }
 
@@ -67,7 +66,7 @@ export async function detectProjectInfo(targetDir: string): Promise<ProjectInfo>
   const yarnLockExists = await fs.pathExists(path.join(targetDir, "yarn.lock"));
   const pnpmLockExists = await fs.pathExists(path.join(targetDir, "pnpm-lock.yaml"));
   const bunLockExists = await fs.pathExists(path.join(targetDir, "bun.lockb"));
-  let packageManager: "npm" | "yarn" | "pnpm" | "bun" = "npm";
+  let packageManager: "npm" | "yarn" | "pnpm" | "bun" = "pnpm";
 
   if (pnpmLockExists) {
     packageManager = "pnpm";
@@ -82,8 +81,7 @@ export async function detectProjectInfo(targetDir: string): Promise<ProjectInfo>
     packageJson.dependencies?.["next-auth"] ||
     packageJson.dependencies?.["better-auth"] ||
     packageJson.dependencies?.["@auth/core"] ||
-    packageJson.dependencies?.["@kinde-oss/kinde-auth-nextjs"] ||
-    packageJson.dependencies?.["passport"]
+    packageJson.dependencies?.["@kinde-oss/kinde-auth-nextjs"]
   );
 
   const hasPrisma = !!(

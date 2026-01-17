@@ -16,14 +16,10 @@
     {
       "type": "create-file",
       "source": "lib/prisma.ts",
-      "destination": "lib/prisma.ts",
-      "condition": {
-        "framework": ["nextjs", "express"]
-      }
+      "destination": "lib/prisma.ts"
     }
   ],
   "dependencies": {
-    "prisma": "^7.2.0",
     "@prisma/client": "^7.2.0",
     "dotenv": "^17.2.3"
   },
@@ -31,11 +27,11 @@
     "prisma": "^7.2.0"
   },
   "scripts": {
-    "db:generate": "prisma generate",
-    "db:push": "prisma db push",
+    "db:generate": "npx prisma generate",
+    "db:push": "npx prisma db push",
     "db:seed": "tsx prisma/seed.ts",
-    "db:migrate": "prisma migrate dev",
-    "db:studio": "prisma studio"
+    "db:migrate": "npx prisma migrate dev",
+    "db:studio": "npx prisma studio"
   },
   "envVars": {
     "DATABASE_URL": "postgresql://username:password@localhost:5432/database_name"

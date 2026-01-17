@@ -5,13 +5,13 @@
   "operations": [
     {
       "type": "create-file",
-      "source": "lib/db.ts",
-      "destination": "src/lib/db.ts"
+      "source": "lib/mongoose.ts",
+      "destination": "src/lib/mongoose.ts"
     },
     {
       "type": "create-file",
-      "source": "models/User.ts",
-      "destination": "src/lib/models.ts"
+      "source": "models/health.ts",
+      "destination": "models/health.ts"
     }
   ],
   "dependencies": {

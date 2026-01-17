@@ -1,30 +1,9 @@
 {
   "compilerOptions": {
-    "outDir": "./dist",
     "module": "ESNext",
     "moduleResolution": "node",
     "target": "ES2023",
-    "lib": ["ES2023"],
     "strict": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "sourceMap": true,
-    "declaration": false,
-    "declarationMap": false,
-    "removeComments": false,
-    "noImplicitAny": true,
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "exactOptionalPropertyTypes": true,
-    "noEmitOnError": true,
-    "incremental": false,
-    "ignoreDeprecations": "5.0"
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  }
 }

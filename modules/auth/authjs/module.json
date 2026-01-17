@@ -10,13 +10,5 @@
     "databases": ["prisma"],
     "languages": ["typescript", "javascript"],
     "packageManagers": ["npm", "yarn", "pnpm", "bun"]
-  },
-  "databaseAdapters": {
-    "common": {
-      "dependencies": {
-        "@auth/prisma-adapter": "^2.7.1"
-      },
-      "devDependencies": {}
-    }
   }
 }
