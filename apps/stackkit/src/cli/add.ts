@@ -188,7 +188,7 @@ async function getAddConfig(module?: string, options?: AddOptions, projectInfo?:
         message: "Select database:",
         choices: [
           { name: "Prisma", value: "prisma" },
-          { name: "Mongoose (MongoDB)", value: "mongoose" },
+          { name: "Mongoose", value: "mongoose" },
         ],
       },
     ]);

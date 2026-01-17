@@ -1,7 +1,6 @@
 {
   "name": "better-auth",
   "displayName": "Better Auth",
-  "description": "Modern authentication with Better Auth",
   "category": "auth",
   "provider": "better-auth",
   "supportedFrameworks": ["nextjs", "express", "react"],

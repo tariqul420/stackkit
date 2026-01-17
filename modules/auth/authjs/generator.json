@@ -1,0 +1,10 @@
+{
+  "name": "authjs",
+  "type": "auth",
+  "priority": 10,
+  "operations": [],
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {},
+  "envVars": {}
+}

@@ -144,7 +144,7 @@ export function getValidDatabaseOptions(databases: ModuleMetadata[]): string[] {
       // For Prisma, add provider-specific options
       options.push('prisma-postgresql', 'prisma-mongodb', 'prisma-mysql', 'prisma-sqlite');
     } else if (db.name === 'mongoose') {
-      options.push('mongoose-mongodb', 'mongoose');
+      options.push('mongoose', 'mongoose');
     } else {
       // For other databases, add the name directly
       options.push(db.name);
@@ -180,7 +180,7 @@ export function parseDatabaseOption(dbOption: string): { database: string; provi
     return { database: 'prisma', provider };
   }
 
-  if (dbOption === 'mongoose-mongodb' || dbOption === 'mongoose') {
+  if (dbOption === 'mongoose' || dbOption === 'mongoose') {
     return { database: 'mongoose' };
   }
 
@@ -244,7 +244,7 @@ export function getDatabaseChoices(databases: ModuleMetadata[], framework: strin
         { name: 'Prisma (SQLite)', value: 'prisma-sqlite' }
       );
     } else if (db.name === 'mongoose') {
-      choices.push({ name: 'Mongoose (MongoDB)', value: 'mongoose-mongodb' });
+      choices.push({ name: 'Mongoose', value: 'mongoose' });
     } else {
       choices.push({ name: db.displayName, value: db.name });
     }

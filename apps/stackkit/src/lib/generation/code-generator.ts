@@ -105,6 +105,19 @@ export class AdvancedCodeGenerator {
                   if (moduleConfig.postInstall && Array.isArray(moduleConfig.postInstall)) {
                     config.postInstall = moduleConfig.postInstall;
                   }
+
+                  if (moduleConfig.dependencies && typeof moduleConfig.dependencies === 'object') {
+                    config.dependencies = { ...(config.dependencies || {}), ...moduleConfig.dependencies };
+                  }
+                  if (moduleConfig.devDependencies && typeof moduleConfig.devDependencies === 'object') {
+                    config.devDependencies = { ...(config.devDependencies || {}), ...moduleConfig.devDependencies };
+                  }
+                  if (moduleConfig.scripts && typeof moduleConfig.scripts === 'object') {
+                    config.scripts = { ...(config.scripts || {}), ...moduleConfig.scripts };
+                  }
+                  if (moduleConfig.envVars && typeof moduleConfig.envVars === 'object') {
+                    config.envVars = { ...(config.envVars || {}), ...moduleConfig.envVars };
+                  }
                 } catch {
                   // Silently skip if module.json is invalid
                 }

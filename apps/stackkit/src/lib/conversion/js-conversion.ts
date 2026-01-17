@@ -73,7 +73,7 @@ export async function convertToJavaScript(targetDir: string, framework: string):
             presets.push([
               require.resolve("@babel/preset-react"),
               {
-                runtime: "classic",
+                runtime: "automatic",
               },
             ]);
           }

@@ -17,6 +17,35 @@
       "type": "create-file",
       "source": "lib/prisma.ts",
       "destination": "lib/prisma.ts"
+    },
+    {
+      "type": "add-dependency",
+      "condition": { "prismaProvider": "postgresql" },
+      "dependencies": {
+        "@prisma/adapter-pg": "^5.0.0",
+        "pg": "^8.0.0"
+      }
+    },
+    {
+      "type": "add-dependency",
+      "condition": { "prismaProvider": "mysql" },
+      "dependencies": {
+        "@prisma/adapter-mariadb": "^5.0.0",
+        "mysql2": "^3.0.0"
+      }
+    },
+    {
+      "type": "add-dependency",
+      "condition": { "prismaProvider": "sqlite" },
+      "dependencies": {
+        "@prisma/adapter-better-sqlite3": "^5.0.0",
+        "better-sqlite3": "^9.0.0"
+      }
+    },
+    {
+      "type": "add-dependency",
+      "condition": { "prismaProvider": "mongodb" },
+      "dependencies": {}
     }
   ],
   "dependencies": {

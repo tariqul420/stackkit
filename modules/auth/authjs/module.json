@@ -1,7 +1,6 @@
 {
   "name": "authjs",
   "displayName": "Auth.js",
-  "description": "Authentication with Auth.js (NextAuth.js v5)",
   "category": "auth",
   "provider": "authjs",
   "supportedFrameworks": ["nextjs"],
