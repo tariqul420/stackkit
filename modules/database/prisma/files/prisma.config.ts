@@ -1,18 +1,29 @@
 import "dotenv/config";
-import { defineConfig, {{#if prismaProvider == "mongodb"}env{{/if}}} } from "prisma/config";
+{{#switch prismaProvider}}
+{{#case mongodb}}
+import { defineConfig, env } from "prisma/config";
+{{/case}}
+{{#case default}}
+import { defineConfig } from "prisma/config";
+{{/case}}
+{{/switch}}
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
     path: "prisma/migrations",
   },
-  {{#if prismaProvider == "mongodb"}}engine: "classic",{{/if}}
-  {{#if prismaProvider != "mongodb"}}
+  {{#switch prismaProvider}}
+  {{#case mongodb}}
+  engine: "classic",
   datasource: {
     url: env('DATABASE_URL'),
   },
-  {{/if}}
+  {{/case}}
+  {{#case default}}
   datasource: {
     url: process.env["DATABASE_URL"],
   },
+  {{/case}}
+  {{/switch}}
 });

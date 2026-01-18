@@ -212,8 +212,8 @@ export class AdvancedCodeGenerator {
 
   private processTemplateRecursive(content: string, context: GenerationContext): string {
     content = content.replace(
-      /\{\{#if\s+([^}\s]+)\s+([^}\s]+)\s+([^}]+)\}\}([\s\S]*?)\{\{\/if\}\}/g,
-      (match, varName, operator, expectedValue, blockContent) => {
+      /\{\{#if\s+([^}\s]+)\s+([^}\s]+)\s+([^}]+)\}\}([\s\S]*?)(?:\{\{else\}\}([\s\S]*?))?\{\{\/if\}\}/g,
+      (match, varName, operator, expectedValue, blockContent, elseContent) => {
         const actualVal = context[varName.trim()];
         const cleanExpectedVal = expectedValue.trim().replace(/['"]/g, "");
 
@@ -238,29 +238,26 @@ export class AdvancedCodeGenerator {
             break;
         }
 
-        return conditionMet
-          ? this.processTemplateRecursive(blockContent, context)
-              .replace(/^\n+/, "")
-              .replace(/\n+$/, "")
-          : "";
+        const contentToProcess = conditionMet ? blockContent : (elseContent || "");
+        return this.processTemplateRecursive(contentToProcess, context)
+          .replace(/^\n+/, "")
+          .replace(/\n+$/, "");
       },
     );
 
     // Handle simple conditional blocks {{#if condition}}...{{/if}} (backward compatibility)
     content = content.replace(
-      /\{\{#if\s+([^}]+)\}\}([\s\S]*?)\{\{\/if\}\}/g,
-      (match, condition, blockContent) => {
+      /\{\{#if\s+([^}]+)\}\}([\s\S]*?)(?:\{\{else\}\}([\s\S]*?))?\{\{\/if\}\}/g,
+      (match, condition, blockContent, elseContent) => {
         const conditionParts = condition.split("==");
         if (conditionParts.length === 2) {
           const [varName, expectedValue] = conditionParts.map((s: string) =>
             s.trim().replace(/['"]/g, ""),
           );
-          if (context[varName] === expectedValue) {
-            return this.processTemplateRecursive(blockContent, context)
-              .replace(/^\n+/, "")
-              .replace(/\n+$/, "");
-          }
-          return "";
+          const contentToProcess = context[varName] === expectedValue ? blockContent : (elseContent || "");
+          return this.processTemplateRecursive(contentToProcess, context)
+            .replace(/^\n+/, "")
+            .replace(/\n+$/, "");
         }
 
         const conditionFunc = condition.split(".");
@@ -268,12 +265,10 @@ export class AdvancedCodeGenerator {
           const [arrayName, item] = conditionFunc[0].split("(");
           const itemValue = item.replace(")", "").replace(/['"]/g, "");
           const array = context[arrayName] || [];
-          if (Array.isArray(array) && array.includes(itemValue)) {
-            return this.processTemplateRecursive(blockContent, context)
-              .replace(/^\n+/, "")
-              .replace(/\n+$/, "");
-          }
-          return "";
+          const contentToProcess = Array.isArray(array) && array.includes(itemValue) ? blockContent : (elseContent || "");
+          return this.processTemplateRecursive(contentToProcess, context)
+            .replace(/^\n+/, "")
+            .replace(/\n+$/, "");
         }
 
         return "";

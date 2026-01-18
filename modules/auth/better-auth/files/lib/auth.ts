@@ -1,28 +1,32 @@
 import { betterAuth } from "better-auth";
 import { sendEmail } from "./email/email-service";
 import { getVerificationEmailTemplate, getPasswordResetEmailTemplate } from "./email/email-templates";
-{{#if database == 'prisma'}}
+{{#switch database}}
+{{#case prisma}}
 import { prisma } from "{{framework == 'nextjs' ? '@/lib' : '.'}}/prisma";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-{{/if}}
-{{#if database == 'mongoose'}}
+{{/case}}
+{{#case mongoose}}
 import { mongoose } from "{{framework == 'nextjs' ? '@/lib' : '.'}}/mongoose";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
-{{/if}}
+{{/case}}
+{{/switch}}
 
 export async function initAuth() {
 return betterAuth({
-{{#if database == 'prisma'}}
+{{#switch database}}
+{{#case prisma}}
   database: prismaAdapter(prisma, {
     provider: "{{prismaProvider}}",
   }),
-{{/if}}
-{{#if database == 'mongoose'}}
+{{/case}}
+{{#case mongoose}}
   const mongooseInstance = await mongoose();
   const client = mongooseInstance.connection.getClient();
   const db = client.db();
   database: mongodbAdapter(db, { client }),
-{{/if}}
+{{/case}}
+{{/switch}}
   user: {
     additionalFields: {
       role: {

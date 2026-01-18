@@ -34,12 +34,6 @@
       "condition": { "framework": ["nextjs", "react"] }
     },
     {
-      "type": "create-file",
-      "destination": "proxy.ts",
-      "condition": { "framework": "nextjs" },
-      "content": "import { auth } from \"@/lib/auth\";\n\nexport default auth((req) => {\n  console.log('middleware', req.auth)\n})\n\nexport const config = {\n  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],\n}"
-    },
-    {
       "type": "patch-file",
       "destination": "prisma/schema.prisma",
       "condition": { "database": "prisma" },
