@@ -18,6 +18,8 @@ import {
 } from "../lib/discovery/module-discovery";
 import { AdvancedCodeGenerator } from "../lib/generation/code-generator";
 import { getPackageRoot } from "../lib/utils/package-root";
+import { addEnvVariables } from "../lib/env/env-editor";
+import { mergeModuleIntoGeneratorConfig } from "../lib/generation/generator-utils";
 
 interface ProjectConfig {
   projectName: string;
@@ -76,6 +78,8 @@ export async function createProject(projectName?: string, options?: CliOptions):
 
   await generateProject(config, targetDir, options);
 
+  await processGeneratorEnvVars(config, targetDir);
+
   showNextSteps(config);
 }
 
@@ -94,7 +98,7 @@ async function getProjectConfig(
   const optionsProvided = flagsProvided || !!(options && (options.yes || options.y));
 
   if (optionsProvided) {
-    if (options && (options.yes || options.y)) {
+    if (options && (options.yes || options.y) && !flagsProvided) {
       return {
         projectName: projectName || "my-app",
         framework: "nextjs",
@@ -394,6 +398,72 @@ async function composeTemplate(config: ProjectConfig, targetDir: string): Promis
   }
 
   return postInstallCommands;
+}
+
+async function processGeneratorEnvVars(config: ProjectConfig, targetDir: string): Promise<void> {
+  const modulesDir = path.join(getPackageRoot(), "modules");
+  const envVars: Array<{ key: string; value: string; required: boolean }> = [];
+
+  // Process database generator env vars
+  if (config.database && config.database !== "none") {
+    const dbGeneratorPath = path.join(modulesDir, "database", config.database, "generator.json");
+    if (await fs.pathExists(dbGeneratorPath)) {
+      const generator = await fs.readJson(dbGeneratorPath);
+      if (generator.operations) {
+        for (const operation of generator.operations) {
+          if (operation.type === "add-env" && (!operation.condition || checkCondition(operation.condition, config))) {
+            for (const [key, value] of Object.entries(operation.envVars)) {
+              envVars.push({
+                key,
+                value: value as string,
+                required: true,
+              });
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Process auth generator env vars
+  if (config.auth && config.auth !== "none") {
+    const authGeneratorPath = path.join(modulesDir, "auth", config.auth, "generator.json");
+    if (await fs.pathExists(authGeneratorPath)) {
+      const generator = await fs.readJson(authGeneratorPath);
+      if (generator.operations) {
+        for (const operation of generator.operations) {
+          if (operation.type === "add-env" && (!operation.condition || checkCondition(operation.condition, config))) {
+            for (const [key, value] of Object.entries(operation.envVars)) {
+              envVars.push({
+                key,
+                value: value as string,
+                required: true,
+              });
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if (envVars.length > 0) {
+    await addEnvVariables(targetDir, envVars, { force: true });
+  }
+}
+
+function checkCondition(condition: any, config: ProjectConfig): boolean {
+  for (const [key, value] of Object.entries(condition)) {
+    if (Array.isArray(value)) {
+      if (!value.includes(config[key as keyof ProjectConfig])) {
+        return false;
+      }
+    } else {
+      if (config[key as keyof ProjectConfig] !== value) {
+        return false;
+      }
+    }
+  }
+  return true;
 }
 
 function showNextSteps(config: ProjectConfig): void {

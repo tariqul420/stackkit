@@ -28,13 +28,16 @@
           "code": "await mongoose();"
         }
       ]
+    },
+    {
+      "type": "add-env",
+      "envVars": {
+        "MONGODB_URI": "mongodb://localhost:27017/database_name"
+      }
     }
   ],
   "dependencies": {
     "mongoose": "^8.8.0"
   },
-  "devDependencies": {},
-  "envVars": {
-    "MONGODB_URI": "mongodb://localhost:27017/database_name"
-  }
+  "devDependencies": {}
 }

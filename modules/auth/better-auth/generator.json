@@ -86,20 +86,23 @@
       "devDependencies": {
         "@types/nodemailer": "^7.0.5"
       }
+    },
+    {
+      "type": "add-env",
+      "envVars": {
+        "BETTER_AUTH_SECRET": "",
+        "BETTER_AUTH_URL": "http://localhost:3000",
+        "EMAIL_HOST": "smtp.gmail.com",
+        "EMAIL_PORT": "587",
+        "EMAIL_USER": "",
+        "EMAIL_PASS": "",
+        "EMAIL_FROM": "noreply@yourapp.com"
+      }
     }
   ],
   "dependencies": {
     "better-auth": "^1.4.12"
   },
   "devDependencies": {},
-  "scripts": {},
-  "envVars": {
-    "BETTER_AUTH_SECRET": "",
-    "BETTER_AUTH_URL": "http://localhost:3000",
-    "EMAIL_HOST": "smtp.gmail.com",
-    "EMAIL_PORT": "587",
-    "EMAIL_USER": "",
-    "EMAIL_PASS": "",
-    "EMAIL_FROM": "noreply@yourapp.com"
-  }
+  "scripts": {}
 }

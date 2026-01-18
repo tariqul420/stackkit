@@ -1,27 +1,28 @@
-import 'dotenv/config'
+import 'dotenv/config';
 import { PrismaClient } from './generated/prisma/client'
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
-{{#if prismaProvider == "postgresql"}}
-import { PrismaPg } from "@prisma/adapter-pg";
+{{#switch prismaProvider}}
+{{#case postgresql}}
+import { PrismaPg } from '@prisma/adapter-pg'
 
-const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL!,
-});
+const connectionString = `${process.env.DATABASE_URL}`
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient({
-  adapter,
-});
-{{/if}}
+const adapter = new PrismaPg({ connectionString })
+const prisma = new PrismaClient({ adapter })
 
-{{#if prismaProvider == "mongodb"}}
-export const prisma = globalForPrisma.prisma ?? new PrismaClient();
-{{/if}}
+export { prisma }
+{{/case}}
+{{#case mongodb}}
 
-{{#if prismaProvider == "mysql"}}
+const prisma = new PrismaClient()
+
+export { prisma }
+{{/case}}
+{{#case mysql}}
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 
 const adapter = new PrismaMariaDb({
@@ -31,16 +32,20 @@ const adapter = new PrismaMariaDb({
   database: process.env.DATABASE_NAME,
   connectionLimit: 5
 });
+const prisma = new PrismaClient({ adapter });
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter });
-{{/if}}
-
-{{#if prismaProvider == "sqlite"}}
+export { prisma }
+{{/case}}
+{{#case sqlite}}
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 
-const adapter = new PrismaBetterSqlite3({ url: process.env.DATABASE_URL });
+const connectionString = `${process.env.DATABASE_URL}`;
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter });
-{{/if}}
+const adapter = new PrismaBetterSqlite3({ url: connectionString });
+const prisma = new PrismaClient({ adapter });
+
+export { prisma };
+{{/case}}
+{{/switch}}
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma

@@ -282,7 +282,7 @@ export class AdvancedCodeGenerator {
         const actualVal = context[varName.trim()];
 
         // Parse cases
-        const caseRegex = /\{\{#case\s+([^}]+)\}\}([\s\S]*?)(?=\{\{#case|\{\{\/switch\})/g;
+        const caseRegex = /\{\{#case\s+([^}]+)\}\}([\s\S]*?)(?=\{\{#case|\{\{\/case\}|\{\{\/switch\})/g;
         let result = "";
         let defaultCase = "";
 
@@ -797,7 +797,10 @@ export class AdvancedCodeGenerator {
     }
 
     if (operation.envVars) {
-      const envLines = Object.entries(operation.envVars).map(([key, value]) => `${key}=${value}`);
+      const envLines = Object.entries(operation.envVars).map(([key, value]) => {
+        const processedValue = this.processTemplate(value, context);
+        return `${key}=${processedValue}`;
+      });
       envContent += "\n" + envLines.join("\n");
     }
 
