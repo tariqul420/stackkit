@@ -19,7 +19,6 @@ import {
 import { AdvancedCodeGenerator } from "../lib/generation/code-generator";
 import { getPackageRoot } from "../lib/utils/package-root";
 import { addEnvVariables } from "../lib/env/env-editor";
-import { mergeModuleIntoGeneratorConfig } from "../lib/generation/generator-utils";
 
 interface ProjectConfig {
   projectName: string;
@@ -451,7 +450,7 @@ async function processGeneratorEnvVars(config: ProjectConfig, targetDir: string)
   }
 }
 
-function checkCondition(condition: any, config: ProjectConfig): boolean {
+function checkCondition(condition: Record<string, unknown>, config: ProjectConfig): boolean {
   for (const [key, value] of Object.entries(condition)) {
     if (Array.isArray(value)) {
       if (!value.includes(config[key as keyof ProjectConfig])) {

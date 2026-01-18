@@ -47,17 +47,24 @@ export async function mergeGeneratorIntoModuleMetadata(
   if (await fs.pathExists(generatorPath)) {
     try {
       const generator = await fs.readJson(generatorPath);
-      if (generator.envVars) {
-        metadata.envVars = metadata.envVars || [];
-        for (const [key, value] of Object.entries(generator.envVars)) {
-          metadata.envVars.push({
-            key,
-            value: value as string,
-            description: `Environment variable for ${key}`,
-            required: true,
-          });
+      
+      // Process add-env operations to extract envVars
+      if (generator.operations && Array.isArray(generator.operations)) {
+        for (const operation of generator.operations) {
+          if (operation.type === "add-env" && operation.envVars) {
+            metadata.envVars = metadata.envVars || [];
+            for (const [key, value] of Object.entries(operation.envVars)) {
+              metadata.envVars.push({
+                key,
+                value: value as string,
+                description: `Environment variable for ${key}`,
+                required: true,
+              });
+            }
+          }
         }
       }
+      
       if (generator.dependencies) {
         metadata.dependencies = { ...metadata.dependencies, ...generator.dependencies };
       }

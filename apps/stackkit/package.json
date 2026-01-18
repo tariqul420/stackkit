@@ -1,6 +1,6 @@
 {
   "name": "stackkit",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Production-ready CLI to create and extend JavaScript or TypeScript apps with modular stacks.",
   "main": "dist/index.js",
   "bin": {
@@ -28,6 +28,8 @@
     "copy-assets": "cp -r ../../templates . && cp -r ../../modules .",
     "clean": "rm -rf dist templates modules",
     "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
     "prepublishOnly": "npm run build"
   },
   "keywords": [

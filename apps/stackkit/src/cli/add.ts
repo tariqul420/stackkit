@@ -50,11 +50,6 @@ export async function addCommand(module?: string, options?: AddOptions): Promise
     logger.newLine();
     logger.success(`Added ${chalk.bold(config.displayName)}`);
     logger.newLine();
-
-    if (config.metadata.envVars && config.metadata.envVars.length > 0) {
-      logger.log("Next: Fill in environment variables in .env");
-    }
-    logger.newLine();
   } catch (error) {
     logger.error(`Failed to add module: ${(error as Error).message}`);
     if (error instanceof Error && error.stack) {
@@ -71,105 +66,64 @@ async function getAddConfig(
 ): Promise<AddConfig> {
   const modulesDir = path.join(getPackageRoot(), "modules");
 
-  const argv = process.argv.slice(2);
-  const addIndex = argv.indexOf("add");
-  const argsAfterAdd = addIndex >= 0 ? argv.slice(addIndex + 1) : [];
-  const flagsProvided = argsAfterAdd.some((arg) => arg.startsWith("-"));
-  const optionsProvided =
-    flagsProvided ||
-    !!(options && (options.yes || options.provider || options.force || options.dryRun));
-
-  if (optionsProvided) {
-    if (!module) {
-      throw new Error("Module name is required when using flags");
-    }
-
-    if (module === "database" || module === "auth") {
-      if (module === "database") {
-        if (!options?.provider) {
-          throw new Error("Provider is required for database. Use --provider <provider>");
-        }
-
-        let baseProvider = options.provider;
-        let adapterProvider = options.provider;
-
-        if (options.provider.includes("-")) {
-          const parts = options.provider.split("-");
-          baseProvider = parts[0]; // e.g., "prisma"
-          adapterProvider = options.provider; // e.g., "prisma-postgresql"
-        }
-
-        const moduleMetadata = await loadModuleMetadata(modulesDir, baseProvider, baseProvider);
-        if (!moduleMetadata) {
-          throw new Error(`Database provider "${baseProvider}" not found`);
-        }
-
-        return {
-          module: "database",
-          provider: adapterProvider,
-          displayName: `${moduleMetadata.displayName} (${adapterProvider.split("-")[1] || adapterProvider})`,
-          metadata: moduleMetadata,
-        };
-      } else if (module === "auth") {
-        const provider = options?.provider || "better-auth";
-        const moduleMetadata = await loadModuleMetadata(modulesDir, provider, provider);
-        if (!moduleMetadata) {
-          throw new Error(`Auth provider "${provider}" not found`);
-        }
-        return {
-          module: "auth",
-          provider,
-          displayName: moduleMetadata.displayName,
-          metadata: moduleMetadata,
-        };
-      }
-    }
-
-    const moduleMetadata = await loadModuleMetadata(modulesDir, module, options?.provider);
-
-    if (!moduleMetadata) {
-      throw new Error(`Module "${module}" not found`);
-    }
-
-    let selectedProvider = options?.provider;
-    if (!selectedProvider && moduleMetadata.category !== module) {
-      selectedProvider = module;
-    }
-
-    if (moduleMetadata.category === "database" && !selectedProvider) {
-      if (
-        typeof moduleMetadata.dependencies === "object" &&
-        "providers" in moduleMetadata.dependencies
-      ) {
-        const providers = Object.keys(moduleMetadata.dependencies.providers || {});
-        if (providers.length > 0) {
-          const { provider } = await inquirer.prompt([
-            {
-              type: "list",
-              name: "provider",
-              message: "Select database provider:",
-              choices: providers.map((p) => ({ name: p, value: p })),
-            },
-          ]);
-          selectedProvider = provider;
-        }
-      }
-    }
-
-    if (projectInfo && !moduleMetadata.supportedFrameworks.includes(projectInfo.framework)) {
-      throw new Error(
-        `Module "${module}" does not support ${projectInfo.framework}. Supported: ${moduleMetadata.supportedFrameworks.join(", ")}`,
-      );
-    }
-
-    return {
-      module,
-      provider: selectedProvider,
-      displayName: moduleMetadata.displayName,
-      metadata: moduleMetadata,
-    };
+  // If no module provided, go interactive
+  if (!module) {
+    return await getInteractiveConfig(modulesDir, projectInfo);
   }
 
+  // Only allow: no-arg interactive, or explicit category + --provider.
+  // Disallow positional provider names like `npx stackkit add better-auth` or
+  // `npx stackkit add auth prisma-postgresql` — require `--provider` flag.
+  if (module === "database" || module === "auth") {
+    if (!options?.provider) {
+      if (module === "database") {
+        throw new Error('Provider is required for database. Use: `npx stackkit add database --provider <provider>`');
+      } else {
+        throw new Error('Provider is required for auth. Use: `npx stackkit add auth --provider <provider>`');
+      }
+    }
+
+    if (module === "database") {
+      let baseProvider = options.provider;
+      let adapterProvider = options.provider;
+
+      if (options.provider.includes("-")) {
+        const parts = options.provider.split("-");
+        baseProvider = parts[0]; // e.g., "prisma"
+        adapterProvider = options.provider; // e.g., "prisma-postgresql"
+      }
+
+      const moduleMetadata = await loadModuleMetadata(modulesDir, baseProvider, baseProvider);
+      if (!moduleMetadata) {
+        throw new Error(`Database provider "${baseProvider}" not found`);
+      }
+
+      return {
+        module: "database",
+        provider: adapterProvider,
+        displayName: `${moduleMetadata.displayName} (${adapterProvider.split("-")[1] || adapterProvider})`,
+        metadata: moduleMetadata,
+      };
+    } else if (module === "auth") {
+      const provider = options.provider;
+      const moduleMetadata = await loadModuleMetadata(modulesDir, provider, provider);
+      if (!moduleMetadata) {
+        throw new Error(`Auth provider "${provider}" not found`);
+      }
+      return {
+        module: "auth",
+        provider,
+        displayName: moduleMetadata.displayName,
+        metadata: moduleMetadata,
+      };
+    }
+  }
+
+  // Unknown module type
+  throw new Error(`Unknown module type "${module}". Use "database" or "auth", or specify a provider directly.`);
+}
+
+async function getInteractiveConfig(modulesDir: string, projectInfo?: ProjectInfo): Promise<AddConfig> {
   const answers = await inquirer.prompt([
     {
       type: "list",
@@ -177,7 +131,7 @@ async function getAddConfig(
       message: "What would you like to add?",
       choices: [
         { name: "Database", value: "database" },
-        { name: "Authentication", value: "auth" },
+        { name: "Auth", value: "auth" },
       ],
     },
   ]);
@@ -216,7 +170,7 @@ async function getAddConfig(
 
       return {
         module: "database",
-        provider: "prisma",
+        provider: `prisma-${providerAnswers.provider}`,
         displayName: `Prisma (${providerAnswers.provider})`,
         metadata: (await loadModuleMetadata(modulesDir, "prisma", "prisma")) as ModuleMetadata,
       };
@@ -263,6 +217,60 @@ async function getAddConfig(
   throw new Error("Invalid selection");
 }
 
+async function getProviderConfig(modulesDir: string, provider: string, projectInfo?: ProjectInfo): Promise<AddConfig> {
+  if (provider.includes("-")) {
+    const parts = provider.split("-");
+    const baseProvider = parts[0];
+    const specificProvider = provider;
+
+    if (baseProvider === "prisma") {
+      const metadata = await loadModuleMetadata(modulesDir, "database", baseProvider);
+      if (!metadata) {
+        throw new Error(`Database provider "${baseProvider}" not found`);
+      }
+
+      return {
+        module: "database",
+        provider: specificProvider,
+        displayName: `Prisma (${parts[1]})`,
+        metadata,
+      };
+    }
+  } else {
+    if (provider === "mongoose") {
+      const metadata = await loadModuleMetadata(modulesDir, "database", "mongoose");
+      if (!metadata) {
+        throw new Error(`Database provider "${provider}" not found`);
+      }
+
+      return {
+        module: "database",
+        provider: "mongoose",
+        displayName: "Mongoose",
+        metadata,
+      };
+    } else if (provider === "better-auth" || provider === "authjs") {
+      const metadata = await loadModuleMetadata(modulesDir, provider, provider);
+      if (!metadata) {
+        throw new Error(`Auth provider "${provider}" not found`);
+      }
+
+      if (projectInfo && !metadata.supportedFrameworks.includes(projectInfo.framework)) {
+        throw new Error(`Auth provider "${provider}" does not support ${projectInfo.framework}`);
+      }
+
+      return {
+        module: "auth",
+        provider,
+        displayName: provider === "better-auth" ? "Better Auth" : "Auth.js",
+        metadata,
+      };
+    }
+  }
+
+  throw new Error(`Unknown provider "${provider}". Available providers: better-auth, authjs, mongoose, prisma-postgresql, prisma-mongodb, prisma-mysql, prisma-sqlite`);
+}
+
 async function addModuleToProject(
   projectRoot: string,
   projectInfo: ProjectInfo,
@@ -274,6 +282,23 @@ async function addModuleToProject(
 
   if (config.module === "auth" && projectInfo.hasAuth && !options?.force) {
     logger.warn("Auth library already detected in this project");
+    const { proceed } = await inquirer.prompt([
+      {
+        type: "confirm",
+        name: "proceed",
+        message: "Continue anyway? (use --force to skip this prompt)",
+        default: false,
+      },
+    ]);
+
+    if (!proceed) {
+      logger.info("Cancelled");
+      return;
+    }
+  }
+
+  if (config.module === "database" && projectInfo.hasDatabase && !options?.force) {
+    logger.warn("Database library already detected in this project");
     const { proceed } = await inquirer.prompt([
       {
         type: "confirm",
@@ -521,11 +546,11 @@ async function loadModuleMetadata(
         const metadata = await fs.readJSON(metadataPath);
 
         if (provider && moduleDir === provider) {
-          return await mergeGeneratorIntoModuleMetadata(metadata, modulePath);
+          return metadata;
         }
 
         if (!provider && (metadata.category === moduleName || moduleDir === moduleName)) {
-          return await mergeGeneratorIntoModuleMetadata(metadata, modulePath);
+          return metadata;
         }
       }
     }

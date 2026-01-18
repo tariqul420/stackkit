@@ -210,7 +210,7 @@ async function runDoctorChecks(): Promise<DoctorReport> {
     summary: {
       errors: checks.filter((c) => c.status === "error").length,
       warnings: checks.filter((c) => c.status === "warning").length,
-      suggestions: generateSuggestions(),
+      suggestions: generateSuggestions(authModules, databaseModules),
     },
   };
 
@@ -359,6 +359,7 @@ async function checkAuthRoutesExist(projectRoot: string, projectType: string): P
   if (projectType !== "nextjs") return true; // Skip for non-Next.js
 
   const possiblePaths = [
+    // NextAuth routes
     "app/api/auth/[...nextauth]/route.ts",
     "app/api/auth/[...nextauth]/route.js",
     "src/app/api/auth/[...nextauth]/route.ts",
@@ -367,6 +368,11 @@ async function checkAuthRoutesExist(projectRoot: string, projectType: string): P
     "pages/api/auth/[...nextauth].js",
     "src/pages/api/auth/[...nextauth].ts",
     "src/pages/api/auth/[...nextauth].js",
+    // Better Auth routes
+    "app/api/auth/[...all]/route.ts",
+    "app/api/auth/[...all]/route.js",
+    "src/app/api/auth/[...all]/route.ts",
+    "src/app/api/auth/[...all]/route.js",
   ];
 
   for (const routePath of possiblePaths) {
@@ -504,7 +510,9 @@ async function checkDependencies(
   const deps = { ...packageJson.dependencies, ...packageJson.devDependencies };
   for (const [name, version] of Object.entries(deps || {})) {
     if (typeof version === "string" && (version.startsWith("^") || version.startsWith("~"))) {
+      // Assume up to date if using flexible versioning
     } else {
+      // Assume outdated if using exact versions (simplified check)
       outdated.push(name);
     }
   }
@@ -541,12 +549,18 @@ async function checkEslintConfigExists(projectRoot: string): Promise<boolean> {
   return false;
 }
 
-function generateSuggestions(): string[] {
+function generateSuggestions(authModules: string[], databaseModules: string[]): string[] {
   const suggestions: string[] = [];
 
+  // Show suggestions based on what's missing
+  if (authModules.length === 0) {
+    suggestions.push("stackkit add auth     - Add authentication module");
+  }
+  if (databaseModules.length === 0) {
+    suggestions.push("stackkit add db       - Add database module");
+  }
+
   // Always show available commands
-  suggestions.push("stackkit add auth     - Add authentication module");
-  suggestions.push("stackkit add db       - Add database module");
   suggestions.push("stackkit list         - View available modules");
 
   return suggestions;
