@@ -14,11 +14,9 @@ export const auth = betterAuth({
 {{#if database == 'prisma'}}
   database: prismaAdapter(prisma, {
       provider: "{{prismaProvider}}",
-  }),
-{{/if}}
+  }),{{/if}}
 {{#if database == 'mongoose'}}
-  database: mongodbAdapter(db),
-{{/if}}
+  database: mongodbAdapter(db),{{/if}}
   user: {
     additionalFields: {
       role: {
