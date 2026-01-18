@@ -6,17 +6,23 @@ import { prisma } from "{{framework == 'nextjs' ? '@/lib' : '.'}}/prisma";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 {{/if}}
 {{#if database == 'mongoose'}}
-import { mongoClient, db } from "{{framework == 'nextjs' ? '@/lib' : '.'}}/db";
+import { mongoose } from "{{framework == 'nextjs' ? '@/lib' : '.'}}/mongoose";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 {{/if}}
 
-export const auth = betterAuth({
+export async function initAuth() {
+return betterAuth({
 {{#if database == 'prisma'}}
   database: prismaAdapter(prisma, {
-      provider: "{{prismaProvider}}",
-  }),{{/if}}
+    provider: "{{prismaProvider}}",
+  }),
+{{/if}}
 {{#if database == 'mongoose'}}
-  database: mongodbAdapter(db),{{/if}}
+  const mongooseInstance = await mongoose();
+  const client = mongooseInstance.connection.getClient();
+  const db = client.db();
+  database: mongodbAdapter(db, { client }),
+{{/if}}
   user: {
     additionalFields: {
       role: {
@@ -74,4 +80,7 @@ export const auth = betterAuth({
     expiresIn: 60 * 60 * 24 * 7,
     updateAge: 60 * 60 * 24,
   }
-});
+ })
+};
+
+export const auth = await initAuth();

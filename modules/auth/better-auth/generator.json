@@ -51,6 +51,39 @@
       ]
     },
     {
+      "type": "patch-file",
+      "destination": "src/server.ts",
+      "condition": { "framework": "express" },
+      "operations": [
+        {
+          "type": "add-import",
+          "imports": ["import { initAuth } from \"@/lib/auth\";"]
+        },
+        {
+          "type": "add-code",
+          "before": "const port = env.port;",
+          "code": "await initAuth();"
+        }
+      ]
+    },
+    {
+      "type": "patch-file",
+      "destination": "src/app.ts",
+      "condition": { "framework": "express" },
+      "operations": [
+        {
+          "type": "add-import",
+          "imports": ["import { auth } from \"@/lib/auth\";",
+          "import { toNodeHandler } from \"better-auth/node\";"]
+        },
+        {
+          "type": "add-code",
+          "after": "// routes",
+          "code": "app.all(\"/api/auth/*splat\", toNodeHandler(auth));"
+        }
+      ]
+    },
+    {
       "type": "add-dependency",
       "condition": { "framework": ["nextjs", "express"] },
       "dependencies": {

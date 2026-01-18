@@ -12,6 +12,22 @@
       "type": "create-file",
       "source": "models/health.ts",
       "destination": "models/health.ts"
+    },
+    {
+      "type": "patch-file",
+      "destination": "src/server.ts",
+      "condition": { "framework": "express" },
+      "operations": [
+        {
+          "type": "add-import",
+          "imports": ["import { mongoose } from \"@/lib/mongoose\";"]
+        },
+        {
+          "type": "add-code",
+          "after": "async function startServer() {",
+          "code": "await mongoose();"
+        }
+      ]
     }
   ],
   "dependencies": {
