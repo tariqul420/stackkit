@@ -47,7 +47,7 @@ export async function mergeGeneratorIntoModuleMetadata(
   if (await fs.pathExists(generatorPath)) {
     try {
       const generator = await fs.readJson(generatorPath);
-      
+
       // Process add-env operations to extract envVars
       if (generator.operations && Array.isArray(generator.operations)) {
         for (const operation of generator.operations) {
@@ -64,7 +64,7 @@ export async function mergeGeneratorIntoModuleMetadata(
           }
         }
       }
-      
+
       if (generator.dependencies) {
         metadata.dependencies = { ...metadata.dependencies, ...generator.dependencies };
       }

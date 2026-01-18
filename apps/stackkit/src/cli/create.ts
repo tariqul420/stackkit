@@ -410,7 +410,10 @@ async function processGeneratorEnvVars(config: ProjectConfig, targetDir: string)
       const generator = await fs.readJson(dbGeneratorPath);
       if (generator.operations) {
         for (const operation of generator.operations) {
-          if (operation.type === "add-env" && (!operation.condition || checkCondition(operation.condition, config))) {
+          if (
+            operation.type === "add-env" &&
+            (!operation.condition || checkCondition(operation.condition, config))
+          ) {
             for (const [key, value] of Object.entries(operation.envVars)) {
               envVars.push({
                 key,
@@ -431,7 +434,10 @@ async function processGeneratorEnvVars(config: ProjectConfig, targetDir: string)
       const generator = await fs.readJson(authGeneratorPath);
       if (generator.operations) {
         for (const operation of generator.operations) {
-          if (operation.type === "add-env" && (!operation.condition || checkCondition(operation.condition, config))) {
+          if (
+            operation.type === "add-env" &&
+            (!operation.condition || checkCondition(operation.condition, config))
+          ) {
             for (const [key, value] of Object.entries(operation.envVars)) {
               envVars.push({
                 key,

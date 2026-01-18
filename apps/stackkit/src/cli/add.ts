@@ -77,9 +77,13 @@ async function getAddConfig(
   if (module === "database" || module === "auth") {
     if (!options?.provider) {
       if (module === "database") {
-        throw new Error('Provider is required for database. Use: `npx stackkit add database --provider <provider>`');
+        throw new Error(
+          "Provider is required for database. Use: `npx stackkit add database --provider <provider>`",
+        );
       } else {
-        throw new Error('Provider is required for auth. Use: `npx stackkit add auth --provider <provider>`');
+        throw new Error(
+          "Provider is required for auth. Use: `npx stackkit add auth --provider <provider>`",
+        );
       }
     }
 
@@ -120,10 +124,15 @@ async function getAddConfig(
   }
 
   // Unknown module type
-  throw new Error(`Unknown module type "${module}". Use "database" or "auth", or specify a provider directly.`);
+  throw new Error(
+    `Unknown module type "${module}". Use "database" or "auth", or specify a provider directly.`,
+  );
 }
 
-async function getInteractiveConfig(modulesDir: string, projectInfo?: ProjectInfo): Promise<AddConfig> {
+async function getInteractiveConfig(
+  modulesDir: string,
+  projectInfo?: ProjectInfo,
+): Promise<AddConfig> {
   const answers = await inquirer.prompt([
     {
       type: "list",
@@ -217,7 +226,11 @@ async function getInteractiveConfig(modulesDir: string, projectInfo?: ProjectInf
   throw new Error("Invalid selection");
 }
 
-async function getProviderConfig(modulesDir: string, provider: string, projectInfo?: ProjectInfo): Promise<AddConfig> {
+async function getProviderConfig(
+  modulesDir: string,
+  provider: string,
+  projectInfo?: ProjectInfo,
+): Promise<AddConfig> {
   if (provider.includes("-")) {
     const parts = provider.split("-");
     const baseProvider = parts[0];
@@ -268,7 +281,9 @@ async function getProviderConfig(modulesDir: string, provider: string, projectIn
     }
   }
 
-  throw new Error(`Unknown provider "${provider}". Available providers: better-auth, authjs, mongoose, prisma-postgresql, prisma-mongodb, prisma-mysql, prisma-sqlite`);
+  throw new Error(
+    `Unknown provider "${provider}". Available providers: better-auth, authjs, mongoose, prisma-postgresql, prisma-mongodb, prisma-mysql, prisma-sqlite`,
+  );
 }
 
 async function addModuleToProject(

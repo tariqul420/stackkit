@@ -1,10 +1,10 @@
-
+{{#var defaultId = {{#if prismaProvider == mongodb}}@default(auto()) @map("_id") @db.ObjectId{{else}}@default(cuid()){{/if}}}}
 model Account {
-  id                String  @id {{idDefault}}
-  userId            String {{userIdType}}
+  id                String  @id {{defaultId}}
+  userId            String  @map("user_id")
   type              String
   provider          String
-  providerAccountId String
+  providerAccountId String  @map("provider_account_id")
   refresh_token     String? @db.Text
   access_token      String? @db.Text
   expires_at        Int?
@@ -16,30 +16,36 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@map("accounts")
 }
 
 model Session {
-  id           String   @id {{idDefault}}
-  sessionToken String   @unique
-  userId       String {{userIdType}}
+  id           String   @id {{defaultId}}
+  sessionToken String   @unique @map("session_token")
+  userId       String   {{#if prismaProvider == mongodb}} @db.ObjectId{{/if}} @map("user_id")
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
 }
 
 model User {
-  id            String    @id {{idDefault}}
+  id            String    @id {{defaultId}}
   name          String?
-  email         String    @unique
-  emailVerified DateTime?
+  email         String?   @unique
+  emailVerified DateTime? @map("email_verified")
   image         String?
   accounts      Account[]
   sessions      Session[]
+
+  @@map("users")
 }
 
 model VerificationToken {
   identifier String
-  token      String   @unique
+  token      String
   expires    DateTime
 
   @@unique([identifier, token])
+  @@map("verification_tokens")
 }

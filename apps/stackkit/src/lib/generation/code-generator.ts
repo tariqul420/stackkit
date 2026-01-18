@@ -238,7 +238,7 @@ export class AdvancedCodeGenerator {
             break;
         }
 
-        const contentToProcess = conditionMet ? blockContent : (elseContent || "");
+        const contentToProcess = conditionMet ? blockContent : elseContent || "";
         return this.processTemplateRecursive(contentToProcess, context)
           .replace(/^\n+/, "")
           .replace(/\n+$/, "");
@@ -254,7 +254,8 @@ export class AdvancedCodeGenerator {
           const [varName, expectedValue] = conditionParts.map((s: string) =>
             s.trim().replace(/['"]/g, ""),
           );
-          const contentToProcess = context[varName] === expectedValue ? blockContent : (elseContent || "");
+          const contentToProcess =
+            context[varName] === expectedValue ? blockContent : elseContent || "";
           return this.processTemplateRecursive(contentToProcess, context)
             .replace(/^\n+/, "")
             .replace(/\n+$/, "");
@@ -265,7 +266,8 @@ export class AdvancedCodeGenerator {
           const [arrayName, item] = conditionFunc[0].split("(");
           const itemValue = item.replace(")", "").replace(/['"]/g, "");
           const array = context[arrayName] || [];
-          const contentToProcess = Array.isArray(array) && array.includes(itemValue) ? blockContent : (elseContent || "");
+          const contentToProcess =
+            Array.isArray(array) && array.includes(itemValue) ? blockContent : elseContent || "";
           return this.processTemplateRecursive(contentToProcess, context)
             .replace(/^\n+/, "")
             .replace(/\n+$/, "");
@@ -282,7 +284,8 @@ export class AdvancedCodeGenerator {
         const actualVal = context[varName.trim()];
 
         // Parse cases
-        const caseRegex = /\{\{#case\s+([^}]+)\}\}([\s\S]*?)(?=\{\{#case|\{\{\/case\}|\{\{\/switch\})/g;
+        const caseRegex =
+          /\{\{#case\s+([^}]+)\}\}([\s\S]*?)(?=\{\{#case|\{\{\/case\}|\{\{\/switch\})/g;
         let result = "";
         let defaultCase = "";
 

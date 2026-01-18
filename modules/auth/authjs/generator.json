@@ -2,8 +2,58 @@
   "name": "authjs",
   "type": "auth",
   "priority": 10,
-  "operations": [],
-  "dependencies": {},
+  "operations": [
+    {
+      "type": "create-file",
+      "source": "lib/auth.ts",
+      "destination": "lib/auth.ts"
+    },
+    {
+      "type": "create-file",
+      "source": "lib/auth-client.ts",
+      "destination": "lib/auth-client.ts"
+    },
+    {
+      "type": "create-file",
+      "source": "api/auth/[...nextauth]/route.ts",
+      "destination": "app/api/auth/[...nextauth]/route.ts"
+    },
+    {
+      "type": "create-file",
+      "destination": "proxy.ts",
+      "content": "export { auth as middleware } from \"@/auth\""
+    },
+    {
+      "type": "patch-file",
+      "destination": "prisma/schema.prisma",
+      "condition": { "database": "prisma" },
+      "operations": [
+        {
+          "type": "add-to-bottom",
+          "source": "prisma/schema.prisma"
+        }
+      ]
+    },
+    {
+      "type": "add-dependency",
+      "condition": { "database": "prisma" },
+      "dependencies": {
+        "@auth/prisma-adapter": "^0.5.0"
+      },
+      "devDependencies": {}
+    },
+    {
+      "type": "add-env",
+      "envVars": {
+        "AUTH_SECRET": "",
+        "AUTH_GOOGLE_ID": "",
+        "AUTH_GOOGLE_SECRET": ""
+      }
+    }
+  ],
+  "dependencies": {
+    "next-auth": "^4.22.1"
+  },
   "devDependencies": {},
   "scripts": {}
 }
