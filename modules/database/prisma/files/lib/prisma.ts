@@ -6,7 +6,7 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 {{#switch prismaProvider}}
-{{#case postgresql}}
+{{#case "postgresql"}}
 import { PrismaPg } from '@prisma/adapter-pg'
 
 const connectionString = `${process.env.DATABASE_URL}`
@@ -16,13 +16,13 @@ const prisma = new PrismaClient({ adapter })
 
 export { prisma }
 {{/case}}
-{{#case mongodb}}
+{{#case "mongodb"}}
 
 const prisma = new PrismaClient()
 
 export { prisma }
 {{/case}}
-{{#case mysql}}
+{{#case "mysql"}}
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 
 const adapter = new PrismaMariaDb({
@@ -36,7 +36,7 @@ const prisma = new PrismaClient({ adapter });
 
 export { prisma }
 {{/case}}
-{{#case sqlite}}
+{{#case "sqlite"}}
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 
 const connectionString = `${process.env.DATABASE_URL}`;

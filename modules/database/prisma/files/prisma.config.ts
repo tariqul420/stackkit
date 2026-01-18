@@ -1,6 +1,6 @@
 import "dotenv/config";
 {{#switch prismaProvider}}
-{{#case mongodb}}
+{{#case "mongodb"}}
 import { defineConfig, env } from "prisma/config";
 {{/case}}
 {{#case default}}
@@ -14,7 +14,7 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   {{#switch prismaProvider}}
-  {{#case mongodb}}
+  {{#case "mongodb"}}
   engine: "classic",
   datasource: {
     url: env('DATABASE_URL'),

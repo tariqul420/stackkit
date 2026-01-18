@@ -10,11 +10,6 @@
     },
     {
       "type": "create-file",
-      "source": "lib/auth-client.ts",
-      "destination": "lib/auth-client.ts"
-    },
-    {
-      "type": "create-file",
       "source": "api/auth/[...nextauth]/route.ts",
       "destination": "app/api/auth/[...nextauth]/route.ts"
     },
@@ -52,7 +47,7 @@
     }
   ],
   "dependencies": {
-    "next-auth": "^4.22.1"
+    "next-auth": "^5.0.0-beta.30"
   },
   "devDependencies": {},
   "scripts": {}

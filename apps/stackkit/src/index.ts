@@ -5,6 +5,10 @@ import { addCommand } from "./cli/add";
 import { doctorCommand } from "./cli/doctor";
 import { listCommand } from "./cli/list";
 import { logger } from "./lib/ui/logger";
+import { readFileSync } from "fs";
+import { join } from "path";
+
+const packageJson = JSON.parse(readFileSync(join(__dirname, "../package.json"), "utf-8"));
 
 interface CreateOptions {
   framework?: "nextjs" | "express" | "react";
@@ -42,7 +46,7 @@ const program = new Command();
 program
   .name("stackkit")
   .description("CLI for creating and managing StackKit projects")
-  .version("0.1.6")
+  .version(packageJson.version)
   .configureHelp({
     subcommandTerm: (cmd) => {
       const name = cmd.name();

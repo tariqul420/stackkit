@@ -1,4 +1,4 @@
-{{#var defaultId = {{#if prismaProvider == mongodb}}@default(auto()) @map("_id") @db.ObjectId{{else}}@default(cuid()){{/if}}}}
+{{#var defaultId = {{#if prismaProvider == "mongodb"}}@default(auto()) @map("_id") @db.ObjectId{{else}}@default(cuid()){{/if}}}}
 model Account {
   id                String  @id {{defaultId}}
   userId            String  @map("user_id")
@@ -22,7 +22,7 @@ model Account {
 model Session {
   id           String   @id {{defaultId}}
   sessionToken String   @unique @map("session_token")
-  userId       String   {{#if prismaProvider == mongodb}} @db.ObjectId{{/if}} @map("user_id")
+  userId       String   {{#if prismaProvider == "mongodb"}} @db.ObjectId{{/if}} @map("user_id")
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
