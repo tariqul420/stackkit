@@ -63,7 +63,9 @@ export async function addDependencies(
     spinner.succeed(`Dependencies added successfully`);
   } catch (error) {
     spinner.fail(`Failed to add dependencies`);
-    throw new Error(`Failed to add dependencies: ${error instanceof Error ? error.message : String(error)}`);
+    throw new Error(
+      `Failed to add dependencies: ${error instanceof Error ? error.message : String(error)}`,
+    );
   }
 }
 

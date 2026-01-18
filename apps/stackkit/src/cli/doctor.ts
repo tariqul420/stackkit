@@ -6,9 +6,12 @@ import { logger } from "../lib/ui/logger";
 // Constants for consistent messaging
 const MESSAGES = {
   NO_PACKAGE_JSON: "No package.json found in current directory or any parent directory.",
-  UNSUPPORTED_PROJECT: "Unsupported project type. Only Next.js, Express, and React projects are supported.",
-  NODE_TOO_OLD: (version: string) => `Node.js version ${version} is not supported. Minimum required: Node 18.`,
-  NODE_WARNING: (version: string) => `Node.js version ${version} is supported but Node 20+ is recommended.`,
+  UNSUPPORTED_PROJECT:
+    "Unsupported project type. Only Next.js, Express, and React projects are supported.",
+  NODE_TOO_OLD: (version: string) =>
+    `Node.js version ${version} is not supported. Minimum required: Node 18.`,
+  NODE_WARNING: (version: string) =>
+    `Node.js version ${version} is supported but Node 20+ is recommended.`,
   NODE_SUCCESS: (version: string) => `Node.js version ${version} is supported.`,
   ENV_EXAMPLE_MISSING: ".env.example file missing (recommended for documentation)",
   ENV_EXAMPLE_FOUND: ".env.example file found",
@@ -163,7 +166,7 @@ async function runDoctorChecks(): Promise<DoctorReport> {
   checks.push(gitCheck);
 
   const conflicts = checkConflicts(authModules, databaseModules);
-  conflicts.forEach(conflict => {
+  conflicts.forEach((conflict) => {
     checks.push({
       status: "warning",
       message: conflict,
@@ -186,9 +189,14 @@ async function runDoctorChecks(): Promise<DoctorReport> {
     },
     files: {
       envExample: await fs.pathExists(path.join(projectRoot, ".env.example")),
-      env: await fs.pathExists(path.join(projectRoot, ".env")) || await fs.pathExists(path.join(projectRoot, ".env.local")),
-      prismaSchema: databaseModules.includes("prisma") ? await fs.pathExists(path.join(projectRoot, "prisma", "schema.prisma")) : undefined,
-      authRoutes: authModules.length > 0 ? await checkAuthRoutesExist(projectRoot, projectType) : undefined,
+      env:
+        (await fs.pathExists(path.join(projectRoot, ".env"))) ||
+        (await fs.pathExists(path.join(projectRoot, ".env.local"))),
+      prismaSchema: databaseModules.includes("prisma")
+        ? await fs.pathExists(path.join(projectRoot, "prisma", "schema.prisma"))
+        : undefined,
+      authRoutes:
+        authModules.length > 0 ? await checkAuthRoutesExist(projectRoot, projectType) : undefined,
       tsconfig: await fs.pathExists(path.join(projectRoot, "tsconfig.json")),
       eslintConfig: await checkEslintConfigExists(projectRoot),
       git: await fs.pathExists(path.join(projectRoot, ".git")),
@@ -200,8 +208,8 @@ async function runDoctorChecks(): Promise<DoctorReport> {
     conflicts,
     checks,
     summary: {
-      errors: checks.filter(c => c.status === "error").length,
-      warnings: checks.filter(c => c.status === "warning").length,
+      errors: checks.filter((c) => c.status === "error").length,
+      warnings: checks.filter((c) => c.status === "warning").length,
       suggestions: generateSuggestions(),
     },
   };
@@ -314,14 +322,16 @@ async function checkKeyFiles(
   projectRoot: string,
   projectType: string,
   authModules: string[],
-  databaseModules: string[]
+  databaseModules: string[],
 ): Promise<CheckResult[]> {
   const checks: CheckResult[] = [];
 
   const envExampleExists = await fs.pathExists(path.join(projectRoot, ".env.example"));
   checks.push({
     status: envExampleExists ? "success" : "warning",
-    message: envExampleExists ? ".env.example file found" : ".env.example file missing (recommended for documentation)",
+    message: envExampleExists
+      ? ".env.example file found"
+      : ".env.example file missing (recommended for documentation)",
   });
 
   if (databaseModules.includes("prisma")) {
@@ -336,7 +346,9 @@ async function checkKeyFiles(
     const authRoutesExist = await checkAuthRoutesExist(projectRoot, projectType);
     checks.push({
       status: authRoutesExist ? "success" : "warning",
-      message: authRoutesExist ? "Auth routes configured" : "Auth routes not found (may need configuration)",
+      message: authRoutesExist
+        ? "Auth routes configured"
+        : "Auth routes not found (may need configuration)",
     });
   }
 
@@ -369,7 +381,7 @@ async function checkAuthRoutesExist(projectRoot: string, projectType: string): P
 async function checkEnvFiles(
   projectRoot: string,
   authModules: string[],
-  databaseModules: string[]
+  databaseModules: string[],
 ): Promise<{ checks: CheckResult[]; envStatus: { missing: string[]; present: string[] } }> {
   const checks: CheckResult[] = [];
   const requiredKeys: string[] = [];
@@ -405,8 +417,11 @@ async function checkEnvFiles(
     return { checks, envStatus: { missing: requiredKeys, present: [] } };
   }
 
-  const envLines = envContent.split("\n").map(line => line.trim()).filter(line => line && !line.startsWith("#"));
-  const envVars = new Set(envLines.map(line => line.split("=")[0]));
+  const envLines = envContent
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith("#"));
+  const envVars = new Set(envLines.map((line) => line.split("=")[0]));
 
   for (const key of requiredKeys) {
     if (envVars.has(key)) {
@@ -435,17 +450,25 @@ function checkConflicts(authModules: string[], databaseModules: string[]): strin
   const conflicts: string[] = [];
 
   if (authModules.length > 1) {
-    conflicts.push(`Multiple auth providers detected: ${authModules.join(", ")}. Consider using only one.`);
+    conflicts.push(
+      `Multiple auth providers detected: ${authModules.join(", ")}. Consider using only one.`,
+    );
   }
 
   if (databaseModules.length > 1) {
-    conflicts.push(`Multiple database providers detected: ${databaseModules.join(", ")}. Consider using only one.`);
+    conflicts.push(
+      `Multiple database providers detected: ${databaseModules.join(", ")}. Consider using only one.`,
+    );
   }
 
   return conflicts;
 }
 
-async function checkConfigFiles(projectRoot: string, projectType: string, packageJson: PackageJson): Promise<CheckResult[]> {
+async function checkConfigFiles(
+  projectRoot: string,
+  projectType: string,
+  packageJson: PackageJson,
+): Promise<CheckResult[]> {
   const checks: CheckResult[] = [];
 
   const tsconfigExists = await fs.pathExists(path.join(projectRoot, "tsconfig.json"));
@@ -460,7 +483,10 @@ async function checkConfigFiles(projectRoot: string, projectType: string, packag
     message: eslintExists ? MESSAGES.ESLINT_CONFIG_FOUND : MESSAGES.ESLINT_CONFIG_MISSING,
   });
 
-  const hasBuildScript = packageJson.scripts && typeof packageJson.scripts === "object" && "build" in packageJson.scripts;
+  const hasBuildScript =
+    packageJson.scripts &&
+    typeof packageJson.scripts === "object" &&
+    "build" in packageJson.scripts;
   checks.push({
     status: hasBuildScript ? "success" : "warning",
     message: hasBuildScript ? MESSAGES.BUILD_SCRIPT_FOUND : MESSAGES.BUILD_SCRIPT_MISSING,
@@ -469,7 +495,9 @@ async function checkConfigFiles(projectRoot: string, projectType: string, packag
   return checks;
 }
 
-async function checkDependencies(packageJson: PackageJson): Promise<{ status: "success" | "warning" | "error"; message: string; outdated: string[] }> {
+async function checkDependencies(
+  packageJson: PackageJson,
+): Promise<{ status: "success" | "warning" | "error"; message: string; outdated: string[] }> {
   const outdated: string[] = [];
   // Simple check: if dependencies have ^ or ~, assume up to date for now
   // In production, integrate with npm outdated or similar
@@ -482,7 +510,8 @@ async function checkDependencies(packageJson: PackageJson): Promise<{ status: "s
   }
   return {
     status: outdated.length > 0 ? "warning" : "success",
-    message: outdated.length > 0 ? MESSAGES.DEPENDENCY_OUTDATED(outdated) : MESSAGES.DEPENDENCY_UP_TO_DATE,
+    message:
+      outdated.length > 0 ? MESSAGES.DEPENDENCY_OUTDATED(outdated) : MESSAGES.DEPENDENCY_UP_TO_DATE,
     outdated,
   };
 }
@@ -644,7 +673,7 @@ function printDoctorReport(report: DoctorReport, verbose: boolean): void {
   // Conflicts
   if (report.conflicts.length > 0) {
     logger.log(chalk.bold("Conflicts"));
-    report.conflicts.forEach(conflict => {
+    report.conflicts.forEach((conflict) => {
       logger.warn(conflict);
     });
     logger.newLine();
@@ -653,7 +682,7 @@ function printDoctorReport(report: DoctorReport, verbose: boolean): void {
   // Detailed checks if verbose
   if (verbose) {
     logger.log(chalk.bold("Detailed Checks"));
-    report.checks.forEach(check => {
+    report.checks.forEach((check) => {
       if (check.status === "success") {
         logger.success(check.message);
       } else if (check.status === "warning") {
@@ -676,7 +705,7 @@ function printDoctorReport(report: DoctorReport, verbose: boolean): void {
 
   if (report.summary.suggestions.length > 0) {
     logger.log(chalk.bold("Suggestions"));
-    report.summary.suggestions.forEach(suggestion => {
+    report.summary.suggestions.forEach((suggestion) => {
       logger.log(`  • ${suggestion}`);
     });
   }

@@ -1,11 +1,14 @@
-import * as fs from 'fs-extra';
-import * as path from 'path';
-import type { GeneratorConfig } from './code-generator';
-import type { ModuleMetadata } from '../../types';
-import { getPackageRoot } from '../utils/package-root';
+import * as fs from "fs-extra";
+import * as path from "path";
+import type { GeneratorConfig } from "./code-generator";
+import type { ModuleMetadata } from "../../types";
+import { getPackageRoot } from "../utils/package-root";
 
-export async function mergeModuleIntoGeneratorConfig(config: GeneratorConfig, modulePath: string): Promise<GeneratorConfig> {
-  const modulePathJson = path.join(modulePath, 'module.json');
+export async function mergeModuleIntoGeneratorConfig(
+  config: GeneratorConfig,
+  modulePath: string,
+): Promise<GeneratorConfig> {
+  const modulePathJson = path.join(modulePath, "module.json");
   if (await fs.pathExists(modulePathJson)) {
     try {
       const moduleConfig = await fs.readJson(modulePathJson);
@@ -13,16 +16,19 @@ export async function mergeModuleIntoGeneratorConfig(config: GeneratorConfig, mo
         config.postInstall = moduleConfig.postInstall;
       }
 
-      if (moduleConfig.dependencies && typeof moduleConfig.dependencies === 'object') {
+      if (moduleConfig.dependencies && typeof moduleConfig.dependencies === "object") {
         config.dependencies = { ...(config.dependencies || {}), ...moduleConfig.dependencies };
       }
-      if (moduleConfig.devDependencies && typeof moduleConfig.devDependencies === 'object') {
-        config.devDependencies = { ...(config.devDependencies || {}), ...moduleConfig.devDependencies };
+      if (moduleConfig.devDependencies && typeof moduleConfig.devDependencies === "object") {
+        config.devDependencies = {
+          ...(config.devDependencies || {}),
+          ...moduleConfig.devDependencies,
+        };
       }
-      if (moduleConfig.scripts && typeof moduleConfig.scripts === 'object') {
+      if (moduleConfig.scripts && typeof moduleConfig.scripts === "object") {
         config.scripts = { ...(config.scripts || {}), ...moduleConfig.scripts };
       }
-      if (moduleConfig.envVars && typeof moduleConfig.envVars === 'object') {
+      if (moduleConfig.envVars && typeof moduleConfig.envVars === "object") {
         config.envVars = { ...(config.envVars || {}), ...moduleConfig.envVars };
       }
     } catch {
@@ -33,15 +39,23 @@ export async function mergeModuleIntoGeneratorConfig(config: GeneratorConfig, mo
   return config;
 }
 
-export async function mergeGeneratorIntoModuleMetadata(metadata: ModuleMetadata, modulePath: string): Promise<ModuleMetadata> {
-  const generatorPath = path.join(modulePath, 'generator.json');
+export async function mergeGeneratorIntoModuleMetadata(
+  metadata: ModuleMetadata,
+  modulePath: string,
+): Promise<ModuleMetadata> {
+  const generatorPath = path.join(modulePath, "generator.json");
   if (await fs.pathExists(generatorPath)) {
     try {
       const generator = await fs.readJson(generatorPath);
       if (generator.envVars) {
         metadata.envVars = metadata.envVars || [];
         for (const [key, value] of Object.entries(generator.envVars)) {
-          metadata.envVars.push({ key, value: value as string, description: `Environment variable for ${key}`, required: true });
+          metadata.envVars.push({
+            key,
+            value: value as string,
+            description: `Environment variable for ${key}`,
+            required: true,
+          });
         }
       }
       if (generator.dependencies) {
@@ -62,16 +76,21 @@ export async function mergeGeneratorIntoModuleMetadata(metadata: ModuleMetadata,
   return metadata;
 }
 
-export function locateOperationSource(generatorType: string, generatorName: string, sourceRel: string): string | null {
+export function locateOperationSource(
+  generatorType: string,
+  generatorName: string,
+  sourceRel: string,
+): string | null {
   const packageRoot = getPackageRoot();
-  const modulesPath = path.join(packageRoot, 'modules');
-  const templatesPath = path.join(packageRoot, 'templates');
+  const modulesPath = path.join(packageRoot, "modules");
+  const templatesPath = path.join(packageRoot, "templates");
 
-  const moduleBasePath = generatorType === 'framework'
-    ? path.join(templatesPath, generatorName)
-    : path.join(modulesPath, generatorType, generatorName);
+  const moduleBasePath =
+    generatorType === "framework"
+      ? path.join(templatesPath, generatorName)
+      : path.join(modulesPath, generatorType, generatorName);
 
-  const sourcePath = path.join(moduleBasePath, 'files', sourceRel);
+  const sourcePath = path.join(moduleBasePath, "files", sourceRel);
 
   try {
     return sourcePath;

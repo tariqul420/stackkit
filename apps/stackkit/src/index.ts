@@ -46,20 +46,20 @@ program
   .configureHelp({
     subcommandTerm: (cmd) => {
       const name = cmd.name();
-      if (name === 'create') return 'create [project-name] [options]';
-      if (name === 'add') return 'add <module> [options]';
-      if (name === 'doctor') return 'doctor [options]';
-      if (name === 'list') return 'list [options]';
-      if (name === 'help') return 'help [command]';
-      return name + ' [options]';
-    }
+      if (name === "create") return "create [project-name] [options]";
+      if (name === "add") return "add <module> [options]";
+      if (name === "doctor") return "doctor [options]";
+      if (name === "list") return "list [options]";
+      if (name === "help") return "help [command]";
+      return name + " [options]";
+    },
   });
 
 // Create command
 program
-  .command('create [project-name]')
+  .command("create [project-name]")
   .description("Create a new StackKit project")
-  .usage('[project-name] [options]')
+  .usage("[project-name] [options]")
   .option("-f, --framework <framework>", "Framework: nextjs, express, react")
   .option("-d, --database <database>", "Database: prisma, mongoose, none")
   .option("--prisma-provider <provider>", "Prisma provider: postgresql, mongodb, mysql, sqlite")
@@ -82,7 +82,7 @@ program
 program
   .command("add [module]")
   .description("Add a module or category to your existing project")
-  .usage('[module] [options]')
+  .usage("[module] [options]")
   .option("--provider <provider>", "Specific provider/variant to use")
   .option("--force", "Overwrite existing files")
   .option("--dry-run", "Show what would be changed without making changes")

@@ -5,7 +5,7 @@ import { getPackageRoot } from "../utils/package-root";
 
 const baseDirs: Record<string, string> = {
   express: "./src",
-  "react": "./src",
+  react: "./src",
   nextjs: ".",
 };
 

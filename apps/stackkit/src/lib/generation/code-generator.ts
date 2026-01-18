@@ -1,8 +1,8 @@
-import * as fs from 'fs-extra';
-import * as path from 'path';
-import { FrameworkConfig } from '../framework/framework-utils';
-import { getPackageRoot } from '../utils/package-root';
-import { mergeModuleIntoGeneratorConfig, locateOperationSource } from './generator-utils';
+import * as fs from "fs-extra";
+import * as path from "path";
+import { FrameworkConfig } from "../framework/framework-utils";
+import { getPackageRoot } from "../utils/package-root";
+import { mergeModuleIntoGeneratorConfig, locateOperationSource } from "./generator-utils";
 
 export interface GenerationContext {
   framework: string;
@@ -20,7 +20,7 @@ export interface TemplateCondition {
 }
 
 export interface Operation {
-  type: 'create-file' | 'patch-file' | 'add-dependency' | 'add-script' | 'add-env' | 'run-command';
+  type: "create-file" | "patch-file" | "add-dependency" | "add-script" | "add-env" | "run-command";
   description?: string;
   condition?: TemplateCondition;
   priority?: number;
@@ -48,7 +48,7 @@ export interface Operation {
 }
 
 export interface PatchOperation {
-  type: 'add-import' | 'add-code' | 'replace-code' | 'add-to-top' | 'add-to-bottom';
+  type: "add-import" | "add-code" | "replace-code" | "add-to-top" | "add-to-bottom";
   condition?: TemplateCondition;
 
   // add-import
@@ -67,7 +67,7 @@ export interface PatchOperation {
 
 export interface GeneratorConfig {
   name: string;
-  type: 'framework' | 'database' | 'auth';
+  type: "framework" | "database" | "auth";
   priority: number;
   operations?: Operation[];
   dependencies?: Record<string, string>;
@@ -87,14 +87,14 @@ export class AdvancedCodeGenerator {
   }
 
   async loadGenerators(modulesPath: string): Promise<void> {
-    const moduleTypes = ['auth', 'database'];
+    const moduleTypes = ["auth", "database"];
 
     for (const type of moduleTypes) {
       const typePath = path.join(modulesPath, type);
       if (await fs.pathExists(typePath)) {
         const modules = await fs.readdir(typePath);
         for (const moduleName of modules) {
-          const generatorPath = path.join(typePath, moduleName, 'generator.json');
+          const generatorPath = path.join(typePath, moduleName, "generator.json");
           if (await fs.pathExists(generatorPath)) {
             try {
               const config: GeneratorConfig = await fs.readJson(generatorPath);
@@ -112,14 +112,17 @@ export class AdvancedCodeGenerator {
     }
   }
 
-  private evaluateCondition(condition: TemplateCondition | undefined, context: GenerationContext): boolean {
+  private evaluateCondition(
+    condition: TemplateCondition | undefined,
+    context: GenerationContext,
+  ): boolean {
     if (!condition) return true;
 
     for (const [key, value] of Object.entries(condition)) {
-      if (key === 'features') {
+      if (key === "features") {
         const requiredFeatures = value as string[];
         const contextFeatures = context.features || [];
-        if (!requiredFeatures.every(feature => contextFeatures.includes(feature))) {
+        if (!requiredFeatures.every((feature) => contextFeatures.includes(feature))) {
           return false;
         }
       } else {
@@ -148,10 +151,10 @@ export class AdvancedCodeGenerator {
     content = this.processTemplateRecursive(content, templateContext);
 
     // Remove leading newlines that might be left from {{#var}} removal
-    content = content.replace(/^\n+/, '');
+    content = content.replace(/^\n+/, "");
 
     // Reduce multiple consecutive newlines to maximum 2
-    content = content.replace(/\n{3,}/g, '\n\n');
+    content = content.replace(/\n{3,}/g, "\n\n");
 
     return content;
   }
@@ -161,10 +164,10 @@ export class AdvancedCodeGenerator {
     let index = 0;
 
     while (true) {
-      const varStart = result.indexOf('{{#var ', index);
+      const varStart = result.indexOf("{{#var ", index);
       if (varStart === -1) break;
 
-      const equalsIndex = result.indexOf('=', varStart);
+      const equalsIndex = result.indexOf("=", varStart);
       if (equalsIndex === -1) break;
 
       const varNameMatch = result.substring(varStart + 7, equalsIndex).trim();
@@ -177,10 +180,10 @@ export class AdvancedCodeGenerator {
       let valueEnd = valueStart;
 
       for (let i = valueStart; i < result.length; i++) {
-        if (result[i] === '{' && result[i + 1] === '{') {
+        if (result[i] === "{" && result[i + 1] === "{") {
           braceCount++;
           i++; // Skip next character
-        } else if (result[i] === '}' && result[i + 1] === '}') {
+        } else if (result[i] === "}" && result[i + 1] === "}") {
           braceCount--;
           if (braceCount === 0) {
             valueEnd = i;
@@ -200,7 +203,7 @@ export class AdvancedCodeGenerator {
       context[varNameMatch] = processedValue;
 
       // Remove the variable definition
-      result = result.replace(fullMatch, '');
+      result = result.replace(fullMatch, "");
       index = varStart;
     }
 
@@ -208,83 +211,102 @@ export class AdvancedCodeGenerator {
   }
 
   private processTemplateRecursive(content: string, context: GenerationContext): string {
-    content = content.replace(/\{\{#if\s+([^}\s]+)\s+([^}\s]+)\s+([^}]+)\}\}([\s\S]*?)\{\{\/if\}\}/g, (match, varName, operator, expectedValue, blockContent) => {
-      const actualVal = context[varName.trim()];
-      const cleanExpectedVal = expectedValue.trim().replace(/['"]/g, '');
+    content = content.replace(
+      /\{\{#if\s+([^}\s]+)\s+([^}\s]+)\s+([^}]+)\}\}([\s\S]*?)\{\{\/if\}\}/g,
+      (match, varName, operator, expectedValue, blockContent) => {
+        const actualVal = context[varName.trim()];
+        const cleanExpectedVal = expectedValue.trim().replace(/['"]/g, "");
 
-      let conditionMet = false;
-      switch (operator) {
-        case '==':
-        case '===':
-          conditionMet = actualVal === cleanExpectedVal;
-          break;
-        case '!=':
-        case '!==':
-          conditionMet = actualVal !== cleanExpectedVal;
-          break;
-        case 'includes':
-          conditionMet = Array.isArray(actualVal) && actualVal.includes(cleanExpectedVal);
-          break;
-        case 'startsWith':
-          conditionMet = typeof actualVal === 'string' && actualVal.startsWith(cleanExpectedVal);
-          break;
-        case 'endsWith':
-          conditionMet = typeof actualVal === 'string' && actualVal.endsWith(cleanExpectedVal);
-          break;
-      }
+        let conditionMet = false;
+        switch (operator) {
+          case "==":
+          case "===":
+            conditionMet = actualVal === cleanExpectedVal;
+            break;
+          case "!=":
+          case "!==":
+            conditionMet = actualVal !== cleanExpectedVal;
+            break;
+          case "includes":
+            conditionMet = Array.isArray(actualVal) && actualVal.includes(cleanExpectedVal);
+            break;
+          case "startsWith":
+            conditionMet = typeof actualVal === "string" && actualVal.startsWith(cleanExpectedVal);
+            break;
+          case "endsWith":
+            conditionMet = typeof actualVal === "string" && actualVal.endsWith(cleanExpectedVal);
+            break;
+        }
 
-      return conditionMet ? this.processTemplateRecursive(blockContent, context).replace(/^\n+/, '').replace(/\n+$/, '') : '';
-    });
+        return conditionMet
+          ? this.processTemplateRecursive(blockContent, context)
+              .replace(/^\n+/, "")
+              .replace(/\n+$/, "")
+          : "";
+      },
+    );
 
     // Handle simple conditional blocks {{#if condition}}...{{/if}} (backward compatibility)
-    content = content.replace(/\{\{#if\s+([^}]+)\}\}([\s\S]*?)\{\{\/if\}\}/g, (match, condition, blockContent) => {
-      const conditionParts = condition.split('==');
-      if (conditionParts.length === 2) {
-        const [varName, expectedValue] = conditionParts.map((s: string) => s.trim().replace(/['"]/g, ''));
-        if (context[varName] === expectedValue) {
-          return this.processTemplateRecursive(blockContent, context).replace(/^\n+/, '').replace(/\n+$/, '');
+    content = content.replace(
+      /\{\{#if\s+([^}]+)\}\}([\s\S]*?)\{\{\/if\}\}/g,
+      (match, condition, blockContent) => {
+        const conditionParts = condition.split("==");
+        if (conditionParts.length === 2) {
+          const [varName, expectedValue] = conditionParts.map((s: string) =>
+            s.trim().replace(/['"]/g, ""),
+          );
+          if (context[varName] === expectedValue) {
+            return this.processTemplateRecursive(blockContent, context)
+              .replace(/^\n+/, "")
+              .replace(/\n+$/, "");
+          }
+          return "";
         }
-        return '';
-      }
 
-      const conditionFunc = condition.split('.');
-      if (conditionFunc.length === 2 && conditionFunc[1] === 'includes') {
-        const [arrayName, item] = conditionFunc[0].split('(');
-        const itemValue = item.replace(')', '').replace(/['"]/g, '');
-        const array = context[arrayName] || [];
-        if (Array.isArray(array) && array.includes(itemValue)) {
-          return this.processTemplateRecursive(blockContent, context).replace(/^\n+/, '').replace(/\n+$/, '');
+        const conditionFunc = condition.split(".");
+        if (conditionFunc.length === 2 && conditionFunc[1] === "includes") {
+          const [arrayName, item] = conditionFunc[0].split("(");
+          const itemValue = item.replace(")", "").replace(/['"]/g, "");
+          const array = context[arrayName] || [];
+          if (Array.isArray(array) && array.includes(itemValue)) {
+            return this.processTemplateRecursive(blockContent, context)
+              .replace(/^\n+/, "")
+              .replace(/\n+$/, "");
+          }
+          return "";
         }
-        return '';
-      }
 
-      return '';
-    });
+        return "";
+      },
+    );
 
     // Handle switch statements {{#switch variable}}...{{/switch}}
-    content = content.replace(/\{\{#switch\s+([^}]+)\}\}([\s\S]*?)\{\{\/switch\}\}/g, (match, varName, switchContent) => {
-      const actualVal = context[varName.trim()];
+    content = content.replace(
+      /\{\{#switch\s+([^}]+)\}\}([\s\S]*?)\{\{\/switch\}\}/g,
+      (match, varName, switchContent) => {
+        const actualVal = context[varName.trim()];
 
-      // Parse cases
-      const caseRegex = /\{\{#case\s+([^}]+)\}\}([\s\S]*?)(?=\{\{#case|\{\{\/switch\})/g;
-      let result = '';
-      let defaultCase = '';
+        // Parse cases
+        const caseRegex = /\{\{#case\s+([^}]+)\}\}([\s\S]*?)(?=\{\{#case|\{\{\/switch\})/g;
+        let result = "";
+        let defaultCase = "";
 
-      let caseMatch;
-      while ((caseMatch = caseRegex.exec(switchContent)) !== null) {
-        const [, caseValue, caseContent] = caseMatch;
-        const cleanCaseValue = caseValue.trim().replace(/['"]/g, '');
+        let caseMatch;
+        while ((caseMatch = caseRegex.exec(switchContent)) !== null) {
+          const [, caseValue, caseContent] = caseMatch;
+          const cleanCaseValue = caseValue.trim().replace(/['"]/g, "");
 
-        if (cleanCaseValue === 'default') {
-          defaultCase = caseContent;
-        } else if (actualVal === cleanCaseValue) {
-          result = caseContent;
-          break;
+          if (cleanCaseValue === "default") {
+            defaultCase = caseContent;
+          } else if (actualVal === cleanCaseValue) {
+            result = caseContent;
+            break;
+          }
         }
-      }
 
-      return result || defaultCase || '';
-    });
+        return result || defaultCase || "";
+      },
+    );
 
     // Handle variable replacement with advanced expressions
     content = content.replace(/\{\{([^}]+)\}\}/g, (match, varExpr) => {
@@ -298,10 +320,10 @@ export class AdvancedCodeGenerator {
         if (conditionMatch) {
           const [, varName, expectedVal] = conditionMatch;
           const cleanVarName = varName.trim();
-          const cleanExpectedVal = expectedVal.trim().replace(/['"]/g, '');
+          const cleanExpectedVal = expectedVal.trim().replace(/['"]/g, "");
           const actualVal = context[cleanVarName];
           const result = actualVal === cleanExpectedVal ? trueVal.trim() : falseVal.trim();
-          return result.replace(/['"]/g, ''); // Remove quotes from result
+          return result.replace(/['"]/g, ""); // Remove quotes from result
         }
       }
 
@@ -311,22 +333,22 @@ export class AdvancedCodeGenerator {
         const [, varName, casesStr] = switchMatch;
         const actualVal = context[varName.trim()];
 
-        const cases = casesStr.split(',').map((c: string) => c.trim());
+        const cases = casesStr.split(",").map((c: string) => c.trim());
         for (const caseStr of cases) {
-          const [caseVal, result] = caseStr.split(':').map((s: string) => s.trim());
-          const cleanCaseVal = caseVal.replace(/['"]/g, '');
-          if (cleanCaseVal === actualVal || cleanCaseVal === 'default') {
-            return result.replace(/['"]/g, '');
+          const [caseVal, result] = caseStr.split(":").map((s: string) => s.trim());
+          const cleanCaseVal = caseVal.replace(/['"]/g, "");
+          if (cleanCaseVal === actualVal || cleanCaseVal === "default") {
+            return result.replace(/['"]/g, "");
           }
         }
-        return '';
+        return "";
       }
 
       // Handle feature flags {{feature:name}}
-      if (trimmedExpr.startsWith('feature:')) {
+      if (trimmedExpr.startsWith("feature:")) {
         const featureName = trimmedExpr.substring(8);
         const features = context.features || [];
-        return features.includes(featureName) ? 'true' : 'false';
+        return features.includes(featureName) ? "true" : "false";
       }
 
       // Handle conditional expressions {{if condition then:value else:value}}
@@ -337,10 +359,10 @@ export class AdvancedCodeGenerator {
         if (conditionMatch2) {
           const [, varName, expectedVal] = conditionMatch2;
           const cleanVarName = varName.trim();
-          const cleanExpectedVal = expectedVal.trim().replace(/['"]/g, '');
+          const cleanExpectedVal = expectedVal.trim().replace(/['"]/g, "");
           const actualVal = context[cleanVarName];
           const result = actualVal === cleanExpectedVal ? thenVal.trim() : elseVal.trim();
-          return result.replace(/['"]/g, '');
+          return result.replace(/['"]/g, "");
         }
       }
 
@@ -353,9 +375,14 @@ export class AdvancedCodeGenerator {
   }
 
   async generate(
-    selectedModules: { framework: string; database?: string; auth?: string; prismaProvider?: string },
+    selectedModules: {
+      framework: string;
+      database?: string;
+      auth?: string;
+      prismaProvider?: string;
+    },
     features: string[],
-    outputPath: string
+    outputPath: string,
   ): Promise<string[]> {
     // First, copy the base template
     await this.copyTemplate(selectedModules.framework, outputPath);
@@ -366,22 +393,23 @@ export class AdvancedCodeGenerator {
     };
 
     // Set default prismaProvider if database is prisma but no provider specified
-    if (selectedModules.database === 'prisma' && !context.prismaProvider) {
-      context.prismaProvider = 'postgresql';
+    if (selectedModules.database === "prisma" && !context.prismaProvider) {
+      context.prismaProvider = "postgresql";
     }
 
     // Collect all applicable operations
-    const applicableOperations: Array<Operation & { generator: string; generatorType: string }> = [];
+    const applicableOperations: Array<Operation & { generator: string; generatorType: string }> =
+      [];
 
     for (const [key, generator] of this.generators) {
-      const [genType, name] = key.split(':');
+      const [genType, name] = key.split(":");
 
       // Check if this generator is selected
-      if (genType === 'framework' && name === selectedModules.framework) {
+      if (genType === "framework" && name === selectedModules.framework) {
         // Framework is always included
-      } else if (genType === 'database' && name === selectedModules.database) {
+      } else if (genType === "database" && name === selectedModules.database) {
         // Database is selected
-      } else if (genType === 'auth' && name === selectedModules.auth) {
+      } else if (genType === "auth" && name === selectedModules.auth) {
         // Auth is selected
       } else {
         continue; // Skip unselected generators
@@ -424,45 +452,74 @@ export class AdvancedCodeGenerator {
     return this.postInstallCommands;
   }
 
-  private async executeOperation(operation: Operation & { generator: string; generatorType: string }, context: GenerationContext, outputPath: string): Promise<void> {
+  private async executeOperation(
+    operation: Operation & { generator: string; generatorType: string },
+    context: GenerationContext,
+    outputPath: string,
+  ): Promise<void> {
     // Process templates in operation content
     const processedOperation = this.processOperationTemplates(operation, context);
 
     switch (processedOperation.type) {
-      case 'create-file':
-        await this.executeCreateFile(processedOperation as Operation & { generator: string; generatorType: string }, context, outputPath);
+      case "create-file":
+        await this.executeCreateFile(
+          processedOperation as Operation & { generator: string; generatorType: string },
+          context,
+          outputPath,
+        );
         break;
-      case 'patch-file':
-        await this.executePatchFile(processedOperation as Operation & { generator: string; generatorType: string }, context, outputPath);
+      case "patch-file":
+        await this.executePatchFile(
+          processedOperation as Operation & { generator: string; generatorType: string },
+          context,
+          outputPath,
+        );
         break;
-      case 'add-dependency':
-        await this.executeAddDependency(processedOperation as Operation & { generator: string; generatorType: string }, context, outputPath);
+      case "add-dependency":
+        await this.executeAddDependency(
+          processedOperation as Operation & { generator: string; generatorType: string },
+          context,
+          outputPath,
+        );
         break;
-      case 'add-script':
-        await this.executeAddScript(processedOperation as Operation & { generator: string; generatorType: string }, context, outputPath);
+      case "add-script":
+        await this.executeAddScript(
+          processedOperation as Operation & { generator: string; generatorType: string },
+          context,
+          outputPath,
+        );
         break;
-      case 'add-env':
-        await this.executeAddEnv(processedOperation as Operation & { generator: string; generatorType: string }, context, outputPath);
+      case "add-env":
+        await this.executeAddEnv(
+          processedOperation as Operation & { generator: string; generatorType: string },
+          context,
+          outputPath,
+        );
         break;
-      case 'run-command':
-        this.executeRunCommand(processedOperation as Operation & { generator: string; generatorType: string }, context);
+      case "run-command":
+        this.executeRunCommand(
+          processedOperation as Operation & { generator: string; generatorType: string },
+          context,
+        );
         break;
       default:
-        // Unknown operation type - skip silently
+      // Unknown operation type - skip silently
     }
   }
   private async copyTemplate(frameworkName: string, outputPath: string): Promise<void> {
     const packageRoot = getPackageRoot();
-    const templatePath = path.join(packageRoot, 'templates', frameworkName);
+    const templatePath = path.join(packageRoot, "templates", frameworkName);
 
     if (await fs.pathExists(templatePath)) {
       await fs.copy(templatePath, outputPath, {
         filter: (src) => {
           const relativePath = path.relative(templatePath, src);
-          return relativePath !== 'template.json' &&
-                 relativePath !== 'node_modules' &&
-                 !relativePath.startsWith('node_modules/');
-        }
+          return (
+            relativePath !== "template.json" &&
+            relativePath !== "node_modules" &&
+            !relativePath.startsWith("node_modules/")
+          );
+        },
       });
     }
   }
@@ -486,11 +543,13 @@ export class AdvancedCodeGenerator {
 
     // Process templates in patch operations
     if (processed.operations) {
-      processed.operations = processed.operations.map(op => {
+      processed.operations = processed.operations.map((op) => {
         const processedOp = { ...op };
 
         if (processedOp.imports) {
-          processedOp.imports = processedOp.imports.map(imp => this.processTemplate(imp, context));
+          processedOp.imports = processedOp.imports.map((imp) =>
+            this.processTemplate(imp, context),
+          );
         }
         if (processedOp.code) {
           processedOp.code = this.processTemplate(processedOp.code, context);
@@ -518,10 +577,17 @@ export class AdvancedCodeGenerator {
     return processed;
   }
 
-  private async executeCreateFile(operation: Operation & { generator: string; generatorType: string }, context: GenerationContext, outputPath: string): Promise<void> {
+  private async executeCreateFile(
+    operation: Operation & { generator: string; generatorType: string },
+    context: GenerationContext,
+    outputPath: string,
+  ): Promise<void> {
     if (!operation.destination) return;
 
-    const destinationPath = path.join(outputPath, this.processTemplate(operation.destination, context));
+    const destinationPath = path.join(
+      outputPath,
+      this.processTemplate(operation.destination, context),
+    );
 
     // Ensure directory exists
     await fs.ensureDir(path.dirname(destinationPath));
@@ -532,10 +598,14 @@ export class AdvancedCodeGenerator {
       // Use content directly
       content = this.processTemplate(operation.content, context);
     } else if (operation.source) {
-      const sourcePath = locateOperationSource(operation.generatorType, operation.generator, operation.source || '');
+      const sourcePath = locateOperationSource(
+        operation.generatorType,
+        operation.generator,
+        operation.source || "",
+      );
 
-      if (sourcePath && await fs.pathExists(sourcePath)) {
-        content = await fs.readFile(sourcePath, 'utf-8');
+      if (sourcePath && (await fs.pathExists(sourcePath))) {
+        content = await fs.readFile(sourcePath, "utf-8");
         content = this.processTemplate(content, context);
       } else {
         throw new Error(`Source file not found: ${sourcePath}`);
@@ -545,16 +615,20 @@ export class AdvancedCodeGenerator {
     }
 
     // Write destination file
-    await fs.writeFile(destinationPath, content, 'utf-8');
+    await fs.writeFile(destinationPath, content, "utf-8");
   }
 
-  private async executePatchFile(operation: Operation & { generator: string; generatorType: string }, context: GenerationContext, outputPath: string): Promise<void> {
+  private async executePatchFile(
+    operation: Operation & { generator: string; generatorType: string },
+    context: GenerationContext,
+    outputPath: string,
+  ): Promise<void> {
     if (!operation.destination) return;
 
     const filePath = path.join(outputPath, this.processTemplate(operation.destination, context));
 
     // Read existing file
-    let content = await fs.readFile(filePath, 'utf-8');
+    let content = await fs.readFile(filePath, "utf-8");
 
     if (operation.content) {
       content += this.processTemplate(operation.content, context).trim();
@@ -564,36 +638,41 @@ export class AdvancedCodeGenerator {
         if (!this.evaluateCondition(patchOp.condition, context)) continue;
 
         switch (patchOp.type) {
-          case 'add-import':
+          case "add-import":
             if (patchOp.imports) {
-              const imports = patchOp.imports.map(imp => this.processTemplate(imp, context)).join('\n');
+              const imports = patchOp.imports
+                .map((imp) => this.processTemplate(imp, context))
+                .join("\n");
               // Add imports at the top, after existing imports
-              const lines = content.split('\n');
+              const lines = content.split("\n");
               let insertIndex = 0;
               for (let i = 0; i < lines.length; i++) {
-                if (lines[i].trim().startsWith('import') || lines[i].trim() === '') {
+                if (lines[i].trim().startsWith("import") || lines[i].trim() === "") {
                   insertIndex = i + 1;
                 } else {
                   break;
                 }
               }
               lines.splice(insertIndex, 0, imports);
-              content = lines.join('\n');
+              content = lines.join("\n");
             }
             break;
 
-          case 'add-code':
+          case "add-code":
             if (patchOp.code && patchOp.after) {
               const processedCode = this.processTemplate(patchOp.code, context);
               const afterPattern = this.processTemplate(patchOp.after, context);
               const index = content.indexOf(afterPattern);
               if (index !== -1) {
-                content = content.slice(0, index + afterPattern.length) + processedCode + content.slice(index + afterPattern.length);
+                content =
+                  content.slice(0, index + afterPattern.length) +
+                  processedCode +
+                  content.slice(index + afterPattern.length);
               }
             }
             break;
 
-          case 'replace-code':
+          case "replace-code":
             if (patchOp.code && patchOp.replace) {
               const processedCode = this.processTemplate(patchOp.code, context);
               const replacePattern = this.processTemplate(patchOp.replace, context);
@@ -601,38 +680,53 @@ export class AdvancedCodeGenerator {
             }
             break;
 
-          case 'add-to-top': {
-            let processedContentTop: string = '';
+          case "add-to-top": {
+            let processedContentTop: string = "";
             if (patchOp.content) {
               processedContentTop = this.processTemplate(patchOp.content, context).trim();
             } else if (patchOp.source) {
-              const modulesPath = path.join(getPackageRoot(), 'modules');
-              const sourcePath = path.join(modulesPath, operation.generatorType, operation.generator, 'files', patchOp.source);
+              const modulesPath = path.join(getPackageRoot(), "modules");
+              const sourcePath = path.join(
+                modulesPath,
+                operation.generatorType,
+                operation.generator,
+                "files",
+                patchOp.source,
+              );
               if (await fs.pathExists(sourcePath)) {
-                processedContentTop = await fs.readFile(sourcePath, 'utf-8');
+                processedContentTop = await fs.readFile(sourcePath, "utf-8");
                 processedContentTop = this.processTemplate(processedContentTop, context).trim();
               }
             }
             if (processedContentTop) {
-              content = processedContentTop + '\n' + content;
+              content = processedContentTop + "\n" + content;
             }
             break;
           }
 
-          case 'add-to-bottom': {
-            let processedContentBottom: string = '';
+          case "add-to-bottom": {
+            let processedContentBottom: string = "";
             if (patchOp.content) {
               processedContentBottom = this.processTemplate(patchOp.content, context).trim();
             } else if (patchOp.source) {
-              const modulesPath = path.join(getPackageRoot(), 'modules');
-              const sourcePath = path.join(modulesPath, operation.generatorType, operation.generator, 'files', patchOp.source);
+              const modulesPath = path.join(getPackageRoot(), "modules");
+              const sourcePath = path.join(
+                modulesPath,
+                operation.generatorType,
+                operation.generator,
+                "files",
+                patchOp.source,
+              );
               if (await fs.pathExists(sourcePath)) {
-                processedContentBottom = await fs.readFile(sourcePath, 'utf-8');
-                processedContentBottom = this.processTemplate(processedContentBottom, context).trim();
+                processedContentBottom = await fs.readFile(sourcePath, "utf-8");
+                processedContentBottom = this.processTemplate(
+                  processedContentBottom,
+                  context,
+                ).trim();
               }
             }
             if (processedContentBottom) {
-              content = content + '\n' + processedContentBottom;
+              content = content + "\n" + processedContentBottom;
             }
             break;
           }
@@ -641,11 +735,15 @@ export class AdvancedCodeGenerator {
     }
 
     // Write back the modified content
-    await fs.writeFile(filePath, content, 'utf-8');
+    await fs.writeFile(filePath, content, "utf-8");
   }
 
-  private async executeAddDependency(operation: Operation, context: GenerationContext, outputPath: string): Promise<void> {
-    const packageJsonPath = path.join(outputPath, 'package.json');
+  private async executeAddDependency(
+    operation: Operation,
+    context: GenerationContext,
+    outputPath: string,
+  ): Promise<void> {
+    const packageJsonPath = path.join(outputPath, "package.json");
     let packageJson: Record<string, unknown> = {};
 
     if (await fs.pathExists(packageJsonPath)) {
@@ -653,18 +751,28 @@ export class AdvancedCodeGenerator {
     }
 
     if (operation.dependencies) {
-      packageJson.dependencies = { ...(packageJson.dependencies as Record<string, string> || {}), ...operation.dependencies };
+      packageJson.dependencies = {
+        ...((packageJson.dependencies as Record<string, string>) || {}),
+        ...operation.dependencies,
+      };
     }
 
     if (operation.devDependencies) {
-      packageJson.devDependencies = { ...(packageJson.devDependencies as Record<string, string> || {}), ...operation.devDependencies };
+      packageJson.devDependencies = {
+        ...((packageJson.devDependencies as Record<string, string>) || {}),
+        ...operation.devDependencies,
+      };
     }
 
     await fs.writeJson(packageJsonPath, packageJson, { spaces: 2 });
   }
 
-  private async executeAddScript(operation: Operation, context: GenerationContext, outputPath: string): Promise<void> {
-    const packageJsonPath = path.join(outputPath, 'package.json');
+  private async executeAddScript(
+    operation: Operation,
+    context: GenerationContext,
+    outputPath: string,
+  ): Promise<void> {
+    const packageJsonPath = path.join(outputPath, "package.json");
     let packageJson: Record<string, unknown> = {};
 
     if (await fs.pathExists(packageJsonPath)) {
@@ -672,29 +780,39 @@ export class AdvancedCodeGenerator {
     }
 
     if (operation.scripts) {
-      packageJson.scripts = { ...(packageJson.scripts as Record<string, string> || {}), ...operation.scripts };
+      packageJson.scripts = {
+        ...((packageJson.scripts as Record<string, string>) || {}),
+        ...operation.scripts,
+      };
     }
 
     await fs.writeJson(packageJsonPath, packageJson, { spaces: 2 });
   }
 
-  private async executeAddEnv(operation: Operation, context: GenerationContext, outputPath: string): Promise<void> {
-    const envPath = path.join(outputPath, '.env');
-    let envContent = '';
+  private async executeAddEnv(
+    operation: Operation,
+    context: GenerationContext,
+    outputPath: string,
+  ): Promise<void> {
+    const envPath = path.join(outputPath, ".env");
+    let envContent = "";
 
     if (await fs.pathExists(envPath)) {
-      envContent = await fs.readFile(envPath, 'utf-8');
+      envContent = await fs.readFile(envPath, "utf-8");
     }
 
     if (operation.envVars) {
       const envLines = Object.entries(operation.envVars).map(([key, value]) => `${key}=${value}`);
-      envContent += '\n' + envLines.join('\n');
+      envContent += "\n" + envLines.join("\n");
     }
 
-    await fs.writeFile(envPath, envContent.trim(), 'utf-8');
+    await fs.writeFile(envPath, envContent.trim(), "utf-8");
   }
 
-  private executeRunCommand(operation: Operation & { generator: string; generatorType: string }, context: GenerationContext): void {
+  private executeRunCommand(
+    operation: Operation & { generator: string; generatorType: string },
+    context: GenerationContext,
+  ): void {
     if (operation.command) {
       // Process template variables in the command
       const processedCommand = this.processTemplate(operation.command, context);
@@ -703,11 +821,16 @@ export class AdvancedCodeGenerator {
   }
 
   private async generatePackageJson(
-    selectedModules: { framework: string; database?: string; auth?: string; prismaProvider?: string },
+    selectedModules: {
+      framework: string;
+      database?: string;
+      auth?: string;
+      prismaProvider?: string;
+    },
     features: string[],
-    outputPath: string
+    outputPath: string,
   ): Promise<void> {
-    const packageJsonPath = path.join(outputPath, 'package.json');
+    const packageJsonPath = path.join(outputPath, "package.json");
 
     let packageJson: Record<string, unknown> = {};
     if (await fs.pathExists(packageJsonPath)) {
@@ -720,12 +843,13 @@ export class AdvancedCodeGenerator {
     const allScripts: Record<string, string> = {};
 
     for (const [key, generator] of this.generators) {
-      const [type, name] = key.split(':');
+      const [type, name] = key.split(":");
 
-      if ((type === 'framework' && name === selectedModules.framework) ||
-          (type === 'database' && name === selectedModules.database) ||
-          (type === 'auth' && name === selectedModules.auth)) {
-
+      if (
+        (type === "framework" && name === selectedModules.framework) ||
+        (type === "database" && name === selectedModules.database) ||
+        (type === "auth" && name === selectedModules.auth)
+      ) {
         Object.assign(allDeps, generator.dependencies);
         Object.assign(allDevDeps, generator.devDependencies);
         Object.assign(allScripts, generator.scripts);
@@ -733,9 +857,18 @@ export class AdvancedCodeGenerator {
     }
 
     // Update package.json
-    packageJson.dependencies = { ...(packageJson.dependencies as Record<string, string> || {}), ...allDeps };
-    packageJson.devDependencies = { ...(packageJson.devDependencies as Record<string, string> || {}), ...allDevDeps };
-    packageJson.scripts = { ...(packageJson.scripts as Record<string, string> || {}), ...allScripts };
+    packageJson.dependencies = {
+      ...((packageJson.dependencies as Record<string, string>) || {}),
+      ...allDeps,
+    };
+    packageJson.devDependencies = {
+      ...((packageJson.devDependencies as Record<string, string>) || {}),
+      ...allDevDeps,
+    };
+    packageJson.scripts = {
+      ...((packageJson.scripts as Record<string, string>) || {}),
+      ...allScripts,
+    };
 
     await fs.writeJson(packageJsonPath, packageJson, { spaces: 2 });
   }
@@ -745,29 +878,35 @@ export class AdvancedCodeGenerator {
    * This executes applicable operations and updates package.json in-place.
    */
   async applyToProject(
-    selectedModules: { framework: string; database?: string; auth?: string; prismaProvider?: string },
+    selectedModules: {
+      framework: string;
+      database?: string;
+      auth?: string;
+      prismaProvider?: string;
+    },
     features: string[],
-    projectPath: string
+    projectPath: string,
   ): Promise<string[]> {
     const context: GenerationContext = {
       ...selectedModules,
       features,
     };
 
-    if (selectedModules.database === 'prisma' && !context.prismaProvider) {
-      context.prismaProvider = 'postgresql';
+    if (selectedModules.database === "prisma" && !context.prismaProvider) {
+      context.prismaProvider = "postgresql";
     }
 
-    const applicableOperations: Array<Operation & { generator: string; generatorType: string }> = [];
+    const applicableOperations: Array<Operation & { generator: string; generatorType: string }> =
+      [];
 
     for (const [key, generator] of this.generators) {
-      const [genType, name] = key.split(':');
+      const [genType, name] = key.split(":");
 
-      if (genType === 'framework' && name === selectedModules.framework) {
+      if (genType === "framework" && name === selectedModules.framework) {
         // framework
-      } else if (genType === 'database' && name === selectedModules.database) {
+      } else if (genType === "database" && name === selectedModules.database) {
         // database
-      } else if (genType === 'auth' && name === selectedModules.auth) {
+      } else if (genType === "auth" && name === selectedModules.auth) {
         // auth
       } else {
         continue;
@@ -780,7 +919,12 @@ export class AdvancedCodeGenerator {
       const items = generator.operations || [];
       for (const item of items) {
         if (this.evaluateCondition(item.condition, context)) {
-          applicableOperations.push({ ...(item as Operation), generator: name, generatorType: genType, priority: generator.priority });
+          applicableOperations.push({
+            ...(item as Operation),
+            generator: name,
+            generatorType: genType,
+            priority: generator.priority,
+          });
         }
       }
     }
@@ -802,15 +946,15 @@ export class AdvancedCodeGenerator {
     const auths: string[] = [];
 
     for (const [key] of this.generators) {
-      const [type, name] = key.split(':');
+      const [type, name] = key.split(":");
       switch (type) {
-        case 'framework':
+        case "framework":
           frameworks.push(name);
           break;
-        case 'database':
+        case "database":
           databases.push(name);
           break;
-        case 'auth':
+        case "auth":
           auths.push(name);
           break;
       }
@@ -822,7 +966,11 @@ export class AdvancedCodeGenerator {
   /**
    * Register a generator config dynamically (used for modules that only provide module.json patches).
    */
-  registerGenerator(type: 'framework' | 'database' | 'auth', name: string, config: GeneratorConfig): void {
+  registerGenerator(
+    type: "framework" | "database" | "auth",
+    name: string,
+    config: GeneratorConfig,
+  ): void {
     this.generators.set(`${type}:${name}`, config);
   }
 }

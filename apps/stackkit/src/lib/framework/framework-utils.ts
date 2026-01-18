@@ -1,5 +1,5 @@
-import * as fs from 'fs-extra';
-import * as path from 'path';
+import * as fs from "fs-extra";
+import * as path from "path";
 
 export interface FrameworkConfig {
   name: string;
@@ -13,7 +13,7 @@ export interface FrameworkConfig {
 export interface ModuleConfig {
   name: string;
   displayName: string;
-  type: 'database' | 'auth';
+  type: "database" | "auth";
   compatibility?: {
     frameworks?: string[];
     databases?: string[];
@@ -24,8 +24,11 @@ export interface ModuleConfig {
 export class FrameworkUtils {
   private static frameworkConfigs: Map<string, FrameworkConfig> = new Map();
 
-  static async loadFrameworkConfig(frameworkName: string, templatesDir: string): Promise<FrameworkConfig> {
-    const configPath = path.join(templatesDir, frameworkName, 'template.json');
+  static async loadFrameworkConfig(
+    frameworkName: string,
+    templatesDir: string,
+  ): Promise<FrameworkConfig> {
+    const configPath = path.join(templatesDir, frameworkName, "template.json");
     if (await fs.pathExists(configPath)) {
       const config = await fs.readJson(configPath);
       this.frameworkConfigs.set(frameworkName, config);
@@ -37,8 +40,8 @@ export class FrameworkUtils {
       name: frameworkName,
       displayName: frameworkName.charAt(0).toUpperCase() + frameworkName.slice(1),
       compatibility: {
-        databases: ['prisma', 'mongoose'],
-        auth: ['better-auth', 'authjs'],
+        databases: ["prisma", "mongoose"],
+        auth: ["better-auth", "authjs"],
       },
     };
 

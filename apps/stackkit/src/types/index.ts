@@ -29,11 +29,14 @@ export interface ModuleMetadata {
   patches: ModulePatch[];
   frameworkPatches?: Record<string, { [file: string]: { merge?: Record<string, unknown> } }>;
   postInstall?: string[];
-  frameworkConfigs?: Record<string, {
-    dependencies?: Record<string, string>;
-    devDependencies?: Record<string, string>;
-    patches?: ModulePatch[];
-  }>;
+  frameworkConfigs?: Record<
+    string,
+    {
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+      patches?: ModulePatch[];
+    }
+  >;
 }
 
 export interface EnvVar {

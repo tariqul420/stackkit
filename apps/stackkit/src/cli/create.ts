@@ -9,7 +9,13 @@ import { convertToJavaScript } from "../lib/conversion/js-conversion";
 import { installDependencies } from "../lib/pm/package-manager";
 import { logger } from "../lib/ui/logger";
 import { FrameworkUtils } from "../lib/framework/framework-utils";
-import { discoverModules, getValidDatabaseOptions, getValidAuthOptions, parseDatabaseOption, getCompatibleAuthOptions } from "../lib/discovery/module-discovery";
+import {
+  discoverModules,
+  getValidDatabaseOptions,
+  getValidAuthOptions,
+  parseDatabaseOption,
+  getCompatibleAuthOptions,
+} from "../lib/discovery/module-discovery";
 import { AdvancedCodeGenerator } from "../lib/generation/code-generator";
 import { getPackageRoot } from "../lib/utils/package-root";
 
@@ -45,10 +51,10 @@ interface CliOptions {
   packageManager?: string;
   p?: string;
   install?: boolean;
-  'skip-install'?: boolean;
+  "skip-install"?: boolean;
   skipInstall?: boolean;
   git?: boolean;
-  'no-git'?: boolean;
+  "no-git"?: boolean;
   noGit?: boolean;
   yes?: boolean;
   y?: boolean;
@@ -73,19 +79,22 @@ export async function createProject(projectName?: string, options?: CliOptions):
   showNextSteps(config);
 }
 
-async function getProjectConfig(projectName?: string, options?: CliOptions): Promise<ProjectConfig> {
-  const modulesDir = path.join(getPackageRoot(), 'modules');
+async function getProjectConfig(
+  projectName?: string,
+  options?: CliOptions,
+): Promise<ProjectConfig> {
+  const modulesDir = path.join(getPackageRoot(), "modules");
 
   const discoveredModules = await discoverModules(modulesDir);
 
   const argv = process.argv.slice(2);
-  const createIndex = argv.indexOf('create');
+  const createIndex = argv.indexOf("create");
   const argsAfterCreate = createIndex >= 0 ? argv.slice(createIndex + 1) : [];
-  const flagsProvided = argsAfterCreate.some(arg => arg.startsWith('-'));
+  const flagsProvided = argsAfterCreate.some((arg) => arg.startsWith("-"));
   const optionsProvided = flagsProvided || !!(options && (options.yes || options.y));
 
   if (optionsProvided) {
-    if ((options && (options.yes || options.y))) {
+    if (options && (options.yes || options.y)) {
       return {
         projectName: projectName || "my-app",
         framework: "nextjs",
@@ -98,9 +107,11 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
     }
     const framework = (options && (options.framework || options.f)) || undefined;
     if (discoveredModules.frameworks && discoveredModules.frameworks.length > 0) {
-      const validFrameworks = discoveredModules.frameworks.map(f => f.name);
+      const validFrameworks = discoveredModules.frameworks.map((f) => f.name);
       if (framework && !validFrameworks.includes(framework)) {
-        throw new Error(`Invalid framework: ${framework}. Valid options: ${validFrameworks.join(', ')}`);
+        throw new Error(
+          `Invalid framework: ${framework}. Valid options: ${validFrameworks.join(", ")}`,
+        );
       }
     }
 
@@ -108,10 +119,12 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
     let allValidDatabases: string[] = [];
     if (discoveredModules.databases && discoveredModules.databases.length > 0) {
       const validDatabases = getValidDatabaseOptions(discoveredModules.databases);
-      const validBaseDatabases = discoveredModules.databases.map(db => db.name);
+      const validBaseDatabases = discoveredModules.databases.map((db) => db.name);
       allValidDatabases = [...validDatabases, ...validBaseDatabases];
       if (db && !allValidDatabases.includes(db)) {
-        throw new Error(`Invalid database: ${db}. Valid options: ${allValidDatabases.filter((v, i, arr) => arr.indexOf(v) === i).join(', ')}`);
+        throw new Error(
+          `Invalid database: ${db}. Valid options: ${allValidDatabases.filter((v, i, arr) => arr.indexOf(v) === i).join(", ")}`,
+        );
       }
     }
 
@@ -119,20 +132,22 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
     if (discoveredModules.auth && discoveredModules.auth.length > 0) {
       const validAuth = getValidAuthOptions(discoveredModules.auth);
       if (authOpt && !validAuth.includes(authOpt)) {
-        throw new Error(`Invalid auth: ${authOpt}. Valid options: ${validAuth.join(', ')}`);
+        throw new Error(`Invalid auth: ${authOpt}. Valid options: ${validAuth.join(", ")}`);
       }
     }
 
-    const validLanguages = ['typescript', 'javascript'];
+    const validLanguages = ["typescript", "javascript"];
     const language = (options && (options.language || options.l)) || undefined;
     if (language && !validLanguages.includes(language)) {
-      throw new Error(`Invalid language: ${language}. Valid options: ${validLanguages.join(', ')}`);
+      throw new Error(`Invalid language: ${language}. Valid options: ${validLanguages.join(", ")}`);
     }
 
-    const validPackageManagers = ['pnpm', 'npm', 'yarn', 'bun'];
+    const validPackageManagers = ["pnpm", "npm", "yarn", "bun"];
     const pm = (options && (options.packageManager || options.p)) || undefined;
     if (pm && !validPackageManagers.includes(pm)) {
-      throw new Error(`Invalid package manager: ${pm}. Valid options: ${validPackageManagers.join(', ')}`);
+      throw new Error(
+        `Invalid package manager: ${pm}. Valid options: ${validPackageManagers.join(", ")}`,
+      );
     }
 
     let database: "prisma" | "mongoose" | "none" = "none";
@@ -191,13 +206,14 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
       type: "list",
       name: "framework",
       message: "Select framework:",
-      choices: (discoveredModules.frameworks && discoveredModules.frameworks.length > 0)
-        ? discoveredModules.frameworks.map(f => ({ name: f.displayName, value: f.name }))
-        : [
-            { name: 'Next.js', value: 'nextjs' },
-            { name: 'Express.js', value: 'express' },
-            { name: 'React (Vite)', value: 'react' },
-          ],
+      choices:
+        discoveredModules.frameworks && discoveredModules.frameworks.length > 0
+          ? discoveredModules.frameworks.map((f) => ({ name: f.displayName, value: f.name }))
+          : [
+              { name: "Next.js", value: "nextjs" },
+              { name: "Express.js", value: "express" },
+              { name: "React (Vite)", value: "react" },
+            ],
     },
     {
       type: "list",
@@ -226,12 +242,13 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
       type: "list",
       name: "auth",
       message: "Select authentication:",
-      when: (answers: Answers) => (answers.database !== "none" || answers.framework === "react"),
-      choices: (answers: Answers) => getCompatibleAuthOptions(
-        discoveredModules.auth,
-        answers.framework,
-        answers.database || "none"
-      ),
+      when: (answers: Answers) => answers.database !== "none" || answers.framework === "react",
+      choices: (answers: Answers) =>
+        getCompatibleAuthOptions(
+          discoveredModules.auth,
+          answers.framework,
+          answers.database || "none",
+        ),
     },
     {
       type: "list",
@@ -263,14 +280,23 @@ async function getProjectConfig(projectName?: string, options?: CliOptions): Pro
     database: (answers.framework === "react"
       ? "none"
       : answers.database) as ProjectConfig["database"],
-    prismaProvider: answers.prismaProvider as "postgresql" | "mongodb" | "mysql" | "sqlite" | undefined,
-    auth: (answers.auth || "none"),
+    prismaProvider: answers.prismaProvider as
+      | "postgresql"
+      | "mongodb"
+      | "mysql"
+      | "sqlite"
+      | undefined,
+    auth: answers.auth || "none",
     language: answers.language,
     packageManager: answers.packageManager,
   };
 }
 
-async function generateProject(config: ProjectConfig, targetDir: string, options?: CliOptions): Promise<void> {
+async function generateProject(
+  config: ProjectConfig,
+  targetDir: string,
+  options?: CliOptions,
+): Promise<void> {
   const copySpinner = logger.startSpinner("Creating project files...");
   let postInstallCommands: string[] = [];
   try {
@@ -281,7 +307,7 @@ async function generateProject(config: ProjectConfig, targetDir: string, options
     throw error;
   }
 
-  if (options?.install !== false && !(options?.['skip-install'] || options?.skipInstall)) {
+  if (options?.install !== false && !(options?.["skip-install"] || options?.skipInstall)) {
     const installSpinner = logger.startSpinner("Installing dependencies...");
     try {
       await installDependencies(targetDir, config.packageManager);
@@ -292,7 +318,11 @@ async function generateProject(config: ProjectConfig, targetDir: string, options
     }
   }
 
-  if (postInstallCommands.length > 0 && options?.install !== false && !(options?.['skip-install'] || options?.skipInstall)) {
+  if (
+    postInstallCommands.length > 0 &&
+    options?.install !== false &&
+    !(options?.["skip-install"] || options?.skipInstall)
+  ) {
     const postInstallSpinner = logger.startSpinner("Running post-install commands...");
     try {
       for (const command of postInstallCommands) {
@@ -305,7 +335,7 @@ async function generateProject(config: ProjectConfig, targetDir: string, options
     }
   }
 
-  if (options?.git !== false && !(options?.['no-git'] || options?.noGit)) {
+  if (options?.git !== false && !(options?.["no-git"] || options?.noGit)) {
     const gitSpinner = logger.startSpinner("Initializing git repository...");
     try {
       await initGit(targetDir);
@@ -318,8 +348,8 @@ async function generateProject(config: ProjectConfig, targetDir: string, options
 
 async function composeTemplate(config: ProjectConfig, targetDir: string): Promise<string[]> {
   const packageRoot = getPackageRoot();
-  const templatesDir = path.join(packageRoot, 'templates');
-  const modulesDirForGenerator = path.join(packageRoot, 'modules');
+  const templatesDir = path.join(packageRoot, "templates");
+  const modulesDirForGenerator = path.join(packageRoot, "modules");
 
   await fs.ensureDir(targetDir);
 
@@ -333,12 +363,12 @@ async function composeTemplate(config: ProjectConfig, targetDir: string): Promis
   const postInstallCommands = await generator.generate(
     {
       framework: config.framework,
-      database: config.database === 'none' ? undefined : config.database,
-      auth: config.auth === 'none' ? undefined : config.auth,
+      database: config.database === "none" ? undefined : config.database,
+      auth: config.auth === "none" ? undefined : config.auth,
       prismaProvider: config.prismaProvider,
     },
     features,
-    targetDir
+    targetDir,
   );
 
   const packageJsonPath = path.join(targetDir, "package.json");
@@ -356,6 +386,7 @@ async function composeTemplate(config: ProjectConfig, targetDir: string): Promis
       await fs.writeFile(envPath, envContent);
     }
   } catch {
+    // env copy failed.
   }
 
   if (config.language === "javascript") {

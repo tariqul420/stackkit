@@ -1,9 +1,9 @@
-import * as path from 'path';
+import * as path from "path";
 
 export function getPackageRoot(): string {
   try {
-    return path.dirname(require.resolve('stackkit/package.json'));
+    return path.dirname(require.resolve("stackkit/package.json"));
   } catch {
-    return path.resolve(__dirname, '..', '..', '..');
+    return path.resolve(__dirname, "..", "..", "..");
   }
 }

@@ -63,16 +63,32 @@ export async function listCommand(options: ListOptions): Promise<void> {
           const isLastCategory = categoryIndex === categories.length - 1;
           const categoryPrefix = isLastCategory ? "└──" : "├──";
 
-          logger.log(`  ${chalk.gray(categoryPrefix)} ${chalk.yellow(formatCategoryName(category))} ${chalk.dim(`(${mods.length})`)}`);
+          logger.log(
+            `  ${chalk.gray(categoryPrefix)} ${chalk.yellow(formatCategoryName(category))} ${chalk.dim(`(${mods.length})`)}`,
+          );
 
           mods.forEach((mod, modIndex) => {
             const isLastMod = modIndex === mods.length - 1;
-            const modPrefix = isLastCategory ? (isLastMod ? "    └──" : "    ├──") : (isLastMod ? "│   └──" : "│   ├──");
+            const modPrefix = isLastCategory
+              ? isLastMod
+                ? "    └──"
+                : "    ├──"
+              : isLastMod
+                ? "│   └──"
+                : "│   ├──";
             logger.log(`  ${chalk.gray(modPrefix)} ${chalk.green(mod.displayName)}`);
 
             if (mod.category === "database" && mod.name === "prisma") {
-              const providerPrefix = isLastCategory ? (isLastMod ? "        └──" : "        ├──") : (isLastMod ? "│       └──" : "│       ├──");
-              logger.log(`  ${chalk.gray(providerPrefix)} ${chalk.dim("Providers: PostgreSQL, MongoDB, MySQL, SQLite")}`);
+              const providerPrefix = isLastCategory
+                ? isLastMod
+                  ? "        └──"
+                  : "        ├──"
+                : isLastMod
+                  ? "│       └──"
+                  : "│       ├──";
+              logger.log(
+                `  ${chalk.gray(providerPrefix)} ${chalk.dim("Providers: PostgreSQL, MongoDB, MySQL, SQLite")}`,
+              );
             }
           });
         });
@@ -87,14 +103,15 @@ export async function listCommand(options: ListOptions): Promise<void> {
 
     logger.log(chalk.dim("Use 'stackkit add <module>' to add modules to your project"));
     logger.newLine();
-
   } catch (error) {
     logger.error(`Failed to list resources: ${(error as Error).message}`);
     process.exit(1);
   }
 }
 
-async function getAvailableFrameworks(templatesDir: string): Promise<{ name: string; displayName: string }[]> {
+async function getAvailableFrameworks(
+  templatesDir: string,
+): Promise<{ name: string; displayName: string }[]> {
   if (!(await fs.pathExists(templatesDir))) {
     return [];
   }

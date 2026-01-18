@@ -1,11 +1,5 @@
 {
   "title": "CLI",
   "defaultOpen": true,
-  "pages": [
-    "overview",
-    "create",
-    "add",
-    "list",
-    "doctor"
-  ]
+  "pages": ["overview", "create", "add", "list", "doctor"]
 }

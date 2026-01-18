@@ -31,6 +31,15 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
+    sendResetPassword: async ({ user, url }) => {
+    const { html, text } = getPasswordResetEmailTemplate(user, url);
+      await sendEmail({
+        to: user.email,
+        subject: "Reset Your Password",
+        text,
+        html,
+      });
+    },
   },
   socialProviders: {
     google: {
@@ -50,22 +59,9 @@ export const auth = betterAuth({
     },
     sendOnSignIn: true,
   },
-  password: {
-    reset: {
-      sendResetEmail: async ({ user, url }) => {
-        const { html, text } = getPasswordResetEmailTemplate(user, url);
-        await sendEmail({
-          to: user.email,
-          subject: "Reset Your Password",
-          text,
-          html,
-        });
-      },
-    },
-  },
   rateLimit: {
-    window: 10, // 10 seconds
-    max: 100, // max requests per window
+    window: 10,
+    max: 100,
   },
   account: {
     accountLinking: {
@@ -77,7 +73,7 @@ export const auth = betterAuth({
     cookieCache: {
       enabled: true,
     },
-    expiresIn: 60 * 60 * 24 * 7, // 7 days
-    updateAge: 60 * 60 * 24, // 1 day
+    expiresIn: 60 * 60 * 24 * 7,
+    updateAge: 60 * 60 * 24,
   }
 });

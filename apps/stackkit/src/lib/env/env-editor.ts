@@ -86,7 +86,7 @@ async function appendToEnvFile(
   content += `${ENV_MARKER_START} Added by StackKit\n`;
 
   for (const variable of newVariables) {
-    const value = fileType === "example" ? (variable.value || "") : (variable.value || "");
+    const value = fileType === "example" ? variable.value || "" : variable.value || "";
     content += `${variable.key}=${value}\n`;
   }
 

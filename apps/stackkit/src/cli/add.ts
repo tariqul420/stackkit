@@ -4,7 +4,11 @@ import fs from "fs-extra";
 import inquirer from "inquirer";
 import path from "path";
 import { CreateFilePatch, ModuleMetadata, ProjectInfo } from "../types";
-import { AdvancedCodeGenerator, Operation, TemplateCondition } from "../lib/generation/code-generator";
+import {
+  AdvancedCodeGenerator,
+  Operation,
+  TemplateCondition,
+} from "../lib/generation/code-generator";
 import { detectProjectInfo, getLibPath, getRouterBasePath } from "../lib/project/detect";
 import { addEnvVariables } from "../lib/env/env-editor";
 import { createFile, fileExists } from "../lib/fs/files";
@@ -12,7 +16,7 @@ import { logger } from "../lib/ui/logger";
 import { addDependencies, installDependencies } from "../lib/pm/package-manager";
 import { getPackageRoot } from "../lib/utils/package-root";
 import { FrameworkUtils } from "../lib/framework/framework-utils";
-import { mergeGeneratorIntoModuleMetadata } from '../lib/generation/generator-utils';
+import { mergeGeneratorIntoModuleMetadata } from "../lib/generation/generator-utils";
 
 interface AddConfig {
   module: string;
@@ -60,14 +64,20 @@ export async function addCommand(module?: string, options?: AddOptions): Promise
   }
 }
 
-async function getAddConfig(module?: string, options?: AddOptions, projectInfo?: ProjectInfo): Promise<AddConfig> {
-  const modulesDir = path.join(getPackageRoot(), 'modules');
+async function getAddConfig(
+  module?: string,
+  options?: AddOptions,
+  projectInfo?: ProjectInfo,
+): Promise<AddConfig> {
+  const modulesDir = path.join(getPackageRoot(), "modules");
 
   const argv = process.argv.slice(2);
-  const addIndex = argv.indexOf('add');
+  const addIndex = argv.indexOf("add");
   const argsAfterAdd = addIndex >= 0 ? argv.slice(addIndex + 1) : [];
-  const flagsProvided = argsAfterAdd.some(arg => arg.startsWith('-'));
-  const optionsProvided = flagsProvided || !!(options && (options.yes || options.provider || options.force || options.dryRun));
+  const flagsProvided = argsAfterAdd.some((arg) => arg.startsWith("-"));
+  const optionsProvided =
+    flagsProvided ||
+    !!(options && (options.yes || options.provider || options.force || options.dryRun));
 
   if (optionsProvided) {
     if (!module) {
@@ -79,25 +89,25 @@ async function getAddConfig(module?: string, options?: AddOptions, projectInfo?:
         if (!options?.provider) {
           throw new Error("Provider is required for database. Use --provider <provider>");
         }
-        
+
         let baseProvider = options.provider;
         let adapterProvider = options.provider;
-        
-        if (options.provider.includes('-')) {
-          const parts = options.provider.split('-');
+
+        if (options.provider.includes("-")) {
+          const parts = options.provider.split("-");
           baseProvider = parts[0]; // e.g., "prisma"
           adapterProvider = options.provider; // e.g., "prisma-postgresql"
         }
-        
+
         const moduleMetadata = await loadModuleMetadata(modulesDir, baseProvider, baseProvider);
         if (!moduleMetadata) {
           throw new Error(`Database provider "${baseProvider}" not found`);
         }
-        
+
         return {
           module: "database",
           provider: adapterProvider,
-          displayName: `${moduleMetadata.displayName} (${adapterProvider.split('-')[1] || adapterProvider})`,
+          displayName: `${moduleMetadata.displayName} (${adapterProvider.split("-")[1] || adapterProvider})`,
           metadata: moduleMetadata,
         };
       } else if (module === "auth") {
@@ -127,7 +137,10 @@ async function getAddConfig(module?: string, options?: AddOptions, projectInfo?:
     }
 
     if (moduleMetadata.category === "database" && !selectedProvider) {
-      if (typeof moduleMetadata.dependencies === "object" && "providers" in moduleMetadata.dependencies) {
+      if (
+        typeof moduleMetadata.dependencies === "object" &&
+        "providers" in moduleMetadata.dependencies
+      ) {
         const providers = Object.keys(moduleMetadata.dependencies.providers || {});
         if (providers.length > 0) {
           const { provider } = await inquirer.prompt([
@@ -144,7 +157,9 @@ async function getAddConfig(module?: string, options?: AddOptions, projectInfo?:
     }
 
     if (projectInfo && !moduleMetadata.supportedFrameworks.includes(projectInfo.framework)) {
-      throw new Error(`Module "${module}" does not support ${projectInfo.framework}. Supported: ${moduleMetadata.supportedFrameworks.join(", ")}`);
+      throw new Error(
+        `Module "${module}" does not support ${projectInfo.framework}. Supported: ${moduleMetadata.supportedFrameworks.join(", ")}`,
+      );
     }
 
     return {
@@ -203,14 +218,14 @@ async function getAddConfig(module?: string, options?: AddOptions, projectInfo?:
         module: "database",
         provider: "prisma",
         displayName: `Prisma (${providerAnswers.provider})`,
-        metadata: await loadModuleMetadata(modulesDir, "prisma", "prisma") as ModuleMetadata,
+        metadata: (await loadModuleMetadata(modulesDir, "prisma", "prisma")) as ModuleMetadata,
       };
     } else {
       return {
         module: "database",
         provider: "mongoose",
         displayName: "Mongoose",
-        metadata: await loadModuleMetadata(modulesDir, "mongoose", "mongoose") as ModuleMetadata,
+        metadata: (await loadModuleMetadata(modulesDir, "mongoose", "mongoose")) as ModuleMetadata,
       };
     }
   } else if (category === "auth") {
@@ -248,7 +263,12 @@ async function getAddConfig(module?: string, options?: AddOptions, projectInfo?:
   throw new Error("Invalid selection");
 }
 
-async function addModuleToProject(projectRoot: string, projectInfo: ProjectInfo, config: AddConfig, options?: AddOptions): Promise<void> {
+async function addModuleToProject(
+  projectRoot: string,
+  projectInfo: ProjectInfo,
+  config: AddConfig,
+  options?: AddOptions,
+): Promise<void> {
   const moduleMetadata = config.metadata;
   const selectedProvider = config.provider;
 
@@ -274,29 +294,43 @@ async function addModuleToProject(projectRoot: string, projectInfo: ProjectInfo,
     logger.newLine();
   }
 
-  const moduleBasePath = await findModulePath(path.join(getPackageRoot(), 'modules'), config.module, config.provider);
+  const moduleBasePath = await findModulePath(
+    path.join(getPackageRoot(), "modules"),
+    config.module,
+    config.provider,
+  );
   if (moduleBasePath) {
-    const frameworkConfig = await FrameworkUtils.loadFrameworkConfig(projectInfo.framework, path.join(getPackageRoot(), 'templates'));
+    const frameworkConfig = await FrameworkUtils.loadFrameworkConfig(
+      projectInfo.framework,
+      path.join(getPackageRoot(), "templates"),
+    );
     const gen = new AdvancedCodeGenerator(frameworkConfig);
-    await gen.loadGenerators(path.join(getPackageRoot(), 'modules'));
+    await gen.loadGenerators(path.join(getPackageRoot(), "modules"));
 
     const moduleName = path.basename(moduleBasePath);
     const available = gen.getAvailableGenerators();
-    const alreadyRegistered = (config.module === 'database' && available.databases.includes(moduleName)) || (config.module === 'auth' && available.auths.includes(moduleName));
+    const alreadyRegistered =
+      (config.module === "database" && available.databases.includes(moduleName)) ||
+      (config.module === "auth" && available.auths.includes(moduleName));
     if (!alreadyRegistered) {
       const ops: Operation[] = [];
       if (Array.isArray(moduleMetadata.patches)) {
         for (const p of moduleMetadata.patches as Array<CreateFilePatch>) {
-          if (p.type === 'create-file') {
-            ops.push({ type: 'create-file', source: p.source, destination: p.destination, condition: p.condition as unknown as TemplateCondition });
+          if (p.type === "create-file") {
+            ops.push({
+              type: "create-file",
+              source: p.source,
+              destination: p.destination,
+              condition: p.condition as unknown as TemplateCondition,
+            });
           }
         }
       }
 
       if (ops.length > 0) {
-        gen.registerGenerator(config.module as 'database' | 'auth' | 'framework', moduleName, {
+        gen.registerGenerator(config.module as "database" | "auth" | "framework", moduleName, {
           name: moduleName,
-          type: config.module as 'database' | 'auth' | 'framework',
+          type: config.module as "database" | "auth" | "framework",
           priority: 0,
           operations: ops,
           dependencies: {},
@@ -304,40 +338,45 @@ async function addModuleToProject(projectRoot: string, projectInfo: ProjectInfo,
       }
     }
 
-    const selectedModules: { framework: string; database?: string; auth?: string; prismaProvider?: string } = { framework: projectInfo.framework };
-    if (config.module === 'database' && config.provider) {
-      if (config.provider.startsWith('prisma-')) {
-        selectedModules.database = 'prisma';
-        selectedModules.prismaProvider = config.provider.split('-')[1];
+    const selectedModules: {
+      framework: string;
+      database?: string;
+      auth?: string;
+      prismaProvider?: string;
+    } = { framework: projectInfo.framework };
+    if (config.module === "database" && config.provider) {
+      if (config.provider.startsWith("prisma-")) {
+        selectedModules.database = "prisma";
+        selectedModules.prismaProvider = config.provider.split("-")[1];
       } else {
         selectedModules.database = config.provider;
       }
     }
-    if (config.module === 'auth' && config.provider) {
+    if (config.module === "auth" && config.provider) {
       selectedModules.auth = config.provider;
     }
 
     const postInstall = await gen.applyToProject(selectedModules, [], projectRoot);
     if (postInstall && postInstall.length > 0 && !options?.dryRun) {
-      const postInstallSpinner = logger.startSpinner('Running post-install commands...');
+      const postInstallSpinner = logger.startSpinner("Running post-install commands...");
       try {
         for (const command of postInstall) {
-          execSync(command, { cwd: projectRoot, stdio: 'pipe' });
+          execSync(command, { cwd: projectRoot, stdio: "pipe" });
         }
-        postInstallSpinner.succeed('Post-install commands completed');
+        postInstallSpinner.succeed("Post-install commands completed");
       } catch (error) {
-        postInstallSpinner.fail('Failed to run post-install commands');
+        postInstallSpinner.fail("Failed to run post-install commands");
         throw error;
       }
     }
 
     if (!options?.dryRun && options?.install !== false) {
-      const installSpinner = logger.startSpinner('Installing dependencies...');
+      const installSpinner = logger.startSpinner("Installing dependencies...");
       try {
         await installDependencies(projectRoot, projectInfo.packageManager);
-        installSpinner.succeed('Dependencies installed');
+        installSpinner.succeed("Dependencies installed");
       } catch (err) {
-        installSpinner.fail('Failed to install dependencies');
+        installSpinner.fail("Failed to install dependencies");
         throw err;
       }
     }
@@ -367,16 +406,19 @@ async function addModuleToProject(projectRoot: string, projectInfo: ProjectInfo,
   if (moduleMetadata.envVars) {
     const envArray: Array<{ key?: string; value?: string }> = Array.isArray(moduleMetadata.envVars)
       ? (moduleMetadata.envVars as Array<{ key?: string; value?: string }>)
-      : Object.entries(moduleMetadata.envVars as Record<string, string>).map(([k, v]) => ({ key: k, value: String(v) }));
+      : Object.entries(moduleMetadata.envVars as Record<string, string>).map(([k, v]) => ({
+          key: k,
+          value: String(v),
+        }));
 
     for (const ev of envArray) {
-      if (ev.key && typeof ev.value === 'string') variables[ev.key] = ev.value as string;
+      if (ev.key && typeof ev.value === "string") variables[ev.key] = ev.value as string;
     }
 
     for (let pass = 0; pass < 5; pass++) {
       let changed = false;
       for (const ev of envArray) {
-        if (!ev.key || typeof ev.value !== 'string') continue;
+        if (!ev.key || typeof ev.value !== "string") continue;
         const resolved = ev.value.replace(/\{\{(\w+)\}\}/g, (_m, k) => variables[k] ?? _m);
         if (variables[ev.key] !== resolved) {
           variables[ev.key] = resolved;
@@ -387,7 +429,14 @@ async function addModuleToProject(projectRoot: string, projectInfo: ProjectInfo,
     }
   }
 
-  await applyModulePatches(projectRoot, projectInfo, moduleMetadata, path.join(getPackageRoot(), "modules"), config.module, options || {});
+  await applyModulePatches(
+    projectRoot,
+    projectInfo,
+    moduleMetadata,
+    path.join(getPackageRoot(), "modules"),
+    config.module,
+    options || {},
+  );
 
   if (moduleMetadata.frameworkPatches && !options?.dryRun) {
     await applyFrameworkPatches(
@@ -441,7 +490,11 @@ async function addModuleToProject(projectRoot: string, projectInfo: ProjectInfo,
   }
 }
 
-async function loadModuleMetadata(modulesDir: string, moduleName: string, provider?: string): Promise<ModuleMetadata | null> {
+async function loadModuleMetadata(
+  modulesDir: string,
+  moduleName: string,
+  provider?: string,
+): Promise<ModuleMetadata | null> {
   if (!(await fs.pathExists(modulesDir))) {
     return null;
   }
@@ -468,11 +521,11 @@ async function loadModuleMetadata(modulesDir: string, moduleName: string, provid
         const metadata = await fs.readJSON(metadataPath);
 
         if (provider && moduleDir === provider) {
-            return await mergeGeneratorIntoModuleMetadata(metadata, modulePath);
+          return await mergeGeneratorIntoModuleMetadata(metadata, modulePath);
         }
 
         if (!provider && (metadata.category === moduleName || moduleDir === moduleName)) {
-            return await mergeGeneratorIntoModuleMetadata(metadata, modulePath);
+          return await mergeGeneratorIntoModuleMetadata(metadata, modulePath);
         }
       }
     }
@@ -536,7 +589,11 @@ async function applyModulePatches(
   }
 }
 
-async function findModulePath(modulesDir: string, moduleName: string, provider?: string): Promise<string | null> {
+async function findModulePath(
+  modulesDir: string,
+  moduleName: string,
+  provider?: string,
+): Promise<string | null> {
   const categories = await fs.readdir(modulesDir);
 
   for (const category of categories) {
