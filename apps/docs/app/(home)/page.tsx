@@ -1,9 +1,10 @@
 import Link from "next/link";
 import CopyCommand from "../../components/copy-command";
+import { cn } from "@/lib/cn";
 
 // Shared CSS classes
 const styles = {
-  section: "container px-6 py-32",
+  section: "py-24",
   sectionHeader: "mx-auto max-w-3xl text-center",
   sectionTitle: "text-4xl font-bold tracking-tight sm:text-5xl",
   sectionDescription: "mt-6 text-xl text-fd-muted-foreground",
@@ -126,146 +127,134 @@ const stats = [
 
 export default function HomePage() {
   return (
-    <div>
+    <div className="container mx-auto flex max-w-6xl flex-col items-center">
       {/* Hero Section */}
-      <section className="container relative px-6 py-10">
-        <div className="mx-auto flex max-w-6xl flex-col items-center gap-10 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-fd-primary/20 bg-fd-card/50 px-4 py-1.5 text-xs font-medium backdrop-blur-sm">
-            <span className="relative flex size-2">
-              <span className="absolute inline-flex size-full animate-ping rounded-full bg-fd-primary opacity-75"></span>
-              <span className="relative inline-flex size-2 rounded-full bg-fd-primary"></span>
-            </span>
-            <span>Production-Ready in 60 Seconds</span>
-          </div>
-
-          <div className="space-y-6">
-            <h1 className="max-w-5xl text-5xl font-bold tracking-tight sm:text-6xl md:text-7xl lg:text-8xl">
-              Ship Production-Ready Apps
-              <br />
-              <span className="bg-linear-to-r from-fd-primary via-fd-primary to-fd-primary/60 bg-clip-text text-transparent">
-                in 60 Seconds
-              </span>
-            </h1>
-            <p className="mx-auto max-w-3xl text-lg text-fd-muted-foreground sm:text-xl md:text-2xl">
-              Full-stack project generator with authentication, database, and TypeScript configured
-              out of the box.
-            </p>
-          </div>
-
-          <div className="flex flex-col items-center gap-4 sm:flex-row">
-            <Link href="/docs" className={styles.primaryButton}>
-              Get Started →
-            </Link>
-            <a
-              href="https://github.com/tariqul420/stackkit"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`${styles.secondaryButton} gap-2`}
-            >
-              <svg className="size-5" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-              </svg>
-              <span>Star on GitHub</span>
-            </a>
-          </div>
-
-          {/* Command Box */}
-          <CopyCommand />
+      <section className="text-center flex flex-col items-center justify-center gap-8 pt-10 pb-32">
+        <div className="inline-flex items-center gap-2 rounded-full border border-fd-primary/20 bg-fd-card/50 px-4 py-1.5 text-xs font-medium backdrop-blur-sm">
+          <span className="relative flex size-2">
+            <span className="absolute inline-flex size-full animate-ping rounded-full bg-fd-primary opacity-75"></span>
+            <span className="relative inline-flex size-2 rounded-full bg-fd-primary"></span>
+          </span>
+          <span>Production-Ready in 60 Seconds</span>
         </div>
+
+        <div className="space-y-6">
+          <h1 className="max-w-5xl text-5xl font-bold tracking-tight sm:text-6xl md:text-7xl lg:text-8xl">
+            Ship Production-Ready Apps
+            <br />
+            <span className="bg-linear-to-r from-fd-primary via-fd-primary to-fd-primary/60 bg-clip-text text-transparent">
+              in 60 Seconds
+            </span>
+          </h1>
+          <p className="mx-auto max-w-3xl text-lg text-fd-muted-foreground sm:text-xl md:text-2xl">
+            Full-stack project generator with authentication, database, and TypeScript configured
+            out of the box.
+          </p>
+        </div>
+
+        <div className="flex flex-col items-center gap-4 sm:flex-row">
+          <Link href="/docs" className={styles.primaryButton}>
+            Get Started →
+          </Link>
+          <a
+            href="https://github.com/tariqul420/stackkit"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`${styles.secondaryButton} gap-2`}
+          >
+            <svg className="size-5" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+            </svg>
+            <span>Star on GitHub</span>
+          </a>
+        </div>
+
+        {/* Command Box */}
+        <CopyCommand />
       </section>
 
       {/* Features Grid */}
       <section className={styles.section}>
-        <div className="mx-auto max-w-6xl space-y-16">
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Built for developers who value their time</h2>
-            <p className={styles.sectionDescription}>
-              Enterprise-grade features without the enterprise setup time
-            </p>
-          </div>
+        <div className={cn(styles.sectionHeader, "pb-16")}>
+          <h2 className={styles.sectionTitle}>Built for developers who value their time</h2>
+          <p className={styles.sectionDescription}>
+            Enterprise-grade features without the enterprise setup time
+          </p>
+        </div>
 
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {features.map((feature, index) => (
-              <div key={index} className={styles.card}>
-                <div
-                  className={`${styles.cardGlow} -right-8 -top-8 size-32 group-hover:bg-fd-primary/10`}
-                />
-                <div className="relative space-y-4">
-                  <div className={`${styles.iconWrapper} size-14`}>
-                    <svg className="size-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      {feature.icon}
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-semibold">{feature.title}</h3>
-                  <p className="text-fd-muted-foreground">{feature.description}</p>
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {features.map((feature, index) => (
+            <div key={index} className={styles.card}>
+              <div
+                className={`${styles.cardGlow} -right-8 -top-8 size-32 group-hover:bg-fd-primary/10`}
+              />
+              <div className="relative space-y-4">
+                <div className={`${styles.iconWrapper} size-14`}>
+                  <svg className="size-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    {feature.icon}
+                  </svg>
                 </div>
+                <h3 className="text-xl font-semibold">{feature.title}</h3>
+                <p className="text-fd-muted-foreground">{feature.description}</p>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* Stack Showcase */}
       <section className={styles.section}>
-        <div className="mx-auto max-w-6xl space-y-16">
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Your stack, your choice</h2>
-            <p className={styles.sectionDescription}>
-              All combinations tested and production-proven
-            </p>
-          </div>
+        <div className={cn(styles.sectionHeader, "mb-16")}>
+          <h2 className={styles.sectionTitle}>Your stack, your choice</h2>
+          <p className={styles.sectionDescription}>All combinations tested and production-proven</p>
+        </div>
 
-          <div className="grid gap-8 md:grid-cols-3">
-            {stackCategories.map((category, index) => (
-              <div key={index} className={`${styles.card} hover:shadow-xl`}>
-                <div
-                  className={`${styles.cardGlow} -right-4 -top-4 size-24 blur-xl group-hover:scale-150`}
-                />
-                <div className="relative space-y-6">
-                  <div className="flex items-center gap-4">
-                    <div className={`${styles.iconWrapper} size-12`}>
-                      <svg className="size-6" fill="currentColor" viewBox="0 0 24 24">
-                        {category.icon}
-                      </svg>
-                    </div>
-                    <h3 className="text-xl font-semibold">{category.title}</h3>
+        <div className="grid gap-8 md:grid-cols-3">
+          {stackCategories.map((category, index) => (
+            <div key={index} className={`${styles.card} hover:shadow-xl`}>
+              <div
+                className={`${styles.cardGlow} -right-4 -top-4 size-24 blur-xl group-hover:scale-150`}
+              />
+              <div className="relative space-y-6">
+                <div className="flex items-center gap-4">
+                  <div className={`${styles.iconWrapper} size-12`}>
+                    <svg className="size-6" fill="currentColor" viewBox="0 0 24 24">
+                      {category.icon}
+                    </svg>
                   </div>
-                  <ul className="space-y-3 text-fd-muted-foreground">
-                    {category.items.map((item, itemIndex) => (
-                      <li key={itemIndex} className="flex items-center gap-3">
-                        <span>✔</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <h3 className="text-xl font-semibold">{category.title}</h3>
                 </div>
+                <ul className="space-y-3 text-fd-muted-foreground">
+                  {category.items.map((item, itemIndex) => (
+                    <li key={itemIndex} className="flex items-center gap-3">
+                      <span>✔</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* Stats */}
       <section className={styles.section}>
-        <div className="mx-auto max-w-6xl">
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-            {stats.map((stat, index) => (
-              <div key={index} className="group relative">
-                <div className="relative flex flex-col items-center justify-center rounded-2xl border border-fd-border bg-fd-card p-8 text-center">
-                  <div className={`mb-2 text-5xl font-bold ${styles.gradientText}`}>
-                    {stat.value}
-                  </div>
-                  <div className="text-sm font-medium text-fd-muted-foreground">{stat.label}</div>
-                </div>
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+          {stats.map((stat, index) => (
+            <div key={index} className="group relative">
+              <div className="relative flex flex-col items-center justify-center rounded-2xl border border-fd-border bg-fd-card p-8 text-center">
+                <div className={`mb-2 text-5xl font-bold ${styles.gradientText}`}>{stat.value}</div>
+                <div className="text-sm font-medium text-fd-muted-foreground">{stat.label}</div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* CTA */}
       <section className="container relative px-6 py-32">
-        <div className="absolute inset-0 -z-10 bg-linear-to-t from-fd-primary/5 to-transparent" />
+        <div className="absolute inset-0 -z-10 bg-linear-to-t from-fd-primary/5 to-transparent rounded-lg" />
         <div className="mx-auto max-w-4xl">
           <div className="relative overflow-hidden rounded-3xl border border-fd-border bg-fd-card/50 p-12 text-center backdrop-blur-sm md:p-16">
             <div className="absolute -right-12 -top-12 size-48 rounded-full bg-fd-primary/10 blur-3xl" />

@@ -676,7 +676,9 @@ export class AdvancedCodeGenerator {
                 .map((l) => l.trim())
                 .filter(Boolean);
 
-              const newImportLines = importLines.filter((imp) => !lines.some((ln) => ln.trim() === imp));
+              const newImportLines = importLines.filter(
+                (imp) => !lines.some((ln) => ln.trim() === imp),
+              );
 
               if (newImportLines.length > 0) {
                 // Insert imports
