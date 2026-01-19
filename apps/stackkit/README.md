@@ -7,28 +7,28 @@ Production-ready CLI for creating and enhancing JavaScript applications.
 ```bash
 npm install -g stackkit
 # or
-npx stackkit
+npx stackkit@latest
 ```
 
 ## Create New Project
 
 ```bash
-npx stackkit create my-app
+npx stackkit@latest create my-app
 ```
 
 ## Add Features to Existing Project
 
 ```bash
-npx stackkit add
+npx stackkit@latest add
 # or non-interactive
-npx stackkit add auth
-npx stackkit add database
+npx stackkit@latest add auth
+npx stackkit@latest add database
 ```
 
 ## Check Project Health
 
 ```bash
-npx stackkit doctor
+npx stackkit@latest doctor
 ```
 
 ## Supported Technologies

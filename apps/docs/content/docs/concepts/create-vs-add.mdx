@@ -12,7 +12,7 @@ StackKit has two main commands: `create` for new projects and `add` for enhancin
 Generates a complete project with your chosen framework, database, and auth. Includes all boilerplate, dependencies, and configurations.
 
 ```bash
-npx stackkit create my-app --framework nextjs --database prisma-postgresql --auth better-auth
+npx stackkit@latest create my-app --framework nextjs --database prisma-postgresql --auth better-auth
 ```
 
 **What it does**:
@@ -29,7 +29,7 @@ npx stackkit create my-app --framework nextjs --database prisma-postgresql --aut
 Detects your current framework and adds modules like auth or database without disrupting your code.
 
 ```bash
-npx stackkit add
+npx stackkit@latest add
 ```
 
 **What it does**:
@@ -42,9 +42,9 @@ npx stackkit add
 
 | Scenario | Command | Example |
 |----------|---------|---------|
-| New Next.js app with auth | create | `npx stackkit create my-app --framework nextjs --auth better-auth` |
-| Add database to existing Express app | add | `npx stackkit add` |
-| Prototype React + auth | create | `npx stackkit create my-app --framework react --auth better-auth` |
+| New Next.js app with auth | create | `npx stackkit@latest create my-app --framework nextjs --auth better-auth` |
+| Add database to existing Express app | add | `npx stackkit@latest add` |
+| Prototype React + auth | create | `npx stackkit@latest create my-app --framework react --auth better-auth` |
 
 Next steps:
 - [Templates vs Modules](/docs/concepts/templates-vs-modules) for more on components

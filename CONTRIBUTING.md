@@ -17,7 +17,7 @@ pnpm install && pnpm build
 1. Create directory: `modules/{category}/{provider}/`
 2. Add `module.json` configuration
 3. Add template files in `files/` subdirectory
-4. Test with CLI: `npx stackkit add {module}`
+4. Test with CLI: `npx stackkit@latest add {module}`
 5. Submit PR
 
 ## Testing

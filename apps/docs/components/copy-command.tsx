@@ -9,7 +9,7 @@ export default function CopyCommand() {
   const [hovered, setHovered] = useState(false);
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText("npx stackkit create");
+    await navigator.clipboard.writeText("npx stackkit@latest create");
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -36,7 +36,7 @@ export default function CopyCommand() {
               onMouseEnter={() => setHovered(true)}
               onMouseLeave={() => setHovered(false)}
             >
-              <span>npx stackkit create</span>
+              <span>npx stackkit@latest create</span>
               {(hovered || copied) && (
                 <span className="ml-2">
                   {copied ? (

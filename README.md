@@ -10,29 +10,29 @@
 **Create a new project:**
 
 ```bash
-npx stackkit create my-app
+npx stackkit@latest create my-app
 ```
 
 **Add modules to existing project:**
 
 ```bash
-npx stackkit add auth
-npx stackkit add database
+npx stackkit@latest add auth
+npx stackkit@latest add database
 ```
 
 **Check project health:**
 
 ```bash
-npx stackkit doctor
+npx stackkit@latest doctor
 ```
 
 ## Features
 
-- 🧙 **Interactive wizard** - Choose framework, database, and auth
-- 🔧 **Modular** - Mix and match components
-- 📦 **Extensible** - Add features anytime
-- ⚡ **Fast** - Auto-install dependencies
-- ✅ **Production-ready** - Best practices built-in
+- **Interactive wizard** - Choose framework, database, and auth
+- **Modular** - Mix and match components
+- **Extensible** - Add features anytime
+- **Fast** - Auto-install dependencies
+- **Production-ready** - Best practices built-in
 
 ## Available Stacks
 

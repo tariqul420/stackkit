@@ -72,17 +72,17 @@ async function getAddConfig(
   }
 
   // Only allow: no-arg interactive, or explicit category + --provider.
-  // Disallow positional provider names like `npx stackkit add better-auth` or
-  // `npx stackkit add auth prisma-postgresql` — require `--provider` flag.
+  // Disallow positional provider names like `npx stackkit@latest add better-auth` or
+  // `npx stackkit@latest add auth prisma-postgresql` — require `--provider` flag.
   if (module === "database" || module === "auth") {
     if (!options?.provider) {
       if (module === "database") {
         throw new Error(
-          "Provider is required for database. Use: `npx stackkit add database --provider <provider>`",
+          "Provider is required for database. Use: `npx stackkit@latest add database --provider <provider>`",
         );
       } else {
         throw new Error(
-          "Provider is required for auth. Use: `npx stackkit add auth --provider <provider>`",
+          "Provider is required for auth. Use: `npx stackkit@latest add auth --provider <provider>`",
         );
       }
     }
