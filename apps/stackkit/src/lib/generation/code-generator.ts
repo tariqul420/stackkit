@@ -951,8 +951,8 @@ export class AdvancedCodeGenerator {
         (type === "database" && name === selectedModules.database) ||
         (type === "auth" && name === selectedModules.auth)
       ) {
-        Object.assign(allDeps, generator.dependencies);
-        Object.assign(allDevDeps, generator.devDependencies);
+        // Dependencies and devDependencies are now provided via `add-dependency`
+        // operations. Keep merging scripts from generator configs for now.
         Object.assign(allScripts, generator.scripts);
       }
     }

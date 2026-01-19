@@ -34,8 +34,7 @@
       "condition": { "database": "prisma" },
       "dependencies": {
         "@auth/prisma-adapter": "^0.5.0"
-      },
-      "devDependencies": {}
+      }
     },
     {
       "type": "add-env",
@@ -44,11 +43,12 @@
         "AUTH_GOOGLE_ID": "",
         "AUTH_GOOGLE_SECRET": ""
       }
+    },
+    {
+      "type": "add-dependency",
+      "dependencies": {
+        "next-auth": "^5.0.0-beta.30"
+      }
     }
-  ],
-  "dependencies": {
-    "next-auth": "^5.0.0-beta.30"
-  },
-  "devDependencies": {},
-  "scripts": {}
+  ]
 }

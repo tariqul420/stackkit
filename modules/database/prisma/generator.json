@@ -91,17 +91,22 @@
       "envVars": {
         "DATABASE_URL": "mongodb://localhost:27017/database_name"
       }
+    },
+    {
+      "type": "add-dependency",
+      "dependencies": {
+        "dotenv": "^17.2.3"
+      }
+    },
+    {
+      "type": "add-script",
+      "scripts": {
+        "db:generate": "npx prisma generate",
+        "db:push": "npx prisma db push",
+        "db:seed": "tsx prisma/seed.ts",
+        "db:migrate": "npx prisma migrate dev",
+        "db:studio": "npx prisma studio"
+      }
     }
-  ],
-  "dependencies": {
-    "dotenv": "^17.2.3"
-  },
-  "devDependencies": {},
-  "scripts": {
-    "db:generate": "npx prisma generate",
-    "db:push": "npx prisma db push",
-    "db:seed": "tsx prisma/seed.ts",
-    "db:migrate": "npx prisma migrate dev",
-    "db:studio": "npx prisma studio"
-  }
+  ]
 }

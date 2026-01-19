@@ -97,12 +97,13 @@
         "EMAIL_USER": "",
         "EMAIL_PASS": "",
         "EMAIL_FROM": "noreply@yourapp.com"
+        }
+      },
+    {
+      "type": "add-dependency",
+      "dependencies": {
+        "better-auth": "^1.4.12"
       }
     }
-  ],
-  "dependencies": {
-    "better-auth": "^1.4.12"
-  },
-  "devDependencies": {},
-  "scripts": {}
+  ]
 }

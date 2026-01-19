@@ -65,11 +65,24 @@ export async function mergeGeneratorIntoModuleMetadata(
         }
       }
 
-      if (generator.dependencies) {
-        metadata.dependencies = { ...metadata.dependencies, ...generator.dependencies };
-      }
-      if (generator.devDependencies) {
-        metadata.devDependencies = { ...metadata.devDependencies, ...generator.devDependencies };
+      // Collect dependencies/devDependencies from add-dependency operations
+      if (generator.operations && Array.isArray(generator.operations)) {
+        for (const operation of generator.operations) {
+          if (operation.type === "add-dependency") {
+            if (operation.dependencies) {
+              metadata.dependencies = {
+                ...metadata.dependencies,
+                ...(operation.dependencies as Record<string, string>),
+              };
+            }
+            if (operation.devDependencies) {
+              metadata.devDependencies = {
+                ...metadata.devDependencies,
+                ...(operation.devDependencies as Record<string, string>),
+              };
+            }
+          }
+        }
       }
       if (generator.postInstall && Array.isArray(generator.postInstall)) {
         metadata.postInstall = metadata.postInstall || [];

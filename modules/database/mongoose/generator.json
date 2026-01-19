@@ -34,10 +34,12 @@
       "envVars": {
         "MONGODB_URI": "mongodb://localhost:27017/database_name"
       }
+    },
+    {
+      "type": "add-dependency",
+      "dependencies": {
+        "mongoose": "^8.8.0"
+      }
     }
-  ],
-  "dependencies": {
-    "mongoose": "^8.8.0"
-  },
-  "devDependencies": {}
+  ]
 }
