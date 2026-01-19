@@ -1,4 +1,5 @@
 import Link from "next/link";
+import CopyCommand from "../../components/copy-command";
 
 // Shared CSS classes
 const styles = {
@@ -169,24 +170,7 @@ export default function HomePage() {
           </div>
 
           {/* Command Box */}
-          <div className="mt-16 w-full max-w-3xl">
-            <div className="relative overflow-hidden rounded-xl border border-fd-border bg-fd-card/80 shadow-md backdrop-blur-sm">
-              <div className="flex items-center gap-2 border-b border-fd-border bg-fd-muted/50 px-5 py-3">
-                <div className="flex gap-1.5">
-                  <div className="size-3 rounded-full bg-red-500" />
-                  <div className="size-3 rounded-full bg-yellow-500" />
-                  <div className="size-3 rounded-full bg-green-500" />
-                </div>
-                <div className="ml-2 text-xs font-medium text-fd-muted-foreground">terminal</div>
-              </div>
-              <div className="p-8">
-                <div className="flex items-center gap-4 font-mono text-lg">
-                  <span className="text-fd-primary">$</span>
-                  <span className="select-all font-semibold">npx stackkit create</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          <CopyCommand />
         </div>
       </section>
 
