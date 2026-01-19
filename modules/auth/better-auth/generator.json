@@ -51,7 +51,7 @@
       "operations": [
         {
           "type": "add-import",
-          "imports": ["import { initAuth } from \"@/lib/auth\";"]
+          "imports": ["import { initAuth } from \"../lib/auth\";"]
         },
         {
           "type": "add-code",
@@ -67,7 +67,7 @@
       "operations": [
         {
           "type": "add-import",
-          "imports": ["import { auth } from \"@/lib/auth\";",
+          "imports": ["import { auth } from \"../lib/auth\";",
           "import { toNodeHandler } from \"better-auth/node\";"]
         },
         {

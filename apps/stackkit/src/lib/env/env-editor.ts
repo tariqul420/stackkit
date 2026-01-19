@@ -2,9 +2,6 @@ import fs from "fs-extra";
 import path from "path";
 import { logger } from "../ui/logger";
 
-const ENV_MARKER_START = "# StackKit:";
-const ENV_MARKER_END = "# End StackKit";
-
 export interface EnvVariable {
   key: string;
   value?: string;
@@ -81,16 +78,11 @@ async function appendToEnvFile(
     content += "\n";
   }
 
-  // Add marker and variables
-  content += "\n";
-  content += `${ENV_MARKER_START} Added by StackKit\n`;
-
+  // Append variables
   for (const variable of newVariables) {
     const value = fileType === "example" ? variable.value || "" : variable.value || "";
     content += `${variable.key}=${value}\n`;
   }
-
-  content += `${ENV_MARKER_END}\n`;
 
   await fs.ensureDir(path.dirname(filePath));
   await fs.writeFile(filePath, content, "utf-8");
@@ -116,26 +108,13 @@ async function removeFromEnvFile(filePath: string, keys: string[]): Promise<void
     const content = await fs.readFile(filePath, "utf-8");
     const lines = content.split("\n");
     const newLines: string[] = [];
-    let inStackKitBlock = false;
 
     for (const line of lines) {
-      if (line.includes(ENV_MARKER_START)) {
-        inStackKitBlock = true;
-        continue;
-      }
-      if (line.includes(ENV_MARKER_END)) {
-        inStackKitBlock = false;
-        continue;
-      }
-
       const match = line.match(/^([A-Z_][A-Z0-9_]*)=/);
       if (match && keys.includes(match[1])) {
         continue;
       }
-
-      if (!inStackKitBlock || !line.startsWith("#")) {
-        newLines.push(line);
-      }
+      newLines.push(line);
     }
 
     while (newLines.length > 0 && newLines[newLines.length - 1].trim() === "") {

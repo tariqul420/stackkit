@@ -20,7 +20,7 @@
       "operations": [
         {
           "type": "add-import",
-          "imports": ["import { mongoose } from \"./mongoose\";"]
+          "imports": ["import { mongoose } from \"../lib/mongoose\";"]
         },
         {
           "type": "add-code",

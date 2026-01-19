@@ -519,6 +519,17 @@ export class AdvancedCodeGenerator {
           );
         },
       });
+      // If template provides a .env.example, create a .env from it when
+      // the target project does not already have a .env file.
+      try {
+        const envExampleSrc = path.join(templatePath, ".env.example");
+        const envDest = path.join(outputPath, ".env");
+        if ((await fs.pathExists(envExampleSrc)) && !(await fs.pathExists(envDest))) {
+          await fs.copy(envExampleSrc, envDest);
+        }
+      } catch {
+        // ignore failures here — not critical
+      }
     }
   }
 
@@ -638,34 +649,120 @@ export class AdvancedCodeGenerator {
         switch (patchOp.type) {
           case "add-import":
             if (patchOp.imports) {
+              // Process imports and trim any accidental surrounding blank lines
               const imports = patchOp.imports
                 .map((imp) => this.processTemplate(imp, context))
-                .join("\n");
-              // Add imports at the top, after existing imports
+                .join("\n")
+                .replace(/^\n+/, "")
+                .replace(/\n+$/, "");
+
+              // Add imports at the top, after existing imports without introducing
+              // extra blank lines.
               const lines = content.split("\n");
-              let insertIndex = 0;
+              // Find the last import line index
+              let lastImportIndex = -1;
               for (let i = 0; i < lines.length; i++) {
-                if (lines[i].trim().startsWith("import") || lines[i].trim() === "") {
-                  insertIndex = i + 1;
+                if (lines[i].trim().startsWith("import")) lastImportIndex = i;
+              }
+
+              // Insert right after the last import. If there's a blank line
+              // immediately after the imports, overwrite that blank line to
+              // avoid introducing an extra empty line above the inserted imports.
+              const insertIndex = lastImportIndex === -1 ? 0 : lastImportIndex + 1;
+
+              // Only add imports that don't already exist in the file
+              const importLines = imports
+                .split("\n")
+                .map((l) => l.trim())
+                .filter(Boolean);
+
+              const newImportLines = importLines.filter((imp) => !lines.some((ln) => ln.trim() === imp));
+
+              if (newImportLines.length > 0) {
+                // Insert imports
+                if (insertIndex < lines.length && lines[insertIndex].trim() === "") {
+                  lines.splice(insertIndex, 1, ...newImportLines);
                 } else {
-                  break;
+                  lines.splice(insertIndex, 0, ...newImportLines);
+                }
+
+                // After insertion, ensure exactly one blank line after the import block
+                // Find last import line index again
+                let lastIdx = -1;
+                for (let i = 0; i < lines.length; i++) {
+                  if (lines[i].trim().startsWith("import")) lastIdx = i;
+                }
+                const nextIdx = lastIdx + 1;
+                if (lastIdx !== -1) {
+                  // Remove multiple blank lines after imports
+                  let j = nextIdx;
+                  while (j < lines.length && lines[j].trim() === "") {
+                    j++;
+                  }
+                  // Ensure exactly one blank line after imports unless imports end at EOF
+                  if (nextIdx < lines.length) {
+                    lines.splice(nextIdx, j - nextIdx, "");
+                  }
                 }
               }
-              lines.splice(insertIndex, 0, imports);
               content = lines.join("\n");
             }
             break;
 
           case "add-code":
-            if (patchOp.code && patchOp.after) {
+            if (patchOp.code) {
               const processedCode = this.processTemplate(patchOp.code, context);
-              const afterPattern = this.processTemplate(patchOp.after, context);
-              const index = content.indexOf(afterPattern);
-              if (index !== -1) {
-                content =
-                  content.slice(0, index + afterPattern.length) +
-                  processedCode +
-                  content.slice(index + afterPattern.length);
+
+              // Skip insertion if the exact code already exists in the file
+              const codeTrimmed = processedCode.trim();
+              if (codeTrimmed && content.includes(codeTrimmed)) {
+                break;
+              }
+
+              // Insert after pattern if provided
+              if (patchOp.after) {
+                const afterPattern = this.processTemplate(patchOp.after, context);
+                const index = content.indexOf(afterPattern);
+                if (index !== -1) {
+                  const left = content.slice(0, index + afterPattern.length);
+                  const right = content.slice(index + afterPattern.length);
+
+                  // Normalize code: trim surrounding newlines and ensure single trailing newline
+                  let codeNormalized = processedCode.replace(/^\n+|\n+$/g, "") + "\n";
+
+                  // If right already starts with a newline, avoid double-blank by
+                  // removing trailing newline from codeNormalized so only one newline remains
+                  const rightStartsWithNewline = right.startsWith("\n");
+                  if (rightStartsWithNewline && codeNormalized.endsWith("\n")) {
+                    codeNormalized = codeNormalized.replace(/\n+$/, "");
+                  }
+
+                  const leftNeedsNewline = !left.endsWith("\n");
+                  content = left + (leftNeedsNewline ? "\n" : "") + codeNormalized + right;
+                }
+              }
+
+              // Insert before pattern if provided
+              if (patchOp.before) {
+                const beforePattern = this.processTemplate(patchOp.before, context);
+                const index = content.indexOf(beforePattern);
+                if (index !== -1) {
+                  const left = content.slice(0, index);
+                  const right = content.slice(index);
+
+                  // Normalize code: trim surrounding newlines and ensure single trailing newline
+                  let codeNormalized = processedCode.replace(/^\n+|\n+$/g, "") + "\n";
+
+                  // If right already starts with a newline, avoid double-blank by
+                  // removing trailing newline from codeNormalized so only one newline remains
+                  const rightStartsWithNewline = right.startsWith("\n");
+                  if (rightStartsWithNewline && codeNormalized.endsWith("\n")) {
+                    codeNormalized = codeNormalized.replace(/\n+$/, "");
+                  }
+
+                  const leftNeedsNewline = !left.endsWith("\n");
+                  content = left + (leftNeedsNewline ? "\n" : "") + codeNormalized + right;
+                }
               }
             }
             break;
@@ -731,6 +828,9 @@ export class AdvancedCodeGenerator {
         }
       }
     }
+
+    // Normalize excessive blank lines introduced during patching
+    content = content.replace(/\n{3,}/g, "\n\n");
 
     // Write back the modified content
     await fs.writeFile(filePath, content, "utf-8");
