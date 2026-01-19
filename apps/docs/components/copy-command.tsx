@@ -36,7 +36,7 @@ export default function CopyCommand() {
               onMouseEnter={() => setHovered(true)}
               onMouseLeave={() => setHovered(false)}
             >
-              {copied ? "Copied!" : "npx stackkit create"}
+              <span>npx stackkit create</span>
               {(hovered || copied) && (
                 <span className="ml-2">
                   {copied ? (
