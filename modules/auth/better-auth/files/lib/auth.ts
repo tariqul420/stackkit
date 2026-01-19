@@ -1,4 +1,4 @@
-import { betterAuth } from "better-auth";
+import { betterAuth, env } from "better-auth";
 import { sendEmail } from "./email/email-service";
 import { getVerificationEmailTemplate, getPasswordResetEmailTemplate } from "./email/email-templates";
 {{#switch database}}
@@ -13,6 +13,12 @@ import { mongodbAdapter } from "better-auth/adapters/mongodb";
 {{/switch}}
 
 export async function initAuth() {
+{{#if database == 'mongoose'}}
+const mongooseInstance = await mongoose();
+const client = mongooseInstance.connection.getClient();
+const db = client.db();
+{{/if}}
+
 return betterAuth({
 {{#switch database}}
 {{#case prisma}}
@@ -21,12 +27,10 @@ return betterAuth({
   }),
 {{/case}}
 {{#case mongoose}}
-  const mongooseInstance = await mongoose();
-  const client = mongooseInstance.connection.getClient();
-  const db = client.db();
   database: mongodbAdapter(db, { client }),
 {{/case}}
 {{/switch}}
+  secret: env.BETTER_AUTH_SECRET,
   user: {
     additionalFields: {
       role: {

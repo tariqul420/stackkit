@@ -295,14 +295,14 @@ export class AdvancedCodeGenerator {
           const cleanCaseValue = caseValue.trim().replace(/['"]/g, "");
 
           if (cleanCaseValue === "default") {
-            defaultCase = caseContent;
+            defaultCase = caseContent.trim();
           } else if (actualVal === cleanCaseValue) {
-            result = caseContent;
+            result = caseContent.trim();
             break;
           }
         }
 
-        return result || defaultCase || "";
+        return (result || defaultCase || "").trim();
       },
     );
 

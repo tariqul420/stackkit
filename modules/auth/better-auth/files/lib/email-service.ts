@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 
 // Create email transporter
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
   port: parseInt(process.env.EMAIL_PORT || "587"),
   secure: process.env.EMAIL_PORT === "465",
@@ -27,7 +27,6 @@ export const sendEmail = async ({ to, subject, text, html }: {
       html,
     });
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.error("Email sending failed:", error);
     throw error;
   }

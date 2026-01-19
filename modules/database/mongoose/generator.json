@@ -6,7 +6,7 @@
     {
       "type": "create-file",
       "source": "lib/mongoose.ts",
-      "destination": "src/lib/mongoose.ts"
+      "destination": "lib/mongoose.ts"
     },
     {
       "type": "create-file",
@@ -20,7 +20,7 @@
       "operations": [
         {
           "type": "add-import",
-          "imports": ["import { mongoose } from \"@/lib/mongoose\";"]
+          "imports": ["import { mongoose } from \"./mongoose\";"]
         },
         {
           "type": "add-code",
