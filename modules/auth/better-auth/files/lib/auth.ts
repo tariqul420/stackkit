@@ -3,11 +3,11 @@ import { sendEmail } from "./email/email-service";
 import { getVerificationEmailTemplate, getPasswordResetEmailTemplate } from "./email/email-templates";
 {{#switch database}}
 {{#case prisma}}
-import { prisma } from "{{framework == 'nextjs' ? '@/lib' : '.'}}/prisma";
+import { prisma } from "./prisma";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 {{/case}}
 {{#case mongoose}}
-import { mongoose } from "{{framework == 'nextjs' ? '@/lib' : '.'}}/mongoose";
+import { mongoose } from "./mongoose";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 {{/case}}
 {{/switch}}

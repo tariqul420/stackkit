@@ -1,6 +1,6 @@
 import NextAuth from "next-auth"
 import { PrismaAdapter } from "@auth/prisma-adapter"
-import prisma from "@/lib/prisma"
+import { prisma } from "./prisma";
 import Google from "next-auth/providers/google"
 import { encode, decode } from 'next-auth/jwt';
 
