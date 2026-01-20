@@ -1,43 +1,37 @@
 # StackKit CLI
 
-Production-ready CLI for creating and enhancing JavaScript applications.
+CLI for scaffolding and composing modular JavaScript applications.
 
-## Installation
+Quick Start
+-----------
 
-```bash
-npm install -g stackkit
-# or
-npx stackkit@latest
-```
-
-## Create New Project
+Create a new project without installing globally:
 
 ```bash
 npx stackkit@latest create my-app
 ```
 
-## Add Features to Existing Project
+Add features to an existing project:
 
 ```bash
-npx stackkit@latest add
-# or non-interactive
-npx stackkit@latest add auth
-npx stackkit@latest add database
+npx stackkit@latest add <module>
 ```
 
-## Check Project Health
+Check project health:
 
 ```bash
 npx stackkit@latest doctor
 ```
 
-## Supported Technologies
+Supported technologies
+----------------------
 
-- **Frameworks**: Next.js, React, Express
-- **Databases**: Prisma (PostgreSQL, MongoDB, MySQL, SQLite), Mongoose (MongoDB)
-- **Auth**: Better Auth, Auth.js
+- Frameworks: Next.js, React, Express
+- Databases: Prisma, Mongoose
+- Auth: Auth.js / Better Auth
 
-## Documentation
+Links
+-----
 
-- [StackKit Docs](https://stackkit.tariqul.dev)
-- [GitHub Repository](https://github.com/tariqul420/stackkit)
+- Website: https://stackkit.tariqul.dev
+- Repo: https://github.com/tariqul420/stackkit

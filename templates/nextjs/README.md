@@ -2,9 +2,23 @@
 
 Production-ready Next.js starter with TypeScript and App Router.
 
-## Quick Start
+Requirements
+------------
+
+- Node.js 18+ (LTS recommended)
+- pnpm or npm
+
+Quick Start
+-----------
+
+Install dependencies and start a development server:
 
 ```bash
+# using pnpm (recommended)
+pnpm install
+pnpm dev
+
+# or using npm
 npm install
 npm run dev
 ```
@@ -40,7 +54,7 @@ public/            # Static assets
 
 ## Environment Variables
 
-Create `.env.local` file for environment variables.
+Create a `.env.local` (Next.js) file for local environment variables. Keep secrets out of the repository.
 
 ## Deployment
 
@@ -50,3 +64,15 @@ npm run start
 ```
 
 Deploy to Vercel, Netlify, or any Node.js hosting service.
+
+---
+
+## Generated with StackKit
+
+This project was scaffolded using **StackKit** — a CLI toolkit for building production-ready applications.
+
+- Generated via: `npx stackkit@latest create`
+
+Learn more about StackKit:
+https://github.com/tariqul420/stackkit
+

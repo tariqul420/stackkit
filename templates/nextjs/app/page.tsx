@@ -5,7 +5,7 @@ export default function Home() {
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
       <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
         <div className="flex items-center gap-4 mb-8">
-          <div className="text-2xl font-bold text-black dark:text-white">Stackkit</div>
+          <div className="text-2xl font-bold text-black dark:text-white">StackKit</div>
           <span className="text-xl text-zinc-400">+</span>
           <Image
             className="dark:invert"
@@ -21,14 +21,14 @@ export default function Home() {
             To get started, edit the page.tsx file.
           </h1>
           <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            This template includes Next.js, Tailwind CSS, and Stackkit best practices. Check out the{" "}
+            This template includes Next.js, Tailwind CSS, and StackKit best practices. Check out the{" "}
             <a
               href="https://github.com/tariqul420/stackkit"
               className="font-medium text-zinc-950 dark:text-zinc-50 hover:underline"
               target="_blank"
               rel="noopener noreferrer"
             >
-              Stackkit repository
+              StackKit repository
             </a>{" "}
             for more info.
           </p>

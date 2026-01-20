@@ -2,11 +2,25 @@
 
 Production-ready React starter with TypeScript, Vite, and essential libraries.
 
-## Quick Start
+Requirements
+------------
+
+- Node.js 18+ (LTS recommended)
+- pnpm (recommended) or npm
+
+Quick Start
+-----------
+
+Install dependencies and run the dev server:
 
 ```bash
+# using pnpm (recommended)
 pnpm install
 pnpm dev
+
+# or using npm
+npm install
+npm run dev
 ```
 
 ## Features
@@ -27,7 +41,9 @@ pnpm dev
 
 ## Environment Variables
 
-Copy `.env.example` to `.env` and configure:
+Copy `.env.example` to `.env` and configure local values. Do not commit secrets.
+
+Example:
 
 ```env
 VITE_API_URL=http://localhost:3000/api
@@ -49,8 +65,28 @@ src/
 
 ## Deployment
 
+Build for production and serve or deploy the static output:
+
 ```bash
+# pnpm
 pnpm build
+pnpm preview
+
+# npm
+npm run build
+npm run preview
 ```
 
-Deploy the `dist` folder to Vercel, Netlify, or any static hosting service.
+Deploy the resulting `dist`/build output to your hosting platform (Vercel, Netlify, etc.).
+
+---
+
+## Generated with StackKit
+
+This project was scaffolded using **StackKit** — a CLI toolkit for building production-ready applications.
+
+- Generated via: `npx stackkit@latest create`
+
+Learn more about StackKit:
+https://github.com/tariqul420/stackkit
+
