@@ -1,0 +1,6 @@
+blank_issues_enabled: false
+issue_template:
+  - name: Bug report
+    path: ISSUE_TEMPLATE/bug_report.md
+  - name: Feature request
+    path: ISSUE_TEMPLATE/feature_request.md
