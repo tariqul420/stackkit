@@ -1,7 +1,6 @@
 import chalk from "chalk";
 import fs from "fs-extra";
 import path from "path";
-import { discoverModules, getDatabaseChoices } from "../lib/discovery/module-discovery";
 import { getPrismaProvidersFromGenerator } from "../lib/discovery/shared";
 import { logger } from "../lib/ui/logger";
 import { getPackageRoot } from "../lib/utils/package-root";
@@ -34,7 +33,9 @@ export async function listCommand(options: ListOptions): Promise<void> {
         frameworks.forEach((framework, index) => {
           const isLast = index === frameworks.length - 1;
           const prefix = isLast ? "└──" : "├──";
-          logger.log(`  ${chalk.gray(prefix)} ${chalk.cyan(framework.displayName)}`);
+          logger.log(
+            `  ${chalk.gray(prefix)} ${chalk.cyan(framework.displayName || framework.name)}`,
+          );
         });
         logger.newLine();
       }
@@ -44,24 +45,15 @@ export async function listCommand(options: ListOptions): Promise<void> {
       const modulesDir = path.join(getPackageRoot(), "modules");
       const modules = await getAvailableModules(modulesDir);
 
-      // Discover modules to derive provider lists dynamically
-      let discovered;
-      try {
-        discovered = await discoverModules(path.join(getPackageRoot(), "modules"));
-      } catch {
-        discovered = { frameworks: [], databases: [], auth: [] } as any;
-      }
-
       if (modules.length > 0) {
         hasModules = true;
         logger.log(chalk.bold.magenta("MODULES"));
 
         const grouped = modules.reduce(
           (acc, mod) => {
-            if (!acc[mod.category]) {
-              acc[mod.category] = [];
-            }
-            acc[mod.category].push(mod);
+            const cat = (mod.category as string) || "other";
+            if (!acc[cat]) acc[cat] = [];
+            acc[cat].push(mod);
             return acc;
           },
           {} as Record<string, ModuleMetadata[]>,
@@ -96,33 +88,23 @@ export async function listCommand(options: ListOptions): Promise<void> {
                 : isLastMod
                   ? "│       └──"
                   : "│       ├──";
-
-              // Compute provider names from discovered database choices
-              const choices = getDatabaseChoices(discovered.databases || [], "nextjs");
-              const prismaProviders = choices
-                .filter((c) => c.value.startsWith("prisma-"))
-                .map((c) => {
-                  const m = c.name.match(/\(([^)]+)\)/);
-                  return m ? m[1] : c.name;
-                });
-
-              const providersText =
-                prismaProviders.length > 0
-                  ? prismaProviders.join(", ")
-                  : (() => {
-                      const detected = getPrismaProvidersFromGenerator(getPackageRoot()).map(
-                        (p) => {
-                          if (p === "postgresql") return "PostgreSQL";
-                          if (p === "mongodb") return "MongoDB";
-                          if (p === "mysql") return "MySQL";
-                          if (p === "sqlite") return "SQLite";
-                          return p;
-                        },
-                      );
-                      return detected.length > 0
-                        ? detected.join(", ")
-                        : "PostgreSQL, MongoDB, MySQL, SQLite";
-                    })();
+              // Derive provider list directly from the Prisma generator metadata
+              const providers = getPrismaProvidersFromGenerator(getPackageRoot());
+              const providersText = providers.length
+                ? providers
+                    .map((p) =>
+                      p === "postgresql"
+                        ? "PostgreSQL"
+                        : p === "mongodb"
+                          ? "MongoDB"
+                          : p === "mysql"
+                            ? "MySQL"
+                            : p === "sqlite"
+                              ? "SQLite"
+                              : p,
+                    )
+                    .join(", ")
+                : "PostgreSQL, MongoDB, MySQL, SQLite";
 
               logger.log(
                 `  ${chalk.gray(providerPrefix)} ${chalk.dim(`Providers: ${providersText}`)}`,

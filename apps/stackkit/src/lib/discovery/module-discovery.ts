@@ -192,13 +192,9 @@ export function getCompatibleAuthOptions(
     // Normalize database option (handle prisma-<provider> values)
     const parsedDb = parseDatabaseOption(database || "").database;
 
-    // Special compatibility rules
-    if (auth.name === "authjs" && (parsedDb !== "prisma" || framework !== "nextjs")) {
-      continue;
-    }
-
-    if (auth.name === "better-auth" && parsedDb === "none" && framework !== "react") {
-      continue;
+    // If module provides explicit compatibility matrix, use it
+    if (auth.compatibility && auth.compatibility.databases) {
+      if (!auth.compatibility.databases.includes(parsedDb)) continue;
     }
 
     compatible.push({

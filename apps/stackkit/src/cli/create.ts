@@ -12,7 +12,7 @@ import {
   getValidAuthOptions,
   getValidDatabaseOptions,
 } from "../lib/discovery/module-discovery";
-import { parseDatabaseOption } from "../lib/discovery/shared";
+import { getPrismaProvidersFromGenerator, parseDatabaseOption } from "../lib/discovery/shared";
 import { addEnvVariables } from "../lib/env/env-editor";
 import { FrameworkUtils } from "../lib/framework/framework-utils";
 import { AdvancedCodeGenerator } from "../lib/generation/code-generator";
@@ -99,12 +99,31 @@ async function getProjectConfig(
 
   if (optionsProvided) {
     if (options && (options.yes || options.y) && !flagsProvided) {
+      // Derive sensible defaults from discovered templates/modules where possible
+      const defaultFramework =
+        discoveredModules.frameworks && discoveredModules.frameworks.length > 0
+          ? discoveredModules.frameworks[0].name
+          : "nextjs";
+
+      const defaultDatabase =
+        discoveredModules.databases && discoveredModules.databases.length > 0
+          ? discoveredModules.databases[0].name
+          : "prisma";
+
+      const prismaProviders = getPrismaProvidersFromGenerator(getPackageRoot());
+      const defaultPrismaProvider = prismaProviders.length > 0 ? prismaProviders[0] : "postgresql";
+
+      const defaultAuth =
+        discoveredModules.auth && discoveredModules.auth.length > 0
+          ? discoveredModules.auth[0].name
+          : "better-auth";
+
       return {
         projectName: projectName || "my-app",
-        framework: "nextjs",
-        database: "prisma",
-        prismaProvider: "postgresql",
-        auth: "better-auth",
+        framework: defaultFramework as "nextjs" | "express" | "react",
+        database: defaultDatabase as unknown as "prisma" | "mongoose" | "none",
+        prismaProvider: defaultPrismaProvider as "postgresql" | "mongodb" | "mysql" | "sqlite",
+        auth: defaultAuth as "better-auth" | "authjs" | "none",
         language: "typescript",
         packageManager: "pnpm",
       };
@@ -240,12 +259,21 @@ async function getProjectConfig(
       name: "prismaProvider",
       message: "Select database provider for Prisma:",
       when: (answers: Answers) => answers.database === "prisma",
-      choices: [
-        { name: "PostgreSQL", value: "postgresql" },
-        { name: "MongoDB", value: "mongodb" },
-        { name: "MySQL", value: "mysql" },
-        { name: "SQLite", value: "sqlite" },
-      ],
+      choices: () => {
+        const providers = getPrismaProvidersFromGenerator(getPackageRoot());
+        if (providers && providers.length > 0) {
+          return providers.map((p: string) => ({
+            name: p.charAt(0).toUpperCase() + p.slice(1),
+            value: p,
+          }));
+        }
+        return [
+          { name: "PostgreSQL", value: "postgresql" },
+          { name: "MongoDB", value: "mongodb" },
+          { name: "MySQL", value: "mysql" },
+          { name: "SQLite", value: "sqlite" },
+        ];
+      },
     },
     {
       type: "list",

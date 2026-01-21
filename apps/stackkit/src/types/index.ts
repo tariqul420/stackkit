@@ -8,35 +8,30 @@ export interface TemplateMetadata {
 }
 
 export interface ModuleMetadata {
-  name: string;
-  displayName: string;
-  description: string;
-  category: "auth" | "database" | "ui" | "other";
-  supportedFrameworks: string[];
-  dependencies:
-    | {
-        common?: Record<string, string>;
-        providers?: Record<string, Record<string, string>>;
-      }
-    | Record<string, string>;
+  name?: string;
+  displayName?: string;
+  description?: string;
+  category?: string;
+  provider?: string;
+  supportedFrameworks?: string[];
+  frameworkConfigs?: Record<string, unknown>;
+  dependencies?:
+    | Record<string, unknown>
+    | { common?: Record<string, string>; providers?: Record<string, Record<string, string>> };
   devDependencies?:
-    | {
-        common?: Record<string, string>;
-        providers?: Record<string, Record<string, string>>;
-      }
-    | Record<string, string>;
-  envVars: EnvVar[];
-  patches: ModulePatch[];
+    | Record<string, unknown>
+    | { common?: Record<string, string>; providers?: Record<string, Record<string, string>> };
+  envVars?: EnvVar[] | Record<string, string>;
+  patches?: ModulePatch[];
   frameworkPatches?: Record<string, { [file: string]: { merge?: Record<string, unknown> } }>;
   postInstall?: string[];
-  frameworkConfigs?: Record<
-    string,
-    {
-      dependencies?: Record<string, string>;
-      devDependencies?: Record<string, string>;
-      patches?: ModulePatch[];
-    }
-  >;
+  compatibility?: {
+    databases?: string[];
+    auth?: string[];
+    languages?: string[];
+  };
+  files?: string[];
+  scripts?: Record<string, string>;
 }
 
 export interface EnvVar {

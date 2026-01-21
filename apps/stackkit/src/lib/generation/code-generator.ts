@@ -1,5 +1,6 @@
 import * as fs from "fs-extra";
 import * as path from "path";
+import { getPrismaProvidersFromGenerator } from "../discovery/shared";
 import { FrameworkConfig } from "../framework/framework-utils";
 import { getPackageRoot } from "../utils/package-root";
 import { locateOperationSource, mergeModuleIntoGeneratorConfig } from "./generator-utils";
@@ -81,6 +82,7 @@ export class AdvancedCodeGenerator {
   private generators: Map<string, GeneratorConfig> = new Map();
   private frameworkConfig: FrameworkConfig;
   private postInstallCommands: string[] = [];
+  private createdFiles: string[] = [];
 
   constructor(frameworkConfig: FrameworkConfig) {
     this.frameworkConfig = frameworkConfig;
@@ -392,7 +394,10 @@ export class AdvancedCodeGenerator {
 
     // Set default prismaProvider if database is prisma but no provider specified
     if (selectedModules.database === "prisma" && !context.prismaProvider) {
-      context.prismaProvider = "postgresql";
+      const providers = getPrismaProvidersFromGenerator(getPackageRoot());
+      if (providers && providers.length > 0) {
+        context.prismaProvider = providers[0];
+      }
     }
 
     // Collect all applicable operations
@@ -448,6 +453,10 @@ export class AdvancedCodeGenerator {
     await this.generatePackageJson(selectedModules, features, outputPath);
 
     return this.postInstallCommands;
+  }
+
+  getCreatedFiles(): string[] {
+    return this.createdFiles.slice();
   }
 
   private async executeOperation(
@@ -542,6 +551,82 @@ export class AdvancedCodeGenerator {
               await fs.copy(src, dest);
             }
             break;
+          }
+        }
+      } catch {
+        // ignore
+      }
+      // Ensure any top-level dotfiles declared in template.json are created
+      try {
+        const templateJsonPath = path.join(templatePath, "template.json");
+        if (await fs.pathExists(templateJsonPath)) {
+          const tpl = await fs.readJson(templateJsonPath);
+          if (tpl && Array.isArray(tpl.files)) {
+            for (const f of tpl.files) {
+              if (typeof f === "string" && f.startsWith(".")) {
+                const targetDest = path.join(outputPath, f);
+                if (await fs.pathExists(targetDest)) continue; // already present
+
+                // Special-case: allow creating .gitignore from non-dot fallbacks
+                if (f === ".gitignore") {
+                  const nameWithoutDot = f.slice(1);
+                  const candidates = [f, nameWithoutDot, `_${nameWithoutDot}`];
+                  for (const cand of candidates) {
+                    const src = path.join(templatePath, cand);
+                    if (await fs.pathExists(src)) {
+                      await fs.copy(src, targetDest);
+                      break;
+                    }
+                  }
+                  continue;
+                }
+
+                // For other dotfiles (e.g. .env.example), only create if the template
+                // actually contains a dotfile source. Don't synthesize from non-dot fallbacks
+                // to avoid creating files unintentionally.
+                const srcDot = path.join(templatePath, f);
+                if (await fs.pathExists(srcDot)) {
+                  await fs.copy(srcDot, targetDest);
+                }
+              }
+            }
+          }
+        }
+      } catch {
+        // ignore failures here
+      }
+
+      try {
+        const templateJsonPath2 = path.join(templatePath, "template.json");
+        if (await fs.pathExists(templateJsonPath2)) {
+          const tpl = await fs.readJson(templateJsonPath2);
+          if (tpl && Array.isArray(tpl.files)) {
+            for (const f of tpl.files) {
+              if (typeof f === "string" && f.startsWith(".")) {
+                const dotDest = path.join(outputPath, f);
+                const nameWithoutDot = f.slice(1);
+                const nonDot = path.join(outputPath, nameWithoutDot);
+                const underscore = path.join(outputPath, `_${nameWithoutDot}`);
+
+                // If dot already exists, remove non-dot fallbacks
+                if (await fs.pathExists(dotDest)) {
+                  if (await fs.pathExists(nonDot)) {
+                    await fs.remove(nonDot);
+                  }
+                  if (await fs.pathExists(underscore)) {
+                    await fs.remove(underscore);
+                  }
+                  continue;
+                }
+
+                // If dot doesn't exist but a non-dot fallback was copied, rename it
+                if (await fs.pathExists(nonDot)) {
+                  await fs.move(nonDot, dotDest, { overwrite: true });
+                } else if (await fs.pathExists(underscore)) {
+                  await fs.move(underscore, dotDest, { overwrite: true });
+                }
+              }
+            }
           }
         }
       } catch {
@@ -642,6 +727,12 @@ export class AdvancedCodeGenerator {
 
     // Write destination file
     await fs.writeFile(destinationPath, content, "utf-8");
+    try {
+      const rel = path.relative(outputPath, destinationPath);
+      if (rel && !this.createdFiles.includes(rel)) this.createdFiles.push(rel);
+    } catch {
+      // ignore logging failures
+    }
   }
 
   private async executePatchFile(
@@ -1013,7 +1104,10 @@ export class AdvancedCodeGenerator {
     };
 
     if (selectedModules.database === "prisma" && !context.prismaProvider) {
-      context.prismaProvider = "postgresql";
+      const providers = getPrismaProvidersFromGenerator(getPackageRoot());
+      if (providers && providers.length > 0) {
+        context.prismaProvider = providers[0];
+      }
     }
 
     const applicableOperations: Array<Operation & { generator: string; generatorType: string }> =

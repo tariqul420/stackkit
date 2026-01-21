@@ -1,6 +1,7 @@
 import fs from "fs-extra";
 import path from "path";
 import { ProjectInfo } from "../../types";
+import { getPackageRoot } from "../utils/package-root";
 
 export async function detectProjectInfo(targetDir: string): Promise<ProjectInfo> {
   const packageJsonPath = path.join(targetDir, "package.json");
@@ -11,27 +12,56 @@ export async function detectProjectInfo(targetDir: string): Promise<ProjectInfo>
 
   const packageJson = await fs.readJSON(packageJsonPath);
 
-  // Detect framework
-  const isNextJs = packageJson.dependencies?.next || packageJson.devDependencies?.next;
-  const isExpress = packageJson.dependencies?.express || packageJson.devDependencies?.express;
-  const isReact = packageJson.dependencies?.react || packageJson.devDependencies?.react;
-  const isVite = packageJson.dependencies?.vite || packageJson.devDependencies?.vite;
+  // Detect framework by matching available templates' characteristic files
+  let framework: "nextjs" | "express" | "react" | "unknown" = "unknown";
+  try {
+    const templatesDir = path.join(getPackageRoot(), "templates");
+    if (await fs.pathExists(templatesDir)) {
+      const dirs = await fs.readdir(templatesDir);
+      let bestMatch: { name: string; score: number } | null = null;
+      for (const d of dirs) {
+        const tplPath = path.join(templatesDir, d, "template.json");
+        if (!(await fs.pathExists(tplPath))) continue;
+        try {
+          const tpl = await fs.readJSON(tplPath);
+          const files: string[] = Array.isArray(tpl.files) ? tpl.files : [];
+          let score = 0;
+          for (const f of files) {
+            const candidate = path.join(targetDir, f.replace(/\\/g, "/"));
+            if (await fs.pathExists(candidate)) score++;
+          }
+          if (!bestMatch || score > bestMatch.score) bestMatch = { name: d, score };
+        } catch {
+          // ignore
+        }
+      }
 
-  let framework: "nextjs" | "express" | "react" | "unknown";
-  if (isNextJs) {
-    framework = "nextjs";
-  } else if (isExpress) {
-    framework = "express";
-  } else if (isReact && isVite) {
-    framework = "react";
-  } else if (isReact) {
-    framework = "react";
-  } else {
-    framework = "unknown";
+      if (bestMatch && bestMatch.score > 0) {
+        const name = bestMatch.name;
+        if (name === "nextjs" || name === "express" || name === "react") {
+          framework = name as "nextjs" | "express" | "react";
+        }
+      }
+    }
+  } catch {
+    // fall back to dependency heuristics below
+  }
+
+  // Fallback: simple dependency-based detection
+  if (framework === "unknown") {
+    const isNextJs = packageJson.dependencies?.next || packageJson.devDependencies?.next;
+    const isExpress = packageJson.dependencies?.express || packageJson.devDependencies?.express;
+    const isReact = packageJson.dependencies?.react || packageJson.devDependencies?.react;
+    const isVite = packageJson.dependencies?.vite || packageJson.devDependencies?.vite;
+
+    if (isNextJs) framework = "nextjs";
+    else if (isExpress) framework = "express";
+    else if (isReact && isVite) framework = "react";
+    else if (isReact) framework = "react";
   }
 
   if (framework === "unknown") {
-    throw new Error("Only Next.js, Express, and React projects are currently supported.");
+    throw new Error("Unsupported project type or unable to detect framework from templates.");
   }
 
   // Detect router type (only for Next.js)

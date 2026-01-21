@@ -22,7 +22,13 @@ function readJsonSafe(file: string) {
   }
 }
 
-export function ModuleProviders({ moduleType, moduleName }: { moduleType: string; moduleName: string }) {
+export function ModuleProviders({
+  moduleType,
+  moduleName,
+}: {
+  moduleType: string;
+  moduleName: string;
+}) {
   const modulesDir = findModulesDir();
   if (!modulesDir) return <div>No modules available</div>;
 
@@ -54,7 +60,15 @@ export function ModuleProviders({ moduleType, moduleName }: { moduleType: string
   );
 }
 
-export function ModuleCreateCommands({ moduleType, moduleName, cliPrefix = "npx stackkit@latest create my-app" }: { moduleType: string; moduleName: string; cliPrefix?: string }) {
+export function ModuleCreateCommands({
+  moduleType,
+  moduleName,
+  cliPrefix = "npx stackkit@latest create my-app",
+}: {
+  moduleType: string;
+  moduleName: string;
+  cliPrefix?: string;
+}) {
   const modulesDir = findModulesDir();
   if (!modulesDir) return <div />;
   const genPath = path.join(modulesDir, moduleType, moduleName, "generator.json");
@@ -85,7 +99,13 @@ export function ModuleCreateCommands({ moduleType, moduleName, cliPrefix = "npx 
   );
 }
 
-export function ModuleRequirements({ moduleType, moduleName }: { moduleType: string; moduleName: string }) {
+export function ModuleRequirements({
+  moduleType,
+  moduleName,
+}: {
+  moduleType: string;
+  moduleName: string;
+}) {
   const modulesDir = findModulesDir();
   if (!modulesDir) return <div />;
   const modPath = path.join(modulesDir, moduleType, moduleName, "module.json");
@@ -94,7 +114,8 @@ export function ModuleRequirements({ moduleType, moduleName }: { moduleType: str
   const mod = readJsonSafe(modPath) || {};
   const gen = readJsonSafe(genPath) || { operations: [] };
 
-  const frameworks: string[] = mod.supportedFrameworks || (mod.compatibility && mod.compatibility.frameworks) || [];
+  const frameworks: string[] =
+    mod.supportedFrameworks || (mod.compatibility && mod.compatibility.frameworks) || [];
 
   const envVars = new Set<string>();
   for (const op of gen.operations || []) {

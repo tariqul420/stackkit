@@ -1,8 +1,8 @@
 import * as fs from "fs-extra";
 import * as path from "path";
-import type { GeneratorConfig } from "./code-generator";
-import type { ModuleMetadata } from "../../types";
+import type { EnvVar, ModuleMetadata } from "../../types";
 import { getPackageRoot } from "../utils/package-root";
+import type { GeneratorConfig } from "./code-generator";
 
 export async function mergeModuleIntoGeneratorConfig(
   config: GeneratorConfig,
@@ -52,11 +52,12 @@ export async function mergeGeneratorIntoModuleMetadata(
       if (generator.operations && Array.isArray(generator.operations)) {
         for (const operation of generator.operations) {
           if (operation.type === "add-env" && operation.envVars) {
-            metadata.envVars = metadata.envVars || [];
+            if (!Array.isArray(metadata.envVars)) metadata.envVars = [];
+            const arr = metadata.envVars as EnvVar[];
             for (const [key, value] of Object.entries(operation.envVars)) {
-              metadata.envVars.push({
+              arr.push({
                 key,
-                value: value as string,
+                value: String(value),
                 description: `Environment variable for ${key}`,
                 required: true,
               });

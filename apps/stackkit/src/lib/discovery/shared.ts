@@ -1,3 +1,4 @@
+import fs from "fs-extra";
 import path from "path";
 import { getPackageRoot } from "../utils/package-root";
 
@@ -17,12 +18,17 @@ export function getPrismaProvidersFromGenerator(modulesDir?: string): string[] {
   const pkgRoot = modulesDir || getPackageRoot();
   const genPath = path.join(pkgRoot, "modules", "database", "prisma", "generator.json");
   try {
-    const gen = require(genPath);
+    const gen = fs.readJsonSync(genPath, { throws: false }) as unknown;
     const providers = new Set<string>();
-    if (Array.isArray(gen.operations)) {
-      for (const op of gen.operations) {
-        if (op.condition && op.condition.prismaProvider)
-          providers.add(String(op.condition.prismaProvider));
+    const ops =
+      gen && typeof gen === "object" ? (gen as Record<string, unknown>)["operations"] : undefined;
+    if (Array.isArray(ops)) {
+      for (const op of ops) {
+        const cond =
+          op && typeof op === "object" ? (op as Record<string, unknown>)["condition"] : undefined;
+        if (cond && typeof (cond as Record<string, unknown>)["prismaProvider"] === "string") {
+          providers.add(String((cond as Record<string, unknown>)["prismaProvider"]));
+        }
       }
     }
     return Array.from(providers);

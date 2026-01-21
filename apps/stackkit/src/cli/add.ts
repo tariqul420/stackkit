@@ -10,7 +10,7 @@ import {
   getDatabaseChoices,
 } from "../lib/discovery/module-discovery";
 import { parseDatabaseOption } from "../lib/discovery/shared";
-import { addEnvVariables } from "../lib/env/env-editor";
+import { addEnvVariables, type EnvVariable as EnvEditorVar } from "../lib/env/env-editor";
 import { FrameworkUtils } from "../lib/framework/framework-utils";
 import { createFile, fileExists } from "../lib/fs/files";
 import {
@@ -105,8 +105,8 @@ async function getAddConfig(
         provider: adapterProvider,
         displayName:
           parsed.database === "prisma" && parsed.provider
-            ? `${moduleMetadata.displayName} (${parsed.provider})`
-            : moduleMetadata.displayName,
+            ? `${moduleMetadata.displayName || baseProvider} (${parsed.provider})`
+            : moduleMetadata.displayName || baseProvider,
         metadata: moduleMetadata,
       };
     } else if (module === "auth") {
@@ -115,32 +115,39 @@ async function getAddConfig(
       if (!moduleMetadata) {
         throw new Error(`Auth provider "${provider}" not found`);
       }
-      // Validate compatibility with existing project
+      // Validate compatibility with existing project using module metadata
       if (projectInfo) {
-        // Auth.js requires Next.js + Prisma
+        // If module defines supportedFrameworks, ensure current project framework is allowed
         if (
-          provider === "authjs" &&
-          (projectInfo.framework !== "nextjs" || !projectInfo.hasPrisma)
+          moduleMetadata.supportedFrameworks &&
+          !moduleMetadata.supportedFrameworks.includes(projectInfo.framework)
         ) {
           throw new Error(
-            "Auth.js is only supported with Next.js and Prisma database in this project",
+            `${moduleMetadata.displayName} is not supported on ${projectInfo.framework}`,
           );
         }
 
-        // Better-auth requires a database for server frameworks (non-react)
+        // If module defines compatibility.databases, ensure project has a compatible database
+        const dbName = projectInfo.hasPrisma
+          ? "prisma"
+          : projectInfo.hasDatabase
+            ? "other"
+            : "none";
         if (
-          provider === "better-auth" &&
-          !projectInfo.hasDatabase &&
-          projectInfo.framework !== "react"
+          moduleMetadata.compatibility &&
+          moduleMetadata.compatibility.databases &&
+          !moduleMetadata.compatibility.databases.includes(dbName)
         ) {
-          throw new Error("Better Auth requires a database for server frameworks in this project");
+          throw new Error(
+            `${moduleMetadata.displayName} is not compatible with the project's database configuration`,
+          );
         }
       }
 
       return {
         module: "auth",
         provider,
-        displayName: moduleMetadata.displayName,
+        displayName: moduleMetadata.displayName || provider,
         metadata: moduleMetadata,
       };
     }
@@ -159,9 +166,10 @@ async function getInteractiveConfig(
   // Discover modules once and use compatibility info to decide which categories to show
   const discovered: DiscoveredModules = await discoverModules(modulesDir);
 
+  const defaultFramework = (discovered.frameworks && discovered.frameworks[0]?.name) || "nextjs";
   const compatibleAuths = getCompatibleAuthOptions(
     discovered.auth || [],
-    projectInfo?.framework || "nextjs",
+    projectInfo?.framework || defaultFramework,
     projectInfo?.hasPrisma ? "prisma" : "none",
   );
 
@@ -188,7 +196,7 @@ async function getInteractiveConfig(
   if (category === "database") {
     const dbChoices = getDatabaseChoices(
       discovered.databases || [],
-      projectInfo?.framework || "nextjs",
+      projectInfo?.framework || defaultFramework,
     );
 
     const dbAnswers = await inquirer.prompt([
@@ -227,7 +235,7 @@ async function getInteractiveConfig(
     const dbString = projectInfo?.hasPrisma ? "prisma" : "none";
     const authChoices = getCompatibleAuthOptions(
       discovered.auth || [],
-      projectInfo?.framework || "nextjs",
+      projectInfo?.framework || defaultFramework,
       dbString,
     );
     const authAnswers = await inquirer.prompt([
@@ -270,7 +278,6 @@ async function getInteractiveConfig(
 }
 
 /* removed unused getProviderConfig — discovery-based flows handle providers */
-
 
 async function addModuleToProject(
   projectRoot: string,
@@ -398,15 +405,22 @@ async function addModuleToProject(
     }
 
     if (postInstall && postInstall.length > 0 && !options?.dryRun) {
-      const postInstallSpinner = logger.startSpinner("Running post-install commands...");
-      try {
-        for (const command of postInstall) {
-          execSync(command, { cwd: projectRoot, stdio: "pipe" });
+      const createdFiles = gen.getCreatedFiles ? gen.getCreatedFiles() : [];
+      if (createdFiles.length === 0) {
+        logger.warn(
+          "Skipping post-install commands — no files were created by generators to act upon.",
+        );
+      } else {
+        const postInstallSpinner = logger.startSpinner("Running post-install commands...");
+        try {
+          for (const command of postInstall) {
+            execSync(command, { cwd: projectRoot, stdio: "pipe" });
+          }
+          postInstallSpinner.succeed("Post-install commands completed");
+        } catch (error) {
+          postInstallSpinner.fail("Failed to run post-install commands");
+          throw error;
         }
-        postInstallSpinner.succeed("Post-install commands completed");
-      } catch (error) {
-        postInstallSpinner.fail("Failed to run post-install commands");
-        throw error;
       }
     }
 
@@ -416,11 +430,15 @@ async function addModuleToProject(
   const mergedDeps: Record<string, string> = {};
   const mergedDevDeps: Record<string, string> = {};
 
-  if (moduleMetadata.frameworkConfigs?.shared?.dependencies) {
-    Object.assign(mergedDeps, moduleMetadata.frameworkConfigs.shared.dependencies);
-  }
-  if (moduleMetadata.frameworkConfigs?.shared?.devDependencies) {
-    Object.assign(mergedDevDeps, moduleMetadata.frameworkConfigs.shared.devDependencies);
+  try {
+    const shared = (moduleMetadata.frameworkConfigs as unknown as Record<string, unknown>)
+      ?.shared as
+      | { dependencies?: Record<string, string>; devDependencies?: Record<string, string> }
+      | undefined;
+    if (shared && shared.dependencies) Object.assign(mergedDeps, shared.dependencies);
+    if (shared && shared.devDependencies) Object.assign(mergedDevDeps, shared.devDependencies);
+  } catch {
+    // ignore malformed frameworkConfigs
   }
 
   // Adapter-specific dependencies are applied via generator metadata; frameworkConfigs still merge above.
@@ -476,15 +494,35 @@ async function addModuleToProject(
   }
 
   if (moduleMetadata.postInstall && moduleMetadata.postInstall.length > 0 && !options?.dryRun) {
-    const postInstallSpinner = logger.startSpinner("Running post-install commands...");
-    try {
-      for (const command of moduleMetadata.postInstall) {
-        execSync(command, { cwd: projectRoot, stdio: "pipe" });
+    // Determine whether any create-file patches resulted in files being written
+    const createdFiles: string[] = [];
+    if (Array.isArray(moduleMetadata.patches)) {
+      for (const p of moduleMetadata.patches) {
+        if (p.type === "create-file") {
+          const destPath = (p as CreateFilePatch).destination;
+          if (typeof destPath === "string") {
+            const dest = path.join(projectRoot, destPath);
+            if (await fs.pathExists(dest)) createdFiles.push(destPath);
+          }
+        }
       }
-      postInstallSpinner.succeed("Post-install commands completed");
-    } catch (error) {
-      postInstallSpinner.fail("Failed to run post-install commands");
-      throw error;
+    }
+
+    if (createdFiles.length === 0) {
+      logger.warn(
+        "Skipping module post-install commands — no files were created by module patches to act upon.",
+      );
+    } else {
+      const postInstallSpinner = logger.startSpinner("Running post-install commands...");
+      try {
+        for (const command of moduleMetadata.postInstall) {
+          execSync(command, { cwd: projectRoot, stdio: "pipe" });
+        }
+        postInstallSpinner.succeed("Post-install commands completed");
+      } catch (error) {
+        postInstallSpinner.fail("Failed to run post-install commands");
+        throw error;
+      }
     }
   }
 
@@ -506,15 +544,33 @@ async function addModuleToProject(
     }
   }
 
-  if (moduleMetadata.envVars && moduleMetadata.envVars.length > 0) {
-    const processedEnvVars = moduleMetadata.envVars.map((envVar) => ({
-      ...envVar,
-      value: envVar.value?.replace(/\{\{(\w+)\}\}/g, (match, key) => variables[key] || match),
-    }));
-    if (!options?.dryRun) {
-      await addEnvVariables(projectRoot, processedEnvVars, { force: options?.force });
-    } else {
-      logger.log(`  ${chalk.dim("~")} .env.example`);
+  if (moduleMetadata.envVars) {
+    let envArray: Array<{ key?: string; value?: string }> = [];
+    if (Array.isArray(moduleMetadata.envVars)) {
+      envArray = moduleMetadata.envVars as Array<{ key?: string; value?: string }>;
+    } else if (typeof moduleMetadata.envVars === "object") {
+      envArray = Object.entries(moduleMetadata.envVars as Record<string, string>).map(([k, v]) => ({
+        key: k,
+        value: String(v),
+      }));
+    }
+
+    if (envArray.length > 0) {
+      const processedEnvVars = envArray.map((envVar) => ({
+        key: envVar.key || "",
+        value: envVar.value?.replace(/\{\{(\w+)\}\}/g, (match, key) => variables[key] || match),
+        required: false,
+      }));
+      if (!options?.dryRun) {
+        const envVarsToAdd: EnvEditorVar[] = processedEnvVars.map((e) => ({
+          key: e.key,
+          value: e.value,
+          required: !!e.required,
+        }));
+        await addEnvVariables(projectRoot, envVarsToAdd, { force: options?.force });
+      } else {
+        logger.log(`  ${chalk.dim("~")} .env.example`);
+      }
     }
   }
 }

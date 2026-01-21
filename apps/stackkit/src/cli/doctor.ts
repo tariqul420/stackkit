@@ -256,6 +256,26 @@ async function detectPackageManager(projectRoot: string): Promise<string> {
 function detectProjectType(packageJson: PackageJson): string {
   const deps = { ...packageJson.dependencies, ...packageJson.devDependencies };
 
+  // Try to detect using available templates
+  try {
+    const templatesDir = path.join(getPackageRoot(), "templates");
+    if (fs.existsSync(templatesDir)) {
+      const dirs = fs.readdirSync(templatesDir);
+      for (const d of dirs) {
+        const tplPath = path.join(templatesDir, d, "template.json");
+        if (!fs.existsSync(tplPath)) continue;
+        try {
+          const tpl = JSON.parse(fs.readFileSync(tplPath, "utf-8"));
+          if (tpl && tpl.framework && deps[tpl.framework]) return tpl.framework;
+        } catch {
+          // ignore
+        }
+      }
+    }
+  } catch {
+    // ignore template-based detection errors
+  }
+
   if (deps.next) {
     return "nextjs";
   } else if (deps.express) {
@@ -303,7 +323,7 @@ function detectAuthModules(packageJson: PackageJson): string[] {
         try {
           const genPath = path.join(modulesDir, authDir, "generator.json");
           const modJson = path.join(modulesDir, authDir, "module.json");
-          let pkgNames: string[] = [];
+          const pkgNames: string[] = [];
           if (fs.existsSync(genPath)) {
             const gen = JSON.parse(fs.readFileSync(genPath, "utf-8"));
             if (Array.isArray(gen.operations)) {
@@ -365,7 +385,7 @@ function detectDatabaseModules(packageJson: PackageJson): string[] {
         try {
           const genPath = path.join(modulesDir, dbDir, "generator.json");
           const modJson = path.join(modulesDir, dbDir, "module.json");
-          let pkgNames: string[] = [];
+          const pkgNames: string[] = [];
           if (fs.existsSync(genPath)) {
             const gen = JSON.parse(fs.readFileSync(genPath, "utf-8"));
             if (Array.isArray(gen.operations)) {
@@ -438,8 +458,8 @@ async function checkKeyFiles(
     });
   }
 
-  if (authModules.length > 0 && projectType === "nextjs") {
-    const authRoutesExist = await checkAuthRoutesExist(projectRoot, projectType);
+  if (authModules.length > 0) {
+    const authRoutesExist = await checkAuthRoutesExist(projectRoot);
     checks.push({
       status: authRoutesExist ? "success" : "warning",
       message: authRoutesExist
@@ -451,8 +471,7 @@ async function checkKeyFiles(
   return checks;
 }
 
-async function checkAuthRoutesExist(projectRoot: string, projectType: string): Promise<boolean> {
-  if (projectType !== "nextjs") return true; // Skip for non-Next.js
+async function checkAuthRoutesExist(projectRoot: string): Promise<boolean> {
   // Build candidate auth route paths from generator.json files in modules/auth
   const candidates = new Set<string>();
 
