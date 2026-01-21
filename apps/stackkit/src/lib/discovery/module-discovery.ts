@@ -1,6 +1,7 @@
 import fs from "fs-extra";
 import path from "path";
 import { getPackageRoot } from "../utils/package-root";
+import { getPrismaProvidersFromGenerator, parseDatabaseOption } from "./shared";
 
 export interface ModuleMetadata {
   name: string;
@@ -140,26 +141,11 @@ export function getValidDatabaseOptions(databases: ModuleMetadata[]): string[] {
 
   for (const db of databases) {
     if (db.name === "prisma") {
-      // Try to discover provider variants from prisma generator.json operations
-      try {
-        const genPath = require("path").join(getPackageRoot(), "modules", "database", "prisma", "generator.json");
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const gen = require(genPath);
-        const providers = new Set<string>();
-        if (Array.isArray(gen.operations)) {
-          for (const op of gen.operations) {
-            if (op.condition && op.condition.prismaProvider) {
-              providers.add(String(op.condition.prismaProvider));
-            }
-          }
-        }
-        if (providers.size > 0) {
-          for (const p of providers) options.push(`prisma-${p}`);
-        } else {
-          options.push("prisma-postgresql", "prisma-mongodb", "prisma-mysql", "prisma-sqlite");
-        }
-      } catch {
-        options.push("prisma-postgresql", "prisma-mongodb", "prisma-mysql", "prisma-sqlite");
+      const providers = getPrismaProvidersFromGenerator();
+      if (providers.length > 0) {
+        for (const p of providers) options.push(`prisma-${p}`);
+      } else {
+        options.push("prisma");
       }
     } else if (db.name === "mongoose") {
       options.push("mongoose");
@@ -185,25 +171,7 @@ export function getValidAuthOptions(authModules: ModuleMetadata[]): string[] {
   return options;
 }
 
-/**
- * Parse database option into database name and provider
- */
-export function parseDatabaseOption(dbOption: string): { database: string; provider?: string } {
-  if (dbOption === "none") {
-    return { database: "none" };
-  }
-
-  if (dbOption.startsWith("prisma-")) {
-    const provider = dbOption.split("-")[1];
-    return { database: "prisma", provider };
-  }
-
-  if (dbOption === "mongoose" || dbOption === "mongoose") {
-    return { database: "mongoose" };
-  }
-
-  return { database: dbOption };
-}
+// parseDatabaseOption moved to shared helpers
 
 /**
  * Get compatible auth options for given framework and database
@@ -221,12 +189,15 @@ export function getCompatibleAuthOptions(
       continue;
     }
 
+    // Normalize database option (handle prisma-<provider> values)
+    const parsedDb = parseDatabaseOption(database || "").database;
+
     // Special compatibility rules
-    if (auth.name === "authjs" && (database !== "prisma" || framework !== "nextjs")) {
+    if (auth.name === "authjs" && (parsedDb !== "prisma" || framework !== "nextjs")) {
       continue;
     }
 
-    if (auth.name === "better-auth" && database === "none" && framework !== "react") {
+    if (auth.name === "better-auth" && parsedDb === "none" && framework !== "react") {
       continue;
     }
 
@@ -258,34 +229,15 @@ export function getDatabaseChoices(
     }
 
     if (db.name === "prisma") {
-      // Dynamically build provider choices from generator.json if available
-      try {
-        const genPath = require("path").join(getPackageRoot(), "modules", "database", "prisma", "generator.json");
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const gen = require(genPath);
-        const providers = new Set<string>();
-        if (Array.isArray(gen.operations)) {
-          for (const op of gen.operations) {
-            if (op.condition && op.condition.prismaProvider) providers.add(String(op.condition.prismaProvider));
-          }
-        }
-        if (providers.size > 0) {
-          for (const p of providers) choices.push({ name: `Prisma (${p.charAt(0).toUpperCase() + p.slice(1)})`, value: `prisma-${p}` });
-        } else {
-          choices.push(
-            { name: "Prisma (PostgreSQL)", value: "prisma-postgresql" },
-            { name: "Prisma (MongoDB)", value: "prisma-mongodb" },
-            { name: "Prisma (MySQL)", value: "prisma-mysql" },
-            { name: "Prisma (SQLite)", value: "prisma-sqlite" },
-          );
-        }
-      } catch {
-        choices.push(
-          { name: "Prisma (PostgreSQL)", value: "prisma-postgresql" },
-          { name: "Prisma (MongoDB)", value: "prisma-mongodb" },
-          { name: "Prisma (MySQL)", value: "prisma-mysql" },
-          { name: "Prisma (SQLite)", value: "prisma-sqlite" },
-        );
+      const providers = getPrismaProvidersFromGenerator();
+      if (providers.length > 0) {
+        for (const p of providers)
+          choices.push({
+            name: `Prisma (${p.charAt(0).toUpperCase() + p.slice(1)})`,
+            value: `prisma-${p}`,
+          });
+      } else {
+        choices.push({ name: "Prisma", value: "prisma" });
       }
     } else if (db.name === "mongoose") {
       choices.push({ name: "Mongoose", value: "mongoose" });

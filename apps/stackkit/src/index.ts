@@ -7,6 +7,7 @@ import { addCommand } from "./cli/add";
 import { createProject } from "./cli/create";
 import { doctorCommand } from "./cli/doctor";
 import { listCommand } from "./cli/list";
+import { getPrismaProvidersFromGenerator } from "./lib/discovery/shared";
 import { logger } from "./lib/ui/logger";
 import { getPackageRoot } from "./lib/utils/package-root";
 
@@ -26,7 +27,16 @@ function buildOptionHints() {
           try {
             const m = JSON.parse(readFileSync(moduleJson, "utf-8"));
             if (m && m.name === "prisma") {
-              dbs.push("prisma-postgresql", "prisma-mongodb", "prisma-mysql", "prisma-sqlite");
+              try {
+                const providers = getPrismaProvidersFromGenerator(getPackageRoot());
+                if (providers.length > 0) {
+                  for (const p of providers) dbs.push(`prisma-${p}`);
+                } else {
+                  dbs.push("prisma");
+                }
+              } catch {
+                dbs.push("prisma");
+              }
             } else if (m && m.name) {
               dbs.push(m.name);
             }
@@ -64,9 +74,9 @@ const hints = buildOptionHints();
 
 interface CreateOptions {
   framework?: "nextjs" | "express" | "react";
-  database?: "prisma" | "mongoose" | "none";
-  prismaProvider?: "postgresql" | "mongodb" | "mysql" | "sqlite";
-  auth?: "better-auth" | "authjs" | "none";
+  database?: string;
+  prismaProvider?: string;
+  auth?: string;
   language?: "typescript" | "javascript";
   packageManager?: "pnpm" | "npm" | "yarn" | "bun";
   skipInstall?: boolean;
@@ -118,7 +128,7 @@ program
   .usage("[project-name] [options]")
   .option("-f, --framework <framework>", "Framework: nextjs, express, react")
   .option("-d, --database <database>", `Database: ${hints.databaseHint}`)
-  .option("--prisma-provider <provider>", "Prisma provider: postgresql, mongodb, mysql, sqlite")
+  .option("--prisma-provider <provider>", "Prisma provider")
   .option("-a, --auth <auth>", `Auth: ${hints.authHint}`)
   .option("-l, --language <language>", "Language: typescript, javascript")
   .option("-p, --package-manager <pm>", "Package manager: pnpm, npm, yarn, bun")

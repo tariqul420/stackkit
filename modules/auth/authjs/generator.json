@@ -16,7 +16,7 @@
     {
       "type": "create-file",
       "destination": "proxy.ts",
-      "content": "export { auth as middleware } from \"@/lib/auth\""
+      "content": "export { auth as proxy } from \"@/lib/auth\""
     },
     {
       "type": "patch-file",

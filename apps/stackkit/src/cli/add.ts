@@ -8,6 +8,7 @@ import {
   discoverModules,
   getDatabaseChoices,
 } from "../lib/discovery/module-discovery";
+import { parseDatabaseOption } from "../lib/discovery/shared";
 import { addEnvVariables } from "../lib/env/env-editor";
 import { FrameworkUtils } from "../lib/framework/framework-utils";
 import { createFile, fileExists } from "../lib/fs/files";
@@ -87,14 +88,11 @@ async function getAddConfig(
     }
 
     if (module === "database") {
-      let baseProvider = options.provider;
-      let adapterProvider = options.provider;
-
-      if (options.provider.includes("-")) {
-        const parts = options.provider.split("-");
-        baseProvider = parts[0]; // e.g., "prisma"
-        adapterProvider = options.provider; // e.g., "prisma-postgresql"
-      }
+      const parsed = parseDatabaseOption(options.provider || "");
+      const baseProvider = parsed.database;
+      const adapterProvider = parsed.provider
+        ? `${parsed.database}-${parsed.provider}`
+        : parsed.database;
 
       const moduleMetadata = await loadModuleMetadata(modulesDir, baseProvider, baseProvider);
       if (!moduleMetadata) {
@@ -104,7 +102,10 @@ async function getAddConfig(
       return {
         module: "database",
         provider: adapterProvider,
-        displayName: `${moduleMetadata.displayName} (${adapterProvider.split("-")[1] || adapterProvider})`,
+        displayName:
+          parsed.database === "prisma" && parsed.provider
+            ? `${moduleMetadata.displayName} (${parsed.provider})`
+            : moduleMetadata.displayName,
         metadata: moduleMetadata,
       };
     } else if (module === "auth") {
@@ -316,14 +317,15 @@ async function addModuleToProject(
       auth?: string;
       prismaProvider?: string;
     } = { framework: projectInfo.framework };
+
     if (config.module === "database" && config.provider) {
-      if (config.provider.startsWith("prisma-")) {
-        selectedModules.database = "prisma";
-        selectedModules.prismaProvider = config.provider.split("-")[1];
-      } else {
-        selectedModules.database = config.provider;
+      const parsed = parseDatabaseOption(config.provider);
+      selectedModules.database = parsed.database;
+      if (parsed.database === "prisma" && parsed.provider) {
+        selectedModules.prismaProvider = parsed.provider;
       }
     }
+
     if (config.module === "auth" && config.provider) {
       selectedModules.auth = config.provider;
     }

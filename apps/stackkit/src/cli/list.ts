@@ -2,6 +2,7 @@ import chalk from "chalk";
 import fs from "fs-extra";
 import path from "path";
 import { discoverModules, getDatabaseChoices } from "../lib/discovery/module-discovery";
+import { getPrismaProvidersFromGenerator } from "../lib/discovery/shared";
 import { logger } from "../lib/ui/logger";
 import { getPackageRoot } from "../lib/utils/package-root";
 import { ModuleMetadata } from "../types";
@@ -105,7 +106,23 @@ export async function listCommand(options: ListOptions): Promise<void> {
                   return m ? m[1] : c.name;
                 });
 
-              const providersText = prismaProviders.length > 0 ? prismaProviders.join(", ") : "PostgreSQL, MongoDB, MySQL, SQLite";
+              const providersText =
+                prismaProviders.length > 0
+                  ? prismaProviders.join(", ")
+                  : (() => {
+                      const detected = getPrismaProvidersFromGenerator(getPackageRoot()).map(
+                        (p) => {
+                          if (p === "postgresql") return "PostgreSQL";
+                          if (p === "mongodb") return "MongoDB";
+                          if (p === "mysql") return "MySQL";
+                          if (p === "sqlite") return "SQLite";
+                          return p;
+                        },
+                      );
+                      return detected.length > 0
+                        ? detected.join(", ")
+                        : "PostgreSQL, MongoDB, MySQL, SQLite";
+                    })();
 
               logger.log(
                 `  ${chalk.gray(providerPrefix)} ${chalk.dim(`Providers: ${providersText}`)}`,

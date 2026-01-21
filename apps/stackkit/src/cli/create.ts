@@ -11,8 +11,8 @@ import {
   getDatabaseChoices,
   getValidAuthOptions,
   getValidDatabaseOptions,
-  parseDatabaseOption,
 } from "../lib/discovery/module-discovery";
+import { parseDatabaseOption } from "../lib/discovery/shared";
 import { addEnvVariables } from "../lib/env/env-editor";
 import { FrameworkUtils } from "../lib/framework/framework-utils";
 import { AdvancedCodeGenerator } from "../lib/generation/code-generator";
@@ -283,18 +283,29 @@ async function getProjectConfig(
     },
   ])) as Answers;
 
+  // Normalize database answer (interactive flow): handle values like `prisma-postgresql`
+  let databaseAnswer =
+    answers.framework === "react" ? "none" : (answers.database as string | undefined);
+  let prismaProviderAnswer = answers.prismaProvider as
+    | "postgresql"
+    | "mongodb"
+    | "mysql"
+    | "sqlite"
+    | undefined;
+
+  if (typeof databaseAnswer === "string" && databaseAnswer.startsWith("prisma-")) {
+    const parts = databaseAnswer.split("-");
+    if (parts.length >= 2) {
+      prismaProviderAnswer = parts[1] as "postgresql" | "mongodb" | "mysql" | "sqlite";
+      databaseAnswer = "prisma";
+    }
+  }
+
   return {
     projectName: (projectName || answers.projectName) as string,
     framework: answers.framework,
-    database: (answers.framework === "react"
-      ? "none"
-      : answers.database) as ProjectConfig["database"],
-    prismaProvider: answers.prismaProvider as
-      | "postgresql"
-      | "mongodb"
-      | "mysql"
-      | "sqlite"
-      | undefined,
+    database: databaseAnswer as ProjectConfig["database"],
+    prismaProvider: prismaProviderAnswer,
     auth: answers.auth || "none",
     language: answers.language,
     packageManager: answers.packageManager,
