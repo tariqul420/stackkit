@@ -2,7 +2,7 @@ import * as fs from "fs-extra";
 import * as path from "path";
 import { FrameworkConfig } from "../framework/framework-utils";
 import { getPackageRoot } from "../utils/package-root";
-import { mergeModuleIntoGeneratorConfig, locateOperationSource } from "./generator-utils";
+import { locateOperationSource, mergeModuleIntoGeneratorConfig } from "./generator-utils";
 
 export interface GenerationContext {
   framework: string;
@@ -529,6 +529,23 @@ export class AdvancedCodeGenerator {
         }
       } catch {
         // ignore failures here — not critical
+      }
+      // Ensure gitignore is present in target even if template authors
+      // renamed it to avoid npm/package issues (e.g. 'gitignore' or '_gitignore')
+      try {
+        const gitCandidates = [".gitignore", "gitignore", "_gitignore"];
+        for (const g of gitCandidates) {
+          const src = path.join(templatePath, g);
+          if (await fs.pathExists(src)) {
+            const dest = path.join(outputPath, ".gitignore");
+            if (!(await fs.pathExists(dest))) {
+              await fs.copy(src, dest);
+            }
+            break;
+          }
+        }
+      } catch {
+        // ignore
       }
     }
   }

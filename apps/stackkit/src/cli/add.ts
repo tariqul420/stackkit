@@ -6,6 +6,7 @@ import path from "path";
 import {
   DiscoveredModules,
   discoverModules,
+  getCompatibleAuthOptions,
   getDatabaseChoices,
 } from "../lib/discovery/module-discovery";
 import { parseDatabaseOption } from "../lib/discovery/shared";
@@ -114,6 +115,28 @@ async function getAddConfig(
       if (!moduleMetadata) {
         throw new Error(`Auth provider "${provider}" not found`);
       }
+      // Validate compatibility with existing project
+      if (projectInfo) {
+        // Auth.js requires Next.js + Prisma
+        if (
+          provider === "authjs" &&
+          (projectInfo.framework !== "nextjs" || !projectInfo.hasPrisma)
+        ) {
+          throw new Error(
+            "Auth.js is only supported with Next.js and Prisma database in this project",
+          );
+        }
+
+        // Better-auth requires a database for server frameworks (non-react)
+        if (
+          provider === "better-auth" &&
+          !projectInfo.hasDatabase &&
+          projectInfo.framework !== "react"
+        ) {
+          throw new Error("Better Auth requires a database for server frameworks in this project");
+        }
+      }
+
       return {
         module: "auth",
         provider,
@@ -133,24 +156,40 @@ async function getInteractiveConfig(
   modulesDir: string,
   projectInfo?: ProjectInfo,
 ): Promise<AddConfig> {
+  // Discover modules once and use compatibility info to decide which categories to show
+  const discovered: DiscoveredModules = await discoverModules(modulesDir);
+
+  const compatibleAuths = getCompatibleAuthOptions(
+    discovered.auth || [],
+    projectInfo?.framework || "nextjs",
+    projectInfo?.hasPrisma ? "prisma" : "none",
+  );
+
+  const categories: Array<{ name: string; value: string }> = [
+    { name: "Database", value: "database" },
+  ];
+
+  // Only show Auth category if there is at least one compatible auth option
+  if (compatibleAuths.length > 1) {
+    categories.push({ name: "Auth", value: "auth" });
+  }
+
   const answers = await inquirer.prompt([
     {
       type: "list",
       name: "category",
       message: "What would you like to add?",
-      choices: [
-        { name: "Database", value: "database" },
-        { name: "Auth", value: "auth" },
-      ],
+      choices: categories,
     },
   ]);
 
   const category = answers.category;
 
-  const discovered: DiscoveredModules = await discoverModules(modulesDir);
-
   if (category === "database") {
-    const dbChoices = getDatabaseChoices(discovered.databases || [], projectInfo?.framework || "nextjs");
+    const dbChoices = getDatabaseChoices(
+      discovered.databases || [],
+      projectInfo?.framework || "nextjs",
+    );
 
     const dbAnswers = await inquirer.prompt([
       {
@@ -184,7 +223,13 @@ async function getInteractiveConfig(
       metadata: meta,
     };
   } else if (category === "auth") {
-    const authChoices = (discovered.auth || []).map((a) => ({ name: a.displayName, value: a.name }));
+    // Filter auth choices based on project compatibility (framework + database)
+    const dbString = projectInfo?.hasPrisma ? "prisma" : "none";
+    const authChoices = getCompatibleAuthOptions(
+      discovered.auth || [],
+      projectInfo?.framework || "nextjs",
+      dbString,
+    );
     const authAnswers = await inquirer.prompt([
       {
         type: "list",
@@ -195,13 +240,21 @@ async function getInteractiveConfig(
     ]);
 
     const selectedAuth = authAnswers.auth as string;
+    if (selectedAuth === "none") {
+      logger.info("Cancelled");
+      process.exit(0);
+    }
     const metadata = await loadModuleMetadata(modulesDir, selectedAuth, selectedAuth);
 
     if (!metadata) {
       throw new Error(`Auth provider "${selectedAuth}" not found`);
     }
 
-    if (projectInfo && metadata.supportedFrameworks && !metadata.supportedFrameworks.includes(projectInfo.framework)) {
+    if (
+      projectInfo &&
+      metadata.supportedFrameworks &&
+      !metadata.supportedFrameworks.includes(projectInfo.framework)
+    ) {
       throw new Error(`Auth provider "${selectedAuth}" does not support ${projectInfo.framework}`);
     }
 
@@ -331,6 +384,19 @@ async function addModuleToProject(
     }
 
     const postInstall = await gen.applyToProject(selectedModules, [], projectRoot);
+
+    // Install dependencies first, then run post-install commands (e.g. prisma generate)
+    if (!options?.dryRun && options?.install !== false) {
+      const installSpinner = logger.startSpinner("Installing dependencies...");
+      try {
+        await installDependencies(projectRoot, projectInfo.packageManager);
+        installSpinner.succeed("Dependencies installed");
+      } catch (err) {
+        installSpinner.fail("Failed to install dependencies");
+        throw err;
+      }
+    }
+
     if (postInstall && postInstall.length > 0 && !options?.dryRun) {
       const postInstallSpinner = logger.startSpinner("Running post-install commands...");
       try {
@@ -341,17 +407,6 @@ async function addModuleToProject(
       } catch (error) {
         postInstallSpinner.fail("Failed to run post-install commands");
         throw error;
-      }
-    }
-
-    if (!options?.dryRun && options?.install !== false) {
-      const installSpinner = logger.startSpinner("Installing dependencies...");
-      try {
-        await installDependencies(projectRoot, projectInfo.packageManager);
-        installSpinner.succeed("Dependencies installed");
-      } catch (err) {
-        installSpinner.fail("Failed to install dependencies");
-        throw err;
       }
     }
 
