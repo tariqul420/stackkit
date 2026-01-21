@@ -3,21 +3,24 @@ import { execSync } from "child_process";
 import fs from "fs-extra";
 import inquirer from "inquirer";
 import path from "path";
-import { CreateFilePatch, ModuleMetadata, ProjectInfo } from "../types";
+import {
+  DiscoveredModules,
+  discoverModules,
+  getDatabaseChoices,
+} from "../lib/discovery/module-discovery";
+import { addEnvVariables } from "../lib/env/env-editor";
+import { FrameworkUtils } from "../lib/framework/framework-utils";
+import { createFile, fileExists } from "../lib/fs/files";
 import {
   AdvancedCodeGenerator,
   Operation,
   TemplateCondition,
 } from "../lib/generation/code-generator";
-import { detectProjectInfo, getLibPath, getRouterBasePath } from "../lib/project/detect";
-import { addEnvVariables } from "../lib/env/env-editor";
-import { createFile, fileExists } from "../lib/fs/files";
-import { logger } from "../lib/ui/logger";
 import { addDependencies, installDependencies } from "../lib/pm/package-manager";
+import { detectProjectInfo, getLibPath, getRouterBasePath } from "../lib/project/detect";
+import { logger } from "../lib/ui/logger";
 import { getPackageRoot } from "../lib/utils/package-root";
-import { FrameworkUtils } from "../lib/framework/framework-utils";
-import { mergeGeneratorIntoModuleMetadata } from "../lib/generation/generator-utils";
-import { discoverModules, getDatabaseChoices, DiscoveredModules } from "../lib/discovery/module-discovery";
+import { CreateFilePatch, ModuleMetadata, ProjectInfo } from "../types";
 
 interface AddConfig {
   module: string;

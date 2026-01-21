@@ -1,10 +1,10 @@
 import chalk from "chalk";
 import fs from "fs-extra";
 import path from "path";
-import { ModuleMetadata } from "../types";
+import { discoverModules, getDatabaseChoices } from "../lib/discovery/module-discovery";
 import { logger } from "../lib/ui/logger";
 import { getPackageRoot } from "../lib/utils/package-root";
-import { discoverModules, getDatabaseChoices } from "../lib/discovery/module-discovery";
+import { ModuleMetadata } from "../types";
 
 interface ListOptions {
   frameworks?: boolean;

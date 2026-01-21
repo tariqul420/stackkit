@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 import { Command } from "commander";
-import { createProject } from "./cli/create";
+import * as fs from "fs";
+import { readFileSync } from "fs";
+import { join } from "path";
 import { addCommand } from "./cli/add";
+import { createProject } from "./cli/create";
 import { doctorCommand } from "./cli/doctor";
 import { listCommand } from "./cli/list";
 import { logger } from "./lib/ui/logger";
-import { readFileSync } from "fs";
-import { join, dirname } from "path";
 import { getPackageRoot } from "./lib/utils/package-root";
-import * as fs from "fs";
 
 const packageJson = JSON.parse(readFileSync(join(__dirname, "../package.json"), "utf-8"));
 

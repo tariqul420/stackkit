@@ -4,22 +4,22 @@ import fs from "fs-extra";
 import inquirer from "inquirer";
 import path from "path";
 import validateNpmPackageName from "validate-npm-package-name";
-import { initGit } from "../lib/git-utils";
 import { convertToJavaScript } from "../lib/conversion/js-conversion";
-import { installDependencies } from "../lib/pm/package-manager";
-import { logger } from "../lib/ui/logger";
-import { FrameworkUtils } from "../lib/framework/framework-utils";
 import {
   discoverModules,
-  getValidDatabaseOptions,
-  getValidAuthOptions,
-  parseDatabaseOption,
   getCompatibleAuthOptions,
+  getDatabaseChoices,
+  getValidAuthOptions,
+  getValidDatabaseOptions,
+  parseDatabaseOption,
 } from "../lib/discovery/module-discovery";
-import { getDatabaseChoices } from "../lib/discovery/module-discovery";
-import { AdvancedCodeGenerator } from "../lib/generation/code-generator";
-import { getPackageRoot } from "../lib/utils/package-root";
 import { addEnvVariables } from "../lib/env/env-editor";
+import { FrameworkUtils } from "../lib/framework/framework-utils";
+import { AdvancedCodeGenerator } from "../lib/generation/code-generator";
+import { initGit } from "../lib/git-utils";
+import { installDependencies } from "../lib/pm/package-manager";
+import { logger } from "../lib/ui/logger";
+import { getPackageRoot } from "../lib/utils/package-root";
 
 interface ProjectConfig {
   projectName: string;
