@@ -3,22 +3,21 @@ title: Auth.js
 description: Add Auth.js (NextAuth.js v5) to your project
 ---
 
+import { ModuleRequirements, ModuleCreateCommands } from "@/components/docs-meta";
+
 ## When to use
 
 Implementing authentication with Auth.js for Next.js + Prisma projects.
 
 ## Requirements
 
-- Next.js framework
-- Prisma database
+<ModuleRequirements moduleType="auth" moduleName="authjs" />
 
 ## Installation
 
 ### New project
 
-```bash
-npx stackkit@latest create my-app --framework nextjs --database prisma-postgresql --auth authjs
-```
+<ModuleCreateCommands moduleType="database" moduleName="prisma" cliPrefix={"npx stackkit@latest create my-app --framework nextjs --auth authjs"} />
 
 ### Existing project
 

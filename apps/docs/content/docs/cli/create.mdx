@@ -3,6 +3,8 @@ title: create
 description: Create new projects with StackKit
 ---
 
+import { ModuleProviders } from "@/components/docs-meta";
+
 ## When to use
 
 Starting a new project from scratch with your preferred framework, database, and authentication.
@@ -46,6 +48,10 @@ You'll be prompted for:
   - `prisma-sqlite`: Prisma with SQLite
   - `mongoose`: Mongoose ODM (MongoDB only)
   - `none`: Skip database setup
+
+For Prisma provider options, see:
+
+<ModuleProviders moduleType="database" moduleName="prisma" />
 
 ### Authentication Options
 - `--auth, -a <auth>`: Authentication library

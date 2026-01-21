@@ -1,5 +1,5 @@
 import { detect } from "detect-package-manager";
-import execa from "execa";
+import execa, { ExecaError } from "execa";
 import { logger } from "../ui/logger";
 
 export type PackageManager = "npm" | "yarn" | "pnpm" | "bun";
@@ -13,24 +13,11 @@ export async function detectPackageManager(cwd: string): Promise<PackageManager>
   }
 }
 
-export async function installDependencies(
-  cwd: string,
-  pm: PackageManager,
-  // dev argument removed as it is unused
-): Promise<void> {
-  const args: string[] = [];
+export async function installDependencies(cwd: string, pm: PackageManager): Promise<void> {
+  const args = ["install"];
+  const stdio = "pipe" as const;
 
-  if (pm === "npm") {
-    args.push("install");
-  } else if (pm === "yarn") {
-    args.push("install");
-  } else if (pm === "pnpm") {
-    args.push("install");
-  } else if (pm === "bun") {
-    args.push("install");
-  }
-
-  await execa(pm, args, { cwd, stdio: "pipe" });
+  await execa(pm, args, { cwd, stdio });
 }
 
 export async function addDependencies(
@@ -46,20 +33,25 @@ export async function addDependencies(
   );
 
   try {
-    const args: string[] = [];
+    const stdio = "pipe" as const;
 
-    if (pm === "npm") {
-      args.push("install", dev ? "--save-dev" : "--save", ...packages);
-    } else if (pm === "yarn") {
-      args.push("add", dev ? "--dev" : "", ...packages);
-    } else if (pm === "pnpm") {
-      args.push("add", dev ? "-D" : "", ...packages);
-    } else if (pm === "bun") {
-      // bun uses `bun add` and `-d` for dev dependencies
-      args.push("add", ...(dev ? ["-d"] : []), ...packages);
+    let args: string[] = [];
+    switch (pm) {
+      case "npm":
+        args = ["install", ...(dev ? ["--save-dev"] : []), ...packages];
+        break;
+      case "yarn":
+        args = ["add", ...(dev ? ["--dev"] : []), ...packages];
+        break;
+      case "pnpm":
+        args = ["add", ...(dev ? ["-D"] : []), ...packages];
+        break;
+      case "bun":
+        args = ["add", ...(dev ? ["-d"] : []), ...packages];
+        break;
     }
 
-    await execa(pm, args.filter(Boolean), { cwd, stdio: "pipe" });
+    await execa(pm, args, { cwd, stdio });
     spinner.succeed(`Dependencies added successfully`);
   } catch (error) {
     spinner.fail(`Failed to add dependencies`);
@@ -70,7 +62,47 @@ export async function addDependencies(
 }
 
 export async function initGit(cwd: string): Promise<void> {
-  await execa("git", ["init"], { cwd });
-  await execa("git", ["add", "."], { cwd });
-  await execa("git", ["commit", "-m", "Initial commit from StackKit"], { cwd });
+  const spinner = logger.startSpinner("Initializing git repository...");
+
+  const run = async (stdio: "pipe" | "inherit") => {
+    await execa("git", ["init"], { cwd, stdio });
+    await execa("git", ["add", "."], { cwd, stdio });
+    await execa("git", ["commit", "-m", "Initial commit from StackKit"], { cwd, stdio });
+  };
+
+  try {
+    await run("pipe");
+    spinner.succeed("Git repository initialized");
+    return;
+  } catch (error) {
+    const err = error as ExecaError;
+    spinner.fail(`Git init failed: ${err.message}`);
+
+    const isENOBUFS = (e: unknown): boolean => {
+      if (!e || typeof e !== "object") return false;
+      const obj = e as Record<string, unknown>;
+      return (
+        obj.code === "ENOBUFS" ||
+        obj.errno === "ENOBUFS" ||
+        String(obj.message ?? "").includes("ENOBUFS")
+      );
+    };
+
+    if (isENOBUFS(err)) {
+      logger.warn("ENOBUFS detected; skipping git initialization.");
+      logger.info("Skipped git initialization due to system resource limits.");
+      return;
+    }
+
+    try {
+      await run("inherit");
+      spinner.succeed("Git repository initialized (fallback)");
+      return;
+    } catch (fallbackErr) {
+      const fe = fallbackErr as ExecaError;
+      logger.warn(`Git init fallback failed: ${fe.message}`);
+      spinner.fail("Git initialization skipped");
+      return;
+    }
+  }
 }

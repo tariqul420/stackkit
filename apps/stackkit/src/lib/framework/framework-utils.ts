@@ -34,16 +34,53 @@ export class FrameworkUtils {
       this.frameworkConfigs.set(frameworkName, config);
       return config;
     }
-
-    // Default config if no template.json exists
+    // Derive compatibility dynamically from available modules if possible
     const defaultConfig: FrameworkConfig = {
       name: frameworkName,
       displayName: frameworkName.charAt(0).toUpperCase() + frameworkName.slice(1),
       compatibility: {
-        databases: ["prisma", "mongoose"],
-        auth: ["better-auth", "authjs"],
+        databases: [],
+        auth: [],
       },
     };
+
+    try {
+      const modulesDir = path.join(templatesDir, "..", "modules");
+      const dbDir = path.join(modulesDir, "database");
+      const authDir = path.join(modulesDir, "auth");
+
+      if (await fs.pathExists(dbDir)) {
+        const dbs = await fs.readdir(dbDir);
+        for (const d of dbs) {
+          const moduleJson = path.join(dbDir, d, "module.json");
+          if (await fs.pathExists(moduleJson)) {
+            try {
+              const m = await fs.readJson(moduleJson);
+              if (m && m.name) defaultConfig.compatibility.databases.push(m.name);
+            } catch {
+              // ignore malformed
+            }
+          }
+        }
+      }
+
+      if (await fs.pathExists(authDir)) {
+        const auths = await fs.readdir(authDir);
+        for (const a of auths) {
+          const moduleJson = path.join(authDir, a, "module.json");
+          if (await fs.pathExists(moduleJson)) {
+            try {
+              const m = await fs.readJson(moduleJson);
+              if (m && m.name) defaultConfig.compatibility.auth.push(m.name);
+            } catch {
+              // ignore malformed
+            }
+          }
+        }
+      }
+    } catch {
+      // ignore discovery errors and leave empty lists
+    }
 
     this.frameworkConfigs.set(frameworkName, defaultConfig);
     return defaultConfig;

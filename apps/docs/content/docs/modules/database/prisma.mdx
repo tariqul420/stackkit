@@ -3,6 +3,8 @@ title: Prisma
 description: Add Prisma ORM to your project
 ---
 
+import { ModuleProviders, ModuleCreateCommands } from "@/components/docs-meta";
+
 ## When to use
 
 Using Prisma ORM with PostgreSQL, MongoDB, MySQL, or SQLite.
@@ -11,9 +13,7 @@ Using Prisma ORM with PostgreSQL, MongoDB, MySQL, or SQLite.
 
 ### New project
 
-```bash
-npx stackkit@latest create my-app --database prisma-postgresql
-```
+<ModuleCreateCommands moduleType="database" moduleName="prisma" cliPrefix={"npx stackkit@latest create my-app"} />
 
 ### Existing project
 
@@ -27,10 +27,7 @@ npx stackkit@latest add database --provider prisma-postgresql
 
 ## Providers
 
-- `postgresql`
-- `mongodb`
-- `mysql`
-- `sqlite`
+<ModuleProviders moduleType="database" moduleName="prisma" />
 
 ## What gets generated
 

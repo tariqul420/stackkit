@@ -2,6 +2,7 @@ import chalk from "chalk";
 import fs from "fs-extra";
 import path from "path";
 import { logger } from "../lib/ui/logger";
+import { getPackageRoot } from "../lib/utils/package-root";
 
 // Constants for consistent messaging
 const MESSAGES = {
@@ -294,28 +295,123 @@ function detectAuthModules(packageJson: PackageJson): string[] {
   const deps = { ...packageJson.dependencies, ...packageJson.devDependencies };
   const modules: string[] = [];
 
-  if (deps["better-auth"]) {
-    modules.push("better-auth");
-  }
-  if (deps["next-auth"]) {
-    modules.push("authjs");
+  try {
+    const modulesDir = path.join(getPackageRoot(), "modules", "auth");
+    if (fs.existsSync(modulesDir)) {
+      const authDirs = fs.readdirSync(modulesDir);
+      for (const authDir of authDirs) {
+        try {
+          const genPath = path.join(modulesDir, authDir, "generator.json");
+          const modJson = path.join(modulesDir, authDir, "module.json");
+          let pkgNames: string[] = [];
+          if (fs.existsSync(genPath)) {
+            const gen = JSON.parse(fs.readFileSync(genPath, "utf-8"));
+            if (Array.isArray(gen.operations)) {
+              for (const op of gen.operations) {
+                if (op.dependencies && typeof op.dependencies === "object") {
+                  pkgNames.push(...Object.keys(op.dependencies));
+                }
+                if (op.devDependencies && typeof op.devDependencies === "object") {
+                  pkgNames.push(...Object.keys(op.devDependencies));
+                }
+              }
+            }
+          }
+
+          // Fallback: check module.json provider/name
+          let moduleName = authDir;
+          if (fs.existsSync(modJson)) {
+            try {
+              const m = JSON.parse(fs.readFileSync(modJson, "utf-8"));
+              if (m && m.name) moduleName = m.name;
+            } catch {
+              /* ignore */
+            }
+          }
+
+          for (const pkg of pkgNames) {
+            if (deps[pkg]) {
+              modules.push(moduleName);
+              break;
+            }
+          }
+        } catch {
+          // ignore per-module errors
+        }
+      }
+    }
+  } catch {
+    // ignore discovery errors
   }
 
-  return modules;
+  // Fallback to original simple checks if nothing found
+  if (modules.length === 0) {
+    if (deps["better-auth"]) modules.push("better-auth");
+    if (deps["next-auth"]) modules.push("authjs");
+  }
+
+  return Array.from(new Set(modules));
 }
 
 function detectDatabaseModules(packageJson: PackageJson): string[] {
   const deps = { ...packageJson.dependencies, ...packageJson.devDependencies };
   const modules: string[] = [];
 
-  if (deps["@prisma/client"] || deps["prisma"]) {
-    modules.push("prisma");
-  }
-  if (deps["mongoose"]) {
-    modules.push("mongoose");
+  try {
+    const modulesDir = path.join(getPackageRoot(), "modules", "database");
+    if (fs.existsSync(modulesDir)) {
+      const dbDirs = fs.readdirSync(modulesDir);
+      for (const dbDir of dbDirs) {
+        try {
+          const genPath = path.join(modulesDir, dbDir, "generator.json");
+          const modJson = path.join(modulesDir, dbDir, "module.json");
+          let pkgNames: string[] = [];
+          if (fs.existsSync(genPath)) {
+            const gen = JSON.parse(fs.readFileSync(genPath, "utf-8"));
+            if (Array.isArray(gen.operations)) {
+              for (const op of gen.operations) {
+                if (op.dependencies && typeof op.dependencies === "object") {
+                  pkgNames.push(...Object.keys(op.dependencies));
+                }
+                if (op.devDependencies && typeof op.devDependencies === "object") {
+                  pkgNames.push(...Object.keys(op.devDependencies));
+                }
+              }
+            }
+          }
+
+          let moduleName = dbDir;
+          if (fs.existsSync(modJson)) {
+            try {
+              const m = JSON.parse(fs.readFileSync(modJson, "utf-8"));
+              if (m && m.name) moduleName = m.name;
+            } catch {
+              /* ignore */
+            }
+          }
+
+          for (const pkg of pkgNames) {
+            if (deps[pkg]) {
+              modules.push(moduleName);
+              break;
+            }
+          }
+        } catch {
+          // ignore per-module errors
+        }
+      }
+    }
+  } catch {
+    // ignore discovery errors
   }
 
-  return modules;
+  // Fallback to original checks if nothing found
+  if (modules.length === 0) {
+    if (deps["@prisma/client"] || deps["prisma"]) modules.push("prisma");
+    if (deps["mongoose"]) modules.push("mongoose");
+  }
+
+  return Array.from(new Set(modules));
 }
 
 async function checkKeyFiles(
@@ -357,9 +453,39 @@ async function checkKeyFiles(
 
 async function checkAuthRoutesExist(projectRoot: string, projectType: string): Promise<boolean> {
   if (projectType !== "nextjs") return true; // Skip for non-Next.js
+  // Build candidate auth route paths from generator.json files in modules/auth
+  const candidates = new Set<string>();
 
-  const possiblePaths = [
-    // NextAuth routes
+  try {
+    const authModulesDir = path.join(getPackageRoot(), "modules", "auth");
+    if (await fs.pathExists(authModulesDir)) {
+      const authDirs = await fs.readdir(authModulesDir);
+      for (const dir of authDirs) {
+        const genPath = path.join(authModulesDir, dir, "generator.json");
+        if (!(await fs.pathExists(genPath))) continue;
+        try {
+          const gen = await fs.readJson(genPath);
+          if (Array.isArray(gen.operations)) {
+            for (const op of gen.operations) {
+              if (typeof op.destination === "string") candidates.add(op.destination);
+              if (Array.isArray(op.operations)) {
+                for (const sub of op.operations) {
+                  if (typeof sub.destination === "string") candidates.add(sub.destination);
+                }
+              }
+            }
+          }
+        } catch {
+          // ignore malformed generator
+        }
+      }
+    }
+  } catch {
+    // ignore discovery errors
+  }
+
+  // Fallback to known common paths if generators don't provide any
+  const fallback = [
     "app/api/auth/[...nextauth]/route.ts",
     "app/api/auth/[...nextauth]/route.js",
     "src/app/api/auth/[...nextauth]/route.ts",
@@ -368,14 +494,15 @@ async function checkAuthRoutesExist(projectRoot: string, projectType: string): P
     "pages/api/auth/[...nextauth].js",
     "src/pages/api/auth/[...nextauth].ts",
     "src/pages/api/auth/[...nextauth].js",
-    // Better Auth routes
     "app/api/auth/[...all]/route.ts",
     "app/api/auth/[...all]/route.js",
     "src/app/api/auth/[...all]/route.ts",
     "src/app/api/auth/[...all]/route.js",
   ];
 
-  for (const routePath of possiblePaths) {
+  for (const p of fallback) candidates.add(p);
+
+  for (const routePath of candidates) {
     if (await fs.pathExists(path.join(projectRoot, routePath))) {
       return true;
     }
@@ -394,14 +521,56 @@ async function checkEnvFiles(
   const missing: string[] = [];
   const present: string[] = [];
 
-  if (databaseModules.includes("prisma")) {
-    requiredKeys.push("DATABASE_URL");
-  }
-  if (authModules.includes("authjs")) {
-    requiredKeys.push("NEXTAUTH_SECRET", "NEXTAUTH_URL");
-  }
-  if (authModules.includes("better-auth")) {
-    requiredKeys.push("BETTER_AUTH_SECRET", "BETTER_AUTH_URL");
+  // Dynamically collect required env keys from generator.json for detected modules
+  try {
+    const modulesDir = path.join(getPackageRoot(), "modules");
+
+    async function collectEnvKeys(category: string, name: string) {
+      const genPath = path.join(modulesDir, category, name, "generator.json");
+      if (!(await fs.pathExists(genPath))) return;
+      try {
+        const gen = await fs.readJson(genPath);
+        if (Array.isArray(gen.operations)) {
+          for (const op of gen.operations) {
+            if (op.type === "add-env" && op.envVars && typeof op.envVars === "object") {
+              for (const k of Object.keys(op.envVars)) {
+                if (!requiredKeys.includes(k)) requiredKeys.push(k);
+              }
+            }
+            // Also check nested operations (e.g., patch-file -> operations)
+            if (Array.isArray(op.operations)) {
+              for (const sub of op.operations) {
+                if (sub.type === "add-env" && sub.envVars && typeof sub.envVars === "object") {
+                  for (const k of Object.keys(sub.envVars)) {
+                    if (!requiredKeys.includes(k)) requiredKeys.push(k);
+                  }
+                }
+              }
+            }
+          }
+        }
+      } catch {
+        // ignore malformed generator
+      }
+    }
+
+    for (const db of databaseModules) {
+      await collectEnvKeys("database", db);
+    }
+    for (const auth of authModules) {
+      await collectEnvKeys("auth", auth);
+    }
+  } catch {
+    // fallback to previous minimal checks if discovery fails
+    if (databaseModules.includes("prisma")) {
+      requiredKeys.push("DATABASE_URL");
+    }
+    if (authModules.includes("authjs")) {
+      requiredKeys.push("NEXTAUTH_SECRET", "NEXTAUTH_URL");
+    }
+    if (authModules.includes("better-auth")) {
+      requiredKeys.push("BETTER_AUTH_SECRET", "BETTER_AUTH_URL");
+    }
   }
 
   const envPaths = [".env", ".env.local"];

@@ -16,6 +16,7 @@ import {
   parseDatabaseOption,
   getCompatibleAuthOptions,
 } from "../lib/discovery/module-discovery";
+import { getDatabaseChoices } from "../lib/discovery/module-discovery";
 import { AdvancedCodeGenerator } from "../lib/generation/code-generator";
 import { getPackageRoot } from "../lib/utils/package-root";
 import { addEnvVariables } from "../lib/env/env-editor";
@@ -223,12 +224,17 @@ async function getProjectConfig(
       name: "database",
       message: "Select database/ORM:",
       when: (answers: Answers) => answers.framework !== "react",
-      choices: [
-        { name: "Prisma", value: "prisma" },
-        { name: "Mongoose", value: "mongoose" },
-        { name: "None", value: "none" },
-      ],
+      choices: (answers: Answers) =>
+        discoveredModules.databases && discoveredModules.databases.length > 0
+          ? getDatabaseChoices(discoveredModules.databases, answers.framework)
+          : [
+              { name: "Prisma", value: "prisma" },
+              { name: "Mongoose", value: "mongoose" },
+              { name: "None", value: "none" },
+            ],
     },
+    // If a prisma-* choice is selected above, `prismaProvider` will be derived from it,
+    // otherwise prompt for provider when `prisma` is selected directly.
     {
       type: "list",
       name: "prismaProvider",

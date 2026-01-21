@@ -6,9 +6,61 @@ import { doctorCommand } from "./cli/doctor";
 import { listCommand } from "./cli/list";
 import { logger } from "./lib/ui/logger";
 import { readFileSync } from "fs";
-import { join } from "path";
+import { join, dirname } from "path";
+import { getPackageRoot } from "./lib/utils/package-root";
+import * as fs from "fs";
 
 const packageJson = JSON.parse(readFileSync(join(__dirname, "../package.json"), "utf-8"));
+
+function buildOptionHints() {
+  try {
+    const pkgRoot = getPackageRoot();
+    const modulesDir = join(pkgRoot, "modules");
+    const dbs: string[] = [];
+    const auths: string[] = [];
+
+    if (fs.existsSync(join(modulesDir, "database"))) {
+      for (const d of fs.readdirSync(join(modulesDir, "database"))) {
+        const moduleJson = join(modulesDir, "database", d, "module.json");
+        if (fs.existsSync(moduleJson)) {
+          try {
+            const m = JSON.parse(readFileSync(moduleJson, "utf-8"));
+            if (m && m.name === "prisma") {
+              dbs.push("prisma-postgresql", "prisma-mongodb", "prisma-mysql", "prisma-sqlite");
+            } else if (m && m.name) {
+              dbs.push(m.name);
+            }
+          } catch {
+            /* ignore */
+          }
+        }
+      }
+    }
+
+    if (fs.existsSync(join(modulesDir, "auth"))) {
+      for (const a of fs.readdirSync(join(modulesDir, "auth"))) {
+        const moduleJson = join(modulesDir, "auth", a, "module.json");
+        if (fs.existsSync(moduleJson)) {
+          try {
+            const m = JSON.parse(readFileSync(moduleJson, "utf-8"));
+            if (m && m.name) auths.push(m.name);
+          } catch {
+            /* ignore */
+          }
+        }
+      }
+    }
+
+    return {
+      databaseHint: dbs.length > 0 ? dbs.join(", ") : "prisma, mongoose, none",
+      authHint: auths.length > 0 ? auths.join(", ") : "better-auth, authjs, none",
+    };
+  } catch {
+    return { databaseHint: "prisma, mongoose, none", authHint: "better-auth, authjs, none" };
+  }
+}
+
+const hints = buildOptionHints();
 
 interface CreateOptions {
   framework?: "nextjs" | "express" | "react";
@@ -65,9 +117,9 @@ program
   .description("Create a new StackKit project")
   .usage("[project-name] [options]")
   .option("-f, --framework <framework>", "Framework: nextjs, express, react")
-  .option("-d, --database <database>", "Database: prisma, mongoose, none")
+  .option("-d, --database <database>", `Database: ${hints.databaseHint}`)
   .option("--prisma-provider <provider>", "Prisma provider: postgresql, mongodb, mysql, sqlite")
-  .option("-a, --auth <auth>", "Auth: better-auth, authjs, none")
+  .option("-a, --auth <auth>", `Auth: ${hints.authHint}`)
   .option("-l, --language <language>", "Language: typescript, javascript")
   .option("-p, --package-manager <pm>", "Package manager: pnpm, npm, yarn, bun")
   .option("--skip-install", "Skip dependency installation")

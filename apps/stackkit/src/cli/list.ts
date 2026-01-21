@@ -4,6 +4,7 @@ import path from "path";
 import { ModuleMetadata } from "../types";
 import { logger } from "../lib/ui/logger";
 import { getPackageRoot } from "../lib/utils/package-root";
+import { discoverModules, getDatabaseChoices } from "../lib/discovery/module-discovery";
 
 interface ListOptions {
   frameworks?: boolean;
@@ -41,6 +42,14 @@ export async function listCommand(options: ListOptions): Promise<void> {
     if (showModules) {
       const modulesDir = path.join(getPackageRoot(), "modules");
       const modules = await getAvailableModules(modulesDir);
+
+      // Discover modules to derive provider lists dynamically
+      let discovered;
+      try {
+        discovered = await discoverModules(path.join(getPackageRoot(), "modules"));
+      } catch {
+        discovered = { frameworks: [], databases: [], auth: [] } as any;
+      }
 
       if (modules.length > 0) {
         hasModules = true;
@@ -86,8 +95,20 @@ export async function listCommand(options: ListOptions): Promise<void> {
                 : isLastMod
                   ? "│       └──"
                   : "│       ├──";
+
+              // Compute provider names from discovered database choices
+              const choices = getDatabaseChoices(discovered.databases || [], "nextjs");
+              const prismaProviders = choices
+                .filter((c) => c.value.startsWith("prisma-"))
+                .map((c) => {
+                  const m = c.name.match(/\(([^)]+)\)/);
+                  return m ? m[1] : c.name;
+                });
+
+              const providersText = prismaProviders.length > 0 ? prismaProviders.join(", ") : "PostgreSQL, MongoDB, MySQL, SQLite";
+
               logger.log(
-                `  ${chalk.gray(providerPrefix)} ${chalk.dim("Providers: PostgreSQL, MongoDB, MySQL, SQLite")}`,
+                `  ${chalk.gray(providerPrefix)} ${chalk.dim(`Providers: ${providersText}`)}`,
               );
             }
           });
