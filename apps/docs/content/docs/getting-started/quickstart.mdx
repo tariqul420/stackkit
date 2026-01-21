@@ -4,14 +4,34 @@ description: Create your first StackKit project in under 5 minutes
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 
 ## Create a New Project
 
 Run the interactive CLI to generate your project:
 
-```bash
-npx stackkit@latest create my-app
-```
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm dlx stackkit@latest create my-app
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npx stackkit@latest create my-app
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn dlx stackkit@latest create my-app
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bun x stackkit@latest create my-app
+    ```
+  </Tab>
+</Tabs>
 
 ## Choose Your Stack
 
@@ -91,12 +111,41 @@ Never commit `.env` files to version control.
 
 Already have a project? Use the modular CLI:
 
-```bash
-# Add authentication (interactive)
-npx stackkit@latest add
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value="pnpm">
+    ```bash
+    # Add authentication (interactive)
+    pnpm dlx stackkit@latest add
 
-# Add database with provider (non-interactive)
-npx stackkit@latest add database --provider prisma-postgresql
-```
+    # Add database with provider (non-interactive)
+    pnpm dlx stackkit@latest add database --provider prisma-postgresql
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    # Add authentication (interactive)
+    npx stackkit@latest add
+
+    # Add database with provider (non-interactive)
+    npx stackkit@latest add database --provider prisma-postgresql
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn dlx stackkit@latest add
+
+    # Add database with provider (non-interactive)
+    yarn dlx stackkit@latest add database --provider prisma-postgresql
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bun x stackkit@latest add
+
+    # Add database with provider (non-interactive)
+    bun x stackkit@latest add database --provider prisma-postgresql
+    ```
+  </Tab>
+</Tabs>
 
 See [CLI Reference](/docs/cli/overview) for all commands.
