@@ -2,8 +2,7 @@
 
 CLI for scaffolding and composing modular JavaScript applications.
 
-Quick Start
------------
+## Quick Start
 
 Create a new project without installing globally:
 
@@ -23,15 +22,13 @@ Check project health:
 npx stackkit@latest doctor
 ```
 
-Supported technologies
-----------------------
+## Supported technologies
 
 - Frameworks: Next.js, React, Express
 - Databases: Prisma, Mongoose
 - Auth: Auth.js / Better Auth
 
-Links
------
+## Links
 
 - Website: https://stackkit.tariqul.dev
 - Repo: https://github.com/tariqul420/stackkit

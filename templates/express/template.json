@@ -7,7 +7,15 @@
     "databases": ["prisma", "mongoose"],
     "auth": ["better-auth"]
   },
-  "files": ["src/", ".gitignore", "package.json", "tsconfig.json", ".env.example"],
+  "files": [
+    "src/",
+    ".env.example",
+    ".gitignore",
+    "eslint.config.cjs",
+    "package.json",
+    "README.md",
+    "tsconfig.json"
+  ],
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",

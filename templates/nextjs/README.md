@@ -2,14 +2,12 @@
 
 Production-ready Next.js starter with TypeScript and App Router.
 
-Requirements
-------------
+## Requirements
 
 - Node.js 18+ (LTS recommended)
 - pnpm or npm
 
-Quick Start
------------
+## Quick Start
 
 Install dependencies and start a development server:
 
@@ -75,4 +73,3 @@ This project was scaffolded using **StackKit** — a CLI toolkit for building pr
 
 Learn more about StackKit:
 https://github.com/tariqul420/stackkit
-

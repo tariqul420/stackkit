@@ -2,14 +2,12 @@
 
 Production-ready Express (TypeScript) starter for building REST APIs and backend services.
 
-Requirements
-------------
+## Requirements
 
 - Node.js 18+ (LTS recommended)
 - pnpm or npm
 
-Quick Start
------------
+## Quick Start
 
 Install dependencies and start the development server:
 
@@ -23,15 +21,13 @@ npm install
 npm run dev
 ```
 
-Scripts
--------
+## Scripts
 
 - `npm run dev` - Start development server
 - `npm run build` - Build TypeScript
 - `npm start` - Start production server
 
-Environment
------------
+## Environment
 
 Use a `.env` file or environment variables for configuration. See `.env.example` for available keys.
 
@@ -45,4 +41,3 @@ This project was scaffolded using **StackKit** — a CLI toolkit for building pr
 
 Learn more about StackKit:
 https://github.com/tariqul420/stackkit
-

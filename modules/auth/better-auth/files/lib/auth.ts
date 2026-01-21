@@ -30,7 +30,9 @@ return betterAuth({
   database: mongodbAdapter(db, { client }),
 {{/case}}
 {{/switch}}
-  secret: env.BETTER_AUTH_SECRET,
+  baseURL: process.env.BETTER_AUTH_URL,
+  secret: process.env.BETTER_AUTH_SECRET,
+  trustedOrigins: [process.env.APP_URL],
   user: {
     additionalFields: {
       role: {
@@ -84,9 +86,11 @@ return betterAuth({
   session: {
     cookieCache: {
       enabled: true,
+      maxAge: 60 * 60 * 24 * 7,
     },
     expiresIn: 60 * 60 * 24 * 7,
     updateAge: 60 * 60 * 24,
+    cookieName: "better-auth.session_token",
   }
  })
 };

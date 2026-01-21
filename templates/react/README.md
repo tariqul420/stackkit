@@ -2,14 +2,12 @@
 
 Production-ready React starter with TypeScript, Vite, and essential libraries.
 
-Requirements
-------------
+## Requirements
 
 - Node.js 18+ (LTS recommended)
 - pnpm (recommended) or npm
 
-Quick Start
------------
+## Quick Start
 
 Install dependencies and run the dev server:
 
@@ -89,4 +87,3 @@ This project was scaffolded using **StackKit** — a CLI toolkit for building pr
 
 Learn more about StackKit:
 https://github.com/tariqul420/stackkit
-

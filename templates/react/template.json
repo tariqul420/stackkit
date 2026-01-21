@@ -12,6 +12,8 @@
     "public/",
     ".env.example",
     ".gitignore",
+    ".prettierignore",
+    ".prettierrc",
     "eslint.config.js",
     "index.html",
     "package.json",

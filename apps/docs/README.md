@@ -2,8 +2,7 @@
 
 Documentation source for the StackKit website.
 
-Quick Start
------------
+## Quick Start
 
 Install dependencies and run the docs site locally:
 
@@ -14,21 +13,18 @@ pnpm dev
 
 Open `http://localhost:3000` to view the site.
 
-Build
------
+## Build
 
 ```bash
 pnpm build
 pnpm start
 ```
 
-Content
--------
+## Content
 
 Content lives under `content/docs/`. Add `.mdx` pages and update navigation via `meta.json`.
 
-Key files
----------
+## Key files
 
 - `source.config.ts` — Fumadocs config
 - `lib/source.ts` — content adapter

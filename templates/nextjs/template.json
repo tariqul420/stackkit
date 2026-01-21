@@ -9,7 +9,9 @@
   },
   "files": [
     "app/",
+    "lib/",
     "public/",
+    ".env.example",
     ".gitignore",
     "eslint.config.mjs",
     "next-env.d.ts",
