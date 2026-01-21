@@ -45,7 +45,6 @@ async function ensureNonDotFiles(templatesRoot) {
       try {
         if ((await fs.pathExists(dotPath)) && !(await fs.pathExists(nonDotPath))) {
           await fs.copy(dotPath, nonDotPath);
-          console.log(`Created ${path.relative(process.cwd(), nonDotPath)}`);
         }
       } catch (err) {
         console.warn(`Could not ensure ${nonDotPath}:`, err && err.message ? err.message : err);
@@ -67,7 +66,9 @@ async function main() {
   if (await fs.pathExists(srcTemplates)) {
     const ok = await copyRecursive(srcTemplates, destTemplates);
     if (ok) anyCopied = true;
-    else console.warn("Templates copy failed");
+    else {
+      console.error("Templates copy failed");
+    }
   } else {
     console.warn(`Source templates not found at ${srcTemplates}, skipping templates copy.`);
   }
@@ -75,7 +76,9 @@ async function main() {
   if (await fs.pathExists(srcModules)) {
     const ok = await copyRecursive(srcModules, destModules);
     if (ok) anyCopied = true;
-    else console.warn("Modules copy failed");
+    else {
+      console.error("Modules copy failed");
+    }
   } else {
     console.warn(`Source modules not found at ${srcModules}, skipping modules copy.`);
   }

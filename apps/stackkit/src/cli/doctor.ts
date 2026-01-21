@@ -196,8 +196,7 @@ async function runDoctorChecks(): Promise<DoctorReport> {
       prismaSchema: databaseModules.includes("prisma")
         ? await fs.pathExists(path.join(projectRoot, "prisma", "schema.prisma"))
         : undefined,
-      authRoutes:
-        authModules.length > 0 ? await checkAuthRoutesExist(projectRoot, projectType) : undefined,
+      authRoutes: authModules.length > 0 ? await checkAuthRoutesExist(projectRoot) : undefined,
       tsconfig: await fs.pathExists(path.join(projectRoot, "tsconfig.json")),
       eslintConfig: await checkEslintConfigExists(projectRoot),
       git: await fs.pathExists(path.join(projectRoot, ".git")),
