@@ -62,11 +62,11 @@ function buildOptionHints() {
     }
 
     return {
-      databaseHint: dbs.length > 0 ? dbs.join(", ") : "prisma, mongoose, none",
-      authHint: auths.length > 0 ? auths.join(", ") : "better-auth, authjs, none",
+      databaseHint: dbs.length > 0 ? dbs.join(", ") : "none",
+      authHint: auths.length > 0 ? auths.join(", ") : "none",
     };
   } catch {
-    return { databaseHint: "prisma, mongoose, none", authHint: "better-auth, authjs, none" };
+    return { databaseHint: "none", authHint: "none" };
   }
 }
 

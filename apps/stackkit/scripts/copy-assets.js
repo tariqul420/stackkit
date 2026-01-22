@@ -24,7 +24,6 @@ async function ensureNonDotFiles(templatesRoot) {
     if (!e.isDirectory()) continue;
     const tplDir = path.join(templatesRoot, e.name);
 
-    // Read top-level entries inside the template directory
     let tplEntries = [];
     try {
       tplEntries = await fs.readdir(tplDir, { withFileTypes: true });

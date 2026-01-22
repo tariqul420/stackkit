@@ -99,7 +99,6 @@ async function getProjectConfig(
 
   if (optionsProvided) {
     if (options && (options.yes || options.y) && !flagsProvided) {
-      // Derive sensible defaults from discovered templates/modules where possible
       const defaultFramework =
         discoveredModules.frameworks && discoveredModules.frameworks.length > 0
           ? discoveredModules.frameworks[0].name
@@ -311,7 +310,6 @@ async function getProjectConfig(
     },
   ])) as Answers;
 
-  // Normalize database answer (interactive flow): handle values like `prisma-postgresql`
   let databaseAnswer =
     answers.framework === "react" ? "none" : (answers.database as string | undefined);
   let prismaProviderAnswer = answers.prismaProvider as

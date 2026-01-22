@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import fs from "fs-extra";
 import path from "path";
+import { detectAuthModules, detectDatabaseModules } from "../lib/discovery/installed-detection";
 import { logger } from "../lib/ui/logger";
 import { getPackageRoot } from "../lib/utils/package-root";
 
@@ -148,8 +149,8 @@ async function runDoctorChecks(): Promise<DoctorReport> {
   const nodeVersionCheck = checkNodeVersion();
   checks.push(nodeVersionCheck);
 
-  const authModules = detectAuthModules(packageJson);
-  const databaseModules = detectDatabaseModules(packageJson);
+  const authModules = await detectAuthModules(packageJson);
+  const databaseModules = await detectDatabaseModules(packageJson);
 
   const filesCheck = await checkKeyFiles(projectRoot, projectType, authModules, databaseModules);
   checks.push(...filesCheck);
@@ -310,128 +311,7 @@ function checkNodeVersion(): CheckResult {
   }
 }
 
-function detectAuthModules(packageJson: PackageJson): string[] {
-  const deps = { ...packageJson.dependencies, ...packageJson.devDependencies };
-  const modules: string[] = [];
-
-  try {
-    const modulesDir = path.join(getPackageRoot(), "modules", "auth");
-    if (fs.existsSync(modulesDir)) {
-      const authDirs = fs.readdirSync(modulesDir);
-      for (const authDir of authDirs) {
-        try {
-          const genPath = path.join(modulesDir, authDir, "generator.json");
-          const modJson = path.join(modulesDir, authDir, "module.json");
-          const pkgNames: string[] = [];
-          if (fs.existsSync(genPath)) {
-            const gen = JSON.parse(fs.readFileSync(genPath, "utf-8"));
-            if (Array.isArray(gen.operations)) {
-              for (const op of gen.operations) {
-                if (op.dependencies && typeof op.dependencies === "object") {
-                  pkgNames.push(...Object.keys(op.dependencies));
-                }
-                if (op.devDependencies && typeof op.devDependencies === "object") {
-                  pkgNames.push(...Object.keys(op.devDependencies));
-                }
-              }
-            }
-          }
-
-          // Fallback: check module.json provider/name
-          let moduleName = authDir;
-          if (fs.existsSync(modJson)) {
-            try {
-              const m = JSON.parse(fs.readFileSync(modJson, "utf-8"));
-              if (m && m.name) moduleName = m.name;
-            } catch {
-              /* ignore */
-            }
-          }
-
-          for (const pkg of pkgNames) {
-            if (deps[pkg]) {
-              modules.push(moduleName);
-              break;
-            }
-          }
-        } catch {
-          // ignore per-module errors
-        }
-      }
-    }
-  } catch {
-    // ignore discovery errors
-  }
-
-  // Fallback to original simple checks if nothing found
-  if (modules.length === 0) {
-    if (deps["better-auth"]) modules.push("better-auth");
-    if (deps["next-auth"]) modules.push("authjs");
-  }
-
-  return Array.from(new Set(modules));
-}
-
-function detectDatabaseModules(packageJson: PackageJson): string[] {
-  const deps = { ...packageJson.dependencies, ...packageJson.devDependencies };
-  const modules: string[] = [];
-
-  try {
-    const modulesDir = path.join(getPackageRoot(), "modules", "database");
-    if (fs.existsSync(modulesDir)) {
-      const dbDirs = fs.readdirSync(modulesDir);
-      for (const dbDir of dbDirs) {
-        try {
-          const genPath = path.join(modulesDir, dbDir, "generator.json");
-          const modJson = path.join(modulesDir, dbDir, "module.json");
-          const pkgNames: string[] = [];
-          if (fs.existsSync(genPath)) {
-            const gen = JSON.parse(fs.readFileSync(genPath, "utf-8"));
-            if (Array.isArray(gen.operations)) {
-              for (const op of gen.operations) {
-                if (op.dependencies && typeof op.dependencies === "object") {
-                  pkgNames.push(...Object.keys(op.dependencies));
-                }
-                if (op.devDependencies && typeof op.devDependencies === "object") {
-                  pkgNames.push(...Object.keys(op.devDependencies));
-                }
-              }
-            }
-          }
-
-          let moduleName = dbDir;
-          if (fs.existsSync(modJson)) {
-            try {
-              const m = JSON.parse(fs.readFileSync(modJson, "utf-8"));
-              if (m && m.name) moduleName = m.name;
-            } catch {
-              /* ignore */
-            }
-          }
-
-          for (const pkg of pkgNames) {
-            if (deps[pkg]) {
-              modules.push(moduleName);
-              break;
-            }
-          }
-        } catch {
-          // ignore per-module errors
-        }
-      }
-    }
-  } catch {
-    // ignore discovery errors
-  }
-
-  // Fallback to original checks if nothing found
-  if (modules.length === 0) {
-    if (deps["@prisma/client"] || deps["prisma"]) modules.push("prisma");
-    if (deps["mongoose"]) modules.push("mongoose");
-  }
-
-  return Array.from(new Set(modules));
-}
+// Module detection is delegated to shared utilities in `lib/discovery`.
 
 async function checkKeyFiles(
   projectRoot: string,
@@ -503,22 +383,9 @@ async function checkAuthRoutesExist(projectRoot: string): Promise<boolean> {
   }
 
   // Fallback to known common paths if generators don't provide any
-  const fallback = [
-    "app/api/auth/[...nextauth]/route.ts",
-    "app/api/auth/[...nextauth]/route.js",
-    "src/app/api/auth/[...nextauth]/route.ts",
-    "src/app/api/auth/[...nextauth]/route.js",
-    "pages/api/auth/[...nextauth].ts",
-    "pages/api/auth/[...nextauth].js",
-    "src/pages/api/auth/[...nextauth].ts",
-    "src/pages/api/auth/[...nextauth].js",
-    "app/api/auth/[...all]/route.ts",
-    "app/api/auth/[...all]/route.js",
-    "src/app/api/auth/[...all]/route.ts",
-    "src/app/api/auth/[...all]/route.js",
-  ];
-
-  for (const p of fallback) candidates.add(p);
+  // If generators provided candidate routes, check them. Otherwise
+  // do not assume any hard-coded route locations.
+  if (candidates.size === 0) return false;
 
   for (const routePath of candidates) {
     if (await fs.pathExists(path.join(projectRoot, routePath))) {
@@ -579,16 +446,7 @@ async function checkEnvFiles(
       await collectEnvKeys("auth", auth);
     }
   } catch {
-    // fallback to previous minimal checks if discovery fails
-    if (databaseModules.includes("prisma")) {
-      requiredKeys.push("DATABASE_URL");
-    }
-    if (authModules.includes("authjs")) {
-      requiredKeys.push("NEXTAUTH_SECRET", "NEXTAUTH_URL");
-    }
-    if (authModules.includes("better-auth")) {
-      requiredKeys.push("BETTER_AUTH_SECRET", "BETTER_AUTH_URL");
-    }
+    // If discovery fails, keep requiredKeys empty rather than using hard-coded defaults.
   }
 
   const envPaths = [".env", ".env.local"];

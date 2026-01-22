@@ -115,9 +115,7 @@ async function getAddConfig(
       if (!moduleMetadata) {
         throw new Error(`Auth provider "${provider}" not found`);
       }
-      // Validate compatibility with existing project using module metadata
       if (projectInfo) {
-        // If module defines supportedFrameworks, ensure current project framework is allowed
         if (
           moduleMetadata.supportedFrameworks &&
           !moduleMetadata.supportedFrameworks.includes(projectInfo.framework)
@@ -127,7 +125,6 @@ async function getAddConfig(
           );
         }
 
-        // If module defines compatibility.databases, ensure project has a compatible database
         const dbName = projectInfo.hasPrisma
           ? "prisma"
           : projectInfo.hasDatabase
@@ -163,7 +160,6 @@ async function getInteractiveConfig(
   modulesDir: string,
   projectInfo?: ProjectInfo,
 ): Promise<AddConfig> {
-  // Discover modules once and use compatibility info to decide which categories to show
   const discovered: DiscoveredModules = await discoverModules(modulesDir);
 
   const defaultFramework = (discovered.frameworks && discovered.frameworks[0]?.name) || "nextjs";
@@ -177,7 +173,6 @@ async function getInteractiveConfig(
     { name: "Database", value: "database" },
   ];
 
-  // Only show Auth category if there is at least one compatible auth option
   if (compatibleAuths.length > 1) {
     categories.push({ name: "Auth", value: "auth" });
   }
@@ -231,7 +226,6 @@ async function getInteractiveConfig(
       metadata: meta,
     };
   } else if (category === "auth") {
-    // Filter auth choices based on project compatibility (framework + database)
     const dbString = projectInfo?.hasPrisma ? "prisma" : "none";
     const authChoices = getCompatibleAuthOptions(
       discovered.auth || [],
@@ -392,7 +386,6 @@ async function addModuleToProject(
 
     const postInstall = await gen.applyToProject(selectedModules, [], projectRoot);
 
-    // Install dependencies first, then run post-install commands (e.g. prisma generate)
     if (!options?.dryRun && options?.install !== false) {
       const installSpinner = logger.startSpinner("Installing dependencies...");
       try {
@@ -440,9 +433,6 @@ async function addModuleToProject(
   } catch {
     // ignore malformed frameworkConfigs
   }
-
-  // Adapter-specific dependencies are applied via generator metadata; frameworkConfigs still merge above.
-  // Do not mutate the loaded module metadata here; use mergedDeps/mergedDevDeps for installation.
 
   const variables: Record<string, string> = {};
 
@@ -494,7 +484,6 @@ async function addModuleToProject(
   }
 
   if (moduleMetadata.postInstall && moduleMetadata.postInstall.length > 0 && !options?.dryRun) {
-    // Determine whether any create-file patches resulted in files being written
     const createdFiles: string[] = [];
     if (Array.isArray(moduleMetadata.patches)) {
       for (const p of moduleMetadata.patches) {
@@ -699,9 +688,11 @@ async function findModulePath(
 
       if (await fs.pathExists(metadataPath)) {
         const metadata = await fs.readJSON(metadataPath);
-
-        if (provider && moduleDir === provider) {
-          return modulePath;
+        if (provider) {
+          const baseProvider = String(provider).split("-")[0];
+          if (moduleDir === provider || moduleDir === baseProvider) {
+            return modulePath;
+          }
         }
 
         if (!provider && metadata.name === moduleName) {

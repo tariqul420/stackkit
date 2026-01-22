@@ -91,20 +91,8 @@ export async function listCommand(options: ListOptions): Promise<void> {
               // Derive provider list directly from the Prisma generator metadata
               const providers = getPrismaProvidersFromGenerator(getPackageRoot());
               const providersText = providers.length
-                ? providers
-                    .map((p) =>
-                      p === "postgresql"
-                        ? "PostgreSQL"
-                        : p === "mongodb"
-                          ? "MongoDB"
-                          : p === "mysql"
-                            ? "MySQL"
-                            : p === "sqlite"
-                              ? "SQLite"
-                              : p,
-                    )
-                    .join(", ")
-                : "PostgreSQL, MongoDB, MySQL, SQLite";
+                ? providers.map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join(", ")
+                : "None";
 
               logger.log(
                 `  ${chalk.gray(providerPrefix)} ${chalk.dim(`Providers: ${providersText}`)}`,

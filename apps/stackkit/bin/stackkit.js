@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 /* eslint-disable */
 try {
-  // Load compiled CLI
   require("../dist/index.js");
 } catch (err) {
   console.error(

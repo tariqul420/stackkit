@@ -1,6 +1,7 @@
 import fs from "fs-extra";
 import path from "path";
 import { ProjectInfo } from "../../types";
+import { detectAuthModules, detectDatabaseModules } from "../discovery/installed-detection";
 import { getPackageRoot } from "../utils/package-root";
 
 export async function detectProjectInfo(targetDir: string): Promise<ProjectInfo> {
@@ -106,25 +107,14 @@ export async function detectProjectInfo(targetDir: string): Promise<ProjectInfo>
     packageManager = "bun";
   }
 
-  // Check for existing integrations
-  const hasAuth = !!(
-    packageJson.dependencies?.["next-auth"] ||
-    packageJson.dependencies?.["better-auth"] ||
-    packageJson.dependencies?.["@auth/core"] ||
-    packageJson.dependencies?.["@kinde-oss/kinde-auth-nextjs"]
-  );
+  // Detect installed modules by comparing project dependencies against
+  // declared dependencies in `modules/*/generator.json` and `module.json`.
+  const detectedAuth = await detectAuthModules(packageJson);
+  const detectedDbs = await detectDatabaseModules(packageJson);
 
-  const hasPrisma = !!(
-    packageJson.dependencies?.["@prisma/client"] || packageJson.devDependencies?.["prisma"]
-  );
-
-  const hasDatabase =
-    hasPrisma ||
-    !!(
-      packageJson.dependencies?.["mongoose"] ||
-      packageJson.dependencies?.["typeorm"] ||
-      packageJson.dependencies?.["drizzle-orm"]
-    );
+  const hasAuth = detectedAuth.length > 0;
+  const hasPrisma = detectedDbs.includes("prisma");
+  const hasDatabase = hasPrisma || detectedDbs.length > 0;
 
   return {
     framework,
