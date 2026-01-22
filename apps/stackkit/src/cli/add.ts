@@ -29,6 +29,7 @@ interface AddConfig {
   provider?: string;
   displayName: string;
   metadata: ModuleMetadata;
+  preAdded?: AddConfig[];
 }
 
 interface AddOptions {
@@ -51,10 +52,21 @@ export async function addCommand(module?: string, options?: AddOptions): Promise
 
     const config = await getAddConfig(module, options, projectInfo);
 
-    await addModuleToProject(projectRoot, projectInfo, config, options);
+    // Refresh project detection in case getAddConfig performed a pre-add (database)
+    const refreshedProjectInfo = await detectProjectInfo(projectRoot);
+
+    await addModuleToProject(projectRoot, refreshedProjectInfo, config, options);
 
     logger.newLine();
-    logger.success(`Added ${chalk.bold(config.displayName)}`);
+    if (config.preAdded && config.preAdded.length > 0) {
+      const addedNames = [
+        ...config.preAdded.map((p) => p.displayName),
+        config.displayName,
+      ].map((s) => chalk.bold(s));
+      logger.success(`Added ${addedNames.join(" and ")}`);
+    } else {
+      logger.success(`Added ${chalk.bold(config.displayName)}`);
+    }
     logger.newLine();
   } catch (error) {
     logger.error(`Failed to add module: ${(error as Error).message}`);
@@ -73,7 +85,7 @@ async function getAddConfig(
   const modulesDir = path.join(getPackageRoot(), "modules");
 
   if (!module) {
-    return await getInteractiveConfig(modulesDir, projectInfo);
+    return await getInteractiveConfig(modulesDir, projectInfo, options);
   }
   if (module === "database" || module === "auth") {
     if (!options?.provider) {
@@ -159,7 +171,9 @@ async function getAddConfig(
 async function getInteractiveConfig(
   modulesDir: string,
   projectInfo?: ProjectInfo,
+  options?: AddOptions,
 ): Promise<AddConfig> {
+  const projectRoot = process.cwd();
   const discovered: DiscoveredModules = await discoverModules(modulesDir);
 
   // Prefer discovered framework, then projectInfo.framework; leave empty if unknown
@@ -175,7 +189,8 @@ async function getInteractiveConfig(
     { name: "Database", value: "database" },
   ];
 
-  if (compatibleAuths.length > 1) {
+  // Offer Auth category when there's at least one compatible auth option
+  if (compatibleAuths.length > 0) {
     categories.push({ name: "Auth", value: "auth" });
   }
 
@@ -228,6 +243,58 @@ async function getInteractiveConfig(
       metadata: meta,
     };
   } else if (category === "auth") {
+    let preAddedForReturn: AddConfig | undefined;
+    // If no database detected, require the user to select/add a database first
+    if (!projectInfo?.hasDatabase) {
+      logger.warn("No database detected in the project. Authentication requires a database.");
+      const dbChoices = getDatabaseChoices(discovered.databases || [], projectInfo?.framework || defaultFramework);
+      const dbAnswer = await inquirer.prompt([
+        {
+          type: "list",
+          name: "database",
+          message: "Select a database to add before authentication:",
+          choices: dbChoices,
+        },
+      ]);
+
+      const selectedDb = dbAnswer.database as string;
+      if (!selectedDb || selectedDb === "none") {
+        logger.info("Cancelled — authentication requires a database");
+        process.exit(0);
+      }
+
+      // Build a database AddConfig and add it immediately, then refresh projectInfo
+      let dbConfig: AddConfig;
+      if (selectedDb.startsWith("prisma-")) {
+        const provider = selectedDb.split("-")[1];
+        dbConfig = {
+          module: "database",
+          provider: `prisma-${provider}`,
+          displayName: `Prisma (${provider})`,
+          metadata: (await loadModuleMetadata(modulesDir, "prisma", "prisma")) as ModuleMetadata,
+        };
+      } else {
+        const meta = (await loadModuleMetadata(modulesDir, selectedDb, selectedDb)) as ModuleMetadata;
+        if (!meta) throw new Error(`Database provider "${selectedDb}" not found`);
+        dbConfig = {
+          module: "database",
+          provider: selectedDb,
+          displayName: meta.displayName || selectedDb,
+          metadata: meta,
+        };
+      }
+
+      // Add the database first (suppress its top-level success message)
+      await addModuleToProject(projectRoot, projectInfo || (await detectProjectInfo(projectRoot)), dbConfig, options);
+
+      // Refresh project info after database install and record pre-added
+      projectInfo = await detectProjectInfo(projectRoot);
+      // attach preAdded so caller can summarize chained additions
+      (dbConfig as AddConfig).preAdded = dbConfig.preAdded || [];
+      // store for returning later
+      preAddedForReturn = dbConfig;
+    }
+
     const dbString = projectInfo?.hasPrisma ? "prisma" : "none";
     const authChoices = getCompatibleAuthOptions(
       discovered.auth || [],
@@ -262,12 +329,17 @@ async function getInteractiveConfig(
       throw new Error(`Auth provider "${selectedAuth}" does not support ${projectInfo.framework}`);
     }
 
-    return {
+    const result: AddConfig = {
       module: "auth",
       provider: selectedAuth,
       displayName: metadata.displayName || selectedAuth,
       metadata,
     };
+    // If we added a DB earlier in this flow, include it for grouped messaging
+    if (typeof preAddedForReturn !== "undefined" && preAddedForReturn) {
+      result.preAdded = [preAddedForReturn];
+    }
+    return result;
   }
 
   throw new Error("Invalid selection");
@@ -373,6 +445,30 @@ async function addModuleToProject(
       auth?: string;
       prismaProvider?: string;
     } = { framework: projectInfo.framework };
+
+    // Populate database context from detected project state so generator conditions work
+    try {
+      const pkg = await fs.readJson(path.join(projectRoot, "package.json"));
+      const deps = { ...(pkg.dependencies || {}), ...(pkg.devDependencies || {}) } as Record<string, string>;
+      if (projectInfo.hasPrisma) {
+        selectedModules.database = "prisma";
+        // Parse provider specifically from the `datasource` block to avoid
+        // capturing the generator block (which uses provider = "prisma-client-js").
+        const prismaSchema = path.join(projectRoot, "prisma", "schema.prisma");
+        if (await fs.pathExists(prismaSchema)) {
+          const content = await fs.readFile(prismaSchema, "utf-8");
+          const dsMatch = content.match(/datasource\s+\w+\s*\{([\s\S]*?)\}/i);
+          if (dsMatch && dsMatch[1]) {
+            const provMatch = dsMatch[1].match(/provider\s*=\s*["']([^"']+)["']/i);
+            if (provMatch && provMatch[1]) selectedModules.prismaProvider = provMatch[1];
+          }
+        }
+      } else if (deps["mongoose"]) {
+        selectedModules.database = "mongoose";
+      }
+    } catch {
+      // ignore detection errors
+    }
 
     if (config.module === "database" && config.provider) {
       const parsed = parseDatabaseOption(config.provider);
