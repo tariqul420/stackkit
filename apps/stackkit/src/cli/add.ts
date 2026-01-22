@@ -162,7 +162,9 @@ async function getInteractiveConfig(
 ): Promise<AddConfig> {
   const discovered: DiscoveredModules = await discoverModules(modulesDir);
 
-  const defaultFramework = (discovered.frameworks && discovered.frameworks[0]?.name) || "nextjs";
+  // Prefer discovered framework, then projectInfo.framework; leave empty if unknown
+  const defaultFramework =
+    (discovered.frameworks && discovered.frameworks[0]?.name) || projectInfo?.framework || "";
   const compatibleAuths = getCompatibleAuthOptions(
     discovered.auth || [],
     projectInfo?.framework || defaultFramework,

@@ -73,7 +73,7 @@ function buildOptionHints() {
 const hints = buildOptionHints();
 
 interface CreateOptions {
-  framework?: "nextjs" | "express" | "react";
+  framework?: string;
   database?: string;
   prismaProvider?: string;
   auth?: string;
@@ -126,7 +126,7 @@ program
   .command("create [project-name]")
   .description("Create a new StackKit project")
   .usage("[project-name] [options]")
-  .option("-f, --framework <framework>", "Framework: nextjs, express, react")
+  .option("-f, --framework <framework>", "Framework (discovered)")
   .option("-d, --database <database>", `Database: ${hints.databaseHint}`)
   .option("--prisma-provider <provider>", "Prisma provider")
   .option("-a, --auth <auth>", `Auth: ${hints.authHint}`)

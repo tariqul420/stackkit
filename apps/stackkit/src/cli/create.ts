@@ -23,20 +23,20 @@ import { getPackageRoot } from "../lib/utils/package-root";
 
 interface ProjectConfig {
   projectName: string;
-  framework: "nextjs" | "express" | "react";
-  database: "prisma" | "mongoose" | "none";
-  prismaProvider?: "postgresql" | "mongodb" | "mysql" | "sqlite";
-  auth: "better-auth" | "authjs" | "none";
+  framework: string;
+  database: string; // e.g. 'prisma', 'mongoose', 'none'
+  prismaProvider?: string;
+  auth: string; // provider name or 'none'
   language: "typescript" | "javascript";
   packageManager: "pnpm" | "npm" | "yarn" | "bun";
 }
 
 interface Answers {
   projectName?: string;
-  framework: "nextjs" | "express" | "react";
-  database?: "prisma" | "mongoose" | "none";
-  prismaProvider?: "postgresql" | "mongodb" | "mysql" | "sqlite";
-  auth?: "better-auth" | "authjs" | "none";
+  framework: string;
+  database?: string;
+  prismaProvider?: string;
+  auth?: string;
   language: "typescript" | "javascript";
   packageManager: "pnpm" | "npm" | "yarn" | "bun";
 }
@@ -102,27 +102,27 @@ async function getProjectConfig(
       const defaultFramework =
         discoveredModules.frameworks && discoveredModules.frameworks.length > 0
           ? discoveredModules.frameworks[0].name
-          : "nextjs";
+          : "";
 
       const defaultDatabase =
         discoveredModules.databases && discoveredModules.databases.length > 0
           ? discoveredModules.databases[0].name
-          : "prisma";
+          : "none";
 
       const prismaProviders = getPrismaProvidersFromGenerator(getPackageRoot());
-      const defaultPrismaProvider = prismaProviders.length > 0 ? prismaProviders[0] : "postgresql";
+      const defaultPrismaProvider = prismaProviders.length > 0 ? prismaProviders[0] : undefined;
 
       const defaultAuth =
         discoveredModules.auth && discoveredModules.auth.length > 0
           ? discoveredModules.auth[0].name
-          : "better-auth";
+          : "none";
 
       return {
         projectName: projectName || "my-app",
-        framework: defaultFramework as "nextjs" | "express" | "react",
-        database: defaultDatabase as unknown as "prisma" | "mongoose" | "none",
-        prismaProvider: defaultPrismaProvider as "postgresql" | "mongodb" | "mysql" | "sqlite",
-        auth: defaultAuth as "better-auth" | "authjs" | "none",
+        framework: defaultFramework as string,
+        database: defaultDatabase,
+        prismaProvider: defaultPrismaProvider,
+        auth: defaultAuth,
         language: "typescript",
         packageManager: "pnpm",
       };
@@ -172,27 +172,44 @@ async function getProjectConfig(
       );
     }
 
-    let database: "prisma" | "mongoose" | "none" = "none";
-    let prismaProvider: "postgresql" | "mongodb" | "mysql" | "sqlite" | undefined;
+    let database: string = "none";
+    let prismaProvider: string | undefined;
 
     if (db && db !== "none") {
       const parsed = parseDatabaseOption(db);
-      database = parsed.database as "prisma" | "mongoose";
-      prismaProvider = parsed.provider as "postgresql" | "mongodb" | "mysql" | "sqlite";
+      database = parsed.database;
+      prismaProvider = parsed.provider;
     }
 
-    let auth: "better-auth" | "authjs" | "none" = "none";
+    let auth: string = "none";
     if (authOpt && authOpt !== "none") {
-      auth = authOpt as "better-auth" | "authjs";
+      auth = authOpt;
     }
 
-    const finalFramework = (framework || "nextjs") as "nextjs" | "express" | "react";
+    const finalFramework = (framework || (discoveredModules.frameworks[0]?.name ?? "")) as string;
 
-    if (auth === "authjs" && (database !== "prisma" || finalFramework !== "nextjs")) {
-      throw new Error("Auth.js is only supported with Next.js and Prisma database");
-    }
-    if (auth === "better-auth" && database === "none" && finalFramework !== "react") {
-      throw new Error("Better Auth requires a database for server frameworks");
+    // Validate auth compatibility using discovered module metadata when available
+    if (auth && auth !== "none" && discoveredModules.auth) {
+      const authMeta = discoveredModules.auth.find((a) => a.name === auth);
+      if (authMeta) {
+        if (
+          authMeta.supportedFrameworks &&
+          !authMeta.supportedFrameworks.includes(finalFramework)
+        ) {
+          throw new Error(`${authMeta.displayName || auth} is not supported on ${finalFramework}`);
+        }
+
+        const dbName = database === "prisma" ? "prisma" : database === "none" ? "none" : "other";
+        if (
+          authMeta.compatibility &&
+          authMeta.compatibility.databases &&
+          !authMeta.compatibility.databases.includes(dbName)
+        ) {
+          throw new Error(
+            `${authMeta.displayName || auth} is not compatible with the selected database configuration`,
+          );
+        }
+      }
     }
 
     return {
@@ -205,6 +222,8 @@ async function getProjectConfig(
       packageManager: (pm || "pnpm") as "pnpm" | "npm" | "yarn" | "bun",
     };
   }
+
+  const prismaProviders = getPrismaProvidersFromGenerator(getPackageRoot());
 
   const answers = (await inquirer.prompt([
     {
@@ -228,28 +247,47 @@ async function getProjectConfig(
       type: "list",
       name: "framework",
       message: "Select framework:",
-      choices:
-        discoveredModules.frameworks && discoveredModules.frameworks.length > 0
-          ? discoveredModules.frameworks.map((f) => ({ name: f.displayName, value: f.name }))
-          : [
-              { name: "Next.js", value: "nextjs" },
-              { name: "Express.js", value: "express" },
-              { name: "React (Vite)", value: "react" },
-            ],
+      choices: (() => {
+        if (discoveredModules.frameworks && discoveredModules.frameworks.length > 0) {
+          return discoveredModules.frameworks.map((f) => ({ name: f.displayName, value: f.name }));
+        }
+        // Fallback: read templates dir directly
+        try {
+          const templatesDir = path.join(getPackageRoot(), "templates");
+          if (fs.existsSync(templatesDir)) {
+            const dirs = fs.readdirSync(templatesDir).filter((d) => d !== "node_modules");
+            return dirs.map((d) => ({ name: d.charAt(0).toUpperCase() + d.slice(1), value: d }));
+          }
+        } catch {
+          // ignore
+        }
+        return [];
+      })(),
     },
     {
       type: "list",
       name: "database",
       message: "Select database/ORM:",
       when: (answers: Answers) => answers.framework !== "react",
-      choices: (answers: Answers) =>
-        discoveredModules.databases && discoveredModules.databases.length > 0
-          ? getDatabaseChoices(discoveredModules.databases, answers.framework)
-          : [
-              { name: "Prisma", value: "prisma" },
-              { name: "Mongoose", value: "mongoose" },
-              { name: "None", value: "none" },
-            ],
+      choices: (answers: Answers) => {
+        if (discoveredModules.databases && discoveredModules.databases.length > 0) {
+          return getDatabaseChoices(discoveredModules.databases, answers.framework);
+        }
+        // Fallback: scan modules/database directory
+        try {
+          const modulesDir = path.join(getPackageRoot(), "modules", "database");
+          if (fs.existsSync(modulesDir)) {
+            const dbs = fs
+              .readdirSync(modulesDir)
+              .map((d) => ({ name: d.charAt(0).toUpperCase() + d.slice(1), value: d }));
+            dbs.push({ name: "None", value: "none" });
+            return dbs;
+          }
+        } catch {
+          // ignore
+        }
+        return [{ name: "None", value: "none" }];
+      },
     },
     // If a prisma-* choice is selected above, `prismaProvider` will be derived from it,
     // otherwise prompt for provider when `prisma` is selected directly.
@@ -257,22 +295,11 @@ async function getProjectConfig(
       type: "list",
       name: "prismaProvider",
       message: "Select database provider for Prisma:",
-      when: (answers: Answers) => answers.database === "prisma",
-      choices: () => {
-        const providers = getPrismaProvidersFromGenerator(getPackageRoot());
-        if (providers && providers.length > 0) {
-          return providers.map((p: string) => ({
-            name: p.charAt(0).toUpperCase() + p.slice(1),
-            value: p,
-          }));
-        }
-        return [
-          { name: "PostgreSQL", value: "postgresql" },
-          { name: "MongoDB", value: "mongodb" },
-          { name: "MySQL", value: "mysql" },
-          { name: "SQLite", value: "sqlite" },
-        ];
-      },
+      when: (answers: Answers) => answers.database === "prisma" && prismaProviders.length > 0,
+      choices: prismaProviders.map((p: string) => ({
+        name: p.charAt(0).toUpperCase() + p.slice(1),
+        value: p,
+      })),
     },
     {
       type: "list",
@@ -312,17 +339,12 @@ async function getProjectConfig(
 
   let databaseAnswer =
     answers.framework === "react" ? "none" : (answers.database as string | undefined);
-  let prismaProviderAnswer = answers.prismaProvider as
-    | "postgresql"
-    | "mongodb"
-    | "mysql"
-    | "sqlite"
-    | undefined;
+  let prismaProviderAnswer = answers.prismaProvider as string | undefined;
 
   if (typeof databaseAnswer === "string" && databaseAnswer.startsWith("prisma-")) {
     const parts = databaseAnswer.split("-");
     if (parts.length >= 2) {
-      prismaProviderAnswer = parts[1] as "postgresql" | "mongodb" | "mysql" | "sqlite";
+      prismaProviderAnswer = parts[1] as string;
       databaseAnswer = "prisma";
     }
   }

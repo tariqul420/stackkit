@@ -147,10 +147,8 @@ export function getValidDatabaseOptions(databases: ModuleMetadata[]): string[] {
       } else {
         options.push("prisma");
       }
-    } else if (db.name === "mongoose") {
-      options.push("mongoose");
     } else {
-      // For other databases, add the name directly
+      // For other databases, add the module name directly (generic handling)
       options.push(db.name);
     }
   }
@@ -235,10 +233,9 @@ export function getDatabaseChoices(
       } else {
         choices.push({ name: "Prisma", value: "prisma" });
       }
-    } else if (db.name === "mongoose") {
-      choices.push({ name: "Mongoose", value: "mongoose" });
     } else {
-      choices.push({ name: db.displayName, value: db.name });
+      // Generic handling for other database modules
+      choices.push({ name: db.displayName || db.name, value: db.name });
     }
   }
 

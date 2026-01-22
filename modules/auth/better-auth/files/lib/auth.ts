@@ -1,4 +1,4 @@
-import { betterAuth, env } from "better-auth";
+import { betterAuth } from "better-auth";
 import { sendEmail } from "./email/email-service";
 import { getVerificationEmailTemplate, getPasswordResetEmailTemplate } from "./email/email-templates";
 {{#switch database}}
@@ -32,7 +32,7 @@ return betterAuth({
 {{/switch}}
   baseURL: process.env.BETTER_AUTH_URL,
   secret: process.env.BETTER_AUTH_SECRET,
-  trustedOrigins: [process.env.APP_URL],
+  trustedOrigins: [process.env.APP_URL!],
   user: {
     additionalFields: {
       role: {

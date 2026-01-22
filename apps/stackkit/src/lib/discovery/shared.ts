@@ -10,7 +10,6 @@ export function parseDatabaseOption(dbOption: string): { database: string; provi
     return { database: "prisma", provider };
   }
   if (dbOption === "prisma") return { database: "prisma" };
-  if (dbOption === "mongoose") return { database: "mongoose" };
   return { database: dbOption };
 }
 

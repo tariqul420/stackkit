@@ -68,7 +68,8 @@ export interface ModifyJsonPatch extends ModulePatch {
 }
 
 export interface ProjectInfo {
-  framework: "nextjs" | "express" | "react" | "unknown";
+  // Framework name is driven by templates/modules; keep flexible for discovery
+  framework: string;
   router: "app" | "pages" | "unknown";
   language: "ts" | "js";
   packageManager: "npm" | "yarn" | "pnpm" | "bun";

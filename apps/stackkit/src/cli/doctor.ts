@@ -8,8 +8,7 @@ import { getPackageRoot } from "../lib/utils/package-root";
 // Constants for consistent messaging
 const MESSAGES = {
   NO_PACKAGE_JSON: "No package.json found in current directory or any parent directory.",
-  UNSUPPORTED_PROJECT:
-    "Unsupported project type. Only Next.js, Express, and React projects are supported.",
+  UNSUPPORTED_PROJECT: "Unsupported project type or unable to detect framework.",
   NODE_TOO_OLD: (version: string) =>
     `Node.js version ${version} is not supported. Minimum required: Node 18.`,
   NODE_WARNING: (version: string) =>
@@ -602,7 +601,7 @@ function generateSuggestions(authModules: string[], databaseModules: string[]): 
     suggestions.push("stackkit add auth     - Add authentication module");
   }
   if (databaseModules.length === 0) {
-    suggestions.push("stackkit add db       - Add database module");
+    suggestions.push("stackkit add database - Add database module");
   }
 
   // Always show available commands

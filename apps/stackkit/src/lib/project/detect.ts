@@ -14,7 +14,8 @@ export async function detectProjectInfo(targetDir: string): Promise<ProjectInfo>
   const packageJson = await fs.readJSON(packageJsonPath);
 
   // Detect framework by matching available templates' characteristic files
-  let framework: "nextjs" | "express" | "react" | "unknown" = "unknown";
+  // Framework is dynamic and driven by templates; keep as string for discovery
+  let framework: string = "unknown";
   try {
     const templatesDir = path.join(getPackageRoot(), "templates");
     if (await fs.pathExists(templatesDir)) {
@@ -38,10 +39,8 @@ export async function detectProjectInfo(targetDir: string): Promise<ProjectInfo>
       }
 
       if (bestMatch && bestMatch.score > 0) {
-        const name = bestMatch.name;
-        if (name === "nextjs" || name === "express" || name === "react") {
-          framework = name as "nextjs" | "express" | "react";
-        }
+        // Use the template folder name as the framework identifier
+        framework = bestMatch.name;
       }
     }
   } catch {
