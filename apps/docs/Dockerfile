@@ -1,3 +1,4 @@
+# ----- Builder Stage -----
 FROM node:22-slim AS builder
 WORKDIR /app
 
@@ -7,22 +8,27 @@ RUN apt-get update -y && \
     corepack enable && \
     corepack prepare pnpm@latest --activate
 
-ENV NEXT_TELEMETRY_DISABLED=1
+# Build-time environment variables
+ARG NEXT_PUBLIC_GTM_ID
 
-# copy workspace manifests so pnpm can install workspace deps
+ENV NEXT_PUBLIC_GTM_ID=${NEXT_PUBLIC_GTM_ID} \
+    NEXT_TELEMETRY_DISABLED=1
+
+# Install dependencies
 COPY ../../package.json ../../pnpm-lock.yaml ../../pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 
-# copy sources and build only the docs app
+# Copy application files
 COPY ../.. ./
 
-# reinstall workspace dependencies now that sources are present (ensures bins like `next` are linked)
+# Build the docs app
 RUN pnpm install --frozen-lockfile
 
 WORKDIR /app/apps/docs
 
 RUN pnpm --filter docs build
 
+# ----- Runner Stage -----
 FROM node:22-slim AS runner
 WORKDIR /app
 
@@ -39,7 +45,7 @@ ENV NODE_ENV=production \
     PORT=3003
 
 
-# copy built app and workspace node_modules from builder so runtime binaries (next) are available
+# Copy build artifacts
 COPY --from=builder --chown=nextjs:nextjs /app/node_modules /app/node_modules
 COPY --from=builder --chown=nextjs:nextjs /app/apps/docs /app/apps/docs
 COPY --from=builder --chown=nextjs:nextjs /app/package.json /app/package.json

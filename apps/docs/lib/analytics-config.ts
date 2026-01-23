@@ -1,5 +1,3 @@
-export const GTM_ENV_VAR = "NEXT_PUBLIC_GTM_ID";
-
 export const IGNORED_ROUTE_PREFIXES = ["/api", "/admin"];
 export const MINIMAL_TRACK_ONLY_PAGES = ["/privacy", "/terms"];
 
