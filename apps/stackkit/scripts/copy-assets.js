@@ -42,8 +42,12 @@ async function ensureNonDotFiles(templatesRoot) {
       const dotPath = path.join(tplDir, te.name);
       const nonDotPath = path.join(tplDir, te.name.slice(1));
       try {
-        if ((await fs.pathExists(dotPath)) && !(await fs.pathExists(nonDotPath))) {
-          await fs.copy(dotPath, nonDotPath);
+        if (await fs.pathExists(dotPath)) {
+          if (!(await fs.pathExists(nonDotPath))) {
+            await fs.move(dotPath, nonDotPath, { overwrite: false });
+          } else {
+            await fs.remove(dotPath);
+          }
         }
       } catch (err) {
         console.warn(`Could not ensure ${nonDotPath}:`, err && err.message ? err.message : err);
@@ -89,7 +93,7 @@ async function main() {
   if (!anyCopied) {
     console.warn("No assets were copied (no source directories found).");
   } else {
-    console.log("Assets copied and dotfile fallbacks ensured.");
+    console.log("Assets copied and non-dot fallback files ensured.");
   }
 }
 

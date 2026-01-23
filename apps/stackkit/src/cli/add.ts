@@ -183,6 +183,7 @@ async function getInteractiveConfig(
     discovered.auth || [],
     projectInfo?.framework || defaultFramework,
     projectInfo?.hasPrisma ? "prisma" : "none",
+    discovered.frameworks,
   );
 
   const categories: Array<{ name: string; value: string }> = [

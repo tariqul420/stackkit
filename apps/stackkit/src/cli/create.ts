@@ -311,6 +311,7 @@ async function getProjectConfig(
           discoveredModules.auth,
           answers.framework,
           answers.database || "none",
+          discoveredModules.frameworks,
         ),
     },
     {

@@ -178,6 +178,7 @@ export function getCompatibleAuthOptions(
   authModules: ModuleMetadata[],
   framework: string,
   database: string,
+  frameworksMeta?: ModuleMetadata[],
 ): Array<{ name: string; value: string }> {
   const compatible: Array<{ name: string; value: string }> = [];
 
@@ -191,9 +192,24 @@ export function getCompatibleAuthOptions(
     const parsedDb = parseDatabaseOption(database || "").database;
 
     // If module provides explicit compatibility matrix, use it
+    let dbCompatible = true;
     if (auth.compatibility && auth.compatibility.databases) {
-      if (!auth.compatibility.databases.includes(parsedDb)) continue;
+      dbCompatible = auth.compatibility.databases.includes(parsedDb);
     }
+
+    // If the framework template explicitly lists this auth as compatible,
+    // allow it even if the auth module's database compatibility would normally
+    // exclude the current database selection (covers cases like React where
+    // the framework can support auth without a DB).
+    let explicitlyAllowedByFramework = false;
+    if (frameworksMeta && Array.isArray(frameworksMeta)) {
+      const fw = frameworksMeta.find((f) => f.name === framework);
+      if (fw && fw.compatibility && Array.isArray((fw.compatibility as any).auth)) {
+        explicitlyAllowedByFramework = (fw.compatibility as any).auth.includes(auth.name);
+      }
+    }
+
+    if (!dbCompatible && !explicitlyAllowedByFramework) continue;
 
     compatible.push({
       name: auth.displayName,
