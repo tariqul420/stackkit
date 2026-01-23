@@ -41,7 +41,7 @@ function buildOptionHints() {
               dbs.push(m.name);
             }
           } catch {
-            /* ignore */
+            // ignore malformed module.json
           }
         }
       }
@@ -55,7 +55,7 @@ function buildOptionHints() {
             const m = JSON.parse(readFileSync(moduleJson, "utf-8"));
             if (m && m.name) auths.push(m.name);
           } catch {
-            /* ignore */
+            // ignore malformed module.json
           }
         }
       }

@@ -75,7 +75,7 @@ export async function discoverModules(modulesDir: string): Promise<DiscoveredMod
             category: "framework",
           });
         } catch {
-          // Silently skip invalid templates
+          // ignore invalid template
         }
       }
     }
@@ -103,7 +103,7 @@ export async function discoverModules(modulesDir: string): Promise<DiscoveredMod
           if (!metadata.displayName) metadata.displayName = moduleName;
           discovered.databases.push(metadata);
         } catch {
-          // Silently skip invalid modules
+          // ignore invalid module
         }
       }
     }
@@ -124,7 +124,7 @@ export async function discoverModules(modulesDir: string): Promise<DiscoveredMod
           if (!metadata.displayName) metadata.displayName = moduleName;
           discovered.auth.push(metadata);
         } catch {
-          // Silently skip invalid modules
+          // ignore invalid module
         }
       }
     }
@@ -204,8 +204,11 @@ export function getCompatibleAuthOptions(
     let explicitlyAllowedByFramework = false;
     if (frameworksMeta && Array.isArray(frameworksMeta)) {
       const fw = frameworksMeta.find((f) => f.name === framework);
-      if (fw && fw.compatibility && Array.isArray((fw.compatibility as any).auth)) {
-        explicitlyAllowedByFramework = (fw.compatibility as any).auth.includes(auth.name);
+      if (fw && fw.compatibility) {
+        const authList = fw.compatibility.auth;
+        if (Array.isArray(authList) && authList.includes(auth.name)) {
+          explicitlyAllowedByFramework = true;
+        }
       }
     }
 

@@ -106,7 +106,7 @@ export class AdvancedCodeGenerator {
 
               this.generators.set(`${type}:${moduleName}`, config);
             } catch {
-              // Silently skip invalid generator files
+              // ignore invalid generator files
             }
           }
         }
@@ -215,7 +215,14 @@ export class AdvancedCodeGenerator {
   private processTemplateRecursive(content: string, context: GenerationContext): string {
     content = content.replace(
       /\{\{#if\s+([^}\s]+)\s+([^}\s]+)\s+([^}]+)\}\}([\s\S]*?)(?:\{\{else\}\}([\s\S]*?))?\{\{\/if\}\}/g,
-      (match, varName, operator, expectedValue, blockContent, elseContent) => {
+      (
+        match: string,
+        varName: string,
+        operator: string,
+        expectedValue: string,
+        blockContent: string,
+        elseContent?: string,
+      ) => {
         const actualVal = context[varName.trim()];
         const cleanExpectedVal = expectedValue.trim().replace(/['"]/g, "");
 
@@ -250,7 +257,7 @@ export class AdvancedCodeGenerator {
     // Handle simple conditional blocks {{#if condition}}...{{/if}} (backward compatibility)
     content = content.replace(
       /\{\{#if\s+([^}]+)\}\}([\s\S]*?)(?:\{\{else\}\}([\s\S]*?))?\{\{\/if\}\}/g,
-      (match, condition, blockContent, elseContent) => {
+      (match: string, condition: string, blockContent: string, elseContent?: string) => {
         const conditionParts = condition.split("==");
         if (conditionParts.length === 2) {
           const [varName, expectedValue] = conditionParts.map((s: string) =>
@@ -282,7 +289,7 @@ export class AdvancedCodeGenerator {
     // Handle switch statements {{#switch variable}}...{{/switch}}
     content = content.replace(
       /\{\{#switch\s+([^}]+)\}\}([\s\S]*?)\{\{\/switch\}\}/g,
-      (match, varName, switchContent) => {
+      (match: string, varName: string, switchContent: string) => {
         const actualVal = context[varName.trim()];
 
         // Parse cases
@@ -309,7 +316,7 @@ export class AdvancedCodeGenerator {
     );
 
     // Handle variable replacement with advanced expressions
-    content = content.replace(/\{\{([^}]+)\}\}/g, (match, varExpr) => {
+    content = content.replace(/\{\{([^}]+)\}\}/g, (match: string, varExpr: string) => {
       const trimmedExpr = varExpr.trim();
 
       // Handle ternary expressions like framework=='nextjs' ? '@/lib' : '.'
@@ -537,7 +544,7 @@ export class AdvancedCodeGenerator {
           await fs.copy(envExampleSrc, envDest);
         }
       } catch {
-        // ignore failures here — not critical
+        // ignore (not critical)
       }
       // Ensure gitignore is present in target even if template authors
       // renamed it to avoid npm/package issues (e.g. 'gitignore' or '_gitignore')
@@ -593,7 +600,7 @@ export class AdvancedCodeGenerator {
           }
         }
       } catch {
-        // ignore failures here
+        // ignore
       }
 
       try {

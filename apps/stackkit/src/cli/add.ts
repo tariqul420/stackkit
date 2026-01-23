@@ -346,7 +346,7 @@ async function getInteractiveConfig(
   throw new Error("Invalid selection");
 }
 
-/* removed unused getProviderConfig — discovery-based flows handle providers */
+// removed unused getProviderConfig; discovery handles providers
 
 async function addModuleToProject(
   projectRoot: string,

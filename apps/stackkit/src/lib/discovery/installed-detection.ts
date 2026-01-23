@@ -47,7 +47,7 @@ async function collectModulePkgNames(modulePath: string): Promise<string[]> {
         if (typeof devDeps === "object") pkgNames.push(...Object.keys(devDeps));
       }
     } catch {
-      // ignore
+      // ignore malformed module.json
     }
   }
 
@@ -75,7 +75,7 @@ export async function detectAuthModules(packageJson: PackageJsonLike): Promise<s
               const m = (await fs.readJson(modJson)) as ModuleJsonLike;
               if (m && m.name) moduleName = m.name;
             } catch {
-              /* ignore */
+              // ignore malformed module.json
             }
           }
 
@@ -117,7 +117,7 @@ export async function detectDatabaseModules(packageJson: PackageJsonLike): Promi
               const m = await fs.readJson(modJson);
               if (m && m.name) moduleName = m.name;
             } catch {
-              /* ignore */
+              // ignore malformed module.json
             }
           }
 
