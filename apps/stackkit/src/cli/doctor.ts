@@ -381,9 +381,6 @@ async function checkAuthRoutesExist(projectRoot: string): Promise<boolean> {
     // ignore discovery errors
   }
 
-  // Fallback to known common paths if generators don't provide any
-  // If generators provided candidate routes, check them. Otherwise
-  // do not assume any hard-coded route locations.
   if (candidates.size === 0) return false;
 
   for (const routePath of candidates) {
@@ -556,7 +553,6 @@ async function checkDependencies(
     if (typeof version === "string" && (version.startsWith("^") || version.startsWith("~"))) {
       // Assume up to date if using flexible versioning
     } else {
-      // Assume outdated if using exact versions (simplified check)
       outdated.push(name);
     }
   }

@@ -59,10 +59,9 @@ export async function addCommand(module?: string, options?: AddOptions): Promise
 
     logger.newLine();
     if (config.preAdded && config.preAdded.length > 0) {
-      const addedNames = [
-        ...config.preAdded.map((p) => p.displayName),
-        config.displayName,
-      ].map((s) => chalk.bold(s));
+      const addedNames = [...config.preAdded.map((p) => p.displayName), config.displayName].map(
+        (s) => chalk.bold(s),
+      );
       logger.success(`Added ${addedNames.join(" and ")}`);
     } else {
       logger.success(`Added ${chalk.bold(config.displayName)}`);
@@ -245,10 +244,12 @@ async function getInteractiveConfig(
     };
   } else if (category === "auth") {
     let preAddedForReturn: AddConfig | undefined;
-    // If no database detected, require the user to select/add a database first
     if (!projectInfo?.hasDatabase) {
       logger.warn("No database detected in the project. Authentication requires a database.");
-      const dbChoices = getDatabaseChoices(discovered.databases || [], projectInfo?.framework || defaultFramework);
+      const dbChoices = getDatabaseChoices(
+        discovered.databases || [],
+        projectInfo?.framework || defaultFramework,
+      );
       const dbAnswer = await inquirer.prompt([
         {
           type: "list",
@@ -264,7 +265,6 @@ async function getInteractiveConfig(
         process.exit(0);
       }
 
-      // Build a database AddConfig and add it immediately, then refresh projectInfo
       let dbConfig: AddConfig;
       if (selectedDb.startsWith("prisma-")) {
         const provider = selectedDb.split("-")[1];
@@ -275,7 +275,11 @@ async function getInteractiveConfig(
           metadata: (await loadModuleMetadata(modulesDir, "prisma", "prisma")) as ModuleMetadata,
         };
       } else {
-        const meta = (await loadModuleMetadata(modulesDir, selectedDb, selectedDb)) as ModuleMetadata;
+        const meta = (await loadModuleMetadata(
+          modulesDir,
+          selectedDb,
+          selectedDb,
+        )) as ModuleMetadata;
         if (!meta) throw new Error(`Database provider "${selectedDb}" not found`);
         dbConfig = {
           module: "database",
@@ -285,14 +289,16 @@ async function getInteractiveConfig(
         };
       }
 
-      // Add the database first (suppress its top-level success message)
-      await addModuleToProject(projectRoot, projectInfo || (await detectProjectInfo(projectRoot)), dbConfig, options);
+      await addModuleToProject(
+        projectRoot,
+        projectInfo || (await detectProjectInfo(projectRoot)),
+        dbConfig,
+        options,
+      );
 
-      // Refresh project info after database install and record pre-added
       projectInfo = await detectProjectInfo(projectRoot);
-      // attach preAdded so caller can summarize chained additions
+
       (dbConfig as AddConfig).preAdded = dbConfig.preAdded || [];
-      // store for returning later
       preAddedForReturn = dbConfig;
     }
 
@@ -336,7 +342,6 @@ async function getInteractiveConfig(
       displayName: metadata.displayName || selectedAuth,
       metadata,
     };
-    // If we added a DB earlier in this flow, include it for grouped messaging
     if (typeof preAddedForReturn !== "undefined" && preAddedForReturn) {
       result.preAdded = [preAddedForReturn];
     }
@@ -345,8 +350,6 @@ async function getInteractiveConfig(
 
   throw new Error("Invalid selection");
 }
-
-// removed unused getProviderConfig; discovery handles providers
 
 async function addModuleToProject(
   projectRoot: string,
@@ -447,14 +450,14 @@ async function addModuleToProject(
       prismaProvider?: string;
     } = { framework: projectInfo.framework };
 
-    // Populate database context from detected project state so generator conditions work
     try {
       const pkg = await fs.readJson(path.join(projectRoot, "package.json"));
-      const deps = { ...(pkg.dependencies || {}), ...(pkg.devDependencies || {}) } as Record<string, string>;
+      const deps = { ...(pkg.dependencies || {}), ...(pkg.devDependencies || {}) } as Record<
+        string,
+        string
+      >;
       if (projectInfo.hasPrisma) {
         selectedModules.database = "prisma";
-        // Parse provider specifically from the `datasource` block to avoid
-        // capturing the generator block (which uses provider = "prisma-client-js").
         const prismaSchema = path.join(projectRoot, "prisma", "schema.prisma");
         if (await fs.pathExists(prismaSchema)) {
           const content = await fs.readFile(prismaSchema, "utf-8");

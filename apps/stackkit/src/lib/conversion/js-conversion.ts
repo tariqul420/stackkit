@@ -82,7 +82,6 @@ export async function convertToJavaScript(targetDir: string, framework: string):
             const recast = require("recast");
             const { transformFromAstSync } = require("@babel/core");
             const transformTypescript = require("@babel/plugin-transform-typescript");
-            // getBabelOptions may be exported as default or directly
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             let getBabelOptions: any = require("recast/parsers/_babel_options");
             if (getBabelOptions && getBabelOptions.default)
@@ -93,7 +92,6 @@ export async function convertToJavaScript(targetDir: string, framework: string):
               parser: {
                 parse: (source: string, options: Record<string, unknown>) => {
                   const babelOptions = getBabelOptions(options || {});
-                  // ensure typescript and jsx handling
                   if (isTsx) {
                     babelOptions.plugins.push("typescript", "jsx");
                   } else {

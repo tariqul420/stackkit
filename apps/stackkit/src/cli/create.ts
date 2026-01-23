@@ -289,8 +289,6 @@ async function getProjectConfig(
         return [{ name: "None", value: "none" }];
       },
     },
-    // If a prisma-* choice is selected above, `prismaProvider` will be derived from it,
-    // otherwise prompt for provider when `prisma` is selected directly.
     {
       type: "list",
       name: "prismaProvider",
