@@ -1,6 +1,8 @@
 import { RootProvider } from "fumadocs-ui/provider/next";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
+import AnalyticsProvider from "../components/analytics-provider";
 import "./global.css";
 
 const inter = Inter({
@@ -35,10 +37,40 @@ export const metadata: Metadata = {
 };
 
 export default function Layout({ children }: LayoutProps<"/">) {
+  const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
+  const isProd = process.env.NODE_ENV === "production";
+  const analyticsEnabled = Boolean(GTM_ID) && isProd;
+
   return (
     <html lang="en" className={inter.className} suppressHydrationWarning>
+      <head>
+        {analyticsEnabled && GTM_ID && (
+          <Script
+            id="gtm-script"
+            strategy="afterInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s);j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${GTM_ID}');`,
+            }}
+          />
+        )}
+      </head>
       <body className="flex flex-col min-h-screen">
-        <RootProvider>{children}</RootProvider>
+        {analyticsEnabled && GTM_ID && (
+          <noscript>
+            <iframe
+              src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
+              height="0"
+              width="0"
+              style={{ display: "none", visibility: "hidden" }}
+            />
+          </noscript>
+        )}
+
+        <RootProvider>
+          <AnalyticsProvider enabled={analyticsEnabled} gtmId={GTM_ID ?? undefined}>
+            {children}
+          </AnalyticsProvider>
+        </RootProvider>
       </body>
     </html>
   );
