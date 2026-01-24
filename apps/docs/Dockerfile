@@ -8,11 +8,7 @@ RUN apt-get update -y && \
     corepack enable && \
     corepack prepare pnpm@latest --activate
 
-# Build-time environment variables
-ARG NEXT_PUBLIC_GTM_ID
-
-ENV NEXT_PUBLIC_GTM_ID=${NEXT_PUBLIC_GTM_ID} \
-    NEXT_TELEMETRY_DISABLED=1
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # Install dependencies
 COPY ../../package.json ../../pnpm-lock.yaml ../../pnpm-workspace.yaml ./

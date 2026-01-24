@@ -4,8 +4,6 @@ services:
     build:
       context: ../..
       dockerfile: apps/docs/Dockerfile
-      args:
-        NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID}
 
     ports:
       - "3003:3003"
