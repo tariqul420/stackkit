@@ -56,3 +56,6 @@ next-env.d.ts
 # Temporary
 tmp/
 temp/
+
+# ignore template node_modules
+templates/**/node_modules
