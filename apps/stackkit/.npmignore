@@ -14,3 +14,14 @@ tsconfig*.json
 .idea/
 *.tgz
 *.tar.gz
+
+# Ignore node_modules in all templates
+templates/**/node_modules
+templates/**/node_modules/**
+
+# Lockfiles inside templates
+templates/**/package-lock.json
+templates/**/pnpm-lock.yaml
+
+# Built files inside templates
+templates/**/dist

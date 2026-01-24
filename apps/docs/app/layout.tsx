@@ -39,7 +39,8 @@ export const metadata: Metadata = {
 export default function Layout({ children }: LayoutProps<"/">) {
   const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
   const isProd = process.env.NODE_ENV === "production";
-  const analyticsEnabled = Boolean(GTM_ID) && isProd;
+  const devOptIn = true || process.env.NEXT_PUBLIC_ANALYTICS_DEV === "true";
+  const analyticsEnabled = Boolean(GTM_ID) && (isProd || devOptIn);
 
   return (
     <html lang="en" className={inter.className} suppressHydrationWarning>

@@ -1,6 +1,6 @@
 {
   "name": "stackkit",
-  "version": "0.2.4",
+  "version": "0.2.6",
   "description": "Production-ready CLI to create and extend JavaScript or TypeScript apps with modular stacks.",
   "main": "dist/index.js",
   "bin": {
@@ -67,17 +67,17 @@
     "@babel/core": "^7.28.5",
     "@babel/preset-env": "^7.28.5",
     "@babel/preset-typescript": "^7.28.5",
-    "@babel/preset-react": "^7.28.5"
+    "@babel/preset-react": "^7.28.5",
+    "recast": "^0.20.5",
+    "@babel/parser": "^7.28.5",
+    "@babel/plugin-transform-typescript": "^7.28.5",
+    "@babel/plugin-transform-react-jsx": "^7.27.1"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
     "@types/inquirer": "^9.0.7",
     "@types/node": "^25.0.8",
     "@types/validate-npm-package-name": "^4.0.2",
-    "typescript": "^5.3.3",
-    "recast": "^0.20.5",
-    "@babel/plugin-transform-typescript": "^7.28.5",
-    "@babel/parser": "^7.28.5",
-    "@babel/plugin-transform-react-jsx": "^7.27.1"
+    "typescript": "^5.3.3"
   }
 }

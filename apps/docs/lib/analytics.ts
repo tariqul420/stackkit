@@ -1,8 +1,4 @@
-import {
-  isAnalyticsEnabledOnServer,
-  isInternalRoute,
-  isMinimalTrackingOnly,
-} from "./analytics-config";
+import { isInternalRoute, isMinimalTrackingOnly } from "./analytics-config";
 
 export type AnalyticsEvent =
   | "page_view"
@@ -57,9 +53,7 @@ function pushToDataLayer(event: AnalyticsEvent, params: Record<string, unknown>)
   (window as any).dataLayer = (window as any).dataLayer || [];
   try {
     (window as any).dataLayer.push({ event, ...params });
-  } catch (e) {
-    // swallow
-  }
+  } catch (_) {}
 }
 
 export function track(event: "page_view", params: PageViewParams): void;
@@ -91,6 +85,4 @@ export function trackScrollDepth(payload: ScrollDepthParams) {
   track("scroll_depth", payload);
 }
 
-export function getServerAnalyticsEnabledFlag() {
-  return isAnalyticsEnabledOnServer();
-}
+// server-side enable check is available in `analytics-config` if needed

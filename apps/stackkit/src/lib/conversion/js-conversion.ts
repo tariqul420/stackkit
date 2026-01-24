@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 import fs from "fs-extra";
 import path from "path";
+import { logger } from "../ui/logger";
 import { getPackageRoot } from "../utils/package-root";
 
 const baseDirs: Record<string, string> = {
@@ -38,6 +39,37 @@ export async function convertToJavaScript(targetDir: string, framework: string):
   await removeDtsFiles(targetDir);
 
   const babel = require("@babel/core");
+
+  const checkModule = (name: string) => {
+    try {
+      require.resolve(name);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const hasRecast = checkModule("recast");
+  const hasBabelParser = checkModule("@babel/parser");
+  const hasTransformTypescript = checkModule("@babel/plugin-transform-typescript");
+
+  if (!hasRecast || !hasBabelParser || !hasTransformTypescript) {
+    const packageRoot = getPackageRoot();
+    const missing: string[] = [];
+    if (!hasRecast) missing.push("recast");
+    if (!hasBabelParser) missing.push("@babel/parser");
+    if (!hasTransformTypescript) missing.push("@babel/plugin-transform-typescript");
+
+    logger.warn(
+      `Optional tooling missing: ${missing.join(", ")}. Generated JavaScript may contain transformed JSX.`,
+    );
+    if (process.env.STACKKIT_VERBOSE === "1" || process.env.DEBUG) {
+      logger.info(
+        `To ensure generated JavaScript preserves JSX, add these to the CLI package dependencies or run 'pnpm install' in ${packageRoot}`,
+      );
+    }
+  }
+  
   const transpileAllTsFiles = async (dir: string) => {
     const entries = await fs.readdir(dir, { withFileTypes: true });
     for (const entry of entries) {
@@ -69,15 +101,7 @@ export async function convertToJavaScript(targetDir: string, framework: string):
               },
             ],
           ];
-          if (isTsx) {
-            presets.push([
-              require.resolve("@babel/preset-react"),
-              {
-                runtime: "automatic",
-              },
-            ]);
-          }
-          // Use recast + Babel AST transform (same approach as transform.tools)
+
           try {
             const recast = require("recast");
             const { transformFromAstSync } = require("@babel/core");
