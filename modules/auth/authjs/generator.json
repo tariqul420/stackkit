@@ -5,12 +5,12 @@
   "operations": [
     {
       "type": "create-file",
-      "source": "lib/auth.ts",
+      "source": "shared/lib/auth.ts",
       "destination": "lib/auth.ts"
     },
     {
       "type": "create-file",
-      "source": "api/auth/[...nextauth]/route.ts",
+      "source": "nextjs/api/auth/[...nextauth]/route.ts",
       "destination": "app/api/auth/[...nextauth]/route.ts"
     },
     {
@@ -20,7 +20,7 @@
     },
     {
       "type": "patch-file",
-      "destination": "prisma/schema.prisma",
+      "destination": "shared/prisma/schema.prisma",
       "condition": { "database": "prisma" },
       "operations": [
         {

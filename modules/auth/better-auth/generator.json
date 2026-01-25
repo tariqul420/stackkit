@@ -29,6 +29,18 @@
     },
     {
       "type": "create-file",
+      "source": "nextjs/proxy.ts",
+      "destination": "proxy.ts",
+      "condition": { "framework": "nextjs" }
+    },
+    {
+      "type": "create-file",
+      "source": "nextjs/lib/auth/auth-guards.ts",
+      "destination": "lib/auth/auth-guards.ts",
+      "condition": { "framework": "nextjs" }
+    },
+    {
+      "type": "create-file",
       "source": "express/middlewares/authorize.ts",
       "destination": "src/middlewares/authorize.ts",
       "condition": { "framework": "express" }
