@@ -69,7 +69,7 @@ export async function convertToJavaScript(targetDir: string, framework: string):
       );
     }
   }
-  
+
   const transpileAllTsFiles = async (dir: string) => {
     const entries = await fs.readdir(dir, { withFileTypes: true });
     for (const entry of entries) {

@@ -1,10 +1,11 @@
 import cors from "cors";
-import express, { Application, NextFunction, Request, Response } from "express";
+import express, { Application, Request, Response } from "express";
 import helmet from "helmet";
 import morgan from "morgan";
 import { env } from "./config/env";
 import { authRoutes } from "./features/health/health.route";
-import { errorHandler } from "./middlewares/error.middleware";
+import { errorHandler } from "./middlewares/error-handler";
+import { notFound } from "./middlewares/not-found";
 
 // app initialization
 const app: Application = express();
@@ -38,12 +39,7 @@ app.get("/", (_req: Request, res: Response) => {
 app.use("/api/health", authRoutes);
 
 // unhandled routes
-app.use((req: Request, _res: Response, next: NextFunction) => {
-  const error: any = new Error(`Can't find ${req.originalUrl} on this server!`);
-  error.status = 404;
-
-  next(error);
-});
+app.use(notFound);
 
 // Global error handler
 app.use(errorHandler);

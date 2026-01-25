@@ -5,31 +5,43 @@
   "operations": [
     {
       "type": "create-file",
-      "source": "lib/auth.ts",
+      "source": "shared/lib/auth.ts",
       "destination": "lib/auth.ts",
       "condition": { "framework": ["nextjs", "express"] }
     },
     {
       "type": "create-file",
-      "source": "lib/email-service.ts",
+      "source": "shared/lib/email/email-service.ts",
       "destination": "lib/email/email-service.ts",
       "condition": { "framework": ["nextjs", "express"] }
     },
     {
       "type": "create-file",
-      "source": "lib/email-templates.ts",
+      "source": "shared/lib/email/email-templates.ts",
       "destination": "lib/email/email-templates.ts",
       "condition": { "framework": ["nextjs", "express"] }
     },
     {
       "type": "create-file",
-      "source": "api/auth/[...all]/route.ts",
+      "source": "nextjs/api/auth/[...all]/route.ts",
       "destination": "app/api/auth/[...all]/route.ts",
       "condition": { "framework": "nextjs" }
     },
     {
       "type": "create-file",
-      "source": "lib/auth-client.ts",
+      "source": "express/middlewares/authorize.ts",
+      "destination": "src/middlewares/authorize.ts",
+      "condition": { "framework": "express" }
+    },
+    {
+      "type": "create-file",
+      "source": "express/types/express/index.d.ts",
+      "destination": "src/types/express/index.d.ts",
+      "condition": { "framework": "express" }
+    },
+    {
+      "type": "create-file",
+      "source": "shared/lib/auth-client.ts",
       "destination": "lib/auth-client.ts",
       "condition": { "framework": ["nextjs", "react"] }
     },
@@ -40,7 +52,7 @@
       "operations": [
         {
           "type": "add-to-bottom",
-          "source": "prisma/schema.prisma"
+          "source": "shared/prisma/schema.prisma"
         }
       ]
     },
