@@ -35,6 +35,7 @@ model User {
   email         String?   @unique
   emailVerified DateTime? @map("email_verified")
   image         String?
+  role          Role      @default(USER)
   accounts      Account[]
   sessions      Session[]
 
@@ -48,4 +49,9 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map("verification_tokens")
+}
+
+enum Role {
+  USER
+  ADMIN
 }

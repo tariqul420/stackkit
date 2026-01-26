@@ -15,17 +15,17 @@
     },
     {
       "type": "create-file",
-      "destination": "proxy.ts",
-      "content": "export { auth as proxy } from \"@/lib/auth\""
+      "source": "nextjs/proxy.ts",
+      "destination": "proxy.ts"
     },
     {
       "type": "patch-file",
-      "destination": "shared/prisma/schema.prisma",
+      "destination": "prisma/schema.prisma",
       "condition": { "database": "prisma" },
       "operations": [
         {
           "type": "add-to-bottom",
-          "source": "prisma/schema.prisma"
+          "source": "shared/prisma/schema.prisma"
         }
       ]
     },
@@ -47,7 +47,8 @@
     {
       "type": "add-dependency",
       "dependencies": {
-        "next-auth": "^5.0.0-beta.30"
+        "next-auth": "^5.0.0-beta.30",
+        "bcryptjs": "^3.0.3"
       }
     }
   ]

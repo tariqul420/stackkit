@@ -9,7 +9,7 @@ model User {
     updatedAt     DateTime  @updatedAt
     sessions      Session[]
     accounts      Account[]
-    role          String    @default("USER")
+    role          Role    @default(USER)
 
     @@unique([email])
     @@map("user")
@@ -60,4 +60,9 @@ model Verification {
 
     @@index([identifier])
     @@map("verification")
+}
+
+enum Role {
+    USER
+    ADMIN
 }
