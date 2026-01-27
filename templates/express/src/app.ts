@@ -3,9 +3,9 @@ import { cors } from "./config/cors";
 import { helmet } from "./config/helmet";
 import { logger } from "./config/logger";
 import { limiter } from "./config/rate-limit";
-import { errorHandler } from "./middlewares/error.middleware";
-import { notFound } from "./middlewares/not-found.middleware";
 import { authRoutes } from "./modules/health/health.route";
+import { errorHandler } from "./shared/middlewares/error.middleware";
+import { notFound } from "./shared/middlewares/not-found.middleware";
 
 // app initialization
 const app: Application = express();
