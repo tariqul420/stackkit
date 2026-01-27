@@ -8,15 +8,15 @@
     "build": "tsc",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
-    "start": "node dist/server.js",
-    "start:prod": "cross-env NODE_ENV=production node dist/server.js"
+    "start": "node dist/server.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "helmet": "^8.1.0",
-    "morgan": "^1.10.1"
+    "morgan": "^1.10.1",
+    "express-rate-limit": "^6.10.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
@@ -25,7 +25,6 @@
     "@types/node": "^25.0.8",
     "@typescript-eslint/eslint-plugin": "^8.53.0",
     "@typescript-eslint/parser": "^8.53.0",
-    "cross-env": "^10.1.0",
     "eslint": "^9.39.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
