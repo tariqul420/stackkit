@@ -41,14 +41,23 @@
       "envVars": {
         "AUTH_SECRET": "",
         "AUTH_GOOGLE_ID": "",
-        "AUTH_GOOGLE_SECRET": ""
+        "AUTH_GOOGLE_SECRET": "",
+        "EMAIL_HOST": "smtp.gmail.com",
+        "EMAIL_PORT": "587",
+        "EMAIL_USER": "",
+        "EMAIL_PASS": "",
+        "EMAIL_FROM": "noreply@yourapp.com"
       }
     },
     {
       "type": "add-dependency",
       "dependencies": {
         "next-auth": "^5.0.0-beta.30",
-        "bcryptjs": "^3.0.3"
+        "bcryptjs": "^3.0.3",
+        "nodemailer": "^7.0.12"
+      },
+      "devDependencies": {
+        "@types/nodemailer": "^7.0.5"
       }
     }
   ]
