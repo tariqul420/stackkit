@@ -97,4 +97,9 @@ return betterAuth({
  })
 };
 
-export const auth = await initAuth();
+export let auth: any = undefined;
+
+export async function setupAuth() {
+  auth = await initAuth();
+  return auth;
+}

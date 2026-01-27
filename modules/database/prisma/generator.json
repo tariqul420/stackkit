@@ -16,7 +16,14 @@
     {
       "type": "create-file",
       "source": "lib/prisma.ts",
-      "destination": "lib/prisma.ts"
+      "destination": "server/database/prisma.ts",
+      "condition": { "framework": ["nextjs"] }
+    },
+    {
+      "type": "create-file",
+      "source": "lib/prisma.ts",
+      "destination": "src/database/prisma.ts",
+      "condition": { "framework": ["express"] }
     },
     {
       "type": "add-dependency",

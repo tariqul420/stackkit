@@ -3,7 +3,7 @@ import { cors } from "./config/cors";
 import { helmet } from "./config/helmet";
 import { logger } from "./config/logger";
 import { limiter } from "./config/rate-limit";
-import { authRoutes } from "./modules/health/health.route";
+import { apiRoutes } from "./routes";
 import { errorHandler } from "./shared/middlewares/error.middleware";
 import { notFound } from "./shared/middlewares/not-found.middleware";
 
@@ -32,8 +32,8 @@ app.get("/", (_req: Request, res: Response) => {
   });
 });
 
-// routes
-app.use("/api/health", authRoutes);
+// API routes
+app.use("/api", apiRoutes);
 
 // unhandled routes
 app.use(notFound);

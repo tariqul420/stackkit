@@ -6,12 +6,26 @@
     {
       "type": "create-file",
       "source": "lib/mongoose.ts",
-      "destination": "lib/mongoose.ts"
+      "destination": "server/database/mongoose.ts",
+      "condition": { "framework": ["nextjs"] }
+    },
+    {
+      "type": "create-file",
+      "source": "lib/mongoose.ts",
+      "destination": "src/database/mongoose.ts",
+      "condition": { "framework": ["express"] }
     },
     {
       "type": "create-file",
       "source": "models/health.ts",
-      "destination": "models/health.ts"
+      "destination": "src/modules/health/health.model.ts",
+      "condition": { "framework": ["express"] }
+    },
+    {
+      "type": "create-file",
+      "source": "models/health.ts",
+      "destination": "server/database/models/health.model.ts",
+      "condition": { "framework": ["nextjs"] }
     },
     {
       "type": "patch-file",

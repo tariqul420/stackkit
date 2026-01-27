@@ -6,20 +6,38 @@
     {
       "type": "create-file",
       "source": "shared/lib/auth.ts",
-      "destination": "lib/auth.ts",
-      "condition": { "framework": ["nextjs", "express"] }
+      "destination": "server/auth/auth.ts",
+      "condition": { "framework": ["nextjs"] }
+    },
+    {
+      "type": "create-file",
+      "source": "shared/lib/auth.ts",
+      "destination": "src/modules/auth/auth.ts",
+      "condition": { "framework": ["express"] }
     },
     {
       "type": "create-file",
       "source": "shared/lib/email/email-service.ts",
-      "destination": "lib/email/email-service.ts",
-      "condition": { "framework": ["nextjs", "express"] }
+      "destination": "server/service/email/email-service.ts",
+      "condition": { "framework": ["nextjs"] }
+    },
+    {
+      "type": "create-file",
+      "source": "shared/lib/email/email-service.ts",
+      "destination": "src/shared/email/email-service.ts",
+      "condition": { "framework": ["express"] }
     },
     {
       "type": "create-file",
       "source": "shared/lib/email/email-templates.ts",
-      "destination": "lib/email/email-templates.ts",
-      "condition": { "framework": ["nextjs", "express"] }
+      "destination": "server/service/email/email-templates.ts",
+      "condition": { "framework": ["nextjs"] }
+    },
+    {
+      "type": "create-file",
+      "source": "shared/lib/email/email-templates.ts",
+      "destination": "src/shared/email/email-templates.ts",
+      "condition": { "framework": ["express"] }
     },
     {
       "type": "create-file",
@@ -36,26 +54,32 @@
     {
       "type": "create-file",
       "source": "nextjs/lib/auth/auth-guards.ts",
-      "destination": "lib/auth/auth-guards.ts",
+      "destination": "server/auth/guards.ts",
       "condition": { "framework": "nextjs" }
     },
     {
       "type": "create-file",
       "source": "express/middlewares/authorize.ts",
-      "destination": "src/middlewares/authorize.ts",
+      "destination": "src/shared/middlewares/authorize.ts",
       "condition": { "framework": "express" }
     },
     {
       "type": "create-file",
-      "source": "express/types/express/index.d.ts",
-      "destination": "src/types/express/index.d.ts",
+      "source": "express/types/express.d.ts",
+      "destination": "src/types/express.d.ts",
       "condition": { "framework": "express" }
     },
     {
       "type": "create-file",
       "source": "shared/lib/auth-client.ts",
-      "destination": "lib/auth-client.ts",
-      "condition": { "framework": ["nextjs", "react"] }
+      "destination": "lib/auth/auth-client.ts",
+      "condition": { "framework": ["nextjs"] }
+    },
+    {
+      "type": "create-file",
+      "source": "shared/lib/auth-client.ts",
+      "destination": "src/shared/lib/auth-client.ts",
+      "condition": { "framework": ["react"] }
     },
     {
       "type": "patch-file",
@@ -75,12 +99,12 @@
       "operations": [
         {
           "type": "add-import",
-          "imports": ["import { initAuth } from \"../lib/auth\";"]
+          "imports": ["import { setupAuth } from \"./modules/auth/auth\";"]
         },
         {
           "type": "add-code",
           "before": "const port = env.port;",
-          "code": "await initAuth();"
+          "code": "await setupAuth();"
         }
       ]
     },
@@ -91,13 +115,13 @@
       "operations": [
         {
           "type": "add-import",
-          "imports": ["import { auth } from \"../lib/auth\";",
+          "imports": ["import { auth } from \"./modules/auth/auth\";",
           "import { toNodeHandler } from \"better-auth/node\";"]
         },
         {
           "type": "add-code",
-          "after": "// routes",
-          "code": "app.all(\"/api/auth/*splat\", toNodeHandler(auth));"
+          "after": "// API routes",
+          "code": "app.all(\"/api/auth/*splat\", (req: Request, res: Response) => {\\n  if (!auth) {\\n    return res.status(503).json({ success: false, message: \"Auth not ready\" });\\n  }\\n  return toNodeHandler(auth)(req, res);\\n});"
         }
       ]
     },
