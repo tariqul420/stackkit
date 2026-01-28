@@ -6,4 +6,4 @@ const router = Router();
 // demo route
 router.get("/", healthController.health);
 
-export const authRoutes = router;
+export const healthRoutes = router;

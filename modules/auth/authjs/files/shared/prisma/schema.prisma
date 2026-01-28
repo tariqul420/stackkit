@@ -1,4 +1,8 @@
-{{#var defaultId = {{#if prismaProvider == "mongodb"}}@default(auto()) @map("_id") @db.ObjectId{{else}}@default(cuid()){{/if}}}}
+{{#if prismaProvider == "mongodb"}}
+{{#var defaultId = @default(auto()) @map("_id") @db.ObjectId}}
+{{else}}
+{{#var defaultId = @default(cuid())}}
+{{/if}}
 model Account {
   id                String  @id {{defaultId}}
   userId            String  @map("user_id")

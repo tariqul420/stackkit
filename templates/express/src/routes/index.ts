@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authRoutes as healthRoutes } from "../modules/health/health.route";
+import { healthRoutes } from "../modules/health/health.route";
 const router = Router();
 
 // versioned API

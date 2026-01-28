@@ -1,16 +1,37 @@
 import { betterAuth } from "better-auth";
-import { sendEmail } from "./email/email-service";
-import { getVerificationEmailTemplate, getPasswordResetEmailTemplate } from "./email/email-templates";
-{{#switch database}}
-{{#case prisma}}
-import { prisma } from "./prisma";
+{{#if combo == 'prisma:express'}}
+import { sendEmail } from "../../shared/email/email-service";
+import {
+  getPasswordResetEmailTemplate,
+  getVerificationEmailTemplate,
+} from "../../shared/email/email-templates";
+import { prisma } from "../../database/prisma";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-{{/case}}
-{{#case mongoose}}
-import { mongoose } from "./mongoose";
+{{/if}}
+
+{{#if combo == 'prisma:nextjs'}}
+import { getPasswordResetEmailTemplate, getVerificationEmailTemplate } from "../service/email/email-templates";
+import { sendEmail } from "../service/email/email-service";
+import { prisma } from "../database/prisma";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+{{/if}}
+
+{{#if combo == 'mongoose:express'}}
+import { sendEmail } from "../../shared/email/email-service";
+import {
+  getPasswordResetEmailTemplate,
+  getVerificationEmailTemplate,
+} from "../../shared/email/email-templates";
+import { mongoose } from "../../database/mongoose";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
-{{/case}}
-{{/switch}}
+{{/if}}
+
+{{#if combo == 'mongoose:nextjs'}}
+import { getPasswordResetEmailTemplate, getVerificationEmailTemplate } from "../service/email/email-templates";
+import { sendEmail } from "../service/email/email-service";
+import { mongoose } from "../database/mongoose";
+import { mongodbAdapter } from "better-auth/adapters/mongodb";
+{{/if}}
 
 export async function initAuth() {
 {{#if database == 'mongoose'}}
@@ -20,16 +41,14 @@ const db = client.db();
 {{/if}}
 
 return betterAuth({
-{{#switch database}}
-{{#case prisma}}
+{{#if database == 'prisma'}}
   database: prismaAdapter(prisma, {
     provider: "{{prismaProvider}}",
   }),
-{{/case}}
-{{#case mongoose}}
+{{/if}}
+{{#if database == 'mongoose'}}
   database: mongodbAdapter(db, { client }),
-{{/case}}
-{{/switch}}
+{{/if}}
   baseURL: process.env.BETTER_AUTH_URL,
   secret: process.env.BETTER_AUTH_SECRET,
   trustedOrigins: [process.env.APP_URL!],

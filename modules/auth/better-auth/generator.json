@@ -60,7 +60,7 @@
     {
       "type": "create-file",
       "source": "express/middlewares/authorize.ts",
-      "destination": "src/shared/middlewares/authorize.ts",
+      "destination": "src/shared/middlewares/authorize.middleware.ts",
       "condition": { "framework": "express" }
     },
     {
@@ -121,7 +121,14 @@
         {
           "type": "add-code",
           "after": "// API routes",
-          "code": "app.all(\"/api/auth/*splat\", (req: Request, res: Response) => {\\n  if (!auth) {\\n    return res.status(503).json({ success: false, message: \"Auth not ready\" });\\n  }\\n  return toNodeHandler(auth)(req, res);\\n});"
+          "code": [
+            "app.all(\"/api/auth/*splat\", (req: Request, res: Response) => {",
+            "  if (!auth) {",
+            "    return res.status(503).json({ success: false, message: \"Auth not ready\" });",
+            "  }",
+            "  return toNodeHandler(auth)(req, res);",
+            "});"
+          ]
         }
       ]
     },

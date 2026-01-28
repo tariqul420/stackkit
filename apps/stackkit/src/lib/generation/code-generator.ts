@@ -56,7 +56,7 @@ export interface PatchOperation {
   imports?: string[];
 
   // add-code, replace-code
-  code?: string;
+  code?: string | string[];
   after?: string;
   before?: string;
   replace?: string;
@@ -351,6 +351,15 @@ export class AdvancedCodeGenerator {
         return "";
       }
 
+      // Handle heading helper {{heading:depthVar}} -> '#', '##', ... up to '######'
+      if (trimmedExpr.startsWith("heading:")) {
+        const depthVar = trimmedExpr.substring(8).trim();
+        const depthVal = context[depthVar];
+        const n = parseInt(String(depthVal || "1"), 10) || 1;
+        const level = Math.max(1, Math.min(n, 6));
+        return "#".repeat(level);
+      }
+
       // Handle feature flags {{feature:name}}
       if (trimmedExpr.startsWith("feature:")) {
         const featureName = trimmedExpr.substring(8);
@@ -398,6 +407,9 @@ export class AdvancedCodeGenerator {
       ...selectedModules,
       features,
     };
+
+    // Derived combined key to simplify template conditionals (e.g. "prisma:express")
+    context.combo = `${context.database || ""}:${context.framework || ""}`;
 
     // Set default prismaProvider if database is prisma but no provider specified
     if (selectedModules.database === "prisma" && !context.prismaProvider) {
@@ -670,7 +682,13 @@ export class AdvancedCodeGenerator {
           );
         }
         if (processedOp.code) {
-          processedOp.code = this.processTemplate(processedOp.code, context);
+          if (Array.isArray(processedOp.code)) {
+            processedOp.code = processedOp.code
+              .map((c) => this.processTemplate(c, context))
+              .join("\n");
+          } else {
+            processedOp.code = this.processTemplate(processedOp.code, context);
+          }
         }
         if (processedOp.after) {
           processedOp.after = this.processTemplate(processedOp.after, context);
@@ -828,7 +846,9 @@ export class AdvancedCodeGenerator {
 
           case "add-code":
             if (patchOp.code) {
-              const processedCode = this.processTemplate(patchOp.code, context);
+              let codeValue: string | string[] = patchOp.code;
+              if (Array.isArray(codeValue)) codeValue = codeValue.join("\n");
+              const processedCode = this.processTemplate(codeValue as string, context);
 
               // Skip insertion if the exact code already exists in the file
               const codeTrimmed = processedCode.trim();
@@ -885,11 +905,13 @@ export class AdvancedCodeGenerator {
             break;
 
           case "replace-code":
-            if (patchOp.code && patchOp.replace) {
-              const processedCode = this.processTemplate(patchOp.code, context);
-              const replacePattern = this.processTemplate(patchOp.replace, context);
-              content = content.replace(replacePattern, processedCode);
-            }
+              if (patchOp.code && patchOp.replace) {
+                let codeValue2: string | string[] = patchOp.code;
+                if (Array.isArray(codeValue2)) codeValue2 = codeValue2.join("\n");
+                const processedCode = this.processTemplate(codeValue2 as string, context);
+                const replacePattern = this.processTemplate(patchOp.replace, context);
+                content = content.replace(replacePattern, processedCode);
+              }
             break;
 
           case "add-to-top": {
@@ -1109,6 +1131,8 @@ export class AdvancedCodeGenerator {
       ...selectedModules,
       features,
     };
+    // Derived combined key to simplify template conditionals (e.g. "prisma:express")
+    context.combo = `${context.database || ""}:${context.framework || ""}`;
 
     if (selectedModules.database === "prisma" && !context.prismaProvider) {
       const providers = getPrismaProvidersFromGenerator(getPackageRoot());

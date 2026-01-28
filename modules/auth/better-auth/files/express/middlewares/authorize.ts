@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { auth } from "../../lib/auth";
+import { auth } from "../../modules/auth/auth";
 
 export enum UserRole {
     USER = "USER",
@@ -10,7 +10,7 @@ const authorize = (...roles: UserRole[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       // get user session
-      const session = await auth.api.getSession({
+      const session = await auth?.api.getSession({
         headers: req.headers as any,
       });
 
