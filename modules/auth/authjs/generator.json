@@ -6,7 +6,7 @@
     {
       "type": "create-file",
       "source": "shared/lib/auth.ts",
-      "destination": "lib/auth.ts"
+      "destination": "server/auth/auth.ts"
     },
     {
       "type": "create-file",

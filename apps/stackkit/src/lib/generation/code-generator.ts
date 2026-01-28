@@ -909,13 +909,13 @@ export class AdvancedCodeGenerator {
             break;
 
           case "replace-code":
-              if (patchOp.code && patchOp.replace) {
-                let codeValue2: string | string[] = patchOp.code;
-                if (Array.isArray(codeValue2)) codeValue2 = codeValue2.join("\n");
-                const processedCode = this.processTemplate(codeValue2 as string, context);
-                const replacePattern = this.processTemplate(patchOp.replace, context);
-                content = content.replace(replacePattern, processedCode);
-              }
+            if (patchOp.code && patchOp.replace) {
+              let codeValue2: string | string[] = patchOp.code;
+              if (Array.isArray(codeValue2)) codeValue2 = codeValue2.join("\n");
+              const processedCode = this.processTemplate(codeValue2 as string, context);
+              const replacePattern = this.processTemplate(patchOp.replace, context);
+              content = content.replace(replacePattern, processedCode);
+            }
             break;
 
           case "add-to-top": {
