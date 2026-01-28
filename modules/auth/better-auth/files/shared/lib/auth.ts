@@ -1,5 +1,5 @@
 import { betterAuth } from "better-auth";
-{{#if combo == 'prisma:express'}}
+{{#if combo == "prisma:express"}}
 import { sendEmail } from "../../shared/email/email-service";
 import {
   getPasswordResetEmailTemplate,
@@ -9,14 +9,14 @@ import { prisma } from "../../database/prisma";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 {{/if}}
 
-{{#if combo == 'prisma:nextjs'}}
+{{#if combo == "prisma:nextjs"}}
 import { getPasswordResetEmailTemplate, getVerificationEmailTemplate } from "../service/email/email-templates";
 import { sendEmail } from "../service/email/email-service";
 import { prisma } from "../database/prisma";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 {{/if}}
 
-{{#if combo == 'mongoose:express'}}
+{{#if combo == "mongoose:express"}}
 import { sendEmail } from "../../shared/email/email-service";
 import {
   getPasswordResetEmailTemplate,
@@ -26,7 +26,7 @@ import { mongoose } from "../../database/mongoose";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 {{/if}}
 
-{{#if combo == 'mongoose:nextjs'}}
+{{#if combo == "mongoose:nextjs"}}
 import { getPasswordResetEmailTemplate, getVerificationEmailTemplate } from "../service/email/email-templates";
 import { sendEmail } from "../service/email/email-service";
 import { mongoose } from "../database/mongoose";
@@ -34,19 +34,19 @@ import { mongodbAdapter } from "better-auth/adapters/mongodb";
 {{/if}}
 
 export async function initAuth() {
-{{#if database == 'mongoose'}}
+{{#if database == "mongoose"}}
 const mongooseInstance = await mongoose();
 const client = mongooseInstance.connection.getClient();
 const db = client.db();
 {{/if}}
 
 return betterAuth({
-{{#if database == 'prisma'}}
+{{#if database == "prisma"}}
   database: prismaAdapter(prisma, {
     provider: "{{prismaProvider}}",
   }),
 {{/if}}
-{{#if database == 'mongoose'}}
+{{#if database == "mongoose"}}
   database: mongodbAdapter(db, { client }),
 {{/if}}
   baseURL: process.env.BETTER_AUTH_URL,

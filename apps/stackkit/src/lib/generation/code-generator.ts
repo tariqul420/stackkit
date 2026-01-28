@@ -10,6 +10,8 @@ export interface GenerationContext {
   database?: string;
   auth?: string;
   features?: string[];
+  combo?: string;
+  prismaProvider?: string;
   [key: string]: unknown;
 }
 
@@ -159,6 +161,14 @@ export class AdvancedCodeGenerator {
     content = content.replace(/\n{3,}/g, "\n\n");
 
     return content;
+  }
+
+  private renderHeadingFromExpr(expr: string, context: GenerationContext): string {
+    const depthVar = expr.substring(8).trim();
+    const depthVal = context[depthVar];
+    const n = parseInt(String(depthVal || "1"), 10) || 1;
+    const level = Math.max(1, Math.min(n, 6));
+    return "#".repeat(level);
   }
 
   private processVariableDefinitions(content: string, context: GenerationContext): string {
@@ -311,7 +321,8 @@ export class AdvancedCodeGenerator {
           }
         }
 
-        return (result || defaultCase || "").trim();
+        const chosen = (result || defaultCase || "").trim();
+        return this.processTemplateRecursive(chosen, context);
       },
     );
 
@@ -345,7 +356,7 @@ export class AdvancedCodeGenerator {
           const [caseVal, result] = caseStr.split(":").map((s: string) => s.trim());
           const cleanCaseVal = caseVal.replace(/['"]/g, "");
           if (cleanCaseVal === actualVal || cleanCaseVal === "default") {
-            return result.replace(/['"]/g, "");
+            return this.processTemplateRecursive(result.replace(/['"]/g, ""), context);
           }
         }
         return "";
@@ -353,17 +364,13 @@ export class AdvancedCodeGenerator {
 
       // Handle heading helper {{heading:depthVar}} -> '#', '##', ... up to '######'
       if (trimmedExpr.startsWith("heading:")) {
-        const depthVar = trimmedExpr.substring(8).trim();
-        const depthVal = context[depthVar];
-        const n = parseInt(String(depthVal || "1"), 10) || 1;
-        const level = Math.max(1, Math.min(n, 6));
-        return "#".repeat(level);
+        return this.renderHeadingFromExpr(trimmedExpr, context);
       }
 
       // Handle feature flags {{feature:name}}
       if (trimmedExpr.startsWith("feature:")) {
-        const featureName = trimmedExpr.substring(8);
-        const features = context.features || [];
+        const featureName = trimmedExpr.substring(8).trim();
+        const features = Array.isArray(context.features) ? context.features : [];
         return features.includes(featureName) ? "true" : "false";
       }
 
@@ -666,9 +673,6 @@ export class AdvancedCodeGenerator {
     }
     if (processed.content) {
       processed.content = this.processTemplate(processed.content, context);
-    }
-    if (processed.destination) {
-      processed.destination = this.processTemplate(processed.destination, context);
     }
 
     // Process templates in patch operations
