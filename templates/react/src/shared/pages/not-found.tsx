@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { SEO } from "../components/SEO";
+import { SEO } from "../components/seo";
 
 export default function NotFound() {
   return (

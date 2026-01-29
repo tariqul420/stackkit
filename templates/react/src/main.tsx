@@ -4,10 +4,10 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { Toaster } from "react-hot-toast";
 import { RouterProvider } from "react-router";
-import { SEOProvider } from "./components/SEO";
 import "./index.css";
-import { queryClient } from "./lib/queryClient";
 import { router } from "./router";
+import { queryClient } from "./shared/lib/query-client";
+import { SEOProvider } from "./shared/components/seo";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
