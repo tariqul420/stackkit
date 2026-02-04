@@ -1,11 +1,16 @@
 ---
 title: StackKit
-description: Production-ready project generator and modular CLI
+description: Production-ready project generator and modular CLI for full-stack applications
 ---
 
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
 
-StackKit generates full-stack projects and adds features to existing ones.
+StackKit is a modern CLI tool that scaffolds full-stack applications with your choice of framework, database, and authentication—all configured and ready to use in under 2 minutes.
+
+<Callout type="info">
+  StackKit generates clean, production-ready code. Once created, you own everything—no vendor lock-in, no runtime dependencies.
+</Callout>
 
 ## Quick Start
 
@@ -32,12 +37,59 @@ StackKit generates full-stack projects and adds features to existing ones.
   </Tab>
 </Tabs>
 
-## What it does
+## Why StackKit?
 
-- Generates projects with Next.js, Express, or React
-- Adds databases (Prisma, Mongoose) and auth (Better Auth, Auth.js)
-- Handles dependencies, configs, and environment setup
+### Skip the Boilerplate
+No more spending hours setting up TypeScript configs, ESLint rules, or integrating auth libraries. Get a fully configured project instantly.
 
-Next steps:
-- [Quick Start](/docs/getting-started/quickstart) for your first project
-- [Concepts](/docs/concepts/what-is-stackkit) to understand StackKit
+### Modular by Design
+Start minimal or go full-stack. Add databases, authentication, and other features incrementally—only what you need, when you need it.
+
+### Production-Grade Setup
+Every project includes TypeScript strict mode, ESLint configuration, environment variable management, and best practices built-in.
+
+### Smart Compatibility
+Automatic checks ensure modules work together. No configuration conflicts, no manual debugging of integration issues.
+
+## What You Get
+
+### Templates
+- **Next.js** - Full-stack React with App Router
+- **Express** - Node.js REST API with TypeScript
+- **React** - Frontend SPA with Vite
+
+### Database Integration
+- **Prisma** - Modern ORM for PostgreSQL, MySQL, MongoDB, SQLite
+- **Mongoose** - Elegant MongoDB ODM
+- Pre-configured connection, schema files, and type safety
+
+### Authentication
+- **Better Auth** - TypeScript-first auth for all frameworks
+- **Auth.js** - Battle-tested auth for Next.js
+- Complete setup with routes, middleware, and environment config
+
+### Developer Experience
+- Automatic package manager detection
+- Git initialization with proper .gitignore
+- Environment variable templates
+- Health diagnostics with `doctor` command
+
+## Common Workflows
+
+```bash
+# Create new project (interactive)
+npx stackkit@latest create my-app
+
+# Add features to existing project
+npx stackkit@latest add
+
+# Validate project setup
+npx stackkit@latest doctor
+```
+
+## Documentation
+
+- [Quick Start](/docs/getting-started/quickstart) - Create your first project
+- [CLI Commands](/docs/cli/overview) - Command reference
+- [Concepts](/docs/concepts/what-is-stackkit) - How StackKit works
+- [Modules](/docs/modules) - Available integrations

@@ -1,6 +1,6 @@
+import { cn } from "@/lib/cn";
 import Link from "next/link";
 import CopyCommand from "../../components/copy-command";
-import { cn } from "@/lib/cn";
 
 // Shared CSS classes
 const styles = {
@@ -78,7 +78,7 @@ const features = [
       />
     ),
     title: "Database Flexibility",
-    description: "Prisma or Mongoose with PostgreSQL/MongoDB",
+    description: "PostgreSQL, MySQL, MongoDB, SQLite with Prisma or Mongoose",
   },
   {
     icon: (
@@ -90,7 +90,7 @@ const features = [
       />
     ),
     title: "Auth Ready",
-    description: "Better Auth with pre-built flows",
+    description: "Better Auth and Auth.js with complete setup",
   },
 ];
 
@@ -147,8 +147,8 @@ export default function HomePage() {
             </span>
           </h1>
           <p className="mx-auto max-w-3xl text-lg text-fd-muted-foreground sm:text-xl md:text-2xl">
-            Full-stack project generator with authentication, database, and TypeScript configured
-            out of the box.
+            Generate production-ready full-stack projects with your choice of framework, database,
+            and authentication—all configured in seconds.
           </p>
         </div>
 

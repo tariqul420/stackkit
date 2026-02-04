@@ -1,0 +1,134 @@
+---
+title: Troubleshooting
+description: Common issues and solutions
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+## Quick Fixes
+
+### Permission Error
+
+```bash
+# Use npx instead
+npx stackkit@latest create my-app
+```
+
+### Network Timeout
+
+```bash
+# Increase timeout
+npm config set fetch-timeout 300000
+```
+
+### Port Already in Use
+
+```bash
+# Kill process
+lsof -ti:3000 | xargs kill -9
+```
+
+### Dependencies Not Installing
+
+```bash
+npm install
+```
+
+## Module Issues
+
+### Compatibility Error
+
+Check compatibility:
+
+```bash
+stackkit list
+```
+
+**Compatibility:**
+
+| Module      | Next.js | Express | React |
+| ----------- | ------- | ------- | ----- |
+| Auth.js     | Yes     | No      | No    |
+| Better Auth | Yes     | Yes     | Yes   |
+| Prisma      | Yes     | Yes     | Yes   |
+| Mongoose    | Yes     | Yes     | No    |
+
+### Module Not Working
+
+```bash
+# Check health
+stackkit doctor
+
+# Reinstall
+npm install
+```
+
+## Database Issues
+
+### Prisma Client Missing
+
+```bash
+npx prisma generate
+```
+
+### Connection Failed
+
+1. Check DATABASE_URL in `.env`
+2. Verify database is running
+3. Test: `npx prisma db push`
+
+### MongoDB Connection
+
+Ensure MongoDB is running:
+
+```bash
+# Check status
+brew services list | grep mongodb
+# or
+systemctl status mongod
+```
+
+## Environment Variables
+
+### Missing Variables
+
+```bash
+# Copy template
+cp .env.example .env
+
+# Generate secrets
+openssl rand -base64 32
+```
+
+### Variables Not Loading
+
+1. Check file is named `.env` (not `.env.txt`)
+2. Restart dev server
+3. Verify no quotes around values (unless needed)
+
+## Common Questions
+
+**Q: Can I use StackKit with existing projects?**  
+A: Yes, use `stackkit add` to add modules.
+
+**Q: How do I update StackKit?**  
+A: Use `npx stackkit@latest` - it always uses the latest version.
+
+**Q: Can I modify generated code?**  
+A: Yes! You own all code. StackKit is not a runtime dependency.
+
+**Q: Which database should I choose?**  
+A: Prisma for flexibility (supports multiple databases), Mongoose for MongoDB-only projects.
+
+**Q: What if my framework isn't supported?**  
+A: See [Contributing](/docs/community/contributing) to add support.
+
+## Still Need Help?
+
+1. Run diagnostics: `stackkit doctor`
+2. Check [GitHub Issues](https://github.com/tariqul420/stackkit/issues)
+3. Join [Discord](https://discord.gg/d359BAvB)
+
+<Callout type="info">
+  Most issues are resolved by running `stackkit doctor` and following its recommendations.
+</Callout>

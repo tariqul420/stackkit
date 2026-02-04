@@ -1,27 +1,123 @@
 ---
 title: What is StackKit
-description: Understand what StackKit is and what it does
+description: Core concepts and design philosophy
 ---
 
-StackKit is a **production-ready project generator and modular CLI** for building full-stack applications. It is **not a framework**—instead, it helps you bootstrap projects with popular frameworks and add features incrementally.
+import { Callout } from 'fumadocs-ui/components/callout';
 
-## When to use StackKit
+StackKit is a code generator, not a framework. It creates standard projects using popular tools, then gets out of your way.
 
-- Starting a new full-stack project with best practices pre-configured
-- Adding authentication or database support to an existing project
-- Prototyping with modern stacks without manual setup
+<Callout type="info">
+  Once generated, you own 100% of the code. StackKit is not a runtime dependency.
+</Callout>
 
-## Key Features
+## Core Concepts
 
-- **Project Generation**: Create complete projects with frameworks like Next.js, Express, or React
-- **Modular CLI**: Add features (auth, database) to any existing project
-- **Production-Ready**: Includes TypeScript, testing, linting, and deployment configs
-- **Framework Agnostic**: Supports multiple stacks with compatibility checks
+### Templates
+Base project structures:
+- **Next.js** - Full-stack with App Router
+- **Express** - REST API with TypeScript
+- **React** - SPA with Vite
 
-## How it works
+### Modules
+Optional features:
+- **Databases** - Prisma, Mongoose
+- **Auth** - Better Auth, Auth.js
 
-StackKit combines **templates** (base project structures) with **modules** (feature add-ons) to generate or enhance your codebase. It handles dependencies, file generation, and environment setup automatically.
+### Commands
+- `create` - New project
+- `add` - Add features
+- `doctor` - Verify health
+- `list` - Show options
 
-Next steps:
-- [Quick Start](/docs/getting-started/quickstart) to create your first project
-- [Create vs Add](/docs/concepts/create-vs-add) to understand the workflows
+## When to Use
+
+**Good for:**
+- New projects
+- Team standardization
+- Learning full-stack
+- Prototypes
+
+**Not for:**
+- Custom build configs
+- Non-JS/TS projects
+
+## How It Works
+
+### Create Project
+```
+stackkit create my-app
+  ↓
+Select options
+  ↓
+Generate files
+  ↓
+Install deps
+  ↓
+Ready!
+```
+
+### Add Features
+```
+stackkit add
+  ↓
+Detect framework
+  ↓
+Show modules
+  ↓
+Install
+  ↓
+Ready!
+```
+
+## Design Principles
+
+### No Lock-in
+- You own all code
+- No runtime dependency
+- Standard tools work
+- Deploy anywhere
+
+### Follow Standards
+- Framework conventions
+- TypeScript strict mode
+- ESLint best practices
+- Standard env vars
+
+### Smart Defaults
+- Everything pre-configured
+- Minimal dependencies
+- Fast builds
+- Type-safe
+
+## What's Included
+
+Every project has:
+- TypeScript configuration
+- ESLint setup
+- Environment variables (.env + .env.example)
+- Package scripts
+- Git-ready
+- Comprehensive README
+
+## Comparison
+
+| Feature | StackKit | CRA | T3 | Manual |
+|---------|----------|-----|----|----|
+| Frameworks | 3+ | 1 | 1 | Any |
+| Modular | ✓ | ✗ | Partial | ✓ |
+| Database | ✓ | ✗ | ✓ | ✓ |
+| Auth | ✓ | ✗ | ✓ | ✓ |
+| Setup Time | 2 min | 1 min | 2 min | 30+ min |
+
+**Why StackKit:**
+- Multiple frameworks
+- Add features incrementally
+- Zero runtime dependency
+- Standard code
+
+## Learn More
+
+- [Quick Start](/docs/getting-started/quickstart)
+- [CLI Commands](/docs/cli/overview)
+- [Architecture](/docs/concepts/architecture)

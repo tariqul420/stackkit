@@ -1,0 +1,68 @@
+---
+title: Architecture
+description: How StackKit works under the hood
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+## Overview
+
+StackKit has three main parts:
+
+1. **CLI** - Commands (create, add, doctor, list)
+2. **Templates** - Base projects for frameworks
+3. **Modules** - Optional features (database, auth)
+
+## Project Structure
+
+```
+stackkit/
+├── apps/stackkit/    # CLI package
+├── modules/          # Auth & database modules
+└── templates/        # Framework templates
+```
+
+## How Commands Work
+
+### create
+
+1. User selects framework, database, auth
+2. Copy template files
+3. Integrate selected modules
+4. Install dependencies
+5. Initialize Git
+
+### add
+
+1. Detect current framework from package.json
+2. Show compatible modules
+3. Generate integration files
+4. Update dependencies
+5. Install packages
+
+### doctor
+
+1. Read project configuration
+2. Validate files and dependencies
+3. Check module compatibility
+4. Generate health report
+
+## Key Features
+
+### Compatibility Checking
+
+Verifies modules work with your framework before installation.
+
+### Package Manager Detection
+
+Auto-detects from lock files: pnpm, npm, yarn, or bun.
+
+### Error Handling
+
+- Auto-retry on network failures
+- Clear error messages
+- Suggested fixes
+
+## For Contributors
+
+See [Contributing Guide](/docs/community/contributing) to add modules or templates.

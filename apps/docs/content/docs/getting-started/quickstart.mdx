@@ -1,14 +1,19 @@
 ---
 title: Quick Start
-description: Create your first StackKit project in under 5 minutes
+description: Create your first StackKit project in under 2 minutes
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
 
-## Create a New Project
+Get your first StackKit project running in three simple steps.
 
-Run the interactive CLI to generate your project:
+<Callout type="info">
+  **Requirements**: Node.js 18 or higher
+</Callout>
+
+## Step 1: Generate Project
 
 <Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
   <Tab value="pnpm">
@@ -33,119 +38,121 @@ Run the interactive CLI to generate your project:
   </Tab>
 </Tabs>
 
-## Choose Your Stack
+## Step 2: Choose Your Stack
 
-The CLI will guide you through setup:
+Answer a few quick prompts:
 
-```bash
-✔ Project name: my-app
-✔ Framework: Next.js
-✔ Database: Prisma (PostgreSQL)
-✔ Auth: Better Auth
-✔ Language: TypeScript
-✔ Package manager: pnpm
+1. **Framework** - Next.js, Express, or React
+2. **Database** - Prisma, Mongoose, or skip for now
+3. **Authentication** - Better Auth, Auth.js, or skip for now
+4. **Language** - TypeScript (recommended) or JavaScript
+5. **Package Manager** - Auto-detected or choose manually
+6. **Git** - Initialize repository (recommended)
 
-✓ Project created successfully!
-```
+StackKit generates everything in seconds.
 
-**Framework Options:**
-- **Next.js**: Full-stack React with App Router
-- **Express**: Node.js REST API
-- **React**: Frontend-only SPA
-
-**Database Options:**
-- **Prisma**: PostgreSQL, MongoDB, MySQL, SQLite
-- **Mongoose**: MongoDB only
-- **None**: Skip database setup
-
-**Auth Options:**
-- **Better Auth**: TypeScript-first, works with all frameworks
-- **Auth.js**: Next.js + Prisma only
-- **None**: Skip authentication
-
-## Start Development
-
-Navigate to your project and run the dev server:
+## Step 3: Start Development
 
 ```bash
 cd my-app
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to see your app.
+Your application runs at:
+- Next.js: http://localhost:3000
+- Express: http://localhost:3000
+- React: http://localhost:5173
 
-## Configure Environment Variables
+## Project Structure
 
-StackKit generates `.env.example` with required variables. Copy it to `.env`:
+Generated structure varies by framework. Check your project's README for details.
+
+Common files in all projects:
+- `.env.example` - Environment variable template
+- `package.json` - Dependencies and scripts
+- `tsconfig.json` - TypeScript configuration
+- `README.md` - Project-specific documentation
+
+## Configure Environment
+
+Copy `.env.example` to `.env` and fill in your values:
 
 ```bash
 cp .env.example .env
 ```
 
-**For databases:**
-```bash
-# PostgreSQL
-DATABASE_URL="postgresql://user:password@localhost:5432/myapp"
-
-# MongoDB
-DATABASE_URL="mongodb://localhost:27017/myapp"
-```
-
-**For Better Auth:**
-```bash
-BETTER_AUTH_SECRET="your-secret-here"  # Generate: openssl rand -base64 32
-BETTER_AUTH_URL="http://localhost:3000"
-```
+Required variables depend on your selected modules. Check `.env.example` for details.
 
 <Callout type="warn">
-Never commit `.env` files to version control.
+  Generate secrets: `openssl rand -base64 32`
 </Callout>
+
+## Available Commands
+
+```bash
+npm run dev            # Start development
+npm run build          # Build for production
+npm start              # Run production build
+npm run lint           # Lint code
+```
+
+Check your project's README for module-specific commands.
 
 ## Next Steps
 
-1. **[Set up your database](/docs/modules/database)** - Run migrations and connect
-2. **[Configure authentication](/docs/modules/authentication)** - Add OAuth providers
-3. **[Check project health](/docs/cli/doctor)** - Verify everything works
+<Steps>
 
-## Adding to Existing Projects
+<Step>
 
-Already have a project? Use the modular CLI:
+### Configure Environment
 
-<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
-  <Tab value="pnpm">
-    ```bash
-    # Add authentication (interactive)
-    pnpm dlx stackkit@latest add
+Copy `.env.example` to `.env` and add your credentials.
 
-    # Add database with provider (non-interactive)
-    pnpm dlx stackkit@latest add database --provider prisma-postgresql
-    ```
-  </Tab>
-  <Tab value="npm">
-    ```bash
-    # Add authentication (interactive)
-    npx stackkit@latest add
+</Step>
 
-    # Add database with provider (non-interactive)
-    npx stackkit@latest add database --provider prisma-postgresql
-    ```
-  </Tab>
-  <Tab value="yarn">
-    ```bash
-    yarn dlx stackkit@latest add
+<Step>
 
-    # Add database with provider (non-interactive)
-    yarn dlx stackkit@latest add database --provider prisma-postgresql
-    ```
-  </Tab>
-  <Tab value="bun">
-    ```bash
-    bun x stackkit@latest add
+### Run Health Check
 
-    # Add database with provider (non-interactive)
-    bun x stackkit@latest add database --provider prisma-postgresql
-    ```
-  </Tab>
-</Tabs>
+```bash
+npx stackkit doctor
+```
 
-See [CLI Reference](/docs/cli/overview) for all commands.
+</Step>
+
+<Step>
+
+### Start Building
+
+Check the generated README for module-specific setup instructions.
+
+</Step>
+
+</Steps>
+
+## Troubleshooting
+
+### Common Issues
+
+**Port already in use:**
+```bash
+lsof -ti:3000 | xargs kill -9
+```
+
+**Dependencies not working:**
+```bash
+npm install
+```
+
+**Need help?**
+```bash
+npx stackkit doctor
+```
+
+See [Troubleshooting Guide](/docs/reference/troubleshooting) for more solutions.
+
+## Further Reading
+
+- [CLI Commands](/docs/cli/overview) - Command reference
+- [Core Concepts](/docs/concepts/what-is-stackkit) - How StackKit works
+- [Troubleshooting](/docs/reference/troubleshooting) - Common issues

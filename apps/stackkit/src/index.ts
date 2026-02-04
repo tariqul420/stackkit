@@ -1,76 +1,27 @@
 #!/usr/bin/env node
 import { Command } from "commander";
 import * as fs from "fs";
-import { readFileSync } from "fs";
 import { join } from "path";
 import { addCommand } from "./cli/add";
 import { createProject } from "./cli/create";
 import { doctorCommand } from "./cli/doctor";
 import { listCommand } from "./cli/list";
+import { MODULE_CATEGORIES } from "./lib/constants";
 import { getPrismaProvidersFromGenerator } from "./lib/discovery/shared";
 import { logger } from "./lib/ui/logger";
+import { loadJsonSync } from "./lib/utils/json-loader";
 import { getPackageRoot } from "./lib/utils/package-root";
+import {
+  getAuthModulesPath,
+  getDatabaseModulesPath,
+  getModuleJsonPath,
+} from "./lib/utils/path-resolver";
 
-const packageJson = JSON.parse(readFileSync(join(__dirname, "../package.json"), "utf-8"));
-
-function buildOptionHints() {
-  try {
-    const pkgRoot = getPackageRoot();
-    const modulesDir = join(pkgRoot, "modules");
-    const dbs: string[] = [];
-    const auths: string[] = [];
-
-    if (fs.existsSync(join(modulesDir, "database"))) {
-      for (const d of fs.readdirSync(join(modulesDir, "database"))) {
-        const moduleJson = join(modulesDir, "database", d, "module.json");
-        if (fs.existsSync(moduleJson)) {
-          try {
-            const m = JSON.parse(readFileSync(moduleJson, "utf-8"));
-            if (m && m.name === "prisma") {
-              try {
-                const providers = getPrismaProvidersFromGenerator(getPackageRoot());
-                if (providers.length > 0) {
-                  for (const p of providers) dbs.push(`prisma-${p}`);
-                } else {
-                  dbs.push("prisma");
-                }
-              } catch {
-                dbs.push("prisma");
-              }
-            } else if (m && m.name) {
-              dbs.push(m.name);
-            }
-          } catch {
-            // ignore malformed module.json
-          }
-        }
-      }
-    }
-
-    if (fs.existsSync(join(modulesDir, "auth"))) {
-      for (const a of fs.readdirSync(join(modulesDir, "auth"))) {
-        const moduleJson = join(modulesDir, "auth", a, "module.json");
-        if (fs.existsSync(moduleJson)) {
-          try {
-            const m = JSON.parse(readFileSync(moduleJson, "utf-8"));
-            if (m && m.name) auths.push(m.name);
-          } catch {
-            // ignore malformed module.json
-          }
-        }
-      }
-    }
-
-    return {
-      databaseHint: dbs.length > 0 ? dbs.join(", ") : "none",
-      authHint: auths.length > 0 ? auths.join(", ") : "none",
-    };
-  } catch {
-    return { databaseHint: "none", authHint: "none" };
-  }
+interface PackageJsonType {
+  version: string;
 }
 
-const hints = buildOptionHints();
+const packageJson = loadJsonSync<PackageJsonType>(join(__dirname, "../package.json"));
 
 interface CreateOptions {
   framework?: string;
@@ -103,12 +54,58 @@ interface ListOptions {
   modules?: boolean;
 }
 
+function buildOptionHints() {
+  try {
+    const databaseModulesPath = getDatabaseModulesPath();
+    const authModulesPath = getAuthModulesPath();
+    const dbs: string[] = [];
+    const auths: string[] = [];
+
+    if (fs.existsSync(databaseModulesPath)) {
+      for (const d of fs.readdirSync(databaseModulesPath)) {
+        const moduleJson = getModuleJsonPath(MODULE_CATEGORIES.DATABASE, d);
+        if (fs.existsSync(moduleJson)) {
+          const m = loadJsonSync<{ name?: string }>(moduleJson);
+          if (m && m.name === "prisma") {
+            const providers = getPrismaProvidersFromGenerator(getPackageRoot());
+            if (providers.length > 0) {
+              providers.forEach((p) => dbs.push(`prisma-${p}`));
+            } else {
+              dbs.push("prisma");
+            }
+          } else if (m && m.name) {
+            dbs.push(m.name);
+          }
+        }
+      }
+    }
+
+    if (fs.existsSync(authModulesPath)) {
+      for (const a of fs.readdirSync(authModulesPath)) {
+        const moduleJson = getModuleJsonPath(MODULE_CATEGORIES.AUTH, a);
+        if (fs.existsSync(moduleJson)) {
+          const m = loadJsonSync<{ name?: string }>(moduleJson);
+          if (m && m.name) auths.push(m.name);
+        }
+      }
+    }
+
+    return {
+      databaseHint: dbs.length > 0 ? dbs.join(", ") : "none",
+      authHint: auths.length > 0 ? auths.join(", ") : "none",
+    };
+  } catch {
+    return { databaseHint: "none", authHint: "none" };
+  }
+}
+
+const hints = buildOptionHints();
 const program = new Command();
 
 program
   .name("stackkit")
   .description("CLI for creating and managing StackKit projects")
-  .version(packageJson.version)
+  .version(packageJson?.version || "0.0.0")
   .configureHelp({
     subcommandTerm: (cmd) => {
       const name = cmd.name();
@@ -121,7 +118,6 @@ program
     },
   });
 
-// Create command
 program
   .command("create [project-name]")
   .description("Create a new StackKit project")
@@ -144,7 +140,6 @@ program
     }
   });
 
-// Add command
 program
   .command("add [module]")
   .description("Add a module or category to your existing project")
@@ -163,7 +158,6 @@ program
     }
   });
 
-// Doctor command
 program
   .command("doctor")
   .description("Check project health and compatibility with StackKit modules")
@@ -179,7 +173,6 @@ program
     }
   });
 
-// List command
 program
   .command("list")
   .description("List available frameworks and modules")
@@ -194,7 +187,6 @@ program
     }
   });
 
-// Error handling
 program.on("command:*", () => {
   logger.error(`Invalid command: ${program.args.join(" ")}`);
   logger.log("Run stackkit --help for a list of available commands.");

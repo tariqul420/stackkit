@@ -1,5 +1,6 @@
 import fs from "fs-extra";
 import path from "path";
+import { EXCLUDE_FROM_COPY, FILE_NAMES } from "../constants";
 import { logger } from "../ui/logger";
 
 export interface PackageJsonConfig {
@@ -22,10 +23,7 @@ export async function copyBaseFramework(
   }
 
   await fs.copy(baseDir, targetDir, {
-    filter: (src) => {
-      const basename = path.basename(src);
-      return !["template.json", "config.json", "node_modules", ".git"].includes(basename);
-    },
+    filter: (src) => !EXCLUDE_FROM_COPY.includes(path.basename(src) as any),
   });
 }
 
@@ -33,22 +31,17 @@ export async function mergePackageJson(
   targetDir: string,
   config: PackageJsonConfig,
 ): Promise<void> {
-  const pkgPath = path.join(targetDir, "package.json");
-
-  if (!(await fs.pathExists(pkgPath))) {
-    return;
-  }
+  const pkgPath = path.join(targetDir, FILE_NAMES.PACKAGE_JSON);
+  if (!(await fs.pathExists(pkgPath))) return;
 
   const pkg = await fs.readJson(pkgPath);
 
   if (config.dependencies) {
     pkg.dependencies = { ...pkg.dependencies, ...config.dependencies };
   }
-
   if (config.devDependencies) {
     pkg.devDependencies = { ...pkg.devDependencies, ...config.devDependencies };
   }
-
   if (config.scripts) {
     pkg.scripts = { ...pkg.scripts, ...config.scripts };
   }
@@ -60,58 +53,25 @@ export async function mergeEnvFile(
   targetDir: string,
   envVars: Record<string, string>,
 ): Promise<void> {
-  const envPath = path.join(targetDir, ".env");
+  const envPath = path.join(targetDir, FILE_NAMES.ENV);
+  let content = "";
 
-  let existingEnv = "";
   if (await fs.pathExists(envPath)) {
-    existingEnv = await fs.readFile(envPath, "utf-8");
+    content = await fs.readFile(envPath, "utf-8");
   }
 
-  const envLines = existingEnv.split("\n").filter((line) => line.trim() !== "");
+  const lines = content.split("\n").filter((line) => line.trim() !== "");
 
-  // Add new variables
   for (const [key, value] of Object.entries(envVars)) {
-    const existingIndex = envLines.findIndex((line) => line.startsWith(`${key}=`));
+    const existingIndex = lines.findIndex((line) => line.startsWith(`${key}=`));
     if (existingIndex !== -1) {
-      envLines[existingIndex] = `${key}=${value}`;
+      lines[existingIndex] = `${key}=${value}`;
     } else {
-      envLines.push(`${key}=${value}`);
+      lines.push(`${key}=${value}`);
     }
   }
 
-  await fs.writeFile(envPath, envLines.join("\n") + "\n", "utf-8");
-}
-
-export async function copyTemplate(
-  templatePath: string,
-  targetPath: string,
-  projectName: string,
-): Promise<void> {
-  if (!(await fs.pathExists(templatePath))) {
-    throw new Error(`Template not found: ${templatePath}`);
-  }
-
-  // Create target directory
-  await fs.ensureDir(targetPath);
-
-  // Copy all files
-  await fs.copy(templatePath, targetPath, {
-    filter: (src) => {
-      const basename = path.basename(src);
-      // Skip template.json metadata file and node_modules
-      return basename !== "template.json" && basename !== "node_modules";
-    },
-  });
-
-  // Update package.json with project name
-  const packageJsonPath = path.join(targetPath, "package.json");
-  if (await fs.pathExists(packageJsonPath)) {
-    const packageJson = await fs.readJSON(packageJsonPath);
-    packageJson.name = projectName;
-    await fs.writeJSON(packageJsonPath, packageJson, { spaces: 2 });
-  }
-
-  logger.success(`Template copied to ${targetPath}`);
+  await fs.writeFile(envPath, lines.join("\n") + "\n", "utf-8");
 }
 
 export async function createFile(

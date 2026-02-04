@@ -3,44 +3,77 @@ title: Prisma
 description: Add Prisma ORM to your project
 ---
 
-import { ModuleProviders, ModuleCreateCommands } from "@/components/docs-meta";
-
-## When to use
-
-Using Prisma ORM with PostgreSQL, MongoDB, MySQL, or SQLite.
+Modern ORM with support for PostgreSQL, MySQL, MongoDB, and SQLite.
 
 ## Installation
 
 ### New project
 
-<ModuleCreateCommands moduleType="database" moduleName="prisma" cliPrefix={"npx stackkit@latest create my-app"} />
+```bash
+# PostgreSQL
+npx stackkit@latest create my-app --database prisma-postgresql
+
+# MySQL
+npx stackkit@latest create my-app --database prisma-mysql
+
+# SQLite
+npx stackkit@latest create my-app --database prisma-sqlite
+
+# MongoDB
+npx stackkit@latest create my-app --database prisma-mongodb
+```
 
 ### Existing project
 
 ```bash
-# Interactive mode
 npx stackkit@latest add
-
-# Non-interactive mode
-npx stackkit@latest add database --provider prisma-postgresql
+# Select "Database" → "Prisma" → Choose provider
 ```
-
-## Providers
-
-<ModuleProviders moduleType="database" moduleName="prisma" />
 
 ## What gets generated
 
-- `prisma/schema.prisma`: Database schema
-- `lib/db.ts`: Prisma client
-- Migrations directory
+- `prisma/schema.prisma` - Database schema
+- `lib/db.ts` - Prisma client instance
+- `prisma/migrations/` - Migration history
+- Environment variable template
 
 ## Setup
 
-1. Set `DATABASE_URL` in `.env`
-2. Run `npx prisma migrate dev`
-3. Run `npx prisma generate`
+1. Copy `.env.example` to `.env`
+2. Set your `DATABASE_URL`
+3. Run migrations:
+   ```bash
+   npx prisma migrate dev --name init
+   npx prisma generate
+   ```
+4. Start dev server
 
-Next steps:
-- [Environment Variables](/docs/reference/environment-variables)
-- [Mongoose](/docs/modules/database/mongoose) for alternatives
+## Common Commands
+
+```bash
+npx prisma migrate dev    # Create and apply migration
+npx prisma generate       # Generate Prisma Client
+npx prisma studio         # Open database GUI
+npx prisma db push        # Push schema without migration
+```
+
+## Environment Variables
+
+```bash
+# PostgreSQL
+DATABASE_URL="postgresql://user:password@localhost:5432/mydb"
+
+# MySQL
+DATABASE_URL="mysql://user:password@localhost:3306/mydb"
+
+# MongoDB
+DATABASE_URL="mongodb://localhost:27017/mydb"
+
+# SQLite
+DATABASE_URL="file:./dev.db"
+```
+
+## Next Steps
+
+- [Mongoose](/docs/modules/database/mongoose) - Alternative for MongoDB
+- [Troubleshooting](/docs/reference/troubleshooting) - Common issues

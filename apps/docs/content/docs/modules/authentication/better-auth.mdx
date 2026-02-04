@@ -3,11 +3,13 @@ title: Better Auth
 description: Add Better Auth to your project
 ---
 
-import { ModuleRequirements } from "@/components/docs-meta";
+TypeScript-first authentication for Next.js, Express, and React.
 
-## When to use
+## Compatible Frameworks
 
-Implementing authentication with Better Auth (TypeScript-first, open source).
+- Next.js
+- Express
+- React
 
 ## Installation
 
@@ -24,21 +26,30 @@ npx stackkit@latest add
 # Select "Authentication" → "Better Auth"
 ```
 
-## Compatible frameworks
-
-<ModuleRequirements moduleType="auth" moduleName="better-auth" />
-
 ## What gets generated
 
-- `lib/auth.ts`: Auth configuration
-- API routes (Next.js)
-- Environment variables in `.env.example`
+- `lib/auth.ts` - Auth configuration
+- API routes (framework-specific)
+- Environment variable template
 
 ## Setup
 
-1. Set `BETTER_AUTH_SECRET` in `.env`
-2. Set `BETTER_AUTH_URL` for production
+1. Copy `.env.example` to `.env`
+2. Generate secret:
+   ```bash
+   openssl rand -base64 32
+   ```
+3. Add your secret and URL to `.env`
+4. Start dev server
 
-Next steps:
-- [Environment Variables](/docs/reference/environment-variables)
-- [Auth.js](/docs/modules/auth/authjs) for alternatives
+## Environment Variables
+
+```bash
+BETTER_AUTH_SECRET="your-secret-key"
+BETTER_AUTH_URL="http://localhost:3000"
+```
+
+## Next Steps
+
+- [Auth.js](/docs/modules/authentication/authjs) - Alternative for Next.js
+- [Troubleshooting](/docs/reference/troubleshooting) - Common issues

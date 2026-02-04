@@ -3,6 +3,7 @@ import fs from "fs-extra";
 import path from "path";
 import { getPrismaProvidersFromGenerator } from "../lib/discovery/shared";
 import { logger } from "../lib/ui/logger";
+import { getAllModules } from "../lib/utils/module-loader";
 import { getPackageRoot } from "../lib/utils/package-root";
 import { ModuleMetadata } from "../types";
 
@@ -19,92 +20,25 @@ export async function listCommand(options: ListOptions): Promise<void> {
     logger.header("StackKit Resources");
     logger.newLine();
 
-    let hasFrameworks = false;
-    let hasModules = false;
+    let hasContent = false;
 
     if (showFrameworks) {
-      const templatesDir = path.join(getPackageRoot(), "templates");
-      const frameworks = await getAvailableFrameworks(templatesDir);
-
+      const frameworks = await getAvailableFrameworks();
       if (frameworks.length > 0) {
-        hasFrameworks = true;
-        logger.log(chalk.bold.blue("FRAMEWORKS"));
-
-        frameworks.forEach((framework, index) => {
-          const isLast = index === frameworks.length - 1;
-          const prefix = isLast ? "└──" : "├──";
-          logger.log(
-            `  ${chalk.gray(prefix)} ${chalk.cyan(framework.displayName || framework.name)}`,
-          );
-        });
-        logger.newLine();
+        hasContent = true;
+        printFrameworks(frameworks);
       }
     }
 
     if (showModules) {
-      const modulesDir = path.join(getPackageRoot(), "modules");
-      const modules = await getAvailableModules(modulesDir);
-
+      const modules = await getAvailableModules();
       if (modules.length > 0) {
-        hasModules = true;
-        logger.log(chalk.bold.magenta("MODULES"));
-
-        const grouped = modules.reduce(
-          (acc, mod) => {
-            const cat = (mod.category as string) || "other";
-            if (!acc[cat]) acc[cat] = [];
-            acc[cat].push(mod);
-            return acc;
-          },
-          {} as Record<string, ModuleMetadata[]>,
-        );
-
-        const categories = Object.keys(grouped);
-        categories.forEach((category, categoryIndex) => {
-          const mods = grouped[category];
-          const isLastCategory = categoryIndex === categories.length - 1;
-          const categoryPrefix = isLastCategory ? "└──" : "├──";
-
-          logger.log(
-            `  ${chalk.gray(categoryPrefix)} ${chalk.yellow(formatCategoryName(category))} ${chalk.dim(`(${mods.length})`)}`,
-          );
-
-          mods.forEach((mod, modIndex) => {
-            const isLastMod = modIndex === mods.length - 1;
-            const modPrefix = isLastCategory
-              ? isLastMod
-                ? "    └──"
-                : "    ├──"
-              : isLastMod
-                ? "│   └──"
-                : "│   ├──";
-            logger.log(`  ${chalk.gray(modPrefix)} ${chalk.green(mod.displayName)}`);
-
-            if (mod.category === "database" && mod.name === "prisma") {
-              const providerPrefix = isLastCategory
-                ? isLastMod
-                  ? "        └──"
-                  : "        ├──"
-                : isLastMod
-                  ? "│       └──"
-                  : "│       ├──";
-              // Derive provider list directly from the Prisma generator metadata
-              const providers = getPrismaProvidersFromGenerator(getPackageRoot());
-              const providersText = providers.length
-                ? providers.map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join(", ")
-                : "None";
-
-              logger.log(
-                `  ${chalk.gray(providerPrefix)} ${chalk.dim(`Providers: ${providersText}`)}`,
-              );
-            }
-          });
-        });
-        logger.newLine();
+        hasContent = true;
+        printModules(modules);
       }
     }
 
-    if (!hasFrameworks && !hasModules) {
+    if (!hasContent) {
       logger.log(chalk.dim("No resources available"));
       logger.newLine();
     }
@@ -117,22 +51,96 @@ export async function listCommand(options: ListOptions): Promise<void> {
   }
 }
 
-async function getAvailableFrameworks(
-  templatesDir: string,
-): Promise<{ name: string; displayName: string }[]> {
+function printFrameworks(frameworks: Array<{ name: string; displayName: string }>): void {
+  logger.log(chalk.bold.blue("FRAMEWORKS"));
+  frameworks.forEach((framework, index) => {
+    const isLast = index === frameworks.length - 1;
+    const prefix = isLast ? "└──" : "├──";
+    logger.log(`  ${chalk.gray(prefix)} ${chalk.cyan(framework.displayName)}`);
+  });
+  logger.newLine();
+}
+
+function printModules(modules: ModuleMetadata[]): void {
+  logger.log(chalk.bold.magenta("MODULES"));
+
+  const grouped = groupModulesByCategory(modules);
+  const categories = Object.keys(grouped);
+
+  categories.forEach((category, categoryIndex) => {
+    const mods = grouped[category];
+    const isLastCategory = categoryIndex === categories.length - 1;
+    const categoryPrefix = isLastCategory ? "└──" : "├──";
+
+    logger.log(
+      `  ${chalk.gray(categoryPrefix)} ${chalk.yellow(formatCategoryName(category))} ${chalk.dim(`(${mods.length})`)}`,
+    );
+
+    mods.forEach((mod, modIndex) => {
+      const isLastMod = modIndex === mods.length - 1;
+      const modPrefix = getModulePrefix(isLastCategory, isLastMod);
+      logger.log(`  ${chalk.gray(modPrefix)} ${chalk.green(mod.displayName)}`);
+
+      if (mod.category === "database" && mod.name === "prisma") {
+        printPrismaProviders(isLastCategory, isLastMod);
+      }
+    });
+  });
+  logger.newLine();
+}
+
+function printPrismaProviders(isLastCategory: boolean, isLastMod: boolean): void {
+  const providerPrefix = getProviderPrefix(isLastCategory, isLastMod);
+  const providers = getPrismaProvidersFromGenerator(getPackageRoot());
+  const providersText = providers.length
+    ? providers.map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join(", ")
+    : "None";
+  logger.log(`  ${chalk.gray(providerPrefix)} ${chalk.dim(`Providers: ${providersText}`)}`);
+}
+
+function getModulePrefix(isLastCategory: boolean, isLastMod: boolean): string {
+  if (isLastCategory) {
+    return isLastMod ? "    └──" : "    ├──";
+  }
+  return isLastMod ? "│   └──" : "│   ├──";
+}
+
+function getProviderPrefix(isLastCategory: boolean, isLastMod: boolean): string {
+  if (isLastCategory) {
+    return isLastMod ? "        └──" : "        ├──";
+  }
+  return isLastMod ? "│       └──" : "│       ├──";
+}
+
+function groupModulesByCategory(modules: ModuleMetadata[]): Record<string, ModuleMetadata[]> {
+  return modules.reduce(
+    (acc, mod) => {
+      const cat = (mod.category as string) || "other";
+      if (!acc[cat]) acc[cat] = [];
+      acc[cat].push(mod);
+      return acc;
+    },
+    {} as Record<string, ModuleMetadata[]>,
+  );
+}
+
+async function getAvailableFrameworks(): Promise<Array<{ name: string; displayName: string }>> {
+  const templatesDir = path.join(getPackageRoot(), "templates");
   if (!(await fs.pathExists(templatesDir))) {
     return [];
   }
 
   const frameworkDirs = await fs.readdir(templatesDir);
-  const frameworks = frameworkDirs
+  return frameworkDirs
     .filter((dir) => dir !== "node_modules" && dir !== ".git")
     .map((dir) => ({
       name: dir,
       displayName: formatFrameworkName(dir),
     }));
+}
 
-  return frameworks;
+async function getAvailableModules(): Promise<ModuleMetadata[]> {
+  return getAllModules();
 }
 
 function formatFrameworkName(name: string): string {
@@ -144,32 +152,4 @@ function formatFrameworkName(name: string): string {
 
 function formatCategoryName(name: string): string {
   return name.charAt(0).toUpperCase() + name.slice(1);
-}
-
-async function getAvailableModules(modulesDir: string): Promise<ModuleMetadata[]> {
-  if (!(await fs.pathExists(modulesDir))) {
-    return [];
-  }
-
-  const modules: ModuleMetadata[] = [];
-  const categories = await fs.readdir(modulesDir);
-
-  for (const category of categories) {
-    const categoryPath = path.join(modulesDir, category);
-    const stat = await fs.stat(categoryPath);
-
-    if (!stat.isDirectory()) continue;
-
-    const moduleDirs = await fs.readdir(categoryPath);
-
-    for (const moduleDir of moduleDirs) {
-      const metadataPath = path.join(categoryPath, moduleDir, "module.json");
-      if (await fs.pathExists(metadataPath)) {
-        const metadata = await fs.readJSON(metadataPath);
-        modules.push(metadata);
-      }
-    }
-  }
-
-  return modules;
 }

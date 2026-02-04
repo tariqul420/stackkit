@@ -16,8 +16,7 @@ import { getPrismaProvidersFromGenerator, parseDatabaseOption } from "../lib/dis
 import { addEnvVariables } from "../lib/env/env-editor";
 import { FrameworkUtils } from "../lib/framework/framework-utils";
 import { AdvancedCodeGenerator } from "../lib/generation/code-generator";
-import { initGit } from "../lib/git-utils";
-import { installDependencies } from "../lib/pm/package-manager";
+import { initGit, installDependencies } from "../lib/pm/package-manager";
 import { logger } from "../lib/ui/logger";
 import { getPackageRoot } from "../lib/utils/package-root";
 

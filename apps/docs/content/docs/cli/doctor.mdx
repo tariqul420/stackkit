@@ -1,43 +1,116 @@
 ---
 title: doctor
-description: Check project health
+description: Diagnose and validate your project
 ---
 
-## When to use
+import { Callout } from 'fumadocs-ui/components/callout';
 
-Verifying your StackKit project setup and compatibility.
+Verify your project is correctly configured and catch issues early.
 
 ## Command
 
 ```bash
-npx stackkit@latest doctor [options]
+npx stackkit@latest doctor
+```
+
+## What It Checks
+
+- Node.js version compatibility
+- Package manager detected
+- Framework configuration
+- Module installations
+- Dependencies installed
+- Environment variables documented
+- Configuration files valid
+
+## Output Example
+
+```
+Diagnosing project...
+
+✓ Node.js 20.10.0
+✓ Framework: Next.js
+✓ Database: Prisma (PostgreSQL)
+✓ Auth: Better Auth
+✓ Dependencies installed
+
+Warnings:
+  • DATABASE_URL not set in .env
+  • BETTER_AUTH_SECRET missing
+
+Recommendations:
+  1. Copy .env.example to .env
+  2. Generate secret: openssl rand -base64 32
+
+Health: Good (2 warnings)
 ```
 
 ## Options
 
-- `--json`: Output as JSON
-- `--verbose`: Show detailed information
-- `--strict`: Treat warnings as errors
+| Option | Description |
+|--------|-------------|
+| `--verbose` | Show detailed information |
+| `--json` | Output as JSON (for CI/CD) |
+| `--strict` | Exit with error on warnings |
 
-## Checks performed
+## Usage
 
-- Node.js version (minimum 18)
-- Package manager detection
-- Framework compatibility
-- Required dependencies
-- Environment variables
-- Database schemas
-- Auth configurations
+### After Project Creation
 
-## Example output
-
-```
-✓ Node.js version: 20.10.0
-✓ Framework: nextjs
-✓ Database: prisma
-⚠ Missing: DATABASE_URL in .env
-✗ Invalid: NEXTAUTH_SECRET not set
+```bash
+stackkit create my-app
+cd my-app
+stackkit doctor
 ```
 
-Next steps:
-- [Environment Variables](/docs/reference/environment-variables) for setup
+### After Adding Modules
+
+```bash
+stackkit add
+stackkit doctor
+```
+
+### In CI/CD
+
+```bash
+stackkit doctor --strict --json
+```
+
+## Common Issues
+
+### Missing Environment Variables
+
+**Problem:** Variables documented in `.env.example` but not in `.env`
+
+**Solution:**
+```bash
+cp .env.example .env
+# Edit .env with your values
+```
+
+### Outdated Dependencies
+
+**Problem:** Package versions don't match requirements
+
+**Solution:**
+```bash
+npm install
+```
+
+### Prisma Client Not Generated
+
+**Problem:** `@prisma/client` not found
+
+**Solution:**
+```bash
+npx prisma generate
+```
+
+<Callout type="info">
+  Run `doctor` regularly to catch configuration drift.
+</Callout>
+
+## Next Steps
+
+- [Troubleshooting](/docs/reference/troubleshooting) - Full issue guide
+- [Environment Variables](/docs/reference/environment-variables) - Required vars
