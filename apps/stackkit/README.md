@@ -1,34 +1,109 @@
 # StackKit CLI
 
-CLI for scaffolding and composing modular JavaScript applications.
+Production-ready full-stack project generator.
 
-## Quick Start
+## Installation
 
-Create a new project without installing globally:
+No installation required. Use npx to get the latest version:
 
 ```bash
+npx stackkit@latest <command>
+```
+
+## Commands
+
+### create
+
+Generate a new project:
+
+```bash
+# Interactive mode
 npx stackkit@latest create my-app
+
+# With options
+npx stackkit@latest create my-app \
+  --framework nextjs \
+  --database prisma-postgresql \
+  --auth better-auth \
+  --language typescript
 ```
 
-Add features to an existing project:
+**Options:**
+- `--framework, -f` - nextjs, express, react
+- `--database, -d` - prisma-postgresql, prisma-mysql, prisma-sqlite, prisma-mongodb, mongoose, none
+- `--auth, -a` - better-auth, authjs, none
+- `--language, -l` - typescript, javascript
+- `--package-manager, -p` - pnpm, npm, yarn, bun
+- `--yes, -y` - Use defaults
+- `--skip-install` - Don't install dependencies
+- `--no-git` - Don't initialize git
+
+### add
+
+Add features to existing project:
 
 ```bash
-npx stackkit@latest add <module>
+npx stackkit@latest add
 ```
 
-Check project health:
+Interactively select and install modules.
+
+### doctor
+
+Diagnose project health:
 
 ```bash
 npx stackkit@latest doctor
+
+# Verbose output
+npx stackkit@latest doctor --verbose
+
+# JSON output (for CI/CD)
+npx stackkit@latest doctor --json
 ```
 
-## Supported technologies
+### list
 
-- Frameworks: Next.js, React, Express
-- Databases: Prisma, Mongoose
-- Auth: Auth.js / Better Auth
+Show available options:
+
+```bash
+npx stackkit@latest list
+```
+
+## Supported Technologies
+
+**Frameworks:**
+- Next.js (App Router)
+- Express (TypeScript API)
+- React (Vite SPA)
+
+**Databases:**
+- Prisma (PostgreSQL, MySQL, SQLite, MongoDB)
+- Mongoose (MongoDB)
+
+**Authentication:**
+- Better Auth (All frameworks)
+- Auth.js (Next.js only)
+
+## Examples
+
+```bash
+# Full-stack Next.js
+npx stackkit@latest create my-app --framework nextjs --database prisma-postgresql --auth better-auth
+
+# Express API
+npx stackkit@latest create my-api --framework express --database mongoose
+
+# React frontend
+npx stackkit@latest create my-spa --framework react --auth better-auth
+```
 
 ## Links
 
-- Website: https://stackkit.tariqul.dev
-- Repo: https://github.com/tariqul420/stackkit
+- **Documentation**: https://stackkit.tariqul.dev
+- **GitHub**: https://github.com/tariqul420/stackkit
+- **Issues**: https://github.com/tariqul420/stackkit/issues
+
+## License
+
+MIT © [Tariqul Islam](https://github.com/tariqul420)

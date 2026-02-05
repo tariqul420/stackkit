@@ -1,37 +1,124 @@
 # StackKit
 
-⚡ Production-ready CLI toolkit for generating modular web projects
+Production-ready full-stack project generator with zero configuration.
 
 [![npm](https://img.shields.io/npm/v/stackkit)](https://www.npmjs.com/package/stackkit)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![GitHub Stars](https://img.shields.io/github/stars/tariqul420/stackkit)](https://github.com/tariqul420/stackkit)
 
-One-line: scaffold production-ready applications with composable modules and sensible defaults.
+Scaffold complete full-stack applications in seconds with your choice of framework, database, and authentication—all pre-configured and production-ready.
+
+## Features
+
+- Project ready in under 60 seconds
+- Framework support: Next.js, Express, React
+- Multiple databases: PostgreSQL, MySQL, MongoDB, SQLite
+- Authentication: Better Auth or Auth.js
+- Modular architecture - add features incrementally
+- TypeScript-first with strict mode
+- Production-ready with best practices built-in
+- Built-in health diagnostics
 
 ## Requirements
 
-- Node: >= 20 (see `package.json` engines)
-- pnpm: >= 8 (recommended)
+- Node.js >= 18
+- npm, pnpm, yarn, or bun
 
 ## Quick Start
 
-Create a new project without installing globally:
+### Create New Project
 
 ```bash
+# Interactive mode (recommended)
 npx stackkit@latest create my-app
+
+# Or specify everything upfront
+npx stackkit@latest create my-app \
+  --framework nextjs \
+  --database prisma-postgresql \
+  --auth better-auth
 ```
 
-Add modules to an existing project:
+### Add Features to Existing Project
 
 ```bash
-npx stackkit@latest add auth
-npx stackkit@latest add database
-```
+# Add authentication
+npx stackkit@latest add
 
-Check project health:
-
-```bash
+# Verify project health
 npx stackkit@latest doctor
 ```
+
+## Available Options
+
+### Frameworks
+- **Next.js** - Full-stack React with App Router
+- **Express** - Node.js REST API with TypeScript
+- **React** - Frontend SPA with Vite
+
+### Databases
+- **Prisma** - PostgreSQL, MySQL, MongoDB, SQLite
+- **Mongoose** - MongoDB ODM
+
+### Authentication
+- **Better Auth** - TypeScript-first auth for all frameworks
+- **Auth.js** - NextAuth.js v5 for Next.js
+
+## Examples
+
+```bash
+# Next.js with PostgreSQL and Better Auth
+npx stackkit@latest create my-app \
+  --framework nextjs \
+  --database prisma-postgresql \
+  --auth better-auth
+
+# Express API with MongoDB
+npx stackkit@latest create my-api \
+  --framework express \
+  --database mongoose \
+  --auth better-auth
+
+# React SPA with authentication
+npx stackkit@latest create my-spa \
+  --framework react \
+  --auth better-auth
+
+# Minimal start, add features later
+npx stackkit@latest create my-app --framework nextjs --database none
+cd my-app
+npx stackkit@latest add
+```
+
+## CLI Commands
+
+| Command | Description |
+|---------|-------------|
+| `create <name>` | Generate new project |
+| `add` | Add features to existing project |
+| `doctor` | Diagnose project health |
+| `list` | Show available options |
+| `--help` | Show help for any command |
+
+## What You Get
+
+Every StackKit project includes:
+- TypeScript with strict configuration
+- ESLint with recommended rules
+- Environment variable management
+- Git initialization with .gitignore
+- Package scripts for dev, build, and production
+- Comprehensive README with setup instructions
+- Module-specific configurations
+
+## Documentation
+
+Full documentation: https://stackkit.tariqul.dev
+
+- [Quick Start Guide](https://stackkit.tariqul.dev/docs/getting-started/quickstart)
+- [CLI Reference](https://stackkit.tariqul.dev/docs/cli/overview)
+- [Modules](https://stackkit.tariqul.dev/docs/modules)
+- [Troubleshooting](https://stackkit.tariqul.dev/docs/reference/troubleshooting)
 
 ## Development
 
