@@ -1,5 +1,5 @@
 services:
-  docs:
+  stackkit:
     container_name: stackkit-docs
     build:
       context: ../..

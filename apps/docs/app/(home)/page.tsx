@@ -1,22 +1,19 @@
-import { cn } from "@/lib/cn";
 import Link from "next/link";
 import CopyCommand from "../../components/copy-command";
 
 // Shared CSS classes
 const styles = {
-  section: "py-24",
+  section: "w-full",
   sectionHeader: "mx-auto max-w-3xl text-center",
-  sectionTitle: "text-4xl font-bold tracking-tight sm:text-5xl",
-  sectionDescription: "mt-6 text-xl text-fd-muted-foreground",
-  card: "group relative overflow-hidden rounded-2xl border border-fd-border bg-fd-card p-8 transition-all",
-  cardGlow: "absolute rounded-full bg-fd-primary/5 blur-2xl transition-all",
+  sectionTitle: "text-3xl font-bold tracking-tight sm:text-4xl",
+  sectionDescription: "mt-4 text-base text-fd-muted-foreground sm:text-lg",
+  card: "rounded-2xl border border-fd-border bg-fd-card p-6",
   iconWrapper:
     "flex items-center justify-center rounded-xl bg-fd-primary/10 text-fd-primary ring-1 ring-fd-primary/20",
   primaryButton:
-    "inline-flex h-12 items-center justify-center rounded-lg bg-fd-primary px-10 text-base font-medium text-fd-primary-foreground shadow-lg shadow-fd-primary/25 transition-all hover:scale-105 hover:shadow-xl hover:shadow-fd-primary/30",
+    "inline-flex h-11 items-center justify-center rounded-lg bg-fd-primary px-8 text-sm font-medium text-fd-primary-foreground transition-colors hover:bg-fd-primary/90",
   secondaryButton:
-    "inline-flex h-12 items-center justify-center rounded-lg border border-fd-border bg-fd-card/80 px-10 text-base font-medium backdrop-blur-sm transition-all hover:scale-105 hover:bg-fd-accent",
-  gradientText: "bg-linear-to-br from-fd-primary to-fd-primary/60 bg-clip-text text-transparent",
+    "inline-flex h-11 items-center justify-center rounded-lg border border-fd-border bg-fd-card px-8 text-sm font-medium transition-colors hover:bg-fd-accent",
 };
 
 const features = [
@@ -30,7 +27,7 @@ const features = [
       />
     ),
     title: "Lightning Fast",
-    description: "From zero to running app in under 60 seconds",
+    description: "Scaffold a full-stack project in under one minute.",
   },
   {
     icon: (
@@ -42,7 +39,7 @@ const features = [
       />
     ),
     title: "Production Ready",
-    description: "Best practices, error handling, and security baked in",
+    description: "Sensible defaults, clean structure, and robust tooling included.",
   },
   {
     icon: (
@@ -54,141 +51,100 @@ const features = [
       />
     ),
     title: "Modular",
-    description: "Start minimal, add features as you grow",
-  },
-  {
-    icon: (
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
-      />
-    ),
-    title: "Type Safe",
-    description: "End-to-end TypeScript with strict mode by default",
-  },
-  {
-    icon: (
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"
-      />
-    ),
-    title: "Database Flexibility",
-    description: "PostgreSQL, MySQL, MongoDB, SQLite with Prisma or Mongoose",
-  },
-  {
-    icon: (
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-      />
-    ),
-    title: "Auth Ready",
-    description: "Better Auth and Auth.js with complete setup",
+    description: "Start minimal and add auth or database modules when needed.",
   },
 ];
 
-const stackCategories = [
+const quickSteps = [
   {
-    icon: (
-      <path d="M12 0L1.75 6v12L12 24l10.25-6V6L12 0zm0 2.15l8.5 4.97v9.76L12 21.85l-8.5-4.97V7.12L12 2.15z" />
-    ),
-    title: "Frameworks",
-    items: ["Next.js", "React", "Express"],
+    title: "Pick your stack",
+    description: "Select framework, database, and auth based on your project needs.",
   },
   {
-    icon: (
-      <path d="M12 1C8.5 1 5.5 2.5 5.5 4.5v15c0 2 3 3.5 6.5 3.5s6.5-1.5 6.5-3.5v-15C18.5 2.5 15.5 1 12 1zm0 2c2.5 0 4.5 1 4.5 1.5S14.5 6 12 6 7.5 5 7.5 4.5 9.5 3 12 3zm0 18c-2.5 0-4.5-1-4.5-1.5V18c1 .5 2.7.8 4.5.8s3.5-.3 4.5-.8v1.5c0 .5-2 1.5-4.5 1.5z" />
-    ),
-    title: "Databases",
-    items: ["Prisma", "Mongoose"],
+    title: "Generate project",
+    description: "Run one command to scaffold a production-ready structure.",
   },
   {
-    icon: (
-      <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z" />
-    ),
-    title: "Authentication",
-    items: ["Better Auth", "Auth.js"],
+    title: "Iterate safely",
+    description: "Add modules and run checks as your app grows.",
   },
 ];
 
-const stats = [
-  { value: "3", label: "Frameworks" },
-  { value: "12+", label: "Combinations" },
-  { value: "100%", label: "Type Safe" },
-  { value: "<60s", label: "Setup Time" },
+const resources = [
+  {
+    title: "Quick Start",
+    description: "Setup your first app with the recommended workflow.",
+    href: "/docs/getting-started/quickstart",
+  },
+  {
+    title: "CLI Reference",
+    description: "See all commands, flags, and usage examples.",
+    href: "/docs/cli/overview",
+  },
+  {
+    title: "Troubleshooting",
+    description: "Fix common setup and runtime issues quickly.",
+    href: "/docs/reference/troubleshooting",
+  },
 ];
 
 export default function HomePage() {
   return (
-    <div className="container mx-auto flex max-w-6xl flex-col items-center">
+    <div className="container mx-auto flex max-w-6xl flex-col items-center gap-20 pb-24">
       {/* Hero Section */}
-      <section className="text-center flex flex-col items-center justify-center gap-8 pt-10 pb-32">
-        <div className="inline-flex items-center gap-2 rounded-full border border-fd-primary/20 bg-fd-card/50 px-4 py-1.5 text-xs font-medium backdrop-blur-sm">
-          <span className="relative flex size-2">
-            <span className="absolute inline-flex size-full animate-ping rounded-full bg-fd-primary opacity-75"></span>
-            <span className="relative inline-flex size-2 rounded-full bg-fd-primary"></span>
-          </span>
-          <span>Production-Ready in 60 Seconds</span>
-        </div>
+      <section className="relative w-full pt-10">
+        <div className="rounded-3xl border border-fd-border bg-fd-card/60 px-6 py-12 text-center backdrop-blur-sm sm:px-10 md:py-16">
+          <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-fd-primary/20 bg-fd-card px-4 py-1.5 text-xs font-medium text-fd-muted-foreground">
+            <span className="size-2 rounded-full bg-fd-primary" />
+            Production-ready in under 60 seconds
+          </div>
 
-        <div className="space-y-6">
-          <h1 className="max-w-5xl text-5xl font-bold tracking-tight sm:text-6xl md:text-7xl lg:text-8xl">
-            Ship Production-Ready Apps
-            <br />
-            <span className="bg-linear-to-r from-fd-primary via-fd-primary to-fd-primary/60 bg-clip-text text-transparent">
-              in 60 Seconds
-            </span>
-          </h1>
-          <p className="mx-auto max-w-3xl text-lg text-fd-muted-foreground sm:text-xl md:text-2xl">
-            Generate production-ready full-stack projects with your choice of framework, database,
-            and authentication—all configured in seconds.
-          </p>
-        </div>
+          <div className="mx-auto mt-7 max-w-4xl space-y-5">
+            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
+              Build and ship full-stack apps faster
+            </h1>
+            <p className="mx-auto max-w-2xl text-base text-fd-muted-foreground sm:text-lg md:text-xl">
+              StackKit scaffolds a clean project foundation with your framework, database, and auth
+              choices—so your team can focus on product, not setup.
+            </p>
+          </div>
 
-        <div className="flex flex-col items-center gap-4 sm:flex-row">
-          <Link href="/docs" className={styles.primaryButton}>
-            Get Started →
-          </Link>
-          <a
-            href="https://github.com/tariqul420/stackkit"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`${styles.secondaryButton} gap-2`}
-          >
-            <svg className="size-5" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-            </svg>
-            <span>Star on GitHub</span>
-          </a>
-        </div>
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Link href="/docs/getting-started/quickstart" className={styles.primaryButton}>
+              Get Started
+            </Link>
+            <a
+              href="https://github.com/tariqul420/stackkit"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${styles.secondaryButton} gap-2`}
+            >
+              <svg className="size-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+              </svg>
+              <span>Star on GitHub</span>
+            </a>
+          </div>
 
-        {/* Command Box */}
-        <CopyCommand />
+          <div className="mx-auto mt-9 max-w-3xl">
+            <CopyCommand />
+          </div>
+        </div>
       </section>
 
       {/* Features Grid */}
       <section className={styles.section}>
-        <div className={cn(styles.sectionHeader, "pb-16")}>
-          <h2 className={styles.sectionTitle}>Built for developers who value their time</h2>
+        <div className="mx-auto max-w-3xl pb-10 text-center">
+          <h2 className={styles.sectionTitle}>Why teams choose StackKit</h2>
           <p className={styles.sectionDescription}>
-            Enterprise-grade features without the enterprise setup time
+            Built for teams who want reliable defaults and faster delivery.
           </p>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-3">
           {features.map((feature, index) => (
             <div key={index} className={styles.card}>
-              <div
-                className={`${styles.cardGlow} -right-8 -top-8 size-32 group-hover:bg-fd-primary/10`}
-              />
-              <div className="relative space-y-4">
+              <div className="space-y-4">
                 <div className={`${styles.iconWrapper} size-14`}>
                   <svg className="size-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     {feature.icon}
@@ -202,70 +158,60 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Stack Showcase */}
+      {/* How It Works */}
       <section className={styles.section}>
-        <div className={cn(styles.sectionHeader, "mb-16")}>
-          <h2 className={styles.sectionTitle}>Your stack, your choice</h2>
-          <p className={styles.sectionDescription}>All combinations tested and production-proven</p>
+        <div className="mx-auto max-w-3xl pb-10 text-center">
+          <h2 className={styles.sectionTitle}>How it works</h2>
+          <p className={styles.sectionDescription}>A simple path from idea to production setup.</p>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-3">
-          {stackCategories.map((category, index) => (
-            <div key={index} className={`${styles.card} hover:shadow-xl`}>
-              <div
-                className={`${styles.cardGlow} -right-4 -top-4 size-24 blur-xl group-hover:scale-150`}
-              />
-              <div className="relative space-y-6">
-                <div className="flex items-center gap-4">
-                  <div className={`${styles.iconWrapper} size-12`}>
-                    <svg className="size-6" fill="currentColor" viewBox="0 0 24 24">
-                      {category.icon}
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-semibold">{category.title}</h3>
-                </div>
-                <ul className="space-y-3 text-fd-muted-foreground">
-                  {category.items.map((item, itemIndex) => (
-                    <li key={itemIndex} className="flex items-center gap-3">
-                      <span>✔</span>
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
+        <div className="grid gap-6 md:grid-cols-3">
+          {quickSteps.map((step, index) => (
+            <div key={step.title} className={styles.card}>
+              <div className="inline-flex size-8 items-center justify-center rounded-full bg-fd-primary/10 text-sm font-semibold text-fd-primary">
+                {index + 1}
               </div>
+              <h3 className="mt-4 text-lg font-semibold">{step.title}</h3>
+              <p className="mt-2 text-sm text-fd-muted-foreground">{step.description}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Stats */}
+      {/* Resources */}
       <section className={styles.section}>
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-          {stats.map((stat, index) => (
-            <div key={index} className="group relative">
-              <div className="relative flex flex-col items-center justify-center rounded-2xl border border-fd-border bg-fd-card p-8 text-center">
-                <div className={`mb-2 text-5xl font-bold ${styles.gradientText}`}>{stat.value}</div>
-                <div className="text-sm font-medium text-fd-muted-foreground">{stat.label}</div>
-              </div>
-            </div>
+        <div className="mx-auto max-w-3xl pb-10 text-center">
+          <h2 className={styles.sectionTitle}>Essential resources</h2>
+          <p className={styles.sectionDescription}>
+            Use these docs to get started and troubleshoot quickly.
+          </p>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-3">
+          {resources.map((resource) => (
+            <Link
+              key={resource.title}
+              href={resource.href}
+              className="rounded-xl border border-fd-border bg-fd-card px-5 py-4 transition-colors hover:border-fd-primary/30 hover:bg-fd-accent"
+            >
+              <h3 className="text-base font-semibold">{resource.title}</h3>
+              <p className="mt-1 text-sm text-fd-muted-foreground">{resource.description}</p>
+            </Link>
           ))}
         </div>
       </section>
 
       {/* CTA */}
-      <section className="container relative px-6 py-32">
-        <div className="absolute inset-0 -z-10 bg-linear-to-t from-fd-primary/5 to-transparent rounded-lg" />
+      <section className="w-full">
         <div className="mx-auto max-w-4xl">
-          <div className="relative overflow-hidden rounded-3xl border border-fd-border bg-fd-card/50 p-12 text-center backdrop-blur-sm md:p-16">
-            <div className="absolute -right-12 -top-12 size-48 rounded-full bg-fd-primary/10 blur-3xl" />
-            <div className="absolute -bottom-12 -left-12 size-48 rounded-full bg-fd-primary/10 blur-3xl" />
-            <div className="relative space-y-8">
+          <div className="rounded-3xl border border-fd-border bg-fd-card p-10 text-center md:p-14">
+            <div className="space-y-6">
               <div className="space-y-4">
-                <h2 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-                  Start building instead of configuring
+                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+                  Ready to launch faster?
                 </h2>
-                <p className="mx-auto max-w-2xl text-lg text-fd-muted-foreground md:text-xl">
-                  Join developers shipping faster with StackKit. Get started in 60 seconds.
+                <p className="mx-auto max-w-2xl text-base text-fd-muted-foreground sm:text-lg">
+                  Follow the quick start and generate your first project in under a minute.
                 </p>
               </div>
               <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
