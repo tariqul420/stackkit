@@ -1,17 +1,19 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
+import { catchAsync } from "../../shared/utils/ catch-async";
+import { sendResponse } from "../../shared/utils/send-response";
 
-const health = async (_req: Request, res: Response, next: NextFunction) => {
-  try {
-    res.status(200).json({
-      success: true,
-      message: "API is healthy!",
+const health = catchAsync(async (_req: Request, res: Response) => {
+
+  sendResponse(res, {
+    status: 200,
+    success: true,
+    message: "Health test route is working!",
+    data: {
       timestamp: new Date().toISOString(),
       version: "1.0.0",
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+    },
+  });
+});
 
 export const healthController = {
   health,

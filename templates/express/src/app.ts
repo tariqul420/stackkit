@@ -1,20 +1,28 @@
+import cookieParser from "cookie-parser";
 import express, { Application, Request, Response } from "express";
+import helmet from "helmet";
+import qs from "qs";
 import { cors } from "./config/cors";
-import { helmet } from "./config/helmet";
 import { logger } from "./config/logger";
 import { limiter } from "./config/rate-limit";
 import { apiRoutes } from "./routes";
-import { errorHandler } from "./shared/middlewares/error.middleware";
+import { globalErrorHandler } from "./shared/middlewares/error.middleware";
 import { notFound } from "./shared/middlewares/not-found.middleware";
 
 // app initialization
 const app: Application = express();
-app.use(express.json());
 
-app.use(helmet);
+// Use qs for query parsing to support nested query parameters
+app.set("query parser", (str: string) => qs.parse(str));
+
+// middlewares
+app.use(express.json());
+app.use(helmet());
 app.use(logger);
 app.use(cors);
 app.use(limiter);
+app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
 
 // trust proxy when behind proxies (load balancers)
 if (process.env.NODE_ENV === "production") {
@@ -33,12 +41,12 @@ app.get("/", (_req: Request, res: Response) => {
 });
 
 // API routes
-app.use("/api", apiRoutes);
+app.use("/api/v1", apiRoutes);
 
 // unhandled routes
 app.use(notFound);
 
 // Global error handler
-app.use(errorHandler);
+app.use(globalErrorHandler);
 
-export default app;
+export { app };
