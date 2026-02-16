@@ -17,26 +17,14 @@
     },
     {
       "type": "create-file",
-      "source": "shared/lib/email/email-service.ts",
-      "destination": "server/service/email/email-service.ts",
+      "source": "shared/lib/email/*",
+      "destination": "server/service/email/*",
       "condition": { "framework": ["nextjs"] }
     },
     {
       "type": "create-file",
-      "source": "shared/lib/email/email-service.ts",
-      "destination": "src/shared/email/email-service.ts",
-      "condition": { "framework": ["express"] }
-    },
-    {
-      "type": "create-file",
-      "source": "shared/lib/email/email-templates.ts",
-      "destination": "server/service/email/email-templates.ts",
-      "condition": { "framework": ["nextjs"] }
-    },
-    {
-      "type": "create-file",
-      "source": "shared/lib/email/email-templates.ts",
-      "destination": "src/shared/email/email-templates.ts",
+      "source": "shared/lib/email/*",
+      "destination": "src/shared/email/*",
       "condition": { "framework": ["express"] }
     },
     {

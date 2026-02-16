@@ -23,7 +23,7 @@ export async function copyBaseFramework(
   }
 
   await fs.copy(baseDir, targetDir, {
-    filter: (src) => !EXCLUDE_FROM_COPY.includes(path.basename(src) as any),
+    filter: (src) => !EXCLUDE_FROM_COPY.some((entry) => entry === path.basename(src)),
   });
 }
 

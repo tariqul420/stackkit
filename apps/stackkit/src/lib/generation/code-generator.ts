@@ -724,44 +724,142 @@ export class AdvancedCodeGenerator {
   ): Promise<void> {
     if (!operation.destination) return;
 
-    const destinationPath = path.join(
-      outputPath,
-      this.processTemplate(operation.destination, context),
-    );
-
-    // Ensure directory exists
-    await fs.ensureDir(path.dirname(destinationPath));
-
-    let content: string;
+    const processedDestination = this.processTemplate(operation.destination, context);
+    const { basePath: destinationBasePath, mode: destinationMode } =
+      this.parsePathPattern(processedDestination);
 
     if (operation.content) {
-      // Use content directly
-      content = this.processTemplate(operation.content, context);
-    } else if (operation.source) {
-      const sourcePath = locateOperationSource(
-        operation.generatorType,
-        operation.generator,
-        operation.source || "",
-      );
-
-      if (sourcePath && (await fs.pathExists(sourcePath))) {
-        content = await fs.readFile(sourcePath, "utf-8");
-        content = this.processTemplate(content, context);
-      } else {
-        throw new Error(`Source file not found: ${sourcePath}`);
+      const destinationPath = path.join(outputPath, processedDestination);
+      await fs.ensureDir(path.dirname(destinationPath));
+      const content = this.processTemplate(operation.content, context);
+      await fs.writeFile(destinationPath, content, "utf-8");
+      try {
+        const rel = path.relative(outputPath, destinationPath);
+        if (rel && !this.createdFiles.includes(rel)) this.createdFiles.push(rel);
+      } catch {
+        // ignore logging failures
       }
-    } else {
+      return;
+    }
+
+    if (!operation.source) {
       throw new Error(`Create file operation must have either 'content' or 'source' field`);
     }
 
-    // Write destination file
+    const processedSource = this.processTemplate(operation.source, context);
+    const { basePath: sourceBasePathRel, mode: sourceMode } = this.parsePathPattern(processedSource);
+    const sourcePath = locateOperationSource(
+      operation.generatorType,
+      operation.generator,
+      sourceBasePathRel,
+    );
+
+    if (!sourcePath || !(await fs.pathExists(sourcePath))) {
+      throw new Error(`Source file not found: ${sourcePath}`);
+    }
+
+    const sourceStat = await fs.stat(sourcePath);
+    const shouldCreateMultipleFiles = sourceStat.isDirectory() || sourceMode !== "single";
+
+    if (shouldCreateMultipleFiles) {
+      if (!sourceStat.isDirectory()) {
+        throw new Error(`Source path must be a directory for wildcard copy: ${processedSource}`);
+      }
+
+      let sourceFiles: string[] = [];
+      if (sourceMode === "flat") {
+        const entries = await fs.readdir(sourcePath);
+        for (const entry of entries) {
+          const candidatePath = path.join(sourcePath, entry);
+          const candidateStat = await fs.stat(candidatePath);
+          if (candidateStat.isFile()) {
+            sourceFiles.push(candidatePath);
+          }
+        }
+      } else {
+        sourceFiles = await this.collectFilesRecursively(sourcePath);
+      }
+
+      for (const sourceFilePath of sourceFiles) {
+        let relativeDestinationPath: string;
+
+        if (destinationMode === "recursive") {
+          relativeDestinationPath = path.relative(sourcePath, sourceFilePath);
+        } else if (destinationMode === "flat") {
+          relativeDestinationPath = path.basename(sourceFilePath);
+        } else {
+          relativeDestinationPath =
+            sourceMode === "flat"
+              ? path.basename(sourceFilePath)
+              : path.relative(sourcePath, sourceFilePath);
+        }
+
+        const destinationPath = path.join(outputPath, destinationBasePath, relativeDestinationPath);
+
+        await fs.ensureDir(path.dirname(destinationPath));
+        let content = await fs.readFile(sourceFilePath, "utf-8");
+        content = this.processTemplate(content, context);
+        await fs.writeFile(destinationPath, content, "utf-8");
+
+        try {
+          const rel = path.relative(outputPath, destinationPath);
+          if (rel && !this.createdFiles.includes(rel)) this.createdFiles.push(rel);
+        } catch {
+          // ignore logging failures
+        }
+      }
+
+      return;
+    }
+
+    const destinationPath =
+      destinationMode === "single"
+        ? path.join(outputPath, processedDestination)
+        : path.join(outputPath, destinationBasePath, path.basename(sourcePath));
+
+    await fs.ensureDir(path.dirname(destinationPath));
+    let content = await fs.readFile(sourcePath, "utf-8");
+    content = this.processTemplate(content, context);
     await fs.writeFile(destinationPath, content, "utf-8");
+
     try {
       const rel = path.relative(outputPath, destinationPath);
       if (rel && !this.createdFiles.includes(rel)) this.createdFiles.push(rel);
     } catch {
       // ignore logging failures
     }
+  }
+
+  private parsePathPattern(inputPath: string): {
+    basePath: string;
+    mode: "single" | "flat" | "recursive";
+  } {
+    const normalizedPath = inputPath.replace(/\\/g, "/");
+    if (normalizedPath.endsWith("/**")) {
+      return { basePath: normalizedPath.slice(0, -3), mode: "recursive" };
+    }
+    if (normalizedPath.endsWith("/*")) {
+      return { basePath: normalizedPath.slice(0, -2), mode: "flat" };
+    }
+    return { basePath: normalizedPath, mode: "single" };
+  }
+
+  private async collectFilesRecursively(rootDirPath: string): Promise<string[]> {
+    const files: string[] = [];
+    const entries = await fs.readdir(rootDirPath);
+
+    for (const entry of entries) {
+      const fullPath = path.join(rootDirPath, entry);
+      const stat = await fs.stat(fullPath);
+
+      if (stat.isDirectory()) {
+        files.push(...(await this.collectFilesRecursively(fullPath)));
+      } else if (stat.isFile()) {
+        files.push(fullPath);
+      }
+    }
+
+    return files;
   }
 
   private async executePatchFile(

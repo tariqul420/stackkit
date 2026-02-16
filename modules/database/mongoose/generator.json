@@ -34,7 +34,7 @@
       "operations": [
         {
           "type": "add-import",
-          "imports": ["import { mongoose } from \"../lib/mongoose\";"]
+          "imports": ["import { mongoose } from \"./database/mongoose\";"]
         },
         {
           "type": "add-code",
@@ -46,7 +46,7 @@
     {
       "type": "add-env",
       "envVars": {
-        "MONGODB_URI": "mongodb://localhost:27017/database_name"
+        "DATABASE_URL": "mongodb://localhost:27017/database_name"
       }
     },
     {

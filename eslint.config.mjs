@@ -11,7 +11,15 @@ export default [
       parser: tseslint.parser,
     },
     rules: {
-      "no-unused-vars": "warn",
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+        },
+      ],
       "no-console": "warn",
       "no-debugger": "error",
       "no-empty": "warn",

@@ -44,7 +44,7 @@ export async function isDirectory(dirPath: string): Promise<boolean> {
 
 export async function findFilesInDir(
   dirPath: string,
-  predicate: (file: string) => boolean,
+  predicate: (fileName: string) => boolean,
 ): Promise<string[]> {
   const exists = await pathExists(dirPath);
   if (!exists) return [];
