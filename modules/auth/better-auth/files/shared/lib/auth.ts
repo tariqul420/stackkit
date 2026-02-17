@@ -2,6 +2,7 @@ import { Role, UserStatus } from "@prisma/client";
 import { betterAuth } from "better-auth";
 import { bearer, emailOTP } from "better-auth/plugins";
 {{#if combo == "prisma:express"}}
+import { envVars } from "../config/env";
 import { sendEmail } from "../shared/utils/email";
 import { prisma } from "../database/prisma";
 import { prismaAdapter } from "better-auth/adapters/prisma";
@@ -14,6 +15,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 {{/if}}
 
 {{#if combo == "mongoose:express"}}
+import { envVars } from "../config/env";
 import { sendEmail } from "../../shared/email/email-service";
 import { mongoose } from "../../database/mongoose";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";

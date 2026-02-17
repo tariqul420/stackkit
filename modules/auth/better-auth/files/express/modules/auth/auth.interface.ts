@@ -17,7 +17,7 @@ export interface IChangePasswordPayload {
 }
 
 export interface IRequestUser {
-  userId: string;
-  role: Role;
+  id: string;
+  role: Role | string;
   email: string;
 }

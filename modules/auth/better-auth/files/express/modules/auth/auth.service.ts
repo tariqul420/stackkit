@@ -113,11 +113,11 @@ const loginUser = async (payload: ILoginUserPayload) => {
 
 const getMe = async (user : IRequestUser) => {
     const isUserExists = await prisma.user.findUnique({
-        where : {
-            id : user.userId,
-        },
-        // Include other related models if needed
-    })
+      where: {
+        id: user.id,
+      },
+      // Include other related models if needed
+    });
 
     if (!isUserExists) {
         throw new AppError(status.NOT_FOUND, "User not found");

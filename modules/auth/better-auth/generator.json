@@ -58,6 +58,12 @@
     },
     {
       "type": "create-file",
+      "source": "express/templates/*",
+      "destination": "src/templates/*",
+      "condition": { "framework": "express" }
+    },
+    {
+      "type": "create-file",
       "source": "express/middlewares/authorize.ts",
       "destination": "src/shared/middlewares/authorize.middleware.ts",
       "condition": { "framework": "express" }
@@ -91,7 +97,7 @@
         },
         {
           "type": "add-code",
-          "before": "const port = env.port;",
+          "before": "app.listen(envVars.PORT, () => {",
           "code": "await setupAuth();"
         }
       ]
@@ -110,7 +116,8 @@
         {
           "type": "add-import",
           "imports": ["import { auth } from \"./lib/auth\";",
-          "import { toNodeHandler } from \"better-auth/node\";"]
+          "import { toNodeHandler } from \"better-auth/node\";", 
+          "import path from \"path\";"]
         },
         {
           "type": "add-code",
@@ -118,13 +125,40 @@
           "code": [
             "app.use(\"/api/auth\", toNodeHandler(auth));"
           ]
+        },
+        {
+          "type": "add-code",
+          "after": "app.set(\"query parser\", (str: string) => qs.parse(str));",
+          "code": [
+            "app.set(\"view engine\", \"ejs\");",
+            "app.set(\"views\", path.resolve(process.cwd(), `src/templates`));"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "patch-file",
+      "destination": "src/routes/index.ts",
+      "condition": { "framework": "express" },
+      "operations": [
+        {
+          "type": "add-import",
+          "imports": ["import { authRoutes } from \"../modules/auth/auth.route\";"]
+        },
+        {
+          "type": "add-code",
+          "after": "router.use(\"/health\", healthRoutes);",
+          "code": [
+            "router.use(\"/auth\", authRoutes);"
+          ]
         }
       ]
     },
     {
       "type": "add-dependency",
       "dependencies": {
-        "nodemailer": "^7.0.12"
+        "nodemailer": "^7.0.12",
+        "better-auth": "^1.4.12"
       },
       "devDependencies": {
         "@types/nodemailer": "^7.0.5"
@@ -145,20 +179,23 @@
     {
       "type": "add-env",
       "envVars": {
-        "BETTER_AUTH_SECRET": "",
-        "BETTER_AUTH_URL": "http://localhost:3000",
-        "EMAIL_HOST": "smtp.gmail.com",
-        "EMAIL_PORT": "587",
-        "EMAIL_USER": "",
-        "EMAIL_PASS": "",
-        "EMAIL_FROM": "noreply@yourapp.com"
+        "BETTER_AUTH_URL": "http://localhost:3000/api/auth",
+        "BETTER_AUTH_SECRET": "your_better_auth_secret",
+        "BETTER_AUTH_SESSION_TOKEN_EXPIRES_IN": "1d",
+        "BETTER_AUTH_SESSION_TOKEN_UPDATE_AGE": "1d",
+        "ACCESS_TOKEN_SECRET": "your_access_token_secret",
+        "ACCESS_TOKEN_EXPIRES_IN": "1d",
+        "REFRESH_TOKEN_SECRET": "your_refresh_token_secret",
+        "REFRESH_TOKEN_EXPIRES_IN": "7d",
+        "GOOGLE_CALLBACK_URL": "http://localhost:5000/api/auth/callback/google",
+        "EMAIL_SENDER_SMTP_USER": "your_email@gmail.com",
+        "EMAIL_SENDER_SMTP_PASS": "your_email_password",
+        "EMAIL_SENDER_SMTP_HOST": "smtp.gmail.com",
+        "EMAIL_SENDER_SMTP_PORT": "465",
+        "EMAIL_SENDER_SMTP_FROM": "your_email@gmail.com",
+        "SUPER_ADMIN_EMAIL": "your_email@gmail.com",
+        "SUPER_ADMIN_PASSWORD": "your_super_admin_password"
         }
-      },
-    {
-      "type": "add-dependency",
-      "dependencies": {
-        "better-auth": "^1.4.12"
       }
-    }
   ]
 }

@@ -38,7 +38,7 @@
         },
         {
           "type": "add-code",
-          "after": "async function startServer() {",
+          "after": "try {",
           "code": "await mongoose();"
         }
       ]

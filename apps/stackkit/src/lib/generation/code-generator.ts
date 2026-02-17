@@ -185,8 +185,7 @@ export class AdvancedCodeGenerator {
       const varNameMatch = result.substring(varStart + 7, equalsIndex).trim();
       if (!varNameMatch) break;
 
-      // Find the end of the variable value by counting braces
-      // Start with braceCount = 1 because {{#var is already open
+      // Find the closing }} for the variable definition, accounting for nested {{#var}}...{{/var}}
       let braceCount = 1;
       const valueStart = equalsIndex + 1;
       let valueEnd = valueStart;
@@ -554,19 +553,6 @@ export class AdvancedCodeGenerator {
           );
         },
       });
-      // If template provides a .env.example, create a .env from it when
-      // the target project does not already have a .env file.
-      try {
-        const envExampleSrc = path.join(templatePath, ".env.example");
-        const envDest = path.join(outputPath, ".env");
-        if ((await fs.pathExists(envExampleSrc)) && !(await fs.pathExists(envDest))) {
-          await fs.copy(envExampleSrc, envDest);
-        }
-      } catch {
-        // ignore (not critical)
-      }
-      // Ensure gitignore is present in target even if template authors
-      // renamed it to avoid npm/package issues (e.g. 'gitignore' or '_gitignore')
       try {
         const gitCandidates = [".gitignore", "gitignore", "_gitignore"];
         for (const g of gitCandidates) {
@@ -582,7 +568,6 @@ export class AdvancedCodeGenerator {
       } catch {
         // ignore
       }
-      // Ensure any top-level dotfiles declared in template.json are created
       try {
         const templateJsonPath = path.join(templatePath, "template.json");
         if (await fs.pathExists(templateJsonPath)) {
@@ -607,9 +592,7 @@ export class AdvancedCodeGenerator {
                   continue;
                 }
 
-                // For other dotfiles (e.g. .env.example), only create if the template
-                // actually contains a dotfile source. Don't synthesize from non-dot fallbacks
-                // to avoid creating files unintentionally.
+                // For other dotfiles, only copy if the exact dotfile exists in the template to avoid unintended fallbacks
                 const srcDot = path.join(templatePath, f);
                 if (await fs.pathExists(srcDot)) {
                   await fs.copy(srcDot, targetDest);
@@ -657,6 +640,17 @@ export class AdvancedCodeGenerator {
         }
       } catch {
         // ignore
+      }
+
+      // Handle .env.example -> .env copying if .env doesn't already exist
+      try {
+        const envExampleDest = path.join(outputPath, ".env.example");
+        const envDest = path.join(outputPath, ".env");
+        if ((await fs.pathExists(envExampleDest)) && !(await fs.pathExists(envDest))) {
+          await fs.copy(envExampleDest, envDest);
+        }
+      } catch {
+        // ignore (not critical)
       }
     }
   }
@@ -885,15 +879,13 @@ export class AdvancedCodeGenerator {
         switch (patchOp.type) {
           case "add-import":
             if (patchOp.imports) {
-              // Process imports and trim any accidental surrounding blank lines
               const imports = patchOp.imports
                 .map((imp) => this.processTemplate(imp, context))
                 .join("\n")
                 .replace(/^\n+/, "")
                 .replace(/\n+$/, "");
 
-              // Add imports at the top, after existing imports without introducing
-              // extra blank lines.
+              // Split content into lines for easier manipulation
               const lines = content.split("\n");
               // Find the last import line index
               let lastImportIndex = -1;
@@ -901,9 +893,7 @@ export class AdvancedCodeGenerator {
                 if (lines[i].trim().startsWith("import")) lastImportIndex = i;
               }
 
-              // Insert right after the last import. If there's a blank line
-              // immediately after the imports, overwrite that blank line to
-              // avoid introducing an extra empty line above the inserted imports.
+              // Determine where to insert new imports: after the last existing import, or at the top if no imports exist
               const insertIndex = lastImportIndex === -1 ? 0 : lastImportIndex + 1;
 
               // Only add imports that don't already exist in the file
@@ -924,15 +914,13 @@ export class AdvancedCodeGenerator {
                   lines.splice(insertIndex, 0, ...newImportLines);
                 }
 
-                // After insertion, ensure exactly one blank line after the import block
-                // Find last import line index again
+                // After adding imports, ensure there is exactly one blank line after the last import statement (if there are any imports)
                 let lastIdx = -1;
                 for (let i = 0; i < lines.length; i++) {
                   if (lines[i].trim().startsWith("import")) lastIdx = i;
                 }
                 const nextIdx = lastIdx + 1;
                 if (lastIdx !== -1) {
-                  // Remove multiple blank lines after imports
                   let j = nextIdx;
                   while (j < lines.length && lines[j].trim() === "") {
                     j++;
@@ -971,7 +959,6 @@ export class AdvancedCodeGenerator {
                   let codeNormalized = processedCode.replace(/^\n+|\n+$/g, "") + "\n";
 
                   // If right already starts with a newline, avoid double-blank by
-                  // removing trailing newline from codeNormalized so only one newline remains
                   const rightStartsWithNewline = right.startsWith("\n");
                   if (rightStartsWithNewline && codeNormalized.endsWith("\n")) {
                     codeNormalized = codeNormalized.replace(/\n+$/, "");
@@ -994,7 +981,6 @@ export class AdvancedCodeGenerator {
                   let codeNormalized = processedCode.replace(/^\n+|\n+$/g, "") + "\n";
 
                   // If right already starts with a newline, avoid double-blank by
-                  // removing trailing newline from codeNormalized so only one newline remains
                   const rightStartsWithNewline = right.startsWith("\n");
                   if (rightStartsWithNewline && codeNormalized.endsWith("\n")) {
                     codeNormalized = codeNormalized.replace(/\n+$/, "");
@@ -1193,8 +1179,7 @@ export class AdvancedCodeGenerator {
         (type === "database" && name === selectedModules.database) ||
         (type === "auth" && name === selectedModules.auth)
       ) {
-        // Dependencies and devDependencies are now provided via `add-dependency`
-        // operations. Keep merging scripts from generator configs for now.
+        // Merge dependencies, devDependencies, and scripts from the generator into the cumulative objects
         Object.assign(allScripts, generator.scripts);
       }
     }
@@ -1216,10 +1201,7 @@ export class AdvancedCodeGenerator {
     await fs.writeJson(packageJsonPath, packageJson, { spaces: 2 });
   }
 
-  /**
-   * Apply generators to an existing project directory instead of creating a new template.
-   * This executes applicable operations and updates package.json in-place.
-   */
+  // Public method to apply generators to an existing project (used for "Add to existing project" flow)
   async applyToProject(
     selectedModules: {
       framework: string;
@@ -1311,9 +1293,7 @@ export class AdvancedCodeGenerator {
     return { frameworks, databases, auths };
   }
 
-  /**
-   * Register a generator config dynamically (used for modules that only provide module.json patches).
-   */
+  // Method to register a generator configuration
   registerGenerator(
     type: "framework" | "database" | "auth",
     name: string,

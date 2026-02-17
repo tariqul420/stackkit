@@ -12,7 +12,7 @@ import { notFound } from "./shared/middlewares/not-found.middleware";
 // app initialization
 const app: Application = express();
 
-// Use qs for query parsing to support nested query parameters
+// app settings
 app.set("query parser", (str: string) => qs.parse(str));
 
 // middlewares

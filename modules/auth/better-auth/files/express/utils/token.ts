@@ -1,9 +1,8 @@
 import { Response } from "express";
 import { JwtPayload, SignOptions } from "jsonwebtoken";
-import { envVars } from "../config/env";
+import { envVars } from "../../config/env";
+import { jwtUtils } from "./ jwt";
 import { cookieUtils } from "./cookie";
-import { jwtUtils } from "./jwt";
-
 
 //Creating access token
 const getAccessToken = (payload: JwtPayload) => {
@@ -24,7 +23,6 @@ const getRefreshToken = (payload: JwtPayload) => {
     );
     return refreshToken;
 }
-
 
 const setAccessTokenCookie = (res: Response, token: string) => {
     cookieUtils.setCookie(res, 'accessToken', token, {
@@ -58,8 +56,6 @@ const setBetterAuthSessionCookie = (res: Response, token: string) => {
         maxAge: 60 * 60 * 24 * 1000,
     });
 }
-
-
 
 export const tokenUtils = {
     getAccessToken,
