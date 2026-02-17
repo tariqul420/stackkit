@@ -52,15 +52,18 @@ npx stackkit@latest doctor
 ## Available Options
 
 ### Frameworks
+
 - **Next.js** - Full-stack React with App Router
 - **Express** - Node.js REST API with TypeScript
 - **React** - Frontend SPA with Vite
 
 ### Databases
+
 - **Prisma** - PostgreSQL, MySQL, MongoDB, SQLite
 - **Mongoose** - MongoDB ODM
 
 ### Authentication
+
 - **Better Auth** - TypeScript-first auth for all frameworks
 - **Auth.js** - NextAuth.js v5 for Next.js
 
@@ -92,17 +95,18 @@ npx stackkit@latest add
 
 ## CLI Commands
 
-| Command | Description |
-|---------|-------------|
-| `create <name>` | Generate new project |
-| `add` | Add features to existing project |
-| `doctor` | Diagnose project health |
-| `list` | Show available options |
-| `--help` | Show help for any command |
+| Command         | Description                      |
+| --------------- | -------------------------------- |
+| `create <name>` | Generate new project             |
+| `add`           | Add features to existing project |
+| `doctor`        | Diagnose project health          |
+| `list`          | Show available options           |
+| `--help`        | Show help for any command        |
 
 ## What You Get
 
 Every StackKit project includes:
+
 - TypeScript with strict configuration
 - ESLint with recommended rules
 - Environment variable management

@@ -160,7 +160,7 @@ export async function initGit(cwd: string): Promise<void> {
   const run = async (stdio: "pipe" | "inherit") => {
     await execa("git", ["init"], { cwd, stdio });
     await execa("git", ["add", "."], { cwd, stdio });
-    
+
     try {
       await execa("git", ["config", "user.name"], { cwd, stdio: "pipe" });
       await execa("git", ["config", "user.email"], { cwd, stdio: "pipe" });

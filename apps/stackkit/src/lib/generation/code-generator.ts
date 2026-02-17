@@ -747,7 +747,8 @@ export class AdvancedCodeGenerator {
     }
 
     const processedSource = this.processTemplate(operation.source, context);
-    const { basePath: sourceBasePathRel, mode: sourceMode } = this.parsePathPattern(processedSource);
+    const { basePath: sourceBasePathRel, mode: sourceMode } =
+      this.parsePathPattern(processedSource);
     const sourcePath = locateOperationSource(
       operation.generatorType,
       operation.generator,

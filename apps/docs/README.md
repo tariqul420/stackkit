@@ -64,6 +64,7 @@ content/docs/        # MDX documentation
 ## Components
 
 Available components:
+
 - Callout - Info and warning boxes
 - Tabs - Tabbed content blocks
 - Steps - Step-by-step guides

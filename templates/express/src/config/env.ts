@@ -9,7 +9,6 @@ interface EnvConfig {
   NODE_ENV: string;
   PORT: string;
   FRONTEND_URL?: string;
-  isProduction: boolean;
 }
 
 const loadEnvVars = (): EnvConfig => {
@@ -28,8 +27,7 @@ const loadEnvVars = (): EnvConfig => {
     NODE_ENV: process.env.NODE_ENV as string,
     PORT: process.env.PORT as string,
     FRONTEND_URL: process.env.FRONTEND_URL as string,
-    isProduction: process.env.NODE_ENV === "production",
   };
 };
 
-export const env = loadEnvVars();
+export const envVars = loadEnvVars();

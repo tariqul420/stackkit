@@ -1,6 +1,6 @@
 import morgan from "morgan";
-import { env } from "./env";
+import { envVars } from "./env";
 
-const logger = env.isProduction ? morgan("combined") : morgan("dev");
+const logger = envVars.NODE_ENV === "production" ? morgan("combined") : morgan("dev");
 
 export { logger };

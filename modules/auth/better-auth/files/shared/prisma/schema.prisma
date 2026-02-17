@@ -4,16 +4,20 @@
 {{#var defaultId = @default(cuid())}}
 {{/if}}
 model User {
-    id            String    @id {{defaultId}}
-    name          String
-    email         String
-    emailVerified Boolean   @default(false)
-    image         String?
-    createdAt     DateTime  @default(now())
-    updatedAt     DateTime  @updatedAt
-    sessions      Session[]
-    accounts      Account[]
-    role          Role    @default(USER)
+    id                 String     @id {{defaultId}}
+    name               String
+    email              String
+    emailVerified      Boolean    @default(false)
+    role               Role       @default(USER)
+    status             UserStatus @default(ACTIVE)
+    needPasswordChange Boolean    @default(false)
+    isDeleted          Boolean    @default(false)
+    deletedAt          DateTime?
+    image              String?
+    createdAt          DateTime   @default(now())
+    updatedAt          DateTime   @updatedAt
+    sessions           Session[]
+    accounts           Account[]
 
     @@unique([email])
     @@map("user")
@@ -67,6 +71,13 @@ model Verification {
 }
 
 enum Role {
-    USER
+    SUPER_ADMIN
     ADMIN
+    USER
+}
+
+enum UserStatus {
+    ACTIVE
+    BLOCKED
+    DELETED
 }

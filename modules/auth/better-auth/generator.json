@@ -4,6 +4,17 @@
   "priority": 10,
   "operations": [
     {
+      "type": "patch-file",
+      "destination": "prisma/schema.prisma",
+      "condition": { "database": "prisma" },
+      "operations": [
+        {
+          "type": "add-to-bottom",
+          "source": "shared/prisma/schema.prisma"
+        }
+      ]
+    },
+    {
       "type": "create-file",
       "source": "shared/lib/auth.ts",
       "destination": "server/auth/auth.ts",
@@ -12,19 +23,7 @@
     {
       "type": "create-file",
       "source": "shared/lib/auth.ts",
-      "destination": "src/modules/auth/auth.ts",
-      "condition": { "framework": ["express"] }
-    },
-    {
-      "type": "create-file",
-      "source": "shared/lib/email/*",
-      "destination": "server/service/email/*",
-      "condition": { "framework": ["nextjs"] }
-    },
-    {
-      "type": "create-file",
-      "source": "shared/lib/email/*",
-      "destination": "src/shared/email/*",
+      "destination": "src/lib/auth.ts",
       "condition": { "framework": ["express"] }
     },
     {
@@ -44,6 +43,18 @@
       "source": "nextjs/lib/auth/auth-guards.ts",
       "destination": "server/auth/guards.ts",
       "condition": { "framework": "nextjs" }
+    },
+    {
+      "type": "create-file",
+      "source": "express/modules/auth/*",
+      "destination": "src/modules/auth/*",
+      "condition": { "framework": "express" }
+    },
+    {
+      "type": "create-file",
+      "source": "express/utils/*",
+      "destination": "src/shared/utils/*",
+      "condition": { "framework": "express" }
     },
     {
       "type": "create-file",
@@ -71,19 +82,8 @@
     },
     {
       "type": "patch-file",
-      "destination": "prisma/schema.prisma",
-      "condition": { "database": "prisma" },
-      "operations": [
-        {
-          "type": "add-to-bottom",
-          "source": "shared/prisma/schema.prisma"
-        }
-      ]
-    },
-    {
-      "type": "patch-file",
       "destination": "src/server.ts",
-      "condition": { "framework": "express" },
+      "condition": { "framework": "express", "database": "mongoose" },
       "operations": [
         {
           "type": "add-import",
@@ -97,37 +97,49 @@
       ]
     },
     {
+      "type": "create-file",
+      "source": "express/config/env.ts",
+      "destination": "src/config/env.ts",
+      "condition": { "framework": "express" }
+    },
+    {
       "type": "patch-file",
       "destination": "src/app.ts",
       "condition": { "framework": "express" },
       "operations": [
         {
           "type": "add-import",
-          "imports": ["import { auth } from \"./modules/auth/auth\";",
+          "imports": ["import { auth } from \"./lib/auth\";",
           "import { toNodeHandler } from \"better-auth/node\";"]
         },
         {
           "type": "add-code",
           "after": "// API routes",
           "code": [
-            "app.all(\"/api/auth/*splat\", (req: Request, res: Response) => {",
-            "  if (!auth) {",
-            "    return res.status(503).json({ success: false, message: \"Auth not ready\" });",
-            "  }",
-            "  return toNodeHandler(auth)(req, res);",
-            "});"
+            "app.use(\"/api/auth\", toNodeHandler(auth));"
           ]
         }
       ]
     },
     {
       "type": "add-dependency",
-      "condition": { "framework": ["nextjs", "express"] },
       "dependencies": {
         "nodemailer": "^7.0.12"
       },
       "devDependencies": {
         "@types/nodemailer": "^7.0.5"
+      }
+    },
+    {
+      "type": "add-dependency",
+      "condition": { "framework": "express" },
+      "dependencies": {
+        "ejs": "^4.0.1",
+        "jsonwebtoken": "^9.0.3"
+      },
+      "devDependencies": {
+        "@types/ejs": "^3.1.5",
+        "@types/jsonwebtoken": "^9.0.10"
       }
     },
     {

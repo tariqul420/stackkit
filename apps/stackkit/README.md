@@ -29,6 +29,7 @@ npx stackkit@latest create my-app \
 ```
 
 **Options:**
+
 - `--framework, -f` - nextjs, express, react
 - `--database, -d` - prisma-postgresql, prisma-mysql, prisma-sqlite, prisma-mongodb, mongoose, none
 - `--auth, -a` - better-auth, authjs, none
@@ -73,15 +74,18 @@ npx stackkit@latest list
 ## Supported Technologies
 
 **Frameworks:**
+
 - Next.js (App Router)
 - Express (TypeScript API)
 - React (Vite SPA)
 
 **Databases:**
+
 - Prisma (PostgreSQL, MySQL, SQLite, MongoDB)
 - Mongoose (MongoDB)
 
 **Authentication:**
+
 - Better Auth (All frameworks)
 - Auth.js (Next.js only)
 

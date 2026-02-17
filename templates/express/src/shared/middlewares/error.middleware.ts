@@ -1,6 +1,6 @@
 import { ErrorRequestHandler } from "express";
 import status from "http-status";
-import { env } from "../../config/env";
+import { envVars } from "../../config/env";
 import ApiError from "../errors/api-error";
 import { AppError } from "../errors/app-error";
 
@@ -84,7 +84,7 @@ const isZodLikeError = (
 };
 
 const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
-  const isDevelopment = env.NODE_ENV === "development";
+  const isDevelopment = envVars.NODE_ENV === "development";
 
   if (isDevelopment) {
     console.error("Global Error Handler:", err);
