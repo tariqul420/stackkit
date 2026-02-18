@@ -1,6 +1,6 @@
-import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { auth } from "./auth";
 
 export async function getSession() {
   const session = await auth.api.getSession({
@@ -8,6 +8,16 @@ export async function getSession() {
   });
 
   return session;
+}
+
+export async function requireSuperAdmin() {
+  const session = await getSession();
+
+  if (!session || session.user.role !== "SUPER_ADMIN") {
+    redirect("/login");
+  }
+
+  return session.user;
 }
 
 export async function requireAdmin() {

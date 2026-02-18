@@ -1,2 +1,87 @@
-<h2>Hello <%= name %></h2>
-<p>Your OTP is <b><%= otp %></b>. It will expire in 2 minutes.</p>
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>
+        <%= appName || "Your App" %> - Your OTP Code
+    </title>
+</head>
+
+<body style="margin:0; padding:0; background-color:#f3f4f6;">
+    <div style="display:none; max-height:0; overflow:hidden; opacity:0; color:transparent;">
+        Your one-time verification code is ready.
+    </div>
+
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+        style="background-color:#f3f4f6; padding:24px 12px;">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+                    style="max-width:600px; background:#ffffff; border:1px solid #e5e7eb; border-radius:12px; overflow:hidden;">
+                    <tr>
+                        <td
+                            style="padding:28px 24px 16px 24px; font-family:Arial, Helvetica, sans-serif; color:#111827;">
+                            <h1 style="margin:0; font-size:22px; line-height:30px; font-weight:700;">Verification Code
+                            </h1>
+                            <p style="margin:14px 0 0; font-size:15px; line-height:24px; color:#374151;">
+                                Hi <%= userName || "there" %>,
+                            </p>
+                            <p style="margin:10px 0 0; font-size:15px; line-height:24px; color:#374151;">
+                                Use the one-time password (OTP) below to verify your identity for <strong>
+                                    <%= appName || "your account" %>
+                                </strong>.
+                            </p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td align="center"
+                            style="padding:8px 24px 20px 24px; font-family:Arial, Helvetica, sans-serif;">
+                            <div
+                                style="display:inline-block; padding:12px 20px; border-radius:10px; border:1px solid #d1d5db; background:#f9fafb; letter-spacing:7px; font-size:28px; line-height:34px; font-weight:700; color:#111827;">
+                                <%= otp %>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding:0 24px 22px 24px; font-family:Arial, Helvetica, sans-serif; color:#4b5563;">
+                            <p style="margin:0; font-size:14px; line-height:22px;">
+                                This code will expire in <strong>
+                                    <%= expiresInMinutes || 2 %> minutes
+                                </strong>.
+                            </p>
+                            <p style="margin:10px 0 0; font-size:14px; line-height:22px;">
+                                If you didn’t request this code, please ignore this email and consider changing your
+                                password.
+                            </p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td
+                            style="padding:16px 24px 24px 24px; border-top:1px solid #e5e7eb; font-family:Arial, Helvetica, sans-serif; color:#6b7280;">
+                            <p style="margin:0; font-size:12px; line-height:18px;">
+                                For security, never share this OTP with anyone.
+                            </p>
+                            <p style="margin:6px 0 0; font-size:12px; line-height:18px;">
+                                Need help? Contact
+                                <a href="mailto:<%= supportEmail || " support@example.com" %>" style="color:#2563eb;
+                                    text-decoration:underline;"><%= supportEmail || "support@example.com" %></a>.
+                            </p>
+                            <p style="margin:6px 0 0; font-size:12px; line-height:18px;">
+                                © <%= year || new Date().getFullYear() %>
+                                    <%= appName || "Your App" %>. All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>

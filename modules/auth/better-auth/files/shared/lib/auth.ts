@@ -11,6 +11,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 {{#if combo == "prisma:nextjs"}}
 import { sendEmail } from "../service/email/email-service";
 import { prisma } from "../database/prisma";
+import { envVars } from "@/lib/env";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 {{/if}}
 
@@ -24,6 +25,7 @@ import { mongodbAdapter } from "better-auth/adapters/mongodb";
 {{#if combo == "mongoose:nextjs"}}
 import { sendEmail } from "../service/email/email-service";
 import { mongoose } from "../database/mongoose";
+import { envVars } from "@/lib/env";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 {{/if}}
 

@@ -17,7 +17,7 @@
     },
     {
       "type": "create-file",
-      "source": "express/config/env.ts",
+      "source": "shared/config/env.ts",
       "destination": "src/config/env.ts",
       "condition": { "framework": "express" }
     },
@@ -43,6 +43,12 @@
       "type": "create-file",
       "source": "express/utils/*",
       "destination": "src/shared/utils/*",
+      "condition": { "framework": "express" }
+    },
+    {
+      "type": "create-file",
+      "source": "shared/utils/email.ts",
+      "destination": "src/shared/utils/email.ts",
       "condition": { "framework": "express" }
     },
     {
@@ -143,7 +149,7 @@
       "type": "create-file",
       "source": "shared/lib/auth.ts",
       "destination": "server/auth/auth.ts",
-      "condition": { "framework": ["nextjs"] }
+      "condition": { "framework": "nextjs" }
     },
     {
       "type": "create-file",
@@ -171,9 +177,27 @@
     },
     {
       "type": "create-file",
+      "source": "shared/utils/email.ts",
+      "destination": "lib/utils/email.ts",
+      "condition": { "framework": "nextjs" }
+    },
+    {
+      "type": "create-file",
+      "source": "nextjs/templates/email-otp.tsx",
+      "destination": "lib/email/otp-template.tsx",
+      "condition": { "framework": "nextjs" }
+    },
+    {
+      "type": "create-file",
+      "source": "shared/config/env.ts",
+      "destination": "lib/env.ts",
+      "condition": { "framework": "nextjs" }
+    },
+    {
+      "type": "create-file",
       "source": "shared/lib/auth-client.ts",
       "destination": "src/shared/lib/auth-client.ts",
-      "condition": { "framework": ["react"] }
+      "condition": { "framework": "react" }
     },
     {
       "type": "patch-file",
