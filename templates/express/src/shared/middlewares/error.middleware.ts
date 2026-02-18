@@ -83,7 +83,7 @@ const isZodLikeError = (
   });
 };
 
-const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
+const errorHandler: ErrorRequestHandler = (err, _req, res) => {
   const isDevelopment = envVars.NODE_ENV === "development";
 
   if (isDevelopment) {

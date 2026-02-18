@@ -4,7 +4,7 @@ import { envVars } from "../../config/env";
 import { prisma } from "../../database/prisma";
 import { auth } from "../../lib/auth";
 import { AppError } from "../../shared/errors/app-error";
-import { jwtUtils } from "../../shared/utils/ jwt";
+import { jwtUtils } from "../../shared/utils/jwt";
 import { tokenUtils } from "../../shared/utils/token";
 import {
     IChangePasswordPayload,

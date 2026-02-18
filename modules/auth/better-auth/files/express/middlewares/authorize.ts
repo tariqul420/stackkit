@@ -4,8 +4,8 @@ import status from "http-status";
 import { envVars } from "../../config/env";
 import { prisma } from "../../database/prisma";
 import { AppError } from "../errors/app-error";
-import { jwtUtils } from "../utils/ jwt";
 import { cookieUtils } from "../utils/cookie";
+import { jwtUtils } from "../utils/jwt";
 
 export const authorize =
   (...authRoles: Role[]) =>

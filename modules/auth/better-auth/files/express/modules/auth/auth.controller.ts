@@ -3,7 +3,7 @@ import status from "http-status";
 import { envVars } from "../../config/env";
 import { auth } from "../../lib/auth";
 import { AppError } from "../../shared/errors/app-error";
-import { catchAsync } from "../../shared/utils/ catch-async";
+import { catchAsync } from "../../shared/utils/catch-async";
 import { cookieUtils } from "../../shared/utils/cookie";
 import { sendResponse } from "../../shared/utils/send-response";
 import { tokenUtils } from "../../shared/utils/token";

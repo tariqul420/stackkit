@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { catchAsync } from "../../shared/utils/ catch-async";
+import { catchAsync } from "../../shared/utils/catch-async";
 import { sendResponse } from "../../shared/utils/send-response";
 
 const health = catchAsync(async (_req: Request, res: Response) => {
