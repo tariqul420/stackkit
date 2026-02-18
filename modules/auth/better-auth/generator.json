@@ -4,23 +4,6 @@
   "priority": 10,
   "operations": [
     {
-      "type": "patch-file",
-      "destination": "prisma/schema.prisma",
-      "condition": { "database": "prisma" },
-      "operations": [
-        {
-          "type": "add-to-bottom",
-          "source": "shared/prisma/schema.prisma"
-        }
-      ]
-    },
-    {
-      "type": "create-file",
-      "source": "shared/lib/auth.ts",
-      "destination": "server/auth/auth.ts",
-      "condition": { "framework": ["nextjs"] }
-    },
-    {
       "type": "create-file",
       "source": "shared/lib/auth.ts",
       "destination": "src/lib/auth.ts",
@@ -28,38 +11,20 @@
     },
     {
       "type": "create-file",
-      "source": "nextjs/api/auth/[...all]/route.ts",
-      "destination": "app/api/auth/[...all]/route.ts",
-      "condition": { "framework": "nextjs" }
+      "source": "express/types/express.d.ts",
+      "destination": "src/types/express.d.ts",
+      "condition": { "framework": "express" }
     },
     {
       "type": "create-file",
-      "source": "nextjs/proxy.ts",
-      "destination": "proxy.ts",
-      "condition": { "framework": "nextjs" }
-    },
-    {
-      "type": "create-file",
-      "source": "nextjs/lib/auth/auth-guards.ts",
-      "destination": "server/auth/guards.ts",
-      "condition": { "framework": "nextjs" }
+      "source": "express/config/env.ts",
+      "destination": "src/config/env.ts",
+      "condition": { "framework": "express" }
     },
     {
       "type": "create-file",
       "source": "express/modules/auth/*",
       "destination": "src/modules/auth/*",
-      "condition": { "framework": "express" }
-    },
-    {
-      "type": "create-file",
-      "source": "express/utils/*",
-      "destination": "src/shared/utils/*",
-      "condition": { "framework": "express" }
-    },
-    {
-      "type": "create-file",
-      "source": "express/templates/*",
-      "destination": "src/templates/*",
       "condition": { "framework": "express" }
     },
     {
@@ -70,42 +35,14 @@
     },
     {
       "type": "create-file",
-      "source": "express/types/express.d.ts",
-      "destination": "src/types/express.d.ts",
+      "source": "express/templates/*",
+      "destination": "src/templates/*",
       "condition": { "framework": "express" }
     },
     {
       "type": "create-file",
-      "source": "shared/lib/auth-client.ts",
-      "destination": "lib/auth/auth-client.ts",
-      "condition": { "framework": ["nextjs"] }
-    },
-    {
-      "type": "create-file",
-      "source": "shared/lib/auth-client.ts",
-      "destination": "src/shared/lib/auth-client.ts",
-      "condition": { "framework": ["react"] }
-    },
-    {
-      "type": "patch-file",
-      "destination": "src/server.ts",
-      "condition": { "framework": "express", "database": "mongoose" },
-      "operations": [
-        {
-          "type": "add-import",
-          "imports": ["import { setupAuth } from \"./modules/auth/auth\";"]
-        },
-        {
-          "type": "add-code",
-          "before": "app.listen(envVars.PORT, () => {",
-          "code": "await setupAuth();"
-        }
-      ]
-    },
-    {
-      "type": "create-file",
-      "source": "express/config/env.ts",
-      "destination": "src/config/env.ts",
+      "source": "express/utils/*",
+      "destination": "src/shared/utils/*",
       "condition": { "framework": "express" }
     },
     {
@@ -115,16 +52,16 @@
       "operations": [
         {
           "type": "add-import",
-          "imports": ["import { auth } from \"./lib/auth\";",
-          "import { toNodeHandler } from \"better-auth/node\";", 
-          "import path from \"path\";"]
+          "imports": [
+            "import { auth } from \"./lib/auth\";",
+            "import { toNodeHandler } from \"better-auth/node\";",
+            "import path from \"path\";"
+          ]
         },
         {
           "type": "add-code",
           "after": "// API routes",
-          "code": [
-            "app.use(\"/api/auth\", toNodeHandler(auth));"
-          ]
+          "code": ["app.use(\"/api/auth\", toNodeHandler(auth));"]
         },
         {
           "type": "add-code",
@@ -148,21 +85,25 @@
         {
           "type": "add-code",
           "after": "router.use(\"/health\", healthRoutes);",
-          "code": [
-            "router.use(\"/auth\", authRoutes);"
-          ]
+          "code": ["router.use(\"/auth\", authRoutes);"]
         }
       ]
     },
     {
-      "type": "add-dependency",
-      "dependencies": {
-        "nodemailer": "^7.0.12",
-        "better-auth": "^1.4.12"
-      },
-      "devDependencies": {
-        "@types/nodemailer": "^7.0.5"
-      }
+      "type": "patch-file",
+      "destination": "src/server.ts",
+      "condition": { "framework": "express", "database": "mongoose" },
+      "operations": [
+        {
+          "type": "add-import",
+          "imports": ["import { setupAuth } from \"./modules/auth/auth\";"]
+        },
+        {
+          "type": "add-code",
+          "before": "app.listen(envVars.PORT, () => {",
+          "code": "await setupAuth();"
+        }
+      ]
     },
     {
       "type": "add-dependency",
@@ -178,6 +119,7 @@
     },
     {
       "type": "add-env",
+      "condition": { "framework": "express" },
       "envVars": {
         "BETTER_AUTH_URL": "http://localhost:3000/api/auth",
         "BETTER_AUTH_SECRET": "your_better_auth_secret",
@@ -195,7 +137,64 @@
         "EMAIL_SENDER_SMTP_FROM": "your_email@gmail.com",
         "SUPER_ADMIN_EMAIL": "your_email@gmail.com",
         "SUPER_ADMIN_PASSWORD": "your_super_admin_password"
-        }
       }
+    },
+    {
+      "type": "create-file",
+      "source": "shared/lib/auth.ts",
+      "destination": "server/auth/auth.ts",
+      "condition": { "framework": ["nextjs"] }
+    },
+    {
+      "type": "create-file",
+      "source": "nextjs/api/auth/[...all]/route.ts",
+      "destination": "app/api/auth/[...all]/route.ts",
+      "condition": { "framework": "nextjs" }
+    },
+    {
+      "type": "create-file",
+      "source": "nextjs/lib/auth/auth-guards.ts",
+      "destination": "server/auth/guards.ts",
+      "condition": { "framework": "nextjs" }
+    },
+    {
+      "type": "create-file",
+      "source": "nextjs/proxy.ts",
+      "destination": "proxy.ts",
+      "condition": { "framework": "nextjs" }
+    },
+    {
+      "type": "create-file",
+      "source": "shared/lib/auth-client.ts",
+      "destination": "lib/auth/auth-client.ts",
+      "condition": { "framework": ["nextjs"] }
+    },
+    {
+      "type": "create-file",
+      "source": "shared/lib/auth-client.ts",
+      "destination": "src/shared/lib/auth-client.ts",
+      "condition": { "framework": ["react"] }
+    },
+    {
+      "type": "patch-file",
+      "destination": "prisma/schema.prisma",
+      "condition": { "database": "prisma" },
+      "operations": [
+        {
+          "type": "add-to-bottom",
+          "source": "shared/prisma/schema.prisma"
+        }
+      ]
+    },
+    {
+      "type": "add-dependency",
+      "dependencies": {
+        "better-auth": "^1.4.12",
+        "nodemailer": "^7.0.12"
+      },
+      "devDependencies": {
+        "@types/nodemailer": "^7.0.5"
+      }
+    }
   ]
 }

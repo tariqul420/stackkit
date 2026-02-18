@@ -16,88 +16,14 @@
     {
       "type": "create-file",
       "source": "lib/prisma.ts",
-      "destination": "server/database/prisma.ts",
-      "condition": { "framework": ["nextjs"] }
-    },
-    {
-      "type": "create-file",
-      "source": "lib/prisma.ts",
       "destination": "src/database/prisma.ts",
       "condition": { "framework": ["express"] }
     },
     {
-      "type": "add-dependency",
-      "condition": { "prismaProvider": "postgresql" },
-      "dependencies": {
-        "@prisma/adapter-pg": "^7.0.0",
-        "@prisma/client": "^7.2.0",
-        "pg": "^8.0.0"
-      },
-      "devDependencies": {
-        "prisma": "^7.2.0"
-      }
-    },
-    {
-      "type": "add-dependency",
-      "condition": { "prismaProvider": "mysql" },
-      "dependencies": {
-        "@prisma/adapter-mariadb": "^7.0.0",
-        "@prisma/client": "^7.2.0",
-        "mysql2": "^3.0.0"
-      },
-      "devDependencies": {
-        "prisma": "^7.2.0"
-      }
-    },
-    {
-      "type": "add-dependency",
-      "condition": { "prismaProvider": "sqlite" },
-      "dependencies": {
-        "@prisma/adapter-better-sqlite3": "^7.0.0",
-        "@prisma/client": "^7.2.0",
-        "better-sqlite3": "^9.0.0"
-      },
-      "devDependencies": {
-        "prisma": "^7.2.0"
-      }
-    },
-    {
-      "type": "add-dependency",
-      "condition": { "prismaProvider": "mongodb" },
-      "dependencies": {
-        "@prisma/client": "^6.19.0"
-      },
-      "devDependencies": {
-        "prisma": "^6.19.0"
-      }
-    },
-    {
-      "type": "add-env",
-      "condition": { "prismaProvider": "postgresql" },
-      "envVars": {
-        "DATABASE_URL": "postgresql://username:password@localhost:5432/database_name"
-      }
-    },
-    {
-      "type": "add-env",
-      "condition": { "prismaProvider": "mysql" },
-      "envVars": {
-        "DATABASE_URL": "mysql://username:password@localhost:3306/database_name"
-      }
-    },
-    {
-      "type": "add-env",
-      "condition": { "prismaProvider": "sqlite" },
-      "envVars": {
-        "DATABASE_URL": "file:./dev.db"
-      }
-    },
-    {
-      "type": "add-env",
-      "condition": { "prismaProvider": "mongodb" },
-      "envVars": {
-        "DATABASE_URL": "mongodb://localhost:27017/database_name"
-      }
+      "type": "create-file",
+      "source": "lib/prisma.ts",
+      "destination": "server/database/prisma.ts",
+      "condition": { "framework": ["nextjs"] }
     },
     {
       "type": "add-dependency",
@@ -113,6 +39,80 @@
         "db:seed": "tsx prisma/seed.ts",
         "db:migrate": "npx prisma migrate dev",
         "db:studio": "npx prisma studio"
+      }
+    },
+    {
+      "type": "add-dependency",
+      "condition": { "prismaProvider": "postgresql" },
+      "dependencies": {
+        "@prisma/client": "^7.2.0",
+        "@prisma/adapter-pg": "^7.0.0",
+        "pg": "^8.0.0"
+      },
+      "devDependencies": {
+        "prisma": "^7.2.0"
+      }
+    },
+    {
+      "type": "add-env",
+      "condition": { "prismaProvider": "postgresql" },
+      "envVars": {
+        "DATABASE_URL": "postgresql://username:password@localhost:5432/database_name"
+      }
+    },
+    {
+      "type": "add-dependency",
+      "condition": { "prismaProvider": "mysql" },
+      "dependencies": {
+        "@prisma/client": "^7.2.0",
+        "@prisma/adapter-mariadb": "^7.0.0",
+        "mysql2": "^3.0.0"
+      },
+      "devDependencies": {
+        "prisma": "^7.2.0"
+      }
+    },
+    {
+      "type": "add-env",
+      "condition": { "prismaProvider": "mysql" },
+      "envVars": {
+        "DATABASE_URL": "mysql://username:password@localhost:3306/database_name"
+      }
+    },
+    {
+      "type": "add-dependency",
+      "condition": { "prismaProvider": "sqlite" },
+      "dependencies": {
+        "@prisma/client": "^7.2.0",
+        "@prisma/adapter-better-sqlite3": "^7.0.0",
+        "better-sqlite3": "^9.0.0"
+      },
+      "devDependencies": {
+        "prisma": "^7.2.0"
+      }
+    },
+    {
+      "type": "add-env",
+      "condition": { "prismaProvider": "sqlite" },
+      "envVars": {
+        "DATABASE_URL": "file:./dev.db"
+      }
+    },
+    {
+      "type": "add-dependency",
+      "condition": { "prismaProvider": "mongodb" },
+      "dependencies": {
+        "@prisma/client": "^6.19.0"
+      },
+      "devDependencies": {
+        "prisma": "^6.19.0"
+      }
+    },
+    {
+      "type": "add-env",
+      "condition": { "prismaProvider": "mongodb" },
+      "envVars": {
+        "DATABASE_URL": "mongodb://localhost:27017/database_name"
       }
     }
   ]

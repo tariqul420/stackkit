@@ -6,12 +6,6 @@
     {
       "type": "create-file",
       "source": "lib/mongoose.ts",
-      "destination": "server/database/mongoose.ts",
-      "condition": { "framework": ["nextjs"] }
-    },
-    {
-      "type": "create-file",
-      "source": "lib/mongoose.ts",
       "destination": "src/database/mongoose.ts",
       "condition": { "framework": ["express"] }
     },
@@ -20,12 +14,6 @@
       "source": "models/health.ts",
       "destination": "src/modules/health/health.model.ts",
       "condition": { "framework": ["express"] }
-    },
-    {
-      "type": "create-file",
-      "source": "models/health.ts",
-      "destination": "server/database/models/health.model.ts",
-      "condition": { "framework": ["nextjs"] }
     },
     {
       "type": "patch-file",
@@ -44,15 +32,27 @@
       ]
     },
     {
-      "type": "add-env",
-      "envVars": {
-        "DATABASE_URL": "mongodb://localhost:27017/database_name"
-      }
+      "type": "create-file",
+      "source": "lib/mongoose.ts",
+      "destination": "server/database/mongoose.ts",
+      "condition": { "framework": ["nextjs"] }
+    },
+    {
+      "type": "create-file",
+      "source": "models/health.ts",
+      "destination": "server/database/models/health.model.ts",
+      "condition": { "framework": ["nextjs"] }
     },
     {
       "type": "add-dependency",
       "dependencies": {
         "mongoose": "^8.8.0"
+      }
+    },
+    {
+      "type": "add-env",
+      "envVars": {
+        "DATABASE_URL": "mongodb://localhost:27017/database_name"
       }
     }
   ]

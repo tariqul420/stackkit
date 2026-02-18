@@ -5,11 +5,6 @@
   "operations": [
     {
       "type": "create-file",
-      "source": "shared/lib/auth.ts",
-      "destination": "server/auth/auth.ts"
-    },
-    {
-      "type": "create-file",
       "source": "nextjs/api/auth/[...nextauth]/route.ts",
       "destination": "app/api/auth/[...nextauth]/route.ts"
     },
@@ -17,6 +12,11 @@
       "type": "create-file",
       "source": "nextjs/proxy.ts",
       "destination": "proxy.ts"
+    },
+    {
+      "type": "create-file",
+      "source": "shared/lib/auth.ts",
+      "destination": "server/auth/auth.ts"
     },
     {
       "type": "patch-file",
@@ -37,6 +37,17 @@
       }
     },
     {
+      "type": "add-dependency",
+      "dependencies": {
+        "bcryptjs": "^3.0.3",
+        "next-auth": "^5.0.0-beta.30",
+        "nodemailer": "^7.0.12"
+      },
+      "devDependencies": {
+        "@types/nodemailer": "^7.0.5"
+      }
+    },
+    {
       "type": "add-env",
       "envVars": {
         "AUTH_SECRET": "",
@@ -47,17 +58,6 @@
         "EMAIL_USER": "",
         "EMAIL_PASS": "",
         "EMAIL_FROM": "noreply@yourapp.com"
-      }
-    },
-    {
-      "type": "add-dependency",
-      "dependencies": {
-        "next-auth": "^5.0.0-beta.30",
-        "bcryptjs": "^3.0.3",
-        "nodemailer": "^7.0.12"
-      },
-      "devDependencies": {
-        "@types/nodemailer": "^7.0.5"
       }
     }
   ]
