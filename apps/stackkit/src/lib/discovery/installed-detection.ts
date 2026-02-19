@@ -13,13 +13,21 @@ interface ModuleJsonLike {
   devDependencies?: Record<string, string>;
 }
 
+async function readJsonSafe<T>(filePath: string): Promise<T | null> {
+  try {
+    return (await fs.readJson(filePath)) as T;
+  } catch {
+    return null;
+  }
+}
+
 async function collectModulePkgNames(modulePath: string): Promise<string[]> {
   const pkgNames: string[] = [];
 
   const genPath = path.join(modulePath, "generator.json");
   if (await fs.pathExists(genPath)) {
-    try {
-      const gen = await fs.readJson(genPath);
+    const gen = await readJsonSafe<{ operations?: Array<Record<string, unknown>> }>(genPath);
+    if (gen && Array.isArray(gen.operations)) {
       if (Array.isArray(gen.operations)) {
         for (const op of gen.operations) {
           if (op.dependencies && typeof op.dependencies === "object") {
@@ -30,24 +38,17 @@ async function collectModulePkgNames(modulePath: string): Promise<string[]> {
           }
         }
       }
-    } catch {
-      // ignore malformed generator
     }
   }
 
-  // Also check module.json for declared deps
   const modJson = path.join(modulePath, "module.json");
   if (await fs.pathExists(modJson)) {
-    try {
-      const m = (await fs.readJson(modJson)) as ModuleJsonLike;
-      if (m && typeof m === "object") {
-        const deps = m.dependencies || {};
-        if (typeof deps === "object") pkgNames.push(...Object.keys(deps));
-        const devDeps = m.devDependencies || {};
-        if (typeof devDeps === "object") pkgNames.push(...Object.keys(devDeps));
-      }
-    } catch {
-      // ignore malformed module.json
+    const moduleJson = await readJsonSafe<ModuleJsonLike>(modJson);
+    if (moduleJson && typeof moduleJson === "object") {
+      const deps = moduleJson.dependencies || {};
+      if (typeof deps === "object") pkgNames.push(...Object.keys(deps));
+      const devDeps = moduleJson.devDependencies || {};
+      if (typeof devDeps === "object") pkgNames.push(...Object.keys(devDeps));
     }
   }
 
@@ -67,15 +68,12 @@ export async function detectAuthModules(packageJson: PackageJsonLike): Promise<s
           const modulePath = path.join(modulesDir, authDir);
           const pkgNames = await collectModulePkgNames(modulePath);
 
-          // Fallback: check module.json provider/name for display
           let moduleName = authDir;
           const modJson = path.join(modulePath, "module.json");
           if (await fs.pathExists(modJson)) {
-            try {
-              const m = (await fs.readJson(modJson)) as ModuleJsonLike;
-              if (m && m.name) moduleName = m.name;
-            } catch {
-              // ignore malformed module.json
+            const moduleJson = await readJsonSafe<ModuleJsonLike>(modJson);
+            if (moduleJson?.name) {
+              moduleName = moduleJson.name;
             }
           }
 
@@ -86,12 +84,12 @@ export async function detectAuthModules(packageJson: PackageJsonLike): Promise<s
             }
           }
         } catch {
-          // ignore per-module errors
+          continue;
         }
       }
     }
   } catch {
-    // ignore discovery errors
+    return Array.from(new Set(modules));
   }
 
   return Array.from(new Set(modules));
@@ -113,11 +111,9 @@ export async function detectDatabaseModules(packageJson: PackageJsonLike): Promi
           let moduleName = dbDir;
           const modJson = path.join(modulePath, "module.json");
           if (await fs.pathExists(modJson)) {
-            try {
-              const m = await fs.readJson(modJson);
-              if (m && m.name) moduleName = m.name;
-            } catch {
-              // ignore malformed module.json
+            const moduleJson = await readJsonSafe<ModuleJsonLike>(modJson);
+            if (moduleJson?.name) {
+              moduleName = moduleJson.name;
             }
           }
 
@@ -128,12 +124,12 @@ export async function detectDatabaseModules(packageJson: PackageJsonLike): Promi
             }
           }
         } catch {
-          // ignore per-module errors
+          continue;
         }
       }
     }
   } catch {
-    // ignore discovery errors
+    return Array.from(new Set(modules));
   }
 
   return Array.from(new Set(modules));

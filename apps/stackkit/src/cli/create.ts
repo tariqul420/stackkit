@@ -23,9 +23,9 @@ import { getPackageRoot } from "../lib/utils/package-root";
 interface ProjectConfig {
   projectName: string;
   framework: string;
-  database: string; // e.g. 'prisma', 'mongoose', 'none'
+  database: string;
   prismaProvider?: string;
-  auth: string; // provider name or 'none'
+  auth: string;
   language: "typescript" | "javascript";
   packageManager: "pnpm" | "npm" | "yarn" | "bun";
 }
@@ -187,7 +187,6 @@ async function getProjectConfig(
 
     const finalFramework = (framework || (discoveredModules.frameworks[0]?.name ?? "")) as string;
 
-    // Validate auth compatibility using discovered module metadata when available
     if (auth && auth !== "none" && discoveredModules.auth) {
       const authMeta = discoveredModules.auth.find((a) => a.name === auth);
       if (authMeta) {
@@ -250,7 +249,6 @@ async function getProjectConfig(
         if (discoveredModules.frameworks && discoveredModules.frameworks.length > 0) {
           return discoveredModules.frameworks.map((f) => ({ name: f.displayName, value: f.name }));
         }
-        // Fallback: read templates dir directly
         try {
           const templatesDir = path.join(getPackageRoot(), "templates");
           if (fs.existsSync(templatesDir)) {
@@ -258,7 +256,7 @@ async function getProjectConfig(
             return dirs.map((d) => ({ name: d.charAt(0).toUpperCase() + d.slice(1), value: d }));
           }
         } catch {
-          // ignore
+          return [];
         }
         return [];
       })(),
@@ -272,7 +270,6 @@ async function getProjectConfig(
         if (discoveredModules.databases && discoveredModules.databases.length > 0) {
           return getDatabaseChoices(discoveredModules.databases, answers.framework);
         }
-        // Fallback: scan modules/database directory
         try {
           const modulesDir = path.join(getPackageRoot(), "modules", "database");
           if (fs.existsSync(modulesDir)) {
@@ -283,7 +280,7 @@ async function getProjectConfig(
             return dbs;
           }
         } catch {
-          // ignore
+          return [{ name: "None", value: "none" }];
         }
         return [{ name: "None", value: "none" }];
       },
@@ -451,8 +448,8 @@ async function composeTemplate(config: ProjectConfig, targetDir: string): Promis
       const envContent = await fs.readFile(envExamplePath, "utf-8");
       await fs.writeFile(envPath, envContent);
     }
-  } catch {
-    // env copy failed.
+  } catch (error) {
+    void error;
   }
 
   if (config.language === "javascript") {
@@ -466,7 +463,6 @@ async function processGeneratorEnvVars(config: ProjectConfig, targetDir: string)
   const modulesDir = path.join(getPackageRoot(), "modules");
   const envVars: Array<{ key: string; value: string; required: boolean }> = [];
 
-  // Process database generator env vars
   if (config.database && config.database !== "none") {
     const dbGeneratorPath = path.join(modulesDir, "database", config.database, "generator.json");
     if (await fs.pathExists(dbGeneratorPath)) {
@@ -490,7 +486,6 @@ async function processGeneratorEnvVars(config: ProjectConfig, targetDir: string)
     }
   }
 
-  // Process auth generator env vars
   if (config.auth && config.auth !== "none") {
     const authGeneratorPath = path.join(modulesDir, "auth", config.auth, "generator.json");
     if (await fs.pathExists(authGeneratorPath)) {

@@ -22,48 +22,37 @@ export interface TemplateCondition {
   features?: string[];
 }
 
+type SelectedModules = {
+  framework: string;
+  database?: string;
+  auth?: string;
+  prismaProvider?: string;
+};
+
 export interface Operation {
   type: "create-file" | "patch-file" | "add-dependency" | "add-script" | "add-env" | "run-command";
   description?: string;
   condition?: TemplateCondition;
   priority?: number;
-
-  // create-file | patch-file
   source?: string;
   destination?: string;
   content?: string;
-
-  // patch-file
   operations?: PatchOperation[];
-
-  // add-dependency
   dependencies?: Record<string, string>;
   devDependencies?: Record<string, string>;
-
-  // add-script
   scripts?: Record<string, string>;
-
-  // add-env
   envVars?: Record<string, string>;
-
-  // run-command
   command?: string;
 }
 
 export interface PatchOperation {
   type: "add-import" | "add-code" | "replace-code" | "add-to-top" | "add-to-bottom";
   condition?: TemplateCondition;
-
-  // add-import
   imports?: string[];
-
-  // add-code, replace-code
   code?: string | string[];
   after?: string;
   before?: string;
   replace?: string;
-
-  // add-to-top, add-to-bottom
   content?: string;
   source?: string;
 }
@@ -90,6 +79,38 @@ export class AdvancedCodeGenerator {
     this.frameworkConfig = frameworkConfig;
   }
 
+  private initializeContext(
+    selectedModules: SelectedModules,
+    features: string[],
+  ): GenerationContext {
+    const context: GenerationContext = {
+      ...selectedModules,
+      features,
+      combo: `${selectedModules.database || ""}:${selectedModules.framework || ""}`,
+    };
+
+    if (selectedModules.database === "prisma" && !context.prismaProvider) {
+      const providers = getPrismaProvidersFromGenerator(getPackageRoot());
+      if (providers.length > 0) {
+        context.prismaProvider = providers[0];
+      }
+    }
+
+    return context;
+  }
+
+  private isGeneratorSelected(
+    genType: string,
+    name: string,
+    selectedModules: SelectedModules,
+  ): boolean {
+    return (
+      (genType === "framework" && name === selectedModules.framework) ||
+      (genType === "database" && name === selectedModules.database) ||
+      (genType === "auth" && name === selectedModules.auth)
+    );
+  }
+
   async loadGenerators(modulesPath: string): Promise<void> {
     const moduleTypes = ["auth", "database"];
 
@@ -108,7 +129,7 @@ export class AdvancedCodeGenerator {
 
               this.generators.set(`${type}:${moduleName}`, config);
             } catch {
-              // ignore invalid generator files
+              continue;
             }
           }
         }
@@ -145,19 +166,10 @@ export class AdvancedCodeGenerator {
   }
 
   private processTemplate(content: string, context: GenerationContext): string {
-    // Create a copy of context for template variables
     const templateContext = { ...context };
-
-    // Handle variable definitions {{#var name = value}} at the top of the file
     content = this.processVariableDefinitions(content, templateContext);
-
-    // Process the rest of the template with the extended context
     content = this.processTemplateRecursive(content, templateContext);
-
-    // Remove leading newlines that might be left from {{#var}} removal
     content = content.replace(/^\n+/, "");
-
-    // Reduce multiple consecutive newlines to maximum 2
     content = content.replace(/\n{3,}/g, "\n\n");
 
     return content;
@@ -185,7 +197,6 @@ export class AdvancedCodeGenerator {
       const varNameMatch = result.substring(varStart + 7, equalsIndex).trim();
       if (!varNameMatch) break;
 
-      // Find the closing }} for the variable definition, accounting for nested {{#var}}...{{/var}}
       let braceCount = 1;
       const valueStart = equalsIndex + 1;
       let valueEnd = valueStart;
@@ -193,14 +204,14 @@ export class AdvancedCodeGenerator {
       for (let i = valueStart; i < result.length; i++) {
         if (result[i] === "{" && result[i + 1] === "{") {
           braceCount++;
-          i++; // Skip next character
+          i++;
         } else if (result[i] === "}" && result[i + 1] === "}") {
           braceCount--;
           if (braceCount === 0) {
             valueEnd = i;
             break;
           }
-          i++; // Skip next character
+          i++;
         }
       }
 
@@ -208,12 +219,8 @@ export class AdvancedCodeGenerator {
 
       const varValue = result.substring(valueStart, valueEnd).trim();
       const fullMatch = result.substring(varStart, valueEnd + 2);
-
-      // Process the variable value with current context (allowing nested variables/conditionals)
       const processedValue = this.processTemplateRecursive(varValue, context);
       context[varNameMatch] = processedValue;
-
-      // Remove the variable definition
       result = result.replace(fullMatch, "");
       index = varStart;
     }
@@ -263,7 +270,6 @@ export class AdvancedCodeGenerator {
       },
     );
 
-    // Handle simple conditional blocks {{#if condition}}...{{/if}} (backward compatibility)
     content = content.replace(
       /\{\{#if\s+([^}]+)\}\}([\s\S]*?)(?:\{\{else\}\}([\s\S]*?))?\{\{\/if\}\}/g,
       (match: string, condition: string, blockContent: string, elseContent?: string) => {
@@ -295,13 +301,11 @@ export class AdvancedCodeGenerator {
       },
     );
 
-    // Handle switch statements {{#switch variable}}...{{/switch}}
     content = content.replace(
       /\{\{#switch\s+([^}]+)\}\}([\s\S]*?)\{\{\/switch\}\}/g,
       (match: string, varName: string, switchContent: string) => {
         const actualVal = context[varName.trim()];
 
-        // Parse cases
         const caseRegex =
           /\{\{#case\s+([^}]+)\}\}([\s\S]*?)(?=\{\{#case|\{\{\/case\}|\{\{\/switch\})/g;
         let result = "";
@@ -325,11 +329,8 @@ export class AdvancedCodeGenerator {
       },
     );
 
-    // Handle variable replacement with advanced expressions
     content = content.replace(/\{\{([^}]+)\}\}/g, (match: string, varExpr: string) => {
       const trimmedExpr = varExpr.trim();
-
-      // Handle ternary expressions like framework=='nextjs' ? '@/lib' : '.'
       const ternaryMatch = trimmedExpr.match(/^(.+?)\s*\?\s*(.+?)\s*:\s*(.+?)$/);
       if (ternaryMatch) {
         const [, condition, trueVal, falseVal] = ternaryMatch;
@@ -340,11 +341,10 @@ export class AdvancedCodeGenerator {
           const cleanExpectedVal = expectedVal.trim().replace(/['"]/g, "");
           const actualVal = context[cleanVarName];
           const result = actualVal === cleanExpectedVal ? trueVal.trim() : falseVal.trim();
-          return result.replace(/['"]/g, ""); // Remove quotes from result
+          return result.replace(/['"]/g, "");
         }
       }
 
-      // Handle switch expressions {{switch variable case1: value1, case2: value2, default: defaultValue}}
       const switchMatch = trimmedExpr.match(/^switch\s+([^}\s]+)\s+(.+)$/);
       if (switchMatch) {
         const [, varName, casesStr] = switchMatch;
@@ -361,19 +361,16 @@ export class AdvancedCodeGenerator {
         return "";
       }
 
-      // Handle heading helper {{heading:depthVar}} -> '#', '##', ... up to '######'
       if (trimmedExpr.startsWith("heading:")) {
         return this.renderHeadingFromExpr(trimmedExpr, context);
       }
 
-      // Handle feature flags {{feature:name}}
       if (trimmedExpr.startsWith("feature:")) {
         const featureName = trimmedExpr.substring(8).trim();
         const features = Array.isArray(context.features) ? context.features : [];
         return features.includes(featureName) ? "true" : "false";
       }
 
-      // Handle conditional expressions {{if condition then:value else:value}}
       const conditionalMatch = trimmedExpr.match(/^if\s+(.+?)\s+then:([^,]+),\s*else:(.+)$/);
       if (conditionalMatch) {
         const [, condition, thenVal, elseVal] = conditionalMatch;
@@ -388,7 +385,6 @@ export class AdvancedCodeGenerator {
         }
       }
 
-      // Simple variable replacement
       const value = context[trimmedExpr];
       return value !== undefined ? String(value) : match;
     });
@@ -397,58 +393,28 @@ export class AdvancedCodeGenerator {
   }
 
   async generate(
-    selectedModules: {
-      framework: string;
-      database?: string;
-      auth?: string;
-      prismaProvider?: string;
-    },
+    selectedModules: SelectedModules,
     features: string[],
     outputPath: string,
   ): Promise<string[]> {
-    // First, copy the base template
     await this.copyTemplate(selectedModules.framework, outputPath);
 
-    const context: GenerationContext = {
-      ...selectedModules,
-      features,
-    };
+    const context = this.initializeContext(selectedModules, features);
 
-    // Derived combined key to simplify template conditionals (e.g. "prisma:express")
-    context.combo = `${context.database || ""}:${context.framework || ""}`;
-
-    // Set default prismaProvider if database is prisma but no provider specified
-    if (selectedModules.database === "prisma" && !context.prismaProvider) {
-      const providers = getPrismaProvidersFromGenerator(getPackageRoot());
-      if (providers && providers.length > 0) {
-        context.prismaProvider = providers[0];
-      }
-    }
-
-    // Collect all applicable operations
     const applicableOperations: Array<Operation & { generator: string; generatorType: string }> =
       [];
 
     for (const [key, generator] of this.generators) {
       const [genType, name] = key.split(":");
 
-      // Check if this generator is selected
-      if (genType === "framework" && name === selectedModules.framework) {
-        // Framework is always included
-      } else if (genType === "database" && name === selectedModules.database) {
-        // Database is selected
-      } else if (genType === "auth" && name === selectedModules.auth) {
-        // Auth is selected
-      } else {
-        continue; // Skip unselected generators
+      if (!this.isGeneratorSelected(genType, name, selectedModules)) {
+        continue;
       }
 
-      // Collect postInstall commands from selected generators
       if (generator.postInstall && Array.isArray(generator.postInstall)) {
         this.postInstallCommands.push(...generator.postInstall);
       }
 
-      // Handle operations
       const items = generator.operations || [];
       for (const item of items) {
         if (this.evaluateCondition(item.condition, context)) {
@@ -462,20 +428,17 @@ export class AdvancedCodeGenerator {
       }
     }
 
-    // Sort operations by priority
     applicableOperations.sort((a, b) => {
       const priorityA = a.priority || 0;
       const priorityB = b.priority || 0;
       return priorityA - priorityB;
     });
 
-    // Execute operations
     for (const operation of applicableOperations) {
       await this.executeOperation(operation, context, outputPath);
     }
 
-    // Generate package.json updates
-    await this.generatePackageJson(selectedModules, features, outputPath);
+    await this.generatePackageJson(selectedModules, outputPath);
 
     return this.postInstallCommands;
   }
@@ -489,7 +452,6 @@ export class AdvancedCodeGenerator {
     context: GenerationContext,
     outputPath: string,
   ): Promise<void> {
-    // Process templates in operation content
     const processedOperation = this.processOperationTemplates(operation, context);
 
     switch (processedOperation.type) {
@@ -510,14 +472,12 @@ export class AdvancedCodeGenerator {
       case "add-dependency":
         await this.executeAddDependency(
           processedOperation as Operation & { generator: string; generatorType: string },
-          context,
           outputPath,
         );
         break;
       case "add-script":
         await this.executeAddScript(
           processedOperation as Operation & { generator: string; generatorType: string },
-          context,
           outputPath,
         );
         break;
@@ -535,7 +495,7 @@ export class AdvancedCodeGenerator {
         );
         break;
       default:
-      // Unknown operation type - skip silently
+        return;
     }
   }
   private async copyTemplate(frameworkName: string, outputPath: string): Promise<void> {
@@ -565,8 +525,8 @@ export class AdvancedCodeGenerator {
             break;
           }
         }
-      } catch {
-        // ignore
+      } catch (error) {
+        void error;
       }
       try {
         const templateJsonPath = path.join(templatePath, "template.json");
@@ -576,9 +536,8 @@ export class AdvancedCodeGenerator {
             for (const f of tpl.files) {
               if (typeof f === "string" && f.startsWith(".")) {
                 const targetDest = path.join(outputPath, f);
-                if (await fs.pathExists(targetDest)) continue; // already present
+                if (await fs.pathExists(targetDest)) continue;
 
-                // Special-case: allow creating .gitignore from non-dot fallbacks
                 if (f === ".gitignore") {
                   const nameWithoutDot = f.slice(1);
                   const candidates = [f, nameWithoutDot, `_${nameWithoutDot}`];
@@ -592,7 +551,6 @@ export class AdvancedCodeGenerator {
                   continue;
                 }
 
-                // For other dotfiles, only copy if the exact dotfile exists in the template to avoid unintended fallbacks
                 const srcDot = path.join(templatePath, f);
                 if (await fs.pathExists(srcDot)) {
                   await fs.copy(srcDot, targetDest);
@@ -601,8 +559,8 @@ export class AdvancedCodeGenerator {
             }
           }
         }
-      } catch {
-        // ignore
+      } catch (error) {
+        void error;
       }
 
       try {
@@ -617,7 +575,6 @@ export class AdvancedCodeGenerator {
                 const nonDot = path.join(outputPath, nameWithoutDot);
                 const underscore = path.join(outputPath, `_${nameWithoutDot}`);
 
-                // If dot already exists, remove non-dot fallbacks
                 if (await fs.pathExists(dotDest)) {
                   if (await fs.pathExists(nonDot)) {
                     await fs.remove(nonDot);
@@ -628,7 +585,6 @@ export class AdvancedCodeGenerator {
                   continue;
                 }
 
-                // If dot doesn't exist but a non-dot fallback was copied, rename it
                 if (await fs.pathExists(nonDot)) {
                   await fs.move(nonDot, dotDest, { overwrite: true });
                 } else if (await fs.pathExists(underscore)) {
@@ -638,19 +594,18 @@ export class AdvancedCodeGenerator {
             }
           }
         }
-      } catch {
-        // ignore
+      } catch (error) {
+        void error;
       }
 
-      // Handle .env.example -> .env copying if .env doesn't already exist
       try {
         const envExampleDest = path.join(outputPath, ".env.example");
         const envDest = path.join(outputPath, ".env");
         if ((await fs.pathExists(envExampleDest)) && !(await fs.pathExists(envDest))) {
           await fs.copy(envExampleDest, envDest);
         }
-      } catch {
-        // ignore (not critical)
+      } catch (error) {
+        void error;
       }
     }
   }
@@ -658,7 +613,6 @@ export class AdvancedCodeGenerator {
   private processOperationTemplates(operation: Operation, context: GenerationContext): Operation {
     const processed = { ...operation };
 
-    // Process templates in string fields
     if (processed.source) {
       processed.source = this.processTemplate(processed.source, context);
     }
@@ -669,7 +623,6 @@ export class AdvancedCodeGenerator {
       processed.content = this.processTemplate(processed.content, context);
     }
 
-    // Process templates in patch operations
     if (processed.operations) {
       processed.operations = processed.operations.map((op) => {
         const processedOp = { ...op };
@@ -730,8 +683,8 @@ export class AdvancedCodeGenerator {
       try {
         const rel = path.relative(outputPath, destinationPath);
         if (rel && !this.createdFiles.includes(rel)) this.createdFiles.push(rel);
-      } catch {
-        // ignore logging failures
+      } catch (error) {
+        void error;
       }
       return;
     }
@@ -799,8 +752,8 @@ export class AdvancedCodeGenerator {
         try {
           const rel = path.relative(outputPath, destinationPath);
           if (rel && !this.createdFiles.includes(rel)) this.createdFiles.push(rel);
-        } catch {
-          // ignore logging failures
+        } catch (error) {
+          void error;
         }
       }
 
@@ -820,8 +773,8 @@ export class AdvancedCodeGenerator {
     try {
       const rel = path.relative(outputPath, destinationPath);
       if (rel && !this.createdFiles.includes(rel)) this.createdFiles.push(rel);
-    } catch {
-      // ignore logging failures
+    } catch (error) {
+      void error;
     }
   }
 
@@ -866,13 +819,11 @@ export class AdvancedCodeGenerator {
 
     const filePath = path.join(outputPath, this.processTemplate(operation.destination, context));
 
-    // Read existing file
     let content = await fs.readFile(filePath, "utf-8");
 
     if (operation.content) {
       content += this.processTemplate(operation.content, context).trim();
     } else if (operation.operations) {
-      // Execute patch operations
       for (const patchOp of operation.operations) {
         if (!this.evaluateCondition(patchOp.condition, context)) continue;
 
@@ -885,18 +836,14 @@ export class AdvancedCodeGenerator {
                 .replace(/^\n+/, "")
                 .replace(/\n+$/, "");
 
-              // Split content into lines for easier manipulation
               const lines = content.split("\n");
-              // Find the last import line index
               let lastImportIndex = -1;
               for (let i = 0; i < lines.length; i++) {
                 if (lines[i].trim().startsWith("import")) lastImportIndex = i;
               }
 
-              // Determine where to insert new imports: after the last existing import, or at the top if no imports exist
               const insertIndex = lastImportIndex === -1 ? 0 : lastImportIndex + 1;
 
-              // Only add imports that don't already exist in the file
               const importLines = imports
                 .split("\n")
                 .map((l) => l.trim())
@@ -907,14 +854,12 @@ export class AdvancedCodeGenerator {
               );
 
               if (newImportLines.length > 0) {
-                // Insert imports
                 if (insertIndex < lines.length && lines[insertIndex].trim() === "") {
                   lines.splice(insertIndex, 1, ...newImportLines);
                 } else {
                   lines.splice(insertIndex, 0, ...newImportLines);
                 }
 
-                // After adding imports, ensure there is exactly one blank line after the last import statement (if there are any imports)
                 let lastIdx = -1;
                 for (let i = 0; i < lines.length; i++) {
                   if (lines[i].trim().startsWith("import")) lastIdx = i;
@@ -925,7 +870,6 @@ export class AdvancedCodeGenerator {
                   while (j < lines.length && lines[j].trim() === "") {
                     j++;
                   }
-                  // Ensure exactly one blank line after imports unless imports end at EOF
                   if (nextIdx < lines.length) {
                     lines.splice(nextIdx, j - nextIdx, "");
                   }
@@ -941,13 +885,11 @@ export class AdvancedCodeGenerator {
               if (Array.isArray(codeValue)) codeValue = codeValue.join("\n");
               const processedCode = this.processTemplate(codeValue as string, context);
 
-              // Skip insertion if the exact code already exists in the file
               const codeTrimmed = processedCode.trim();
               if (codeTrimmed && content.includes(codeTrimmed)) {
                 break;
               }
 
-              // Insert after pattern if provided
               if (patchOp.after) {
                 const afterPattern = this.processTemplate(patchOp.after, context);
                 const index = content.indexOf(afterPattern);
@@ -955,10 +897,8 @@ export class AdvancedCodeGenerator {
                   const left = content.slice(0, index + afterPattern.length);
                   const right = content.slice(index + afterPattern.length);
 
-                  // Normalize code: trim surrounding newlines and ensure single trailing newline
                   let codeNormalized = processedCode.replace(/^\n+|\n+$/g, "") + "\n";
 
-                  // If right already starts with a newline, avoid double-blank by
                   const rightStartsWithNewline = right.startsWith("\n");
                   if (rightStartsWithNewline && codeNormalized.endsWith("\n")) {
                     codeNormalized = codeNormalized.replace(/\n+$/, "");
@@ -969,7 +909,6 @@ export class AdvancedCodeGenerator {
                 }
               }
 
-              // Insert before pattern if provided
               if (patchOp.before) {
                 const beforePattern = this.processTemplate(patchOp.before, context);
                 const index = content.indexOf(beforePattern);
@@ -977,10 +916,8 @@ export class AdvancedCodeGenerator {
                   const left = content.slice(0, index);
                   const right = content.slice(index);
 
-                  // Normalize code: trim surrounding newlines and ensure single trailing newline
                   let codeNormalized = processedCode.replace(/^\n+|\n+$/g, "") + "\n";
 
-                  // If right already starts with a newline, avoid double-blank by
                   const rightStartsWithNewline = right.startsWith("\n");
                   if (rightStartsWithNewline && codeNormalized.endsWith("\n")) {
                     codeNormalized = codeNormalized.replace(/\n+$/, "");
@@ -1057,18 +994,12 @@ export class AdvancedCodeGenerator {
       }
     }
 
-    // Normalize excessive blank lines introduced during patching
     content = content.replace(/\n{3,}/g, "\n\n");
 
-    // Write back the modified content
     await fs.writeFile(filePath, content, "utf-8");
   }
 
-  private async executeAddDependency(
-    operation: Operation,
-    context: GenerationContext,
-    outputPath: string,
-  ): Promise<void> {
+  private async executeAddDependency(operation: Operation, outputPath: string): Promise<void> {
     const packageJsonPath = path.join(outputPath, "package.json");
     let packageJson: Record<string, unknown> = {};
 
@@ -1093,11 +1024,7 @@ export class AdvancedCodeGenerator {
     await fs.writeJson(packageJsonPath, packageJson, { spaces: 2 });
   }
 
-  private async executeAddScript(
-    operation: Operation,
-    context: GenerationContext,
-    outputPath: string,
-  ): Promise<void> {
+  private async executeAddScript(operation: Operation, outputPath: string): Promise<void> {
     const packageJsonPath = path.join(outputPath, "package.json");
     let packageJson: Record<string, unknown> = {};
 
@@ -1143,20 +1070,13 @@ export class AdvancedCodeGenerator {
     context: GenerationContext,
   ): void {
     if (operation.command) {
-      // Process template variables in the command
       const processedCommand = this.processTemplate(operation.command, context);
       this.postInstallCommands.push(processedCommand);
     }
   }
 
   private async generatePackageJson(
-    selectedModules: {
-      framework: string;
-      database?: string;
-      auth?: string;
-      prismaProvider?: string;
-    },
-    features: string[],
+    selectedModules: SelectedModules,
     outputPath: string,
   ): Promise<void> {
     const packageJsonPath = path.join(outputPath, "package.json");
@@ -1166,7 +1086,6 @@ export class AdvancedCodeGenerator {
       packageJson = await fs.readJson(packageJsonPath);
     }
 
-    // Collect dependencies from selected generators
     const allDeps: Record<string, string> = {};
     const allDevDeps: Record<string, string> = {};
     const allScripts: Record<string, string> = {};
@@ -1174,17 +1093,13 @@ export class AdvancedCodeGenerator {
     for (const [key, generator] of this.generators) {
       const [type, name] = key.split(":");
 
-      if (
-        (type === "framework" && name === selectedModules.framework) ||
-        (type === "database" && name === selectedModules.database) ||
-        (type === "auth" && name === selectedModules.auth)
-      ) {
-        // Merge dependencies, devDependencies, and scripts from the generator into the cumulative objects
+      if (this.isGeneratorSelected(type, name, selectedModules)) {
+        Object.assign(allDeps, generator.dependencies);
+        Object.assign(allDevDeps, generator.devDependencies);
         Object.assign(allScripts, generator.scripts);
       }
     }
 
-    // Update package.json
     packageJson.dependencies = {
       ...((packageJson.dependencies as Record<string, string>) || {}),
       ...allDeps,
@@ -1201,30 +1116,12 @@ export class AdvancedCodeGenerator {
     await fs.writeJson(packageJsonPath, packageJson, { spaces: 2 });
   }
 
-  // Public method to apply generators to an existing project (used for "Add to existing project" flow)
   async applyToProject(
-    selectedModules: {
-      framework: string;
-      database?: string;
-      auth?: string;
-      prismaProvider?: string;
-    },
+    selectedModules: SelectedModules,
     features: string[],
     projectPath: string,
   ): Promise<string[]> {
-    const context: GenerationContext = {
-      ...selectedModules,
-      features,
-    };
-    // Derived combined key to simplify template conditionals (e.g. "prisma:express")
-    context.combo = `${context.database || ""}:${context.framework || ""}`;
-
-    if (selectedModules.database === "prisma" && !context.prismaProvider) {
-      const providers = getPrismaProvidersFromGenerator(getPackageRoot());
-      if (providers && providers.length > 0) {
-        context.prismaProvider = providers[0];
-      }
-    }
+    const context = this.initializeContext(selectedModules, features);
 
     const applicableOperations: Array<Operation & { generator: string; generatorType: string }> =
       [];
@@ -1232,13 +1129,7 @@ export class AdvancedCodeGenerator {
     for (const [key, generator] of this.generators) {
       const [genType, name] = key.split(":");
 
-      if (genType === "framework" && name === selectedModules.framework) {
-        // framework
-      } else if (genType === "database" && name === selectedModules.database) {
-        // database
-      } else if (genType === "auth" && name === selectedModules.auth) {
-        // auth
-      } else {
+      if (!this.isGeneratorSelected(genType, name, selectedModules)) {
         continue;
       }
 
@@ -1265,7 +1156,7 @@ export class AdvancedCodeGenerator {
       await this.executeOperation(operation, context, projectPath);
     }
 
-    await this.generatePackageJson(selectedModules, features, projectPath);
+    await this.generatePackageJson(selectedModules, projectPath);
 
     return this.postInstallCommands;
   }
@@ -1293,7 +1184,6 @@ export class AdvancedCodeGenerator {
     return { frameworks, databases, auths };
   }
 
-  // Method to register a generator configuration
   registerGenerator(
     type: "framework" | "database" | "auth",
     name: string,

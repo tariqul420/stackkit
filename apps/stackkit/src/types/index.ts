@@ -68,7 +68,6 @@ export interface ModifyJsonPatch extends ModulePatch {
 }
 
 export interface ProjectInfo {
-  // Framework name is driven by templates/modules; keep flexible for discovery
   framework: string;
   router: "app" | "pages" | "unknown";
   language: "ts" | "js";

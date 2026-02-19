@@ -2,6 +2,7 @@ node_modules/
 dist/
 templates/
 modules/
+tmp/
 *.log
 .DS_Store
 

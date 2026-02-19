@@ -1,7 +1,13 @@
 #!/usr/bin/env node
-/* eslint-disable */
 const fs = require("fs-extra");
 const path = require("path");
+
+function getErrorMessage(error) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return String(error);
+}
 
 async function main() {
   try {
@@ -28,7 +34,7 @@ async function main() {
       console.log("Clean complete.");
     }
   } catch (err) {
-    console.error("Clean failed:", err && err.message ? err.message : err);
+    console.error("Clean failed:", getErrorMessage(err));
     process.exitCode = 1;
   }
 }

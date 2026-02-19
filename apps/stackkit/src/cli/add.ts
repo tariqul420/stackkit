@@ -52,7 +52,6 @@ export async function addCommand(module?: string, options?: AddOptions): Promise
 
     const config = await getAddConfig(module, options, projectInfo);
 
-    // Refresh project detection in case getAddConfig performed a pre-add (database)
     const refreshedProjectInfo = await detectProjectInfo(projectRoot);
 
     await addModuleToProject(projectRoot, refreshedProjectInfo, config, options);
@@ -161,7 +160,6 @@ async function getAddConfig(
     }
   }
 
-  // Unknown module type
   throw new Error(
     `Unknown module type "${module}". Use "database" or "auth", or specify a provider directly.`,
   );
@@ -175,7 +173,6 @@ async function getInteractiveConfig(
   const projectRoot = process.cwd();
   const discovered: DiscoveredModules = await discoverModules(modulesDir);
 
-  // Prefer discovered framework, then projectInfo.framework; leave empty if unknown
   const defaultFramework =
     (discovered.frameworks && discovered.frameworks[0]?.name) || projectInfo?.framework || "";
   const compatibleAuths = getCompatibleAuthOptions(
@@ -189,7 +186,6 @@ async function getInteractiveConfig(
     { name: "Database", value: "database" },
   ];
 
-  // Offer Auth category when there's at least one compatible auth option
   if (compatibleAuths.length > 0) {
     categories.push({ name: "Auth", value: "auth" });
   }
@@ -232,7 +228,6 @@ async function getInteractiveConfig(
       };
     }
 
-    // Other databases (mongoose, etc.)
     const meta = (await loadModuleMetadata(modulesDir, selectedDb, selectedDb)) as ModuleMetadata;
     if (!meta) throw new Error(`Database provider "${selectedDb}" not found`);
 
@@ -470,8 +465,8 @@ async function addModuleToProject(
       } else if (deps["mongoose"]) {
         selectedModules.database = "mongoose";
       }
-    } catch {
-      // ignore detection errors
+    } catch (error) {
+      void error;
     }
 
     if (config.module === "database" && config.provider) {
@@ -532,8 +527,8 @@ async function addModuleToProject(
       | undefined;
     if (shared && shared.dependencies) Object.assign(mergedDeps, shared.dependencies);
     if (shared && shared.devDependencies) Object.assign(mergedDevDeps, shared.devDependencies);
-  } catch {
-    // ignore malformed frameworkConfigs
+  } catch (error) {
+    void error;
   }
 
   const variables: Record<string, string> = {};

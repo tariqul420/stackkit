@@ -1,7 +1,13 @@
 #!/usr/bin/env node
-/* eslint-disable */
 const fs = require("fs-extra");
 const path = require("path");
+
+function getErrorMessage(error) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return String(error);
+}
 
 async function copyRecursive(src, dest) {
   try {
@@ -11,7 +17,7 @@ async function copyRecursive(src, dest) {
     await fs.copy(src, dest);
     return true;
   } catch (err) {
-    console.error(`Failed to copy from ${src} to ${dest}:`, err.message || err);
+    console.error(`Failed to copy from ${src} to ${dest}:`, getErrorMessage(err));
     return false;
   }
 }
@@ -28,10 +34,7 @@ async function ensureNonDotFiles(templatesRoot) {
     try {
       tplEntries = await fs.readdir(tplDir, { withFileTypes: true });
     } catch (err) {
-      console.warn(
-        `Could not read template dir ${tplDir}:`,
-        err && err.message ? err.message : err,
-      );
+      console.warn(`Could not read template dir ${tplDir}:`, getErrorMessage(err));
       continue;
     }
 
@@ -50,7 +53,7 @@ async function ensureNonDotFiles(templatesRoot) {
           }
         }
       } catch (err) {
-        console.warn(`Could not ensure ${nonDotPath}:`, err && err.message ? err.message : err);
+        console.warn(`Could not ensure ${nonDotPath}:`, getErrorMessage(err));
       }
     }
   }
@@ -98,6 +101,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error("Unexpected error during copy-assets:", err.message || err);
+  console.error("Unexpected error during copy-assets:", getErrorMessage(err));
   process.exitCode = 1;
 });

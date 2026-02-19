@@ -12,7 +12,6 @@ export const LOCK_FILES = {
   [PACKAGE_MANAGERS.NPM]: "package-lock.json",
 } as const;
 
-// Array of lock files with package managers for iteration
 export const LOCK_FILES_ARRAY = [
   { file: LOCK_FILES.pnpm, pm: PACKAGE_MANAGERS.PNPM },
   { file: LOCK_FILES.yarn, pm: PACKAGE_MANAGERS.YARN },
@@ -68,9 +67,9 @@ export const EXCLUDE_FROM_COPY = [
 ] as const;
 
 export const TIMEOUTS = {
-  PACKAGE_INSTALL: 300000, // 5 minutes in milliseconds
-  GIT_INIT: 30000, // 30 seconds
-  RETRY_DELAY_BASE: 1000, // 1 second base delay for retries
+  PACKAGE_INSTALL: 300000,
+  GIT_INIT: 30000,
+  RETRY_DELAY_BASE: 1000,
 } as const;
 
 export const RETRY_CONFIG = {

@@ -1,8 +1,27 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
 import fs from "fs-extra";
+import { createRequire } from "module";
 import path from "path";
 import { logger } from "../ui/logger";
 import { getPackageRoot } from "../utils/package-root";
+
+const nodeRequire = createRequire(__filename);
+
+type RecastBabelOptions = {
+  plugins: string[];
+};
+
+type RecastBabelOptionsFactory = (options: Record<string, unknown>) => RecastBabelOptions;
+
+type TemplateFileReplacement = {
+  file: string;
+  from?: string | RegExp;
+  to?: string;
+};
+
+type TemplateConfig = {
+  fileReplacements?: TemplateFileReplacement[];
+  jsScripts?: Record<string, string>;
+};
 
 const baseDirs: Record<string, string> = {
   express: "./src",
@@ -38,11 +57,11 @@ export async function convertToJavaScript(targetDir: string, framework: string):
   };
   await removeDtsFiles(targetDir);
 
-  const babel = require("@babel/core");
+  const babel = nodeRequire("@babel/core");
 
   const checkModule = (name: string) => {
     try {
-      require.resolve(name);
+      nodeRequire.resolve(name);
       return true;
     } catch {
       return false;
@@ -83,7 +102,7 @@ export async function convertToJavaScript(targetDir: string, framework: string):
           const outFile = fullPath.replace(/\.tsx$/, ".jsx").replace(/\.ts$/, ".js");
           const presets: (string | [string, Record<string, unknown>])[] = [
             [
-              require.resolve("@babel/preset-typescript"),
+              nodeRequire.resolve("@babel/preset-typescript"),
               {
                 onlyRemoveTypeImports: true,
                 allowDeclareFields: true,
@@ -94,7 +113,7 @@ export async function convertToJavaScript(targetDir: string, framework: string):
               },
             ],
             [
-              require.resolve("@babel/preset-env"),
+              nodeRequire.resolve("@babel/preset-env"),
               {
                 targets: { node: "18" },
                 modules: false,
@@ -103,14 +122,17 @@ export async function convertToJavaScript(targetDir: string, framework: string):
           ];
 
           try {
-            const recast = require("recast");
-            const { transformFromAstSync } = require("@babel/core");
-            const transformTypescript = require("@babel/plugin-transform-typescript");
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            let getBabelOptions: any = require("recast/parsers/_babel_options");
-            if (getBabelOptions && getBabelOptions.default)
-              getBabelOptions = getBabelOptions.default;
-            const babelParser = require("recast/parsers/babel").parser;
+            const recast = nodeRequire("recast");
+            const { transformFromAstSync } = nodeRequire("@babel/core");
+            const transformTypescript = nodeRequire("@babel/plugin-transform-typescript");
+            const rawBabelOptions = nodeRequire("recast/parsers/_babel_options") as
+              | RecastBabelOptionsFactory
+              | { default?: RecastBabelOptionsFactory };
+            const getBabelOptions: RecastBabelOptionsFactory =
+              typeof rawBabelOptions === "function"
+                ? rawBabelOptions
+                : (rawBabelOptions.default ?? (() => ({ plugins: [] })));
+            const babelParser = nodeRequire("recast/parsers/babel").parser;
 
             const ast = recast.parse(code, {
               parser: {
@@ -140,7 +162,7 @@ export async function convertToJavaScript(targetDir: string, framework: string):
             await fs.remove(fullPath);
             continue;
           } catch {
-            // ignore recast errors, fall back to babel
+            // Fallback to Babel transform.
           }
 
           const result = await babel.transformAsync(code, {
@@ -152,6 +174,9 @@ export async function convertToJavaScript(targetDir: string, framework: string):
             babelrc: false,
             configFile: false,
           });
+          if (!result?.code) {
+            continue;
+          }
           await fs.writeFile(outFile, result.code, "utf8");
           await fs.remove(fullPath);
         }
@@ -189,13 +214,13 @@ export async function convertToJavaScript(targetDir: string, framework: string):
   const templatesRoot = path.join(getPackageRoot(), "templates");
   const templateName = framework;
 
-  let fileReplacements = [];
-  let jsScripts = null;
+  let fileReplacements: TemplateFileReplacement[] = [];
+  let jsScripts: Record<string, string> | null = null;
   if (templateName) {
     const templateJsonPath = path.join(templatesRoot, templateName, "template.json");
     if (await fs.pathExists(templateJsonPath)) {
       try {
-        const templateJson = await fs.readJson(templateJsonPath);
+        const templateJson = (await fs.readJson(templateJsonPath)) as TemplateConfig;
         if (Array.isArray(templateJson.fileReplacements)) {
           fileReplacements = templateJson.fileReplacements;
         }
@@ -203,7 +228,7 @@ export async function convertToJavaScript(targetDir: string, framework: string):
           jsScripts = templateJson.jsScripts;
         }
       } catch {
-        // ignore errors reading template.json
+        fileReplacements = [];
       }
     }
   }

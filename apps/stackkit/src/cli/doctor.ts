@@ -5,7 +5,6 @@ import { detectAuthModules, detectDatabaseModules } from "../lib/discovery/insta
 import { logger } from "../lib/ui/logger";
 import { getPackageRoot } from "../lib/utils/package-root";
 
-// Constants for consistent messaging
 const MESSAGES = {
   NO_PACKAGE_JSON: "No package.json found in current directory or any parent directory.",
   UNSUPPORTED_PROJECT: "Unsupported project type or unable to detect framework.",
@@ -255,7 +254,6 @@ async function detectPackageManager(projectRoot: string): Promise<string> {
 function detectProjectType(packageJson: PackageJson): string {
   const deps = { ...packageJson.dependencies, ...packageJson.devDependencies };
 
-  // Try to detect using available templates
   try {
     const templatesDir = path.join(getPackageRoot(), "templates");
     if (fs.existsSync(templatesDir)) {
@@ -267,12 +265,12 @@ function detectProjectType(packageJson: PackageJson): string {
           const tpl = JSON.parse(fs.readFileSync(tplPath, "utf-8"));
           if (tpl && tpl.framework && deps[tpl.framework]) return tpl.framework;
         } catch {
-          // ignore
+          continue;
         }
       }
     }
-  } catch {
-    // ignore template-based detection errors
+  } catch (error) {
+    void error;
   }
 
   if (deps.next) {
@@ -309,8 +307,6 @@ function checkNodeVersion(): CheckResult {
     };
   }
 }
-
-// Module detection is delegated to shared utilities in `lib/discovery`.
 
 async function checkKeyFiles(
   projectRoot: string,
@@ -350,7 +346,6 @@ async function checkKeyFiles(
 }
 
 async function checkAuthRoutesExist(projectRoot: string): Promise<boolean> {
-  // Build candidate auth route paths from generator.json files in modules/auth
   const candidates = new Set<string>();
 
   try {
@@ -373,12 +368,12 @@ async function checkAuthRoutesExist(projectRoot: string): Promise<boolean> {
             }
           }
         } catch {
-          // ignore malformed generator
+          continue;
         }
       }
     }
-  } catch {
-    // ignore discovery errors
+  } catch (error) {
+    void error;
   }
 
   if (candidates.size === 0) return false;
@@ -402,7 +397,6 @@ async function checkEnvFiles(
   const missing: string[] = [];
   const present: string[] = [];
 
-  // Dynamically collect required env keys from generator.json for detected modules
   try {
     const modulesDir = path.join(getPackageRoot(), "modules");
 
@@ -418,7 +412,6 @@ async function checkEnvFiles(
                 if (!requiredKeys.includes(k)) requiredKeys.push(k);
               }
             }
-            // Also check nested operations (e.g., patch-file -> operations)
             if (Array.isArray(op.operations)) {
               for (const sub of op.operations) {
                 if (sub.type === "add-env" && sub.envVars && typeof sub.envVars === "object") {
@@ -431,7 +424,7 @@ async function checkEnvFiles(
           }
         }
       } catch {
-        // ignore malformed generator
+        return;
       }
     }
 
@@ -441,8 +434,8 @@ async function checkEnvFiles(
     for (const auth of authModules) {
       await collectEnvKeys("auth", auth);
     }
-  } catch {
-    // If discovery fails, keep requiredKeys empty rather than using hard-coded defaults.
+  } catch (error) {
+    void error;
   }
 
   const envPaths = [".env", ".env.local"];
@@ -546,13 +539,11 @@ async function checkDependencies(
   packageJson: PackageJson,
 ): Promise<{ status: "success" | "warning" | "error"; message: string; outdated: string[] }> {
   const outdated: string[] = [];
-  // Simple check: if dependencies have ^ or ~, assume up to date for now
-  // In production, integrate with npm outdated or similar
   const deps = { ...packageJson.dependencies, ...packageJson.devDependencies };
   for (const [name, version] of Object.entries(deps || {})) {
-    if (typeof version === "string" && (version.startsWith("^") || version.startsWith("~"))) {
-      // Assume up to date if using flexible versioning
-    } else {
+    const isFlexibleVersion =
+      typeof version === "string" && (version.startsWith("^") || version.startsWith("~"));
+    if (!isFlexibleVersion) {
       outdated.push(name);
     }
   }
@@ -592,7 +583,6 @@ async function checkEslintConfigExists(projectRoot: string): Promise<boolean> {
 function generateSuggestions(authModules: string[], databaseModules: string[]): string[] {
   const suggestions: string[] = [];
 
-  // Show suggestions based on what's missing
   if (authModules.length === 0) {
     suggestions.push("stackkit add auth     - Add authentication module");
   }
@@ -600,7 +590,6 @@ function generateSuggestions(authModules: string[], databaseModules: string[]): 
     suggestions.push("stackkit add database - Add database module");
   }
 
-  // Always show available commands
   suggestions.push("stackkit list         - View available modules");
 
   return suggestions;
@@ -610,14 +599,12 @@ function printDoctorReport(report: DoctorReport, verbose: boolean): void {
   logger.header("🔍 StackKit Doctor Report");
   logger.newLine();
 
-  // Project info
   logger.log(chalk.bold("Project"));
   logger.log(`  Type: ${report.project.type}`);
   logger.log(`  Root: ${report.project.root}`);
   logger.log(`  Package Manager: ${report.project.packageManager}`);
   logger.newLine();
 
-  // Runtime
   logger.log(chalk.bold("Runtime"));
   if (report.runtime.nodeVersionStatus === "success") {
     logger.success(`Node.js: ${report.runtime.nodeVersion}`);
@@ -628,7 +615,6 @@ function printDoctorReport(report: DoctorReport, verbose: boolean): void {
   }
   logger.newLine();
 
-  // Modules
   logger.log(chalk.bold("Modules"));
   if (report.modules.auth.length > 0) {
     logger.log(`  Auth: ${report.modules.auth.join(", ")}`);
@@ -642,7 +628,6 @@ function printDoctorReport(report: DoctorReport, verbose: boolean): void {
   }
   logger.newLine();
 
-  // Files
   logger.log(chalk.bold("Files"));
   if (report.files.envExample) {
     logger.success(MESSAGES.ENV_EXAMPLE_FOUND);
@@ -704,7 +689,6 @@ function printDoctorReport(report: DoctorReport, verbose: boolean): void {
   }
   logger.newLine();
 
-  // Dependencies
   if (report.dependencies.outdated.length > 0) {
     logger.log(chalk.bold("Dependencies"));
     logger.warn(MESSAGES.DEPENDENCY_OUTDATED(report.dependencies.outdated));
@@ -712,7 +696,6 @@ function printDoctorReport(report: DoctorReport, verbose: boolean): void {
     logger.newLine();
   }
 
-  // Environment
   if (report.env.missing.length > 0 || report.env.present.length > 0) {
     logger.log(chalk.bold("Environment Variables"));
     if (report.env.present.length > 0) {
@@ -724,7 +707,6 @@ function printDoctorReport(report: DoctorReport, verbose: boolean): void {
     logger.newLine();
   }
 
-  // Conflicts
   if (report.conflicts.length > 0) {
     logger.log(chalk.bold("Conflicts"));
     report.conflicts.forEach((conflict) => {
@@ -733,7 +715,6 @@ function printDoctorReport(report: DoctorReport, verbose: boolean): void {
     logger.newLine();
   }
 
-  // Detailed checks if verbose
   if (verbose) {
     logger.log(chalk.bold("Detailed Checks"));
     report.checks.forEach((check) => {
@@ -751,7 +732,6 @@ function printDoctorReport(report: DoctorReport, verbose: boolean): void {
     logger.newLine();
   }
 
-  // Summary
   logger.log(chalk.bold("Summary"));
   logger.log(`  Errors: ${report.summary.errors}`);
   logger.log(`  Warnings: ${report.summary.warnings}`);

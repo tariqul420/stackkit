@@ -7,7 +7,6 @@ import { envVars } from "../../config/env";
 import { AppError } from "../errors/app-error";
 {{/if}}
 {{#if framework == "nextjs"}}
-import nodemailer from "nodemailer";
 import { renderEmailTemplate } from "../email/otp-template";
 import { envVars } from "../env";
 {{/if}}

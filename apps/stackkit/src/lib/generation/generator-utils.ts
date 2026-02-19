@@ -32,7 +32,7 @@ export async function mergeModuleIntoGeneratorConfig(
         config.envVars = { ...(config.envVars || {}), ...moduleConfig.envVars };
       }
     } catch {
-      // ignore invalid module.json
+      return config;
     }
   }
 
@@ -48,7 +48,6 @@ export async function mergeGeneratorIntoModuleMetadata(
     try {
       const generator = await fs.readJson(generatorPath);
 
-      // Process add-env operations to extract envVars
       if (generator.operations && Array.isArray(generator.operations)) {
         for (const operation of generator.operations) {
           if (operation.type === "add-env" && operation.envVars) {
@@ -63,12 +62,7 @@ export async function mergeGeneratorIntoModuleMetadata(
               });
             }
           }
-        }
-      }
 
-      // Collect dependencies/devDependencies from add-dependency operations
-      if (generator.operations && Array.isArray(generator.operations)) {
-        for (const operation of generator.operations) {
           if (operation.type === "add-dependency") {
             if (operation.dependencies) {
               metadata.dependencies = {
@@ -90,7 +84,7 @@ export async function mergeGeneratorIntoModuleMetadata(
         metadata.postInstall.push(...generator.postInstall);
       }
     } catch {
-      // ignore invalid generator.json
+      return metadata;
     }
   }
 
@@ -111,13 +105,7 @@ export function locateOperationSource(
       ? path.join(templatesPath, generatorName)
       : path.join(modulesPath, generatorType, generatorName);
 
-  const sourcePath = path.join(moduleBasePath, "files", sourceRel);
-
-  try {
-    return sourcePath;
-  } catch {
-    return null;
-  }
+  return path.join(moduleBasePath, "files", sourceRel);
 }
 
 export default {

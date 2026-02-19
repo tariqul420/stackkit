@@ -1,20 +1,19 @@
 import fs from "fs-extra";
 import path from "path";
 import { ProjectInfo } from "../../types";
+import { ERROR_MESSAGES, FILE_NAMES, LOCK_FILES, ROUTER_TYPES } from "../constants";
 import { detectAuthModules, detectDatabaseModules } from "../discovery/installed-detection";
 import { getPackageRoot } from "../utils/package-root";
 
 export async function detectProjectInfo(targetDir: string): Promise<ProjectInfo> {
-  const packageJsonPath = path.join(targetDir, "package.json");
+  const packageJsonPath = path.join(targetDir, FILE_NAMES.PACKAGE_JSON);
 
   if (!(await fs.pathExists(packageJsonPath))) {
-    throw new Error("No package.json found. This does not appear to be a Node.js project.");
+    throw new Error(ERROR_MESSAGES.NO_PACKAGE_JSON);
   }
 
   const packageJson = await fs.readJSON(packageJsonPath);
 
-  // Detect framework by matching available templates' characteristic files
-  // Framework is dynamic and driven by templates; keep as string for discovery
   let framework: string = "unknown";
   try {
     const templatesDir = path.join(getPackageRoot(), "templates");
@@ -34,20 +33,18 @@ export async function detectProjectInfo(targetDir: string): Promise<ProjectInfo>
           }
           if (!bestMatch || score > bestMatch.score) bestMatch = { name: d, score };
         } catch {
-          // ignore
+          continue;
         }
       }
 
       if (bestMatch && bestMatch.score > 0) {
-        // Use the template folder name as the framework identifier
         framework = bestMatch.name;
       }
     }
   } catch {
-    // fall back to dependency heuristics below
+    framework = "unknown";
   }
 
-  // Fallback: simple dependency-based detection
   if (framework === "unknown") {
     const isNextJs = packageJson.dependencies?.next || packageJson.devDependencies?.next;
     const isExpress = packageJson.dependencies?.express || packageJson.devDependencies?.express;
@@ -64,7 +61,6 @@ export async function detectProjectInfo(targetDir: string): Promise<ProjectInfo>
     throw new Error("Unsupported project type or unable to detect framework from templates.");
   }
 
-  // Detect router type (only for Next.js)
   let router: "app" | "pages" | "unknown" = "unknown";
 
   if (framework === "nextjs") {
@@ -74,14 +70,13 @@ export async function detectProjectInfo(targetDir: string): Promise<ProjectInfo>
     const srcPagesDirExists = await fs.pathExists(path.join(targetDir, "src", "pages"));
 
     if (appDirExists || srcAppDirExists) {
-      router = "app";
+      router = ROUTER_TYPES.APP;
     } else if (pagesDirExists || srcPagesDirExists) {
-      router = "pages";
+      router = ROUTER_TYPES.PAGES;
     }
   }
 
-  // Detect TypeScript vs JavaScript
-  const tsconfigExists = await fs.pathExists(path.join(targetDir, "tsconfig.json"));
+  const tsconfigExists = await fs.pathExists(path.join(targetDir, FILE_NAMES.TSCONFIG_JSON));
   const jsconfigExists = await fs.pathExists(path.join(targetDir, "jsconfig.json"));
   let language: "ts" | "js";
   if (tsconfigExists) {
@@ -92,10 +87,9 @@ export async function detectProjectInfo(targetDir: string): Promise<ProjectInfo>
     language = "ts";
   }
 
-  // Detect package manager
-  const yarnLockExists = await fs.pathExists(path.join(targetDir, "yarn.lock"));
-  const pnpmLockExists = await fs.pathExists(path.join(targetDir, "pnpm-lock.yaml"));
-  const bunLockExists = await fs.pathExists(path.join(targetDir, "bun.lockb"));
+  const yarnLockExists = await fs.pathExists(path.join(targetDir, LOCK_FILES.yarn));
+  const pnpmLockExists = await fs.pathExists(path.join(targetDir, LOCK_FILES.pnpm));
+  const bunLockExists = await fs.pathExists(path.join(targetDir, LOCK_FILES.bun));
   let packageManager: "npm" | "yarn" | "pnpm" | "bun" = "pnpm";
 
   if (pnpmLockExists) {
@@ -106,8 +100,6 @@ export async function detectProjectInfo(targetDir: string): Promise<ProjectInfo>
     packageManager = "bun";
   }
 
-  // Detect installed modules by comparing project dependencies against
-  // declared dependencies in `modules/*/generator.json` and `module.json`.
   const detectedAuth = await detectAuthModules(packageJson);
   const detectedDbs = await detectDatabaseModules(packageJson);
 
