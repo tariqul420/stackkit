@@ -43,7 +43,7 @@ export const auth = betterAuth({
   }),
 {{/if}}
 {{#if database == "mongoose"}}
-  database: mongodbAdapter(db, { client }),
+  database: mongodbAdapter(db, { client, transaction: false }),
 {{/if}}
   baseURL: envVars.BETTER_AUTH_URL,
   secret: envVars.BETTER_AUTH_SECRET,
