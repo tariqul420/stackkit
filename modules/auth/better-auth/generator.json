@@ -29,13 +29,13 @@
     },
     {
       "type": "create-file",
-      "source": "express/modules/mongoose/auth.helper.ts",
+      "source": "shared/mongoose/auth/helper.ts",
       "destination": "src/modules/auth/auth.helper.ts",
       "condition": { "framework": "express", "database": "mongoose" }
     },
     {
       "type": "create-file",
-      "source": "shared/constants/auth.ts",
+      "source": "shared/mongoose/auth/constants.ts",
       "destination": "src/modules/auth/auth.constants.ts",
       "condition": { "framework": "express", "database": "mongoose" }
     },
@@ -171,13 +171,13 @@
       "type": "create-file",
       "source": "shared/lib/auth-client.ts",
       "destination": "lib/auth/auth-client.ts",
-      "condition": { "framework": ["nextjs"] }
+      "condition": { "framework": "nextjs" }
     },
     {
       "type": "create-file",
-      "source": "shared/constants/auth.ts",
+      "source": "shared/mongoose/auth/constants.ts",
       "destination": "lib/auth/auth-constants.ts",
-      "condition": { "framework": ["nextjs"] }
+      "condition": { "framework": "nextjs" }
     },
     {
       "type": "create-file",

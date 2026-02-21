@@ -54,16 +54,22 @@ export const authorize = (...authRoles: AuthRole[]) =>
           expiresAt: { $gt: new Date() },
         });
 
-        if (sessionExists) {
-          sessionExists.user = await users.findOne({
-            id: sessionExists.userId,
-          });
-        }
+        const user = sessionExists
+          ? await users.findOne({
+              id: sessionExists.userId,
+            })
+          : null;
         {{/if}}
 
+        {{#if database == "prisma"}}
         if (sessionExists && sessionExists.user) {
           const user = sessionExists.user;
+        {{/if}}
+        {{#if database == "mongoose"}}
+        if (sessionExists && user) {
+        {{/if}}
 
+          {{#if database == "prisma"}}
           const now = new Date();
           const expiresAt = new Date(sessionExists.expiresAt);
           const createdAt = new Date(sessionExists.createdAt);
@@ -79,6 +85,26 @@ export const authorize = (...authRoles: AuthRole[]) =>
 
             console.log("Session Expiring Soon!!");
           }
+          {{/if}}
+          {{#if database == "mongoose"}}
+          if (sessionExists.expiresAt && sessionExists.createdAt) {
+            const now = new Date();
+            const expiresAt = new Date(sessionExists.expiresAt);
+            const createdAt = new Date(sessionExists.createdAt);
+
+            const sessionLifeTime = expiresAt.getTime() - createdAt.getTime();
+            const timeRemaining = expiresAt.getTime() - now.getTime();
+            const percentRemaining = (timeRemaining / sessionLifeTime) * 100;
+
+            if (percentRemaining < 20) {
+              res.setHeader("X-Session-Refresh", "true");
+              res.setHeader("X-Session-Expires-At", expiresAt.toISOString());
+              res.setHeader("X-Time-Remaining", timeRemaining.toString());
+
+              console.log("Session Expiring Soon!!");
+            }
+          }
+          {{/if}}
 
           if (
             user.status === UserStatus.BLOCKED ||
@@ -97,7 +123,12 @@ export const authorize = (...authRoles: AuthRole[]) =>
             );
           }
 
+          {{#if database == "prisma"}}
           if (authRoles.length > 0 && !authRoles.includes(user.role)) {
+          {{/if}}
+          {{#if database == "mongoose"}}
+          if (authRoles.length > 0 && !authRoles.includes(user.role as AuthRole)) {
+          {{/if}}
             throw new AppError(
               status.FORBIDDEN,
               "Forbidden access! You do not have permission to access this resource.",
@@ -158,4 +189,4 @@ export const authorize = (...authRoles: AuthRole[]) =>
     } catch (error: unknown) {
       next(error);
     }
-  };
+};

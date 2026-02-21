@@ -18,15 +18,13 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { envVars } from "../config/env";
 import { Role, UserStatus } from "../modules/auth/auth.constants";
 import { sendEmail } from "../shared/utils/email";
-import { getMongoClient, getMongoDb } from "../database/mongoose";
-import { authRoles, userStatuses } from "../modules/auth/auth.constants";
+import { getMongoClient, getMongoDb, mongoose } from "../database/mongoose";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 {{/if}}
 {{#if combo == "mongoose:nextjs"}}
-import { Role, UserStatus } from "../modules/auth/auth.constants";
 import { sendEmail } from "../service/email/email-service";
 import { getMongoClient, getMongoDb, mongoose } from "../database/mongoose";
-import { authRoles, userStatuses } from "../modules/auth/auth.constants";
+import { Role, UserStatus } from "@/lib/auth/auth-constants";
 import { envVars } from "@/lib/env";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 {{/if}}

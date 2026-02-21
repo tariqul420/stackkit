@@ -11,6 +11,7 @@ export type AuthUser = {
   isDeleted?: boolean;
   emailVerified?: boolean;
   needPasswordChange?: boolean;
+  deletedAt?: Date | null;
 };
 
 export type AuthUserDocument = AuthUser & {

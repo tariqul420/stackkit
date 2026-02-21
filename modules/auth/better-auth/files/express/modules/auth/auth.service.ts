@@ -8,7 +8,7 @@ import { prisma } from "../../database/prisma";
 import {
   deleteAuthUserById,
   getAuthCollections,
-} from "../mongoose/auth.helper";
+} from "./auth.helper";
 {{/if}}
 import { auth } from "../../lib/auth";
 import { AppError } from "../../shared/errors/app-error";
@@ -209,7 +209,7 @@ const getNewToken = async (refreshToken : string, sessionToken : string) => {
     })
     {{/if}}
     {{#if database == "mongoose"}}
-      await sessions.updateOne(
+    const updatedSession = await sessions.findOneAndUpdate(
       { token: sessionToken },
       {
         $set: {
@@ -218,15 +218,22 @@ const getNewToken = async (refreshToken : string, sessionToken : string) => {
           updatedAt: new Date(),
         },
       },
+      {
+        returnDocument: "after",
+      },
     );
+
+    if (!updatedSession) {
+      throw new AppError(status.UNAUTHORIZED, "Session not found");
+    }
+    const token = updatedSession.token;
     {{/if}}
 
     return {
         accessToken : newAccessToken,
         refreshToken : newRefreshToken,
         sessionToken : token,
-    }
-
+    };
 }
 
 const changePassword = async (payload : IChangePasswordPayload, sessionToken : string) =>{
