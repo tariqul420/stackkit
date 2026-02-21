@@ -1,14 +1,26 @@
-import { Role, UserStatus } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 import status from "http-status";
 import { envVars } from "../../config/env";
-import { prisma } from "../../database/prisma";
 import { AppError } from "../errors/app-error";
 import { cookieUtils } from "../utils/cookie";
 import { jwtUtils } from "../utils/jwt";
+{{#if database == "prisma"}}
+import { Role, UserStatus } from "@prisma/client";
+import { prisma } from "../../database/prisma";
+{{/if}}
+{{#if database == "mongoose"}}
+import { Role, UserStatus } from "../../modules/auth/auth.constants";
+import { getAuthCollections } from "../../modules/auth/auth.helper";
+{{/if}}
 
-export const authorize =
-  (...authRoles: Role[]) =>
+{{#if database == "prisma"}}
+export const authorize = (...authRoles: Role[]) =>
+{{/if}}
+{{#if database == "mongoose"}}
+type AuthRole = (typeof Role)[keyof typeof Role];
+
+export const authorize = (...authRoles: AuthRole[]) =>
+{{/if}}
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       //Session Token Verification
@@ -22,7 +34,8 @@ export const authorize =
       }
 
       if (sessionToken) {
-        const sessionExists = await prisma.session.findFirst({
+        {{#if database == "prisma"}}
+          const sessionExists = await prisma.session.findFirst({
           where: {
             token: sessionToken,
             expiresAt: {
@@ -33,6 +46,20 @@ export const authorize =
             user: true,
           },
         });
+        {{/if}}
+        {{#if database == "mongoose"}}
+        const { sessions, users } = await getAuthCollections();
+        const sessionExists = await sessions.findOne({
+          token: sessionToken,
+          expiresAt: { $gt: new Date() },
+        });
+
+        if (sessionExists) {
+          sessionExists.user = await users.findOne({
+            id: sessionExists.userId,
+          });
+        }
+        {{/if}}
 
         if (sessionExists && sessionExists.user) {
           const user = sessionExists.user;
@@ -119,7 +146,7 @@ export const authorize =
 
       if (
         authRoles.length > 0 &&
-        !authRoles.includes(verifiedToken.data!.role as Role)
+        !authRoles.includes(verifiedToken.data!.role)
       ) {
         throw new AppError(
           status.FORBIDDEN,

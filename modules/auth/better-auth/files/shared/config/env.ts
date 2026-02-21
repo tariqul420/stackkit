@@ -9,11 +9,12 @@ dotenv.config({ path: path.join(process.cwd(), ".env") });
 
 interface EnvConfig {
   APP_URL?: string;
+  DATABASE_URL: string;
   FRONTEND_URL?: string;
   BETTER_AUTH_URL: string;
   BETTER_AUTH_SECRET: string;
-  GOOGLE_CLIENT_ID?: string;
-  GOOGLE_CLIENT_SECRET?: string;
+  GOOGLE_CLIENT_ID: string;
+  GOOGLE_CLIENT_SECRET: string;
   GOOGLE_CALLBACK_URL: string;
   EMAIL_SENDER: {
     SMTP_USER: string;
@@ -38,6 +39,8 @@ interface EnvConfig {
 
 const loadEnvVars = (): EnvConfig => {
   const requiredEnvVars = [
+    "APP_URL",
+    "DATABASE_URL",
     "FRONTEND_URL",
     "BETTER_AUTH_URL",
     "BETTER_AUTH_SECRET",
@@ -80,11 +83,12 @@ const loadEnvVars = (): EnvConfig => {
 
   return {
     APP_URL: process.env.APP_URL as string,
+    DATABASE_URL: process.env.DATABASE_URL as string,
     FRONTEND_URL: process.env.FRONTEND_URL as string,
     BETTER_AUTH_URL: process.env.BETTER_AUTH_URL as string,
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET as string,
-    GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
-    GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+    GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID as string,
+    GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET as string,
     GOOGLE_CALLBACK_URL: process.env.GOOGLE_CALLBACK_URL as string,
     EMAIL_SENDER: {
       SMTP_USER: process.env.EMAIL_SENDER_SMTP_USER as string,

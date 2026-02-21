@@ -39,6 +39,13 @@ const loginUser = catchAsync(
         const result = await authService.loginUser(payload);
         const { accessToken, refreshToken, token, ...rest } = result
 
+        if (!token) {
+          throw new AppError(
+            status.INTERNAL_SERVER_ERROR,
+            "Session token is missing",
+          );
+        }
+
         tokenUtils.setAccessTokenCookie(res, accessToken);
         tokenUtils.setRefreshTokenCookie(res, refreshToken);
         tokenUtils.setBetterAuthSessionCookie(res, token);

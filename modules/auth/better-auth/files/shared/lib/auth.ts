@@ -1,42 +1,44 @@
-import { Role, UserStatus } from "@prisma/client";
 import { betterAuth } from "better-auth";
 import { bearer, emailOTP } from "better-auth/plugins";
 {{#if combo == "prisma:express"}}
+import { Role, UserStatus } from "@prisma/client";
 import { envVars } from "../config/env";
 import { sendEmail } from "../shared/utils/email";
 import { prisma } from "../database/prisma";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 {{/if}}
-
 {{#if combo == "prisma:nextjs"}}
+import { Role, UserStatus } from "@prisma/client";
 import { sendEmail } from "../service/email/email-service";
 import { prisma } from "../database/prisma";
 import { envVars } from "@/lib/env";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 {{/if}}
-
 {{#if combo == "mongoose:express"}}
 import { envVars } from "../config/env";
-import { sendEmail } from "../../shared/email/email-service";
-import { mongoose } from "../../database/mongoose";
+import { Role, UserStatus } from "../modules/auth/auth.constants";
+import { sendEmail } from "../shared/utils/email";
+import { getMongoClient, getMongoDb } from "../database/mongoose";
+import { authRoles, userStatuses } from "../modules/auth/auth.constants";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 {{/if}}
-
 {{#if combo == "mongoose:nextjs"}}
+import { Role, UserStatus } from "../modules/auth/auth.constants";
 import { sendEmail } from "../service/email/email-service";
-import { mongoose } from "../database/mongoose";
+import { getMongoClient, getMongoDb, mongoose } from "../database/mongoose";
+import { authRoles, userStatuses } from "../modules/auth/auth.constants";
 import { envVars } from "@/lib/env";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 {{/if}}
 
 {{#if database == "mongoose"}}
-export async function initAuth() {
-const mongooseInstance = await mongoose();
-const client = mongooseInstance.connection.getClient();
-const db = client.db();
+await mongoose();
+const client = getMongoClient();
+const db = getMongoDb();
+const usersCollection = db.collection("user");
 {{/if}}
 
-{{#if database == "mongoose"}}return{{else}}export const auth = {{/if}} betterAuth({
+export const auth = betterAuth({
 {{#if database == "prisma"}}
   database: prismaAdapter(prisma, {
     provider: "{{prismaProvider}}",
@@ -112,11 +114,16 @@ const db = client.db();
       overrideDefaultEmailVerification: true,
       async sendVerificationOTP({ email, otp, type }) {
         if (type === "email-verification") {
+          {{#if database == "prisma"}}
           const user = await prisma.user.findUnique({
             where: {
               email,
             },
           });
+          {{/if}}
+          {{#if database == "mongoose"}}
+          const user = await usersCollection.findOne({ email });
+          {{/if}}
 
           if (!user) {
             console.error(
@@ -144,11 +151,16 @@ const db = client.db();
             });
           }
         } else if (type === "forget-password") {
+          {{#if database == "prisma"}}
           const user = await prisma.user.findUnique({
             where: {
               email,
             },
           });
+          {{/if}}
+          {{#if database == "mongoose"}}
+          const user = await usersCollection.findOne({ email });
+          {{/if}}
 
           if (user) {
             sendEmail({
@@ -179,7 +191,6 @@ const db = client.db();
     signIn: `${envVars.BETTER_AUTH_URL}/api/v1/auth/google/success`,
   },
   advanced: {
-    // disableCSRFCheck: true,
     useSecureCookies: false,
     cookies: {
       state: {
@@ -200,14 +211,4 @@ const db = client.db();
       },
     },
   },
- })
-{{#if database == "mongoose"}}
-};
-
-export let auth: ReturnType<typeof betterAuth> | undefined = undefined;
-
-export async function setupAuth() {
-  auth = await initAuth();
-  return auth;
-}
-{{/if}}
+});

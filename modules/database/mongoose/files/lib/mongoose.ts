@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { envVars } from "../config/env";
 
 type MongooseCache = {
   conn: typeof mongoose | null;
@@ -24,14 +25,13 @@ async function dbConnect(): Promise<typeof mongoose> {
     return cached.conn;
   }
 
-  const uri = process.env.DATABASE_URL as string;
+  const uri = envVars.DATABASE_URL;
 
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
       connectTimeoutMS: 10000,
       serverSelectionTimeoutMS: 10000,
-      // serverApi removed: not needed for mongoose-only connection
     };
 
     cached.promise = mongoose
@@ -60,4 +60,29 @@ async function dbConnect(): Promise<typeof mongoose> {
   return cached.conn;
 }
 
-export { dbConnect as mongoose, dbConnect as connectMongoose };
+const getMongoClient = () => {
+  if (!mongoose.connection.readyState) {
+    throw new Error("MongoDB is not connected. Call mongoose() first.");
+  }
+
+  return mongoose.connection.getClient();
+};
+
+const getMongoDb = () => {
+  const db = mongoose.connection.db;
+
+  if (!db) {
+    throw new Error("MongoDB is not connected. Call mongoose() first.");
+  }
+
+  return db;
+};
+
+export {
+  dbConnect as connectMongoose,
+  getMongoClient,
+  getMongoDb,
+  dbConnect as mongoose,
+  dbConnect,
+};
+
