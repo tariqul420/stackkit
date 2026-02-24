@@ -61,6 +61,62 @@ src/
 └── utils/        # Helper functions
 ```
 
+## Recommended Folder & File Structure
+
+```text
+react-vite-app/
+├── src/
+│   ├── app/
+│   │   ├── router.tsx
+│   │   ├── providers.tsx
+│   │   └── layouts/
+│   │       ├── PublicLayout.tsx
+│   │       └── DashboardLayout.tsx
+│
+│   ├── features/
+│   │   ├── auth/
+│   │   │   ├── pages/
+│   │   │   │   ├── LoginPage.tsx
+│   │   │   │   └── SignupPage.tsx
+│   │   │   ├── components/
+│   │   │   ├── api/
+│   │   │   │   └── auth.api.ts
+│   │   │   ├── hooks/
+│   │   │   │   └── useAuth.ts
+│   │   │   ├── schemas/
+│   │   │   ├── types/
+│   │   │   └── index.ts
+│   │   ├── products/
+│   │   └── orders/
+│
+│   ├── shared/
+│   │   ├── ui/
+│   │   ├── components/
+│   │   │   ├── Header.tsx
+│   │   │   └── Sidebar.tsx
+│   │   ├── api/
+│   │   │   ├── http.ts                  # axios/fetch client
+│   │   │   └── endpoints.ts
+│   │   └── lib/
+│   │       ├── env.ts
+│   │       ├── utils.ts
+│   │       └── auth-client.ts           # Auth client helper
+│
+│   ├── assets/
+│   ├── main.tsx
+│   └── index.css
+│
+├── public/
+├── tests/
+│   ├── unit/
+│   └── e2e/
+├── vite.config.ts
+├── tsconfig.json
+├── package.json
+├── .env.example
+└── README.md
+```
+
 ## Deployment
 
 Build for production and serve or deploy the static output:
