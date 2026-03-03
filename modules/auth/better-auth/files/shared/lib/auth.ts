@@ -1,14 +1,14 @@
 import { betterAuth } from "better-auth";
 import { bearer, emailOTP } from "better-auth/plugins";
 {{#if combo == "prisma:express"}}
-import { Role, UserStatus } from "@prisma/client";
+import { Role, UserStatus } from "./../generated/prisma";
 import { envVars } from "../config/env";
 import { sendEmail } from "../shared/utils/email";
 import { prisma } from "../database/prisma";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 {{/if}}
 {{#if combo == "prisma:nextjs"}}
-import { Role, UserStatus } from "@prisma/client";
+import { Role, UserStatus } from "./../generated/prisma";
 import { sendEmail } from "../service/email/email-service";
 import { prisma } from "../database/prisma";
 import { envVars } from "@/lib/env";

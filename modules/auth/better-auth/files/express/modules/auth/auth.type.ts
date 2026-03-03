@@ -1,5 +1,5 @@
 {{#if database == "prisma"}}
-import { Role } from "@prisma/client";
+import { Role } from "../../generated/prisma";
 
 export interface IRequestUser {
   id: string;

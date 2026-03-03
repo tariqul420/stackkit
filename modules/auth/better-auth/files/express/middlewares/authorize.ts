@@ -5,7 +5,7 @@ import { AppError } from "../errors/app-error";
 import { cookieUtils } from "../utils/cookie";
 import { jwtUtils } from "../utils/jwt";
 {{#if database == "prisma"}}
-import { Role, UserStatus } from "@prisma/client";
+import { Role, UserStatus } from "../../generated/prisma";
 import { prisma } from "../../database/prisma";
 {{/if}}
 {{#if database == "mongoose"}}

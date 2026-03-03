@@ -1,5 +1,5 @@
 {{#if database == "prisma"}}
-import { Role } from "@prisma/client";
+import { Role } from "../../generated/prisma";
 {{/if}}
 {{#if database == "mongoose"}}
 import { Role } from './auth.constants';
