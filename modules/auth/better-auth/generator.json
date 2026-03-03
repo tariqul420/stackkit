@@ -222,15 +222,10 @@
       "condition": { "framework": "react" }
     },
     {
-      "type": "patch-file",
-      "destination": "prisma/schema.prisma",
-      "condition": { "database": "prisma" },
-      "operations": [
-        {
-          "type": "add-to-bottom",
-          "source": "shared/prisma/schema.prisma"
-        }
-      ]
+      "type": "create-file",
+      "source": "shared/prisma/*",
+      "destination": "prisma/*",
+      "condition": { "database": "prisma" }
     },
     {
       "type": "add-dependency",

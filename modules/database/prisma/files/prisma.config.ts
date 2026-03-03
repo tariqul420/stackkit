@@ -9,7 +9,7 @@ import { defineConfig } from "prisma/config";
 {{/switch}}
 
 export default defineConfig({
-  schema: "prisma/schema.prisma",
+  schema: "./prisma",
   migrations: {
     path: "prisma/migrations",
   },

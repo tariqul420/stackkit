@@ -34,23 +34,23 @@
     {
       "type": "add-script",
       "scripts": {
-        "db:generate": "npx prisma generate",
-        "db:push": "npx prisma db push",
-        "db:seed": "tsx prisma/seed.ts",
-        "db:migrate": "npx prisma migrate dev",
-        "db:studio": "npx prisma studio"
+        "generate": "prisma generate",
+        "push": "prisma db push",
+        "seed": "tsx prisma/seed.ts",
+        "migrate": "prisma migrate dev",
+        "studio": "prisma studio"
       }
     },
     {
       "type": "add-dependency",
       "condition": { "prismaProvider": "postgresql" },
       "dependencies": {
-        "@prisma/client": "^7.2.0",
+        "@prisma/client": "^7.4.2",
         "@prisma/adapter-pg": "^7.0.0",
         "pg": "^8.0.0"
       },
       "devDependencies": {
-        "prisma": "^7.2.0"
+        "prisma": "^7.4.2"
       }
     },
     {
@@ -64,12 +64,12 @@
       "type": "add-dependency",
       "condition": { "prismaProvider": "mysql" },
       "dependencies": {
-        "@prisma/client": "^7.2.0",
+        "@prisma/client": "^7.4.2",
         "@prisma/adapter-mariadb": "^7.0.0",
         "mysql2": "^3.0.0"
       },
       "devDependencies": {
-        "prisma": "^7.2.0"
+        "prisma": "^7.4.2"
       }
     },
     {
@@ -83,12 +83,12 @@
       "type": "add-dependency",
       "condition": { "prismaProvider": "sqlite" },
       "dependencies": {
-        "@prisma/client": "^7.2.0",
+        "@prisma/client": "^7.4.2",
         "@prisma/adapter-better-sqlite3": "^7.0.0",
         "better-sqlite3": "^9.0.0"
       },
       "devDependencies": {
-        "prisma": "^7.2.0"
+        "prisma": "^7.4.2"
       }
     },
     {
@@ -102,10 +102,10 @@
       "type": "add-dependency",
       "condition": { "prismaProvider": "mongodb" },
       "dependencies": {
-        "@prisma/client": "^6.19.0"
+        "@prisma/client": "^7.4.2"
       },
       "devDependencies": {
-        "prisma": "^6.19.0"
+        "prisma": "^7.4.2"
       }
     },
     {
