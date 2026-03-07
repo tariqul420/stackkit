@@ -8,9 +8,12 @@ dotenv.config({ path: path.join(process.cwd(), ".env") });
 {{/if}}
 
 interface EnvConfig {
-  APP_URL?: string;
+  APP_URL: string;
+  {{#if framework == "nextjs"}}
+  API_URL: string;
+  {{/if}}
   DATABASE_URL: string;
-  FRONTEND_URL?: string;
+  FRONTEND_URL: string;
   BETTER_AUTH_URL: string;
   BETTER_AUTH_SECRET: string;
   GOOGLE_CLIENT_ID: string;
@@ -40,6 +43,9 @@ interface EnvConfig {
 const loadEnvVars = (): EnvConfig => {
   const requiredEnvVars = [
     "APP_URL",
+    {{#if framework == "nextjs"}}
+    "API_URL",
+    {{/if}}
     "DATABASE_URL",
     "FRONTEND_URL",
     "BETTER_AUTH_URL",
@@ -83,6 +89,9 @@ const loadEnvVars = (): EnvConfig => {
 
   return {
     APP_URL: process.env.APP_URL as string,
+    {{#if framework == "nextjs"}}
+    API_URL: process.env.API_URL as string,
+    {{/if}}
     DATABASE_URL: process.env.DATABASE_URL as string,
     FRONTEND_URL: process.env.FRONTEND_URL as string,
     BETTER_AUTH_URL: process.env.BETTER_AUTH_URL as string,

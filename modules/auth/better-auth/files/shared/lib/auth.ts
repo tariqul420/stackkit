@@ -1,15 +1,15 @@
 import { betterAuth } from "better-auth";
 import { bearer, emailOTP } from "better-auth/plugins";
 {{#if combo == "prisma:express"}}
-import { Role, UserStatus } from "./../generated/prisma";
+import { Role, UserStatus } from "@prisma/client";
 import { envVars } from "../config/env";
 import { sendEmail } from "../shared/utils/email";
 import { prisma } from "../database/prisma";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 {{/if}}
 {{#if combo == "prisma:nextjs"}}
-import { Role, UserStatus } from "./../generated/prisma";
-import { sendEmail } from "../service/email/email-service";
+import { Role, UserStatus } from "@prisma/client";
+import { sendEmail } from "@/lib/utils/email";
 import { prisma } from "../database/prisma";
 import { envVars } from "@/lib/env";
 import { prismaAdapter } from "better-auth/adapters/prisma";
@@ -48,7 +48,10 @@ export const auth = betterAuth({
   baseURL: envVars.BETTER_AUTH_URL,
   secret: envVars.BETTER_AUTH_SECRET,
   trustedOrigins: [
-    envVars.FRONTEND_URL || envVars.BETTER_AUTH_URL || "http://localhost:3000",
+    envVars.APP_URL!,
+    envVars.FRONTEND_URL!,
+     envVars.BETTER_AUTH_URL!,
+    "http://localhost:3000",
   ],
   emailAndPassword: {
     enabled: true,

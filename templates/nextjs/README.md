@@ -35,21 +35,6 @@ npm run dev
 - `npm run start` - Start production server
 - `npm run lint` - Run linter
 
-## Project Structure
-
-```
-app/
-├── globals.css    # Global styles
-├── layout.tsx     # Root layout
-├── page.tsx       # Home page
-└── api/           # API routes
-
-lib/
-└── utils.ts       # Utility functions
-
-public/            # Static assets
-```
-
 ## Recommended Folder & File Structure
 
 ```text

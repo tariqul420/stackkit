@@ -48,19 +48,6 @@ VITE_API_URL=http://localhost:3000/api
 VITE_APP_NAME=My App
 ```
 
-## Project Structure
-
-```
-src/
-├── api/          # API client
-├── components/   # UI components
-├── hooks/        # Custom hooks
-├── lib/          # Utilities
-├── pages/        # Route pages
-├── types/        # TypeScript types
-└── utils/        # Helper functions
-```
-
 ## Recommended Folder & File Structure
 
 ```text

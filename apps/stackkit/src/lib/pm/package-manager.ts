@@ -33,37 +33,82 @@ export async function installDependencies(
   const args = ["install"];
   const stdio = "pipe" as const;
 
+  const packageInstallTimeout =
+    Number(process.env.STACKKIT_INSTALL_TIMEOUT_MS) || TIMEOUTS.PACKAGE_INSTALL;
+
+  const envFallback = process.env.STACKKIT_FALLBACK_PMS
+    ? process.env.STACKKIT_FALLBACK_PMS.split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : [];
+
+  const defaultOrder: PackageManager[] = ["pnpm", "npm", "yarn", "bun"];
+
+  const preferredOrder = Array.from(
+    new Set([pm, ...envFallback, ...defaultOrder].map((s) => s as PackageManager)),
+  );
+
   let lastError: Error | null = null;
 
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+  async function isAvailable(pmCheck: PackageManager): Promise<boolean> {
     try {
-      if (attempt > 0) {
-        logger.debug(`Retry attempt ${attempt} for installing dependencies`);
-        await new Promise((resolve) => setTimeout(resolve, TIMEOUTS.RETRY_DELAY_BASE * attempt));
-      }
-
-      await execa(pm, args, { cwd, stdio, timeout: TIMEOUTS.PACKAGE_INSTALL });
-      return;
-    } catch (error) {
-      lastError = error as Error;
-      logger.debug(`Installation attempt ${attempt + 1} failed: ${lastError.message}`);
-
-      const err = error as { message?: string };
-      const errorMsg = err.message || "";
-
-      if (
-        errorMsg.includes("ECONNRESET") ||
-        errorMsg.includes("ETIMEDOUT") ||
-        errorMsg.includes("ENOTFOUND")
-      ) {
-        continue;
-      }
-      throw error;
+      await execa(pmCheck, ["--version"], { cwd, stdio: "pipe", timeout: 2000 });
+      return true;
+    } catch {
+      return false;
     }
   }
 
+  for (const pmCandidate of preferredOrder) {
+    if (!["pnpm", "npm", "yarn", "bun"].includes(pmCandidate)) continue;
+
+    const available = await isAvailable(pmCandidate);
+    if (!available) {
+      logger.debug(`${pmCandidate} not found on PATH, skipping`);
+      continue;
+    }
+
+    logger.debug(`Attempting install with ${pmCandidate}`);
+
+    let succeeded = false;
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        if (attempt > 0) {
+          logger.debug(`Retry attempt ${attempt} for ${pmCandidate}`);
+          await new Promise((resolve) => setTimeout(resolve, TIMEOUTS.RETRY_DELAY_BASE * attempt));
+        }
+
+        await execa(pmCandidate, args, { cwd, stdio, timeout: packageInstallTimeout });
+        succeeded = true;
+        break;
+      } catch (error) {
+        lastError = error as Error;
+        logger.debug(
+          `Installation attempt ${attempt + 1} with ${pmCandidate} failed: ${lastError.message}`,
+        );
+
+        const err = error as { message?: string };
+        const errorMsg = err.message || "";
+
+        if (
+          errorMsg.includes("ECONNRESET") ||
+          errorMsg.includes("ETIMEDOUT") ||
+          errorMsg.includes("ENOTFOUND")
+        ) {
+          continue;
+        }
+
+        break;
+      }
+    }
+
+    if (succeeded) return;
+    logger.debug(`${pmCandidate} failed after retries, trying next fallback`);
+  }
+
   throw new Error(
-    `Failed to install dependencies after ${maxRetries + 1} attempts: ${lastError?.message || "Unknown error"}`,
+    `Failed to install dependencies after trying fallback package managers: ${lastError?.message || "Unknown error"}`,
   );
 }
 

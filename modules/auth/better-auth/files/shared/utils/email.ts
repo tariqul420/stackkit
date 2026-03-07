@@ -65,6 +65,10 @@ export const sendEmail = async ({
       })),
     });
   } catch {
-    throw new AppError(status.INTERNAL_SERVER_ERROR, "Failed to send email");
+    {{#if framework == "express"}}
+    throw new AppError(status.INTERNAL_SERVER_ERROR, `Failed to send email to ${to}`);
+    {{else}}
+    throw new Error(`Failed to send email to ${to}`);
+    {{/if}}
   }
 };
