@@ -21,6 +21,8 @@ const transporter = nodemailer.createTransport({
   port: Number(envVars.EMAIL_SENDER.SMTP_PORT),
 });
 
+transporter.verify().catch(() => null);
+
 interface SendEmailOptions {
   to: string;
   subject: string;
@@ -42,12 +44,27 @@ export const sendEmail = async ({
 }: SendEmailOptions) => {
   try {
     {{#if framework == "express"}}
-        const templatePath = path.resolve(
+     const templatePath = path.resolve(
       process.cwd(),
       `src/templates/${templateName}.ejs`,
     );
 
-    const html = await ejs.renderFile(templatePath, templateData);
+    const td = templateData as Record<string, unknown>;
+    const expiresVal =
+      td && Object.prototype.hasOwnProperty.call(td, "expiresInMinutes")
+        ? td["expiresInMinutes"]
+        : undefined;
+    const expiresInMinutes = typeof expiresVal === "number" ? expiresVal : 5;
+
+    const templateDataWithDefaults: Record<string, unknown> = {
+      appName: envVars.APP_NAME ?? "Your App",
+      supportEmail: envVars.SUPER_ADMIN_EMAIL ?? "support@example.com",
+      year: new Date().getFullYear(),
+      expiresInMinutes,
+      ...td,
+    };
+
+    const html = await ejs.renderFile(templatePath, templateDataWithDefaults);
     {{/if}}
     {{#if framework == "nextjs"}}
     const html = renderEmailTemplate(templateName, templateData);

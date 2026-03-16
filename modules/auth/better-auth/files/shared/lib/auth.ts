@@ -133,20 +133,14 @@ export const auth = betterAuth({
             return;
           }
 
-          if (user && user.role === Role.SUPER_ADMIN) {
-            console.log(
-              `User with email ${email} is a super admin. Skipping sending verification OTP.`,
-            );
-            return;
-          }
-
           if (user && !user.emailVerified) {
             sendEmail({
               to: email,
               subject: "Verify your email",
               templateName: "otp",
               templateData: {
-                name: user.name,
+                userName: user.name,
+                appName: envVars.APP_NAME as string,
                 otp,
               },
             });
@@ -169,14 +163,15 @@ export const auth = betterAuth({
               subject: "Password Reset OTP",
               templateName: "otp",
               templateData: {
-                name: user.name,
+                userName: user.name,
+                appName: envVars.APP_NAME as string,
                 otp,
               },
             });
           }
         }
       },
-      expiresIn: 2 * 60, // 2 minutes in seconds
+      expiresIn: 5 * 60, // 5 minutes in seconds
       otpLength: 6,
     }),
   ],

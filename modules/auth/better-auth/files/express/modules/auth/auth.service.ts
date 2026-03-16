@@ -24,6 +24,18 @@ import {
 const registerUser = async (payload: IRegisterUserPayload) => {
     const { name, email, password } = payload;
 
+    if (email) {
+      const existingUser = await prisma.user.findUnique({
+        where: {
+          email: email,
+        },
+      });
+
+      if (existingUser) {
+        throw new AppError(status.CONFLICT, "Email already exists");
+      }
+    }
+
     const data = await auth.api.signUpEmail({
       body: {
         name,

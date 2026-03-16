@@ -1,23 +1,45 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-function isAuthenticated(req: NextRequest) {
-  const token = req.cookies.get("better-auth.session_token")?.value;
+export async function proxy(request: NextRequest) {
+  const { pathname, search } = request.nextUrl;
 
-  return Boolean(token);
-}
+  let isAuthenticated = false;
+  let isAdmin = false;
 
-export function proxy(req: NextRequest) {
-  const { pathname, search } = req.nextUrl;
-  const authed = isAuthenticated(req);
+  // Mock user data for demonstration purposes replace this with actual authentication session logic
+  const data = {
+    name: "John Doe",
+    email: "john.doe@example.com",
+    role: "ADMIN",
+  };
 
-  if (pathname === "/login" || pathname === "/signup") {
-    if (authed) return NextResponse.redirect(new URL("/dashboard", req.url));
+  if (data) {
+    isAuthenticated = true;
+    const role = data?.role;
+    isAdmin = role === "ADMIN";
+  }
+
+  if (
+    pathname === "/login" ||
+    pathname === "/register" ||
+    pathname === "/signup"
+  ) {
+    if (isAuthenticated) {
+      if (isAdmin) {
+        return NextResponse.redirect(new URL("/dashboard/admin", request.url));
+      }
+
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
     return NextResponse.next();
   }
 
-  if (pathname.startsWith("/dashboard") && !authed) {
+  if (pathname.startsWith("/dashboard") && !isAuthenticated) {
     const next = encodeURIComponent(pathname + (search || ""));
-    return NextResponse.redirect(new URL(`/login?next=${next}`, req.url));
+    const res = NextResponse.redirect(
+      new URL(`/login?next=${next}`, request.url),
+    );
+    return res;
   }
 
   return NextResponse.next();
@@ -28,6 +50,7 @@ export const config = {
     "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
     "/(api|trpc)(.*)",
     "/login",
+    "/register",
     "/signup",
     "/dashboard/:path*",
   ],

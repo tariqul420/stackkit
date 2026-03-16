@@ -32,7 +32,7 @@ npx stackkit@latest create my-app \
 
 - `--framework, -f` - nextjs, express, react
 - `--database, -d` - prisma-postgresql, prisma-mysql, prisma-sqlite, prisma-mongodb, mongoose, none
-- `--auth, -a` - better-auth, authjs, none
+- `--auth, -a` - better-auth, none
 - `--language, -l` - typescript, javascript
 - `--package-manager, -p` - pnpm, npm, yarn, bun
 - `--yes, -y` - Use defaults

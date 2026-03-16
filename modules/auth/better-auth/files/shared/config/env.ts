@@ -8,6 +8,7 @@ dotenv.config({ path: path.join(process.cwd(), ".env") });
 {{/if}}
 
 interface EnvConfig {
+  APP_NAME?: string;
   APP_URL: string;
   {{#if framework == "nextjs"}}
   API_URL: string;
@@ -35,8 +36,6 @@ interface EnvConfig {
   ACCESS_TOKEN_EXPIRES_IN: string;
   REFRESH_TOKEN_SECRET: string;
   REFRESH_TOKEN_EXPIRES_IN: string;
-  SUPER_ADMIN_EMAIL: string;
-  SUPER_ADMIN_PASSWORD: string;
   {{/if}}
 }
 
@@ -67,8 +66,6 @@ const loadEnvVars = (): EnvConfig => {
     "ACCESS_TOKEN_EXPIRES_IN",
     "REFRESH_TOKEN_SECRET",
     "REFRESH_TOKEN_EXPIRES_IN",
-    "SUPER_ADMIN_EMAIL",
-    "SUPER_ADMIN_PASSWORD",
     {{/if}}
   ];
 
@@ -88,9 +85,10 @@ const loadEnvVars = (): EnvConfig => {
   });
 
   return {
-    APP_URL: process.env.APP_URL as string,
     {{#if framework == "nextjs"}}
-    API_URL: process.env.API_URL as string,
+    APP_NAME: process.env.NEXT_PUBLIC_APP_NAME ?? "Your App",
+    APP_URL: process.env.NEXT_PUBLIC_APP_URL as string,
+    API_URL: process.env.NEXT_PUBLIC_API_URL as string,
     {{/if}}
     DATABASE_URL: process.env.DATABASE_URL as string,
     FRONTEND_URL: process.env.FRONTEND_URL as string,
@@ -107,9 +105,11 @@ const loadEnvVars = (): EnvConfig => {
       SMTP_FROM: process.env.EMAIL_SENDER_SMTP_FROM as string,
     },
     {{#if framework == "express" }}
+    APP_NAME: process.env.APP_NAME ?? "Your App",
+    APP_URL: process.env.APP_URL as string,
     NODE_ENV: process.env.NODE_ENV as string,
     PORT: process.env.PORT as string,
-        BETTER_AUTH_SESSION_TOKEN_EXPIRES_IN: process.env
+    BETTER_AUTH_SESSION_TOKEN_EXPIRES_IN: process.env
       .BETTER_AUTH_SESSION_TOKEN_EXPIRES_IN as string,
     BETTER_AUTH_SESSION_TOKEN_UPDATE_AGE: process.env
       .BETTER_AUTH_SESSION_TOKEN_UPDATE_AGE as string,
@@ -117,8 +117,6 @@ const loadEnvVars = (): EnvConfig => {
     ACCESS_TOKEN_EXPIRES_IN: process.env.ACCESS_TOKEN_EXPIRES_IN as string,
     REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET as string,
     REFRESH_TOKEN_EXPIRES_IN: process.env.REFRESH_TOKEN_EXPIRES_IN as string,
-    SUPER_ADMIN_EMAIL: process.env.SUPER_ADMIN_EMAIL as string,
-    SUPER_ADMIN_PASSWORD: process.env.SUPER_ADMIN_PASSWORD as string,
     {{/if}}
   };
 };

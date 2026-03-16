@@ -56,7 +56,6 @@ For Prisma provider options, see:
 ### Authentication Options
 - `--auth, -a <auth>`: Authentication library
   - `better-auth`: TypeScript-first auth
-  - `authjs`: NextAuth.js v5 (Next.js + Prisma only)
   - `none`: Skip authentication
 
 ### Other Options
@@ -102,13 +101,12 @@ npx stackkit@latest create my-app --yes
 
 | Framework | Database | Auth |
 |-----------|----------|------|
-| Next.js | Prisma, Mongoose, None | Better Auth, Auth.js, None |
+| Next.js | Prisma, Mongoose, None | Better Auth, None |
 | Express | Prisma, Mongoose, None | Better Auth, None |
 | React | None | Better Auth, None |
 
 **Notes:**
-- Auth.js requires Next.js + Prisma
-- Better Auth requires a database for server frameworks
+  - Better Auth requires a database for server frameworks
 - React only supports frontend authentication
 
 Next steps:
