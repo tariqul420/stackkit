@@ -1,0 +1,11 @@
+{
+  "name": "shadcn",
+  "displayName": "Shadcn UI",
+  "category": "ui",
+  "description": "Shadcn-style component set + tailwind helpers",
+  "supportedFrameworks": ["react", "nextjs"],
+  "compatibility": {
+    "frameworks": ["react", "nextjs"],
+    "languages": ["typescript", "javascript"]
+  }
+}

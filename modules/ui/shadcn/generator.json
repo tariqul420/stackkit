@@ -1,0 +1,22 @@
+{
+  "name": "shadcn",
+  "type": "ui",
+  "priority": 5,
+  "operations": [
+    {
+      "type": "run-command",
+      "command": "{{packageManager=='pnpm' ? 'pnpm dlx shadcn@latest init -t next -d -y' : packageManager=='yarn' ? 'yarn dlx shadcn@latest init -t next -d -y' : packageManager=='bun' ? 'bunx shadcn@latest init -t next -d -y' : 'npx shadcn@latest init -t next -d -y'}}",
+      "condition": { "framework": "nextjs" }
+    },
+    {
+      "type": "run-command",
+      "command": "{{packageManager=='pnpm' ? 'pnpm dlx shadcn@latest init -t vite -d -y' : packageManager=='yarn' ? 'yarn dlx shadcn@latest init -t vite -d -y' : packageManager=='bun' ? 'bunx shadcn@latest init -t vite -d -y' : 'npx shadcn@latest init -t vite -d -y'}}",
+      "condition": { "framework": "react" }
+    },
+    {
+      "type": "run-command",
+      "command": "{{packageManager=='pnpm' ? 'pnpm dlx shadcn@latest add button' : packageManager=='yarn' ? 'yarn dlx shadcn@latest add button' : packageManager=='bun' ? 'bunx shadcn@latest add button' : 'npx shadcn@latest add button'}}",
+      "description": "(optional) Add common components via shadcn CLI"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "name": "cloudinary",
+  "type": "storage",
+  "priority": 5,
+  "operations": [
+    {
+      "type": "create-file",
+      "source": "files/lib/cloudinary.ts",
+      "destination": "src/lib/cloudinary.ts",
+      "condition": { "framework": ["express", "nextjs"] }
+    },
+    {
+      "type": "create-file",
+      "source": "files/server/upload.route.ts",
+      "destination": "src/routes/upload.route.ts",
+      "condition": { "framework": "express" }
+    },
+    {
+      "type": "add-dependency",
+      "dependencies": {
+        "cloudinary": "^1.36.0",
+        "multer": "^1.4.5"
+      },
+      "devDependencies": {}
+    },
+    {
+      "type": "add-env",
+      "envVars": {
+        "CLOUDINARY_CLOUD_NAME": "your_cloud_name",
+        "CLOUDINARY_API_KEY": "your_api_key",
+        "CLOUDINARY_API_SECRET": "your_api_secret"
+      }
+    }
+  ]
+}

@@ -31,6 +31,8 @@ export interface DiscoveredModules {
   frameworks: ModuleMetadata[];
   databases: ModuleMetadata[];
   auth: ModuleMetadata[];
+  ui?: ModuleMetadata[];
+  storage?: ModuleMetadata[];
 }
 
 async function readJsonSafe<T>(filePath: string): Promise<T | null> {
@@ -118,6 +120,46 @@ export async function discoverModules(modulesDir: string): Promise<DiscoveredMod
           if (!metadata.name) metadata.name = moduleName;
           if (!metadata.displayName) metadata.displayName = moduleName;
           discovered.auth.push(metadata);
+        }
+      }
+    }
+  }
+
+  // discover UI modules (modules/ui)
+  const uiDir = path.join(modulesDir, "ui");
+  if (await fs.pathExists(uiDir)) {
+    discovered.ui = [];
+    const uiModules = await fs.readdir(uiDir);
+    for (const moduleName of uiModules) {
+      const modulePath = path.join(uiDir, moduleName);
+      const moduleJsonPath = path.join(modulePath, "module.json");
+
+      if (await fs.pathExists(moduleJsonPath)) {
+        const metadata = await readJsonSafe<ModuleMetadata>(moduleJsonPath);
+        if (metadata) {
+          if (!metadata.name) metadata.name = moduleName;
+          if (!metadata.displayName) metadata.displayName = moduleName;
+          discovered.ui.push(metadata);
+        }
+      }
+    }
+  }
+
+  // discover storage/provider modules (modules/storage)
+  const storageDir = path.join(modulesDir, "storage");
+  if (await fs.pathExists(storageDir)) {
+    discovered.storage = [];
+    const storageModules = await fs.readdir(storageDir);
+    for (const moduleName of storageModules) {
+      const modulePath = path.join(storageDir, moduleName);
+      const moduleJsonPath = path.join(modulePath, "module.json");
+
+      if (await fs.pathExists(moduleJsonPath)) {
+        const metadata = await readJsonSafe<ModuleMetadata>(moduleJsonPath);
+        if (metadata) {
+          if (!metadata.name) metadata.name = moduleName;
+          if (!metadata.displayName) metadata.displayName = moduleName;
+          discovered.storage.push(metadata);
         }
       }
     }

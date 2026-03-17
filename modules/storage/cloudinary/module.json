@@ -1,0 +1,11 @@
+{
+  "name": "cloudinary",
+  "displayName": "Cloudinary Storage",
+  "category": "storage",
+  "description": "Cloudinary provider for uploads",
+  "supportedFrameworks": ["express", "nextjs"],
+  "compatibility": {
+    "frameworks": ["express", "nextjs"],
+    "languages": ["typescript", "javascript"]
+  }
+}

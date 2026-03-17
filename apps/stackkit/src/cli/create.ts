@@ -28,6 +28,8 @@ interface ProjectConfig {
   auth: string;
   language: "typescript" | "javascript";
   packageManager: "pnpm" | "npm" | "yarn" | "bun";
+  ui?: string;
+  storageProvider?: string;
 }
 
 interface CliOptions {
@@ -49,6 +51,8 @@ interface CliOptions {
   noGit?: boolean;
   yes?: boolean;
   y?: boolean;
+  ui?: string;
+  storageProvider?: string;
 }
 
 export async function createProject(projectName?: string, options?: CliOptions): Promise<void> {
@@ -114,6 +118,8 @@ async function getProjectConfig(
         auth: defaultAuth,
         language: "typescript",
         packageManager: "pnpm",
+        ui: "none",
+        storageProvider: "none",
       };
     }
     const framework = (options && (options.framework || options.f)) || undefined;
@@ -314,6 +320,66 @@ async function getProjectConfig(
     result.prismaProvider = (pp as { prismaProvider?: string }).prismaProvider;
   }
 
+  // UI system (React / Next.js)
+  if (result.framework === "react" || result.framework === "nextjs") {
+    const uiChoices = (discoveredModules.ui || [])
+      .filter(
+        (u) => !u.supportedFrameworks || u.supportedFrameworks.includes(result.framework || ""),
+      )
+      .map((u) => ({ title: u.displayName || u.name, value: u.name }));
+
+    if (uiChoices.length === 0) {
+      uiChoices.push({ title: "Shadcn (shadcn/ui)", value: "shadcn" });
+      uiChoices.push({ title: "None", value: "none" });
+    }
+
+    const uiInitial = uiChoices.findIndex((c) => c.value === "none");
+    const uiInitialIndex = uiInitial === -1 ? 0 : uiInitial;
+    const uiRespRaw = await prompts({
+      type: "select",
+      name: "ui",
+      message: "Select UI system:",
+      choices: uiChoices,
+      initial: uiInitialIndex,
+    });
+    const uiAnswer = (uiRespRaw as Record<string, unknown>)["ui"];
+    if (typeof uiAnswer === "string") {
+      result.ui = uiAnswer;
+    } else {
+      result.ui = "none";
+    }
+  } else {
+    result.ui = "none";
+  }
+
+  // Storage provider (Express)
+  if (result.framework === "express") {
+    const storageChoices = (discoveredModules.storage || []).map((s) => ({
+      title: s.displayName || s.name,
+      value: s.name,
+    }));
+    if (storageChoices.length === 0) {
+      storageChoices.push({ title: "Cloudinary", value: "cloudinary" });
+    }
+    storageChoices.push({ title: "None", value: "none" });
+
+    const spRaw = await prompts({
+      type: "select",
+      name: "storageProvider",
+      message: "Select storage provider:",
+      choices: storageChoices,
+      initial: storageChoices.findIndex((c) => c.value === "none") || 0,
+    });
+    const storageProviderAnswer = (spRaw as Record<string, unknown>)["storageProvider"];
+    if (typeof storageProviderAnswer === "string") {
+      result.storageProvider = storageProviderAnswer;
+    } else {
+      result.storageProvider = "none";
+    }
+  } else {
+    result.storageProvider = "none";
+  }
+
   // auth
   if (result.database !== "none" || result.framework === "react") {
     const authChoices = getCompatibleAuthOptions(
@@ -384,6 +450,8 @@ async function getProjectConfig(
     auth: result.auth || "none",
     language: result.language as "typescript" | "javascript",
     packageManager: result.packageManager as "pnpm" | "npm" | "yarn" | "bun",
+    ui: result.ui || "none",
+    storageProvider: result.storageProvider || "none",
   };
 }
 
@@ -421,7 +489,8 @@ async function generateProject(
     const postInstallSpinner = logger.startSpinner("Running post-install commands...");
     try {
       for (const command of postInstallCommands) {
-        execSync(command, { cwd: targetDir, stdio: "pipe" });
+        logger.log(`Running post-install: ${command}`);
+        execSync(command, { cwd: targetDir, stdio: "inherit" });
       }
       postInstallSpinner.succeed("Post-install commands completed");
     } catch (error) {
@@ -459,6 +528,9 @@ async function composeTemplate(config: ProjectConfig, targetDir: string): Promis
       database: config.database === "none" ? undefined : config.database,
       auth: config.auth === "none" ? undefined : config.auth,
       prismaProvider: config.prismaProvider,
+      ui: config.ui,
+      storageProvider: config.storageProvider,
+      packageManager: config.packageManager,
     },
     features,
     targetDir,
@@ -532,6 +604,51 @@ async function processGeneratorEnvVars(config: ProjectConfig, targetDir: string)
                 value: value as string,
                 required: true,
               });
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // UI module env vars
+  if (config.ui && config.ui !== "none") {
+    const uiGeneratorPath = path.join(modulesDir, "ui", config.ui, "generator.json");
+    if (await fs.pathExists(uiGeneratorPath)) {
+      const generator = await fs.readJson(uiGeneratorPath);
+      if (generator.operations) {
+        for (const operation of generator.operations) {
+          if (
+            operation.type === "add-env" &&
+            (!operation.condition || checkCondition(operation.condition, config))
+          ) {
+            for (const [key, value] of Object.entries(operation.envVars)) {
+              envVars.push({ key, value: value as string, required: true });
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Storage/provider module env vars
+  if (config.storageProvider && config.storageProvider !== "none") {
+    const spGeneratorPath = path.join(
+      modulesDir,
+      "storage",
+      config.storageProvider,
+      "generator.json",
+    );
+    if (await fs.pathExists(spGeneratorPath)) {
+      const generator = await fs.readJson(spGeneratorPath);
+      if (generator.operations) {
+        for (const operation of generator.operations) {
+          if (
+            operation.type === "add-env" &&
+            (!operation.condition || checkCondition(operation.condition, config))
+          ) {
+            for (const [key, value] of Object.entries(operation.envVars)) {
+              envVars.push({ key, value: value as string, required: true });
             }
           }
         }

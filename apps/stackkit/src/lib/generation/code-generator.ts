@@ -12,6 +12,9 @@ export interface GenerationContext {
   features?: string[];
   combo?: string;
   prismaProvider?: string;
+  packageManager?: string;
+  ui?: string;
+  storageProvider?: string;
   [key: string]: unknown;
 }
 
@@ -27,6 +30,9 @@ type SelectedModules = {
   database?: string;
   auth?: string;
   prismaProvider?: string;
+  ui?: string;
+  storageProvider?: string;
+  packageManager?: string;
 };
 
 export interface Operation {
@@ -59,7 +65,7 @@ export interface PatchOperation {
 
 export interface GeneratorConfig {
   name: string;
-  type: "framework" | "database" | "auth";
+  type: "framework" | "database" | "auth" | "ui" | "storage";
   priority: number;
   operations?: Operation[];
   dependencies?: Record<string, string>;
@@ -107,12 +113,14 @@ export class AdvancedCodeGenerator {
     return (
       (genType === "framework" && name === selectedModules.framework) ||
       (genType === "database" && name === selectedModules.database) ||
-      (genType === "auth" && name === selectedModules.auth)
+      (genType === "auth" && name === selectedModules.auth) ||
+      (genType === "ui" && name === selectedModules.ui) ||
+      (genType === "storage" && name === selectedModules.storageProvider)
     );
   }
 
   async loadGenerators(modulesPath: string): Promise<void> {
-    const moduleTypes = ["auth", "database"];
+    const moduleTypes = ["auth", "database", "ui", "storage"];
 
     for (const type of moduleTypes) {
       const typePath = path.join(modulesPath, type);
