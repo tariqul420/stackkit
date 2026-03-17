@@ -37,3 +37,11 @@ export function getDatabaseModulesPath(): string {
 export function getAuthModulesPath(): string {
   return path.join(getModulesPath(), MODULE_CATEGORIES.AUTH);
 }
+
+export function getUiModulesPath(): string {
+  return path.join(getModulesPath(), MODULE_CATEGORIES.UI);
+}
+
+export function getStorageModulesPath(): string {
+  return path.join(getModulesPath(), MODULE_CATEGORIES.STORAGE);
+}

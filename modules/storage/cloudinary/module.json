@@ -3,9 +3,9 @@
   "displayName": "Cloudinary Storage",
   "category": "storage",
   "description": "Cloudinary provider for uploads",
-  "supportedFrameworks": ["express", "nextjs"],
+  "supportedFrameworks": ["express"],
   "compatibility": {
-    "frameworks": ["express", "nextjs"],
+    "frameworks": ["express"],
     "languages": ["typescript", "javascript"]
   }
 }

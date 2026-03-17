@@ -28,6 +28,8 @@ export const MODULE_CATEGORIES = {
   DATABASE: "database" as const,
   AUTH: "auth" as const,
   FRAMEWORK: "framework" as const,
+  UI: "ui" as const,
+  STORAGE: "storage" as const,
 };
 
 export const DIRECTORY_NAMES = {
@@ -91,6 +93,8 @@ export const DISPLAY_NAMES = {
   [MODULE_CATEGORIES.DATABASE]: "Database",
   [MODULE_CATEGORIES.AUTH]: "Auth",
   [MODULE_CATEGORIES.FRAMEWORK]: "Framework",
+  [MODULE_CATEGORIES.UI]: "UI",
+  [MODULE_CATEGORIES.STORAGE]: "Storage",
 } as const;
 
 export const ERROR_MESSAGES = {

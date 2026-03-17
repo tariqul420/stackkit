@@ -2,7 +2,7 @@ import chalk from "chalk";
 import { execSync } from "child_process";
 import fs from "fs-extra";
 import path from "path";
-import prompts from "prompts";
+import prompts, { Choice } from "prompts";
 import validateNpmPackageName from "validate-npm-package-name";
 import { convertToJavaScript } from "../lib/conversion/js-conversion";
 import {
@@ -221,7 +221,42 @@ async function getProjectConfig(
 
   // Sequential prompts using `prompts` to avoid bundling heavy inquirer code
   const result: Partial<ProjectConfig & { prismaProvider?: string }> = {};
-  type Choice = { title?: string; name?: string; value?: string };
+
+  // small helpers to keep prompts tidy
+  type LegacyChoice = { name?: string; title?: string; value?: string };
+  const promptSelect = async (
+    name: string,
+    message: string,
+    choices: Choice[],
+    initial?: number,
+  ) => {
+    const resp = await prompts({ type: "select", name, message, choices, initial });
+    return (resp as Record<string, unknown>)[name] as string | undefined;
+  };
+
+  const loadDatabaseChoices = (): Choice[] => {
+    if (discoveredModules.databases && discoveredModules.databases.length > 0) {
+      return getDatabaseChoices(discoveredModules.databases, result.framework || "").map(
+        (c: LegacyChoice) => ({ title: c.name || String(c.value), value: c.value }),
+      );
+    }
+
+    try {
+      const modulesDir = path.join(getPackageRoot(), "modules", "database");
+      if (fs.existsSync(modulesDir)) {
+        const dbs = fs.readdirSync(modulesDir).map((d) => ({
+          title: d.charAt(0).toUpperCase() + d.slice(1),
+          value: d,
+        }));
+        dbs.push({ title: "None", value: "none" });
+        return dbs;
+      }
+    } catch {
+      // fall through to default
+    }
+
+    return [{ title: "None", value: "none" }];
+  };
 
   if (!projectName) {
     const resp = await prompts({
@@ -248,7 +283,7 @@ async function getProjectConfig(
   // framework
   const frameworkChoices =
     discoveredModules.frameworks && discoveredModules.frameworks.length > 0
-      ? discoveredModules.frameworks.map((f) => ({ title: f.displayName, value: f.name }))
+      ? discoveredModules.frameworks.map((f) => ({ title: f.displayName || f.name, value: f.name }))
       : (() => {
           try {
             const templatesDir = path.join(getPackageRoot(), "templates");
@@ -270,38 +305,16 @@ async function getProjectConfig(
   });
   result.framework = fw.framework || (discoveredModules.frameworks?.[0]?.name ?? "");
 
-  // database (skip for react)
-  if (result.framework !== "react") {
-    const dbChoices: Choice[] =
-      discoveredModules.databases && discoveredModules.databases.length > 0
-        ? getDatabaseChoices(discoveredModules.databases, result.framework || "")
-        : (() => {
-            try {
-              const modulesDir = path.join(getPackageRoot(), "modules", "database");
-              if (fs.existsSync(modulesDir)) {
-                const dbs = fs
-                  .readdirSync(modulesDir)
-                  .map((d) => ({ title: d.charAt(0).toUpperCase() + d.slice(1), value: d }));
-                dbs.push({ title: "None", value: "none" });
-                return dbs;
-              }
-            } catch {
-              return [{ title: "None", value: "none" }];
-            }
-            return [{ title: "None", value: "none" }];
-          })();
-
-    const dbChoicesNormalized = dbChoices.map((c: Choice) => ({
+  // database (skip for React and Next.js)
+  if (!["react", "nextjs"].includes(result.framework || "")) {
+    const dbChoices = loadDatabaseChoices();
+    const dbChoicesNormalized = dbChoices.map((c: LegacyChoice) => ({
       title: c.name || c.title || String(c.value ?? ""),
       value: c.value ?? String(c.title ?? ""),
     }));
-    const dbResp = await prompts({
-      type: "select",
-      name: "database",
-      message: "Select database/ORM:",
-      choices: dbChoicesNormalized,
-    });
-    result.database = (dbResp as { database?: string }).database || "none";
+
+    const selected = await promptSelect("database", "Select database/ORM:", dbChoicesNormalized);
+    result.database = selected || "none";
   } else {
     result.database = "none";
   }
@@ -381,7 +394,7 @@ async function getProjectConfig(
   }
 
   // auth
-  if (result.database !== "none" || result.framework === "react") {
+  if (result.database !== "none" || result.framework === "react" || result.framework === "nextjs") {
     const authChoices = getCompatibleAuthOptions(
       discoveredModules.auth,
       result.framework || "",

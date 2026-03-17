@@ -7,7 +7,7 @@
       "type": "create-file",
       "source": "files/lib/cloudinary.ts",
       "destination": "src/lib/cloudinary.ts",
-      "condition": { "framework": ["express", "nextjs"] }
+      "condition": { "framework": ["express"] }
     },
     {
       "type": "create-file",

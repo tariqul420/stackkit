@@ -28,6 +28,8 @@ interface CreateOptions {
   database?: string;
   prismaProvider?: string;
   auth?: string;
+  ui?: string;
+  storageProvider?: string;
   language?: "typescript" | "javascript";
   packageManager?: "pnpm" | "npm" | "yarn" | "bun";
   skipInstall?: boolean;
@@ -90,12 +92,45 @@ function buildOptionHints() {
       }
     }
 
+    const uiModulesPath = join(getPackageRoot(), "modules", "ui");
+    const storageModulesPath = join(getPackageRoot(), "modules", "storage");
+
+    const uis: string[] = [];
+    const storages: string[] = [];
+
+    if (fs.existsSync(uiModulesPath)) {
+      for (const u of fs.readdirSync(uiModulesPath)) {
+        const moduleJson = getModuleJsonPath(MODULE_CATEGORIES.UI, u);
+        if (fs.existsSync(moduleJson)) {
+          const m = loadJsonSync<{ name?: string }>(moduleJson);
+          if (m && m.name) uis.push(m.name);
+        }
+      }
+    }
+
+    if (fs.existsSync(storageModulesPath)) {
+      for (const s of fs.readdirSync(storageModulesPath)) {
+        const moduleJson = getModuleJsonPath(MODULE_CATEGORIES.STORAGE, s);
+        if (fs.existsSync(moduleJson)) {
+          const m = loadJsonSync<{ name?: string }>(moduleJson);
+          if (m && m.name) storages.push(m.name);
+        }
+      }
+    }
+
     return {
       databaseHint: dbs.length > 0 ? dbs.join(", ") : "none",
       authHint: auths.length > 0 ? auths.join(", ") : "none",
+      uiHint: uis.length > 0 ? uis.join(", ") : "none",
+      storageHint: storages.length > 0 ? storages.join(", ") : "none",
     };
   } catch {
-    return { databaseHint: "none", authHint: "none" };
+    return {
+      databaseHint: "none",
+      authHint: "none",
+      uiHint: "none",
+      storageHint: "none",
+    };
   }
 }
 
@@ -126,6 +161,8 @@ program
   .option("-d, --database <database>", `Database: ${hints.databaseHint}`)
   .option("--prisma-provider <provider>", "Prisma provider")
   .option("-a, --auth <auth>", `Auth: ${hints.authHint}`)
+  .option("-u, --ui <ui>", `UI: ${hints.uiHint}`)
+  .option("--storage-provider <provider>", `Storage: ${hints.storageHint}`)
   .option("-l, --language <language>", "Language: typescript, javascript")
   .option("-p, --package-manager <pm>", "Package manager: pnpm, npm, yarn, bun")
   .option("--skip-install", "Skip dependency installation")
