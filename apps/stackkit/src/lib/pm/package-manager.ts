@@ -204,6 +204,11 @@ export async function initGit(cwd: string): Promise<void> {
 
   const run = async (stdio: "pipe" | "inherit") => {
     await execa("git", ["init"], { cwd, stdio });
+    try {
+      await execa("git", ["branch", "-M", "main"], { cwd, stdio });
+    } catch {
+      // Ignore if branch rename fails (older git versions)
+    }
     await execa("git", ["add", "."], { cwd, stdio });
 
     try {

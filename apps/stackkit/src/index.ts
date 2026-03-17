@@ -107,7 +107,7 @@ program
   .description("CLI for creating and managing StackKit projects")
   .version(packageJson?.version || "0.0.0")
   .configureHelp({
-    subcommandTerm: (cmd) => {
+    subcommandTerm: (cmd: { name: () => string }) => {
       const name = cmd.name();
       if (name === "create") return "create [project-name] [options]";
       if (name === "add") return "add <module> [options]";
@@ -135,7 +135,7 @@ program
     try {
       await createProject(projectName, options);
     } catch (error) {
-      logger.error(`Error: ${(error as Error).message}`);
+      logger.error(`Error: ${(error as Error).message}`, error as Error);
       process.exit(1);
     }
   });
@@ -153,7 +153,7 @@ program
     try {
       await addCommand(module, options);
     } catch (error) {
-      logger.error(`Error: ${(error as Error).message}`);
+      logger.error(`Error: ${(error as Error).message}`, error as Error);
       process.exit(1);
     }
   });
@@ -168,7 +168,7 @@ program
     try {
       await doctorCommand(options);
     } catch (error) {
-      logger.error(`Error: ${(error as Error).message}`);
+      logger.error(`Error: ${(error as Error).message}`, error as Error);
       process.exit(1);
     }
   });

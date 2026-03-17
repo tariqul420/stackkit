@@ -12,18 +12,21 @@ interface ListOptions {
   modules?: boolean;
 }
 
-export async function listCommand(options: ListOptions): Promise<void> {
+export async function listCommand(options: ListOptions = {}): Promise<void> {
   const showFrameworks = !options.modules || options.frameworks;
   const showModules = !options.frameworks || options.modules;
 
   try {
     logger.header("StackKit Resources");
     logger.newLine();
+    logger.header("StackKit Resources");
+    logger.newLine();
 
     let hasContent = false;
 
     if (showFrameworks) {
-      const frameworks = await getAvailableFrameworks();
+      let frameworks = [] as Array<{ name: string; displayName: string }>;
+      frameworks = await getAvailableFrameworks();
       if (frameworks.length > 0) {
         hasContent = true;
         printFrameworks(frameworks);
@@ -31,7 +34,8 @@ export async function listCommand(options: ListOptions): Promise<void> {
     }
 
     if (showModules) {
-      const modules = await getAvailableModules();
+      let modules = [] as ModuleMetadata[];
+      modules = await getAvailableModules();
       if (modules.length > 0) {
         hasContent = true;
         printModules(modules);
@@ -46,7 +50,7 @@ export async function listCommand(options: ListOptions): Promise<void> {
     logger.log(chalk.dim("Use 'stackkit add <module>' to add modules to your project"));
     logger.newLine();
   } catch (error) {
-    logger.error(`Failed to list resources: ${(error as Error).message}`);
+    logger.error(`Failed to list resources: ${(error as Error).message}`, error as Error);
     process.exit(1);
   }
 }

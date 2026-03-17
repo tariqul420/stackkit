@@ -26,8 +26,9 @@ export class Logger {
 
   error(message: string, error?: Error): void {
     process.stderr.write(chalk.red("✖") + " " + message + "\n");
-    if (error && this.debugMode) {
-      this.debug(`Error stack: ${error.stack || error.message}`);
+    if (error) {
+      const stack = error.stack || error.message;
+      process.stderr.write(chalk.gray("[STACK]") + " " + stack + "\n");
     }
   }
 

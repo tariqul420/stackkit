@@ -1,8 +1,8 @@
 import chalk from "chalk";
 import { execSync } from "child_process";
 import fs from "fs-extra";
-import inquirer from "inquirer";
 import path from "path";
+import prompts from "prompts";
 import {
   DiscoveredModules,
   discoverModules,
@@ -39,6 +39,8 @@ interface AddOptions {
   install?: boolean;
   yes?: boolean;
 }
+
+type PromptChoice = { name?: string; value?: string; title?: string };
 
 export async function addCommand(module?: string, options?: AddOptions): Promise<void> {
   try {
@@ -190,33 +192,33 @@ async function getInteractiveConfig(
     categories.push({ name: "Auth", value: "auth" });
   }
 
-  const answers = await inquirer.prompt([
-    {
-      type: "list",
-      name: "category",
-      message: "What would you like to add?",
-      choices: categories,
-    },
-  ]);
+  const categoryResp = await prompts({
+    type: "select",
+    name: "category",
+    message: "What would you like to add?",
+    choices: categories.map((c) => ({ title: c.name, value: c.value })),
+  });
 
-  const category = answers.category;
+  const category = categoryResp.category;
 
   if (category === "database") {
-    const dbChoices = getDatabaseChoices(
+    const dbChoices: PromptChoice[] = getDatabaseChoices(
       discovered.databases || [],
       projectInfo?.framework || defaultFramework,
     );
 
-    const dbAnswers = await inquirer.prompt([
-      {
-        type: "list",
-        name: "database",
-        message: "Select database:",
-        choices: dbChoices,
-      },
-    ]);
+    const dbChoicesNormalized = dbChoices.map((c: PromptChoice) => ({
+      title: c.name || c.title || String(c.value ?? ""),
+      value: c.value ?? String(c.title ?? ""),
+    }));
+    const dbResp = await prompts({
+      type: "select",
+      name: "database",
+      message: "Select database:",
+      choices: dbChoicesNormalized,
+    });
 
-    const selectedDb = dbAnswers.database as string;
+    const selectedDb = (dbResp as { database?: string }).database as string;
 
     if (selectedDb.startsWith("prisma-")) {
       const provider = selectedDb.split("-")[1];
@@ -241,20 +243,22 @@ async function getInteractiveConfig(
     let preAddedForReturn: AddConfig | undefined;
     if (!projectInfo?.hasDatabase) {
       logger.warn("No database detected in the project. Authentication requires a database.");
-      const dbChoices = getDatabaseChoices(
+      const dbChoices: PromptChoice[] = getDatabaseChoices(
         discovered.databases || [],
         projectInfo?.framework || defaultFramework,
       );
-      const dbAnswer = await inquirer.prompt([
-        {
-          type: "list",
-          name: "database",
-          message: "Select a database to add before authentication:",
-          choices: dbChoices,
-        },
-      ]);
+      const dbChoicesNormalized2 = dbChoices.map((c: PromptChoice) => ({
+        title: c.name || c.title || String(c.value ?? ""),
+        value: c.value ?? String(c.title ?? ""),
+      }));
+      const dbAnswerResp = await prompts({
+        type: "select",
+        name: "database",
+        message: "Select a database to add before authentication:",
+        choices: dbChoicesNormalized2,
+      });
 
-      const selectedDb = dbAnswer.database as string;
+      const selectedDb = (dbAnswerResp as { database?: string }).database as string;
       if (!selectedDb || selectedDb === "none") {
         logger.info("Cancelled — authentication requires a database");
         process.exit(0);
@@ -303,16 +307,18 @@ async function getInteractiveConfig(
       projectInfo?.framework || defaultFramework,
       dbString,
     );
-    const authAnswers = await inquirer.prompt([
-      {
-        type: "list",
-        name: "auth",
-        message: "Select authentication:",
-        choices: authChoices,
-      },
-    ]);
+    const authChoicesNormalized = authChoices.map((c: { name?: string; value?: string }) => ({
+      title: c.name || String(c.value ?? ""),
+      value: c.value ?? String(c.name ?? ""),
+    }));
+    const authResp = await prompts({
+      type: "select",
+      name: "auth",
+      message: "Select authentication:",
+      choices: authChoicesNormalized,
+    });
 
-    const selectedAuth = authAnswers.auth as string;
+    const selectedAuth = (authResp as { auth?: string }).auth as string;
     if (selectedAuth === "none") {
       logger.info("Cancelled");
       process.exit(0);
@@ -357,14 +363,12 @@ async function addModuleToProject(
 
   if (config.module === "auth" && projectInfo.hasAuth && !options?.force) {
     logger.warn("Auth library already detected in this project");
-    const { proceed } = await inquirer.prompt([
-      {
-        type: "confirm",
-        name: "proceed",
-        message: "Continue anyway? (use --force to skip this prompt)",
-        default: false,
-      },
-    ]);
+    const { proceed } = await prompts({
+      type: "confirm",
+      name: "proceed",
+      message: "Continue anyway? (use --force to skip this prompt)",
+      initial: false,
+    });
 
     if (!proceed) {
       logger.info("Cancelled");
@@ -374,14 +378,12 @@ async function addModuleToProject(
 
   if (config.module === "database" && projectInfo.hasDatabase && !options?.force) {
     logger.warn("Database library already detected in this project");
-    const { proceed } = await inquirer.prompt([
-      {
-        type: "confirm",
-        name: "proceed",
-        message: "Continue anyway? (use --force to skip this prompt)",
-        default: false,
-      },
-    ]);
+    const { proceed } = await prompts({
+      type: "confirm",
+      name: "proceed",
+      message: "Continue anyway? (use --force to skip this prompt)",
+      initial: false,
+    });
 
     if (!proceed) {
       logger.info("Cancelled");

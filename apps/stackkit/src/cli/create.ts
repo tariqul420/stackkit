@@ -1,8 +1,8 @@
 import chalk from "chalk";
 import { execSync } from "child_process";
 import fs from "fs-extra";
-import inquirer from "inquirer";
 import path from "path";
+import prompts from "prompts";
 import validateNpmPackageName from "validate-npm-package-name";
 import { convertToJavaScript } from "../lib/conversion/js-conversion";
 import {
@@ -26,16 +26,6 @@ interface ProjectConfig {
   database: string;
   prismaProvider?: string;
   auth: string;
-  language: "typescript" | "javascript";
-  packageManager: "pnpm" | "npm" | "yarn" | "bun";
-}
-
-interface Answers {
-  projectName?: string;
-  framework: string;
-  database?: string;
-  prismaProvider?: string;
-  auth?: string;
   language: "typescript" | "javascript";
   packageManager: "pnpm" | "npm" | "yarn" | "bun";
 }
@@ -223,13 +213,16 @@ async function getProjectConfig(
 
   const prismaProviders = getPrismaProvidersFromGenerator(getPackageRoot());
 
-  const answers = (await inquirer.prompt([
-    {
-      type: "input",
+  // Sequential prompts using `prompts` to avoid bundling heavy inquirer code
+  const result: Partial<ProjectConfig & { prismaProvider?: string }> = {};
+  type Choice = { title?: string; name?: string; value?: string };
+
+  if (!projectName) {
+    const resp = await prompts({
+      type: "text",
       name: "projectName",
       message: "Project name:",
-      default: projectName || "my-app",
-      when: !projectName,
+      initial: projectName || "my-app",
       validate: (input: string) => {
         const validation = validateNpmPackageName(input);
         if (!validation.validForNewPackages) {
@@ -240,102 +233,141 @@ async function getProjectConfig(
         }
         return true;
       },
-    },
-    {
-      type: "list",
-      name: "framework",
-      message: "Select framework:",
-      choices: (() => {
-        if (discoveredModules.frameworks && discoveredModules.frameworks.length > 0) {
-          return discoveredModules.frameworks.map((f) => ({ name: f.displayName, value: f.name }));
-        }
-        try {
-          const templatesDir = path.join(getPackageRoot(), "templates");
-          if (fs.existsSync(templatesDir)) {
-            const dirs = fs.readdirSync(templatesDir).filter((d) => d !== "node_modules");
-            return dirs.map((d) => ({ name: d.charAt(0).toUpperCase() + d.slice(1), value: d }));
+    });
+    result.projectName = resp.projectName || projectName || "my-app";
+  } else {
+    result.projectName = projectName;
+  }
+
+  // framework
+  const frameworkChoices =
+    discoveredModules.frameworks && discoveredModules.frameworks.length > 0
+      ? discoveredModules.frameworks.map((f) => ({ title: f.displayName, value: f.name }))
+      : (() => {
+          try {
+            const templatesDir = path.join(getPackageRoot(), "templates");
+            if (fs.existsSync(templatesDir)) {
+              const dirs = fs.readdirSync(templatesDir).filter((d) => d !== "node_modules");
+              return dirs.map((d) => ({ title: d.charAt(0).toUpperCase() + d.slice(1), value: d }));
+            }
+          } catch {
+            return [] as { title: string; value: string }[];
           }
-        } catch {
-          return [];
-        }
-        return [];
-      })(),
-    },
-    {
-      type: "list",
+          return [] as { title: string; value: string }[];
+        })();
+
+  const fw = await prompts({
+    type: "select",
+    name: "framework",
+    message: "Select framework:",
+    choices: frameworkChoices,
+  });
+  result.framework = fw.framework || (discoveredModules.frameworks?.[0]?.name ?? "");
+
+  // database (skip for react)
+  if (result.framework !== "react") {
+    const dbChoices: Choice[] =
+      discoveredModules.databases && discoveredModules.databases.length > 0
+        ? getDatabaseChoices(discoveredModules.databases, result.framework || "")
+        : (() => {
+            try {
+              const modulesDir = path.join(getPackageRoot(), "modules", "database");
+              if (fs.existsSync(modulesDir)) {
+                const dbs = fs
+                  .readdirSync(modulesDir)
+                  .map((d) => ({ title: d.charAt(0).toUpperCase() + d.slice(1), value: d }));
+                dbs.push({ title: "None", value: "none" });
+                return dbs;
+              }
+            } catch {
+              return [{ title: "None", value: "none" }];
+            }
+            return [{ title: "None", value: "none" }];
+          })();
+
+    const dbChoicesNormalized = dbChoices.map((c: Choice) => ({
+      title: c.name || c.title || String(c.value ?? ""),
+      value: c.value ?? String(c.title ?? ""),
+    }));
+    const dbResp = await prompts({
+      type: "select",
       name: "database",
       message: "Select database/ORM:",
-      when: (answers: Answers) => answers.framework !== "react",
-      choices: (answers: Answers) => {
-        if (discoveredModules.databases && discoveredModules.databases.length > 0) {
-          return getDatabaseChoices(discoveredModules.databases, answers.framework);
-        }
-        try {
-          const modulesDir = path.join(getPackageRoot(), "modules", "database");
-          if (fs.existsSync(modulesDir)) {
-            const dbs = fs
-              .readdirSync(modulesDir)
-              .map((d) => ({ name: d.charAt(0).toUpperCase() + d.slice(1), value: d }));
-            dbs.push({ name: "None", value: "none" });
-            return dbs;
-          }
-        } catch {
-          return [{ name: "None", value: "none" }];
-        }
-        return [{ name: "None", value: "none" }];
-      },
-    },
-    {
-      type: "list",
+      choices: dbChoicesNormalized,
+    });
+    result.database = (dbResp as { database?: string }).database || "none";
+  } else {
+    result.database = "none";
+  }
+
+  // prisma provider
+  if (result.database === "prisma" && prismaProviders.length > 0) {
+    const pp = await prompts({
+      type: "select",
       name: "prismaProvider",
       message: "Select database provider for Prisma:",
-      when: (answers: Answers) => answers.database === "prisma" && prismaProviders.length > 0,
       choices: prismaProviders.map((p: string) => ({
-        name: p.charAt(0).toUpperCase() + p.slice(1),
+        title: p.charAt(0).toUpperCase() + p.slice(1),
         value: p,
       })),
-    },
-    {
-      type: "list",
+    });
+    result.prismaProvider = (pp as { prismaProvider?: string }).prismaProvider;
+  }
+
+  // auth
+  if (result.database !== "none" || result.framework === "react") {
+    const authChoices = getCompatibleAuthOptions(
+      discoveredModules.auth,
+      result.framework || "",
+      result.database || "none",
+      discoveredModules.frameworks,
+    );
+    const authChoicesNormalized = (authChoices || []).map(
+      (c: { name?: string; value?: string }) => ({
+        title: c.name || String(c.value ?? ""),
+        value: c.value ?? String(c.name ?? ""),
+      }),
+    );
+    const authResp = await prompts({
+      type: "select",
       name: "auth",
       message: "Select authentication:",
-      when: (answers: Answers) => answers.database !== "none" || answers.framework === "react",
-      choices: (answers: Answers) =>
-        getCompatibleAuthOptions(
-          discoveredModules.auth,
-          answers.framework,
-          answers.database || "none",
-          discoveredModules.frameworks,
-        ),
-    },
-    {
-      type: "list",
-      name: "language",
-      message: "Language:",
-      choices: [
-        { name: "TypeScript", value: "typescript" },
-        { name: "JavaScript", value: "javascript" },
-      ],
-      default: "typescript",
-    },
-    {
-      type: "list",
-      name: "packageManager",
-      message: "Package manager:",
-      choices: [
-        { name: "pnpm (recommended)", value: "pnpm" },
-        { name: "npm", value: "npm" },
-        { name: "yarn", value: "yarn" },
-        { name: "bun", value: "bun" },
-      ],
-      default: "pnpm",
-    },
-  ])) as Answers;
+      choices: authChoicesNormalized,
+    });
+    result.auth = (authResp as { auth?: string }).auth || "none";
+  } else {
+    result.auth = "none";
+  }
 
-  let databaseAnswer =
-    answers.framework === "react" ? "none" : (answers.database as string | undefined);
-  let prismaProviderAnswer = answers.prismaProvider as string | undefined;
+  const langResp = await prompts({
+    type: "select",
+    name: "language",
+    message: "Language:",
+    choices: [
+      { title: "TypeScript", value: "typescript" },
+      { title: "JavaScript", value: "javascript" },
+    ],
+    initial: 0,
+  });
+  result.language = langResp.language || "typescript";
 
+  const pmResp = await prompts({
+    type: "select",
+    name: "packageManager",
+    message: "Package manager:",
+    choices: [
+      { title: "pnpm (recommended)", value: "pnpm" },
+      { title: "npm", value: "npm" },
+      { title: "yarn", value: "yarn" },
+      { title: "bun", value: "bun" },
+    ],
+    initial: 0,
+  });
+  result.packageManager = pmResp.packageManager || "pnpm";
+
+  // Normalise prisma provider if database string contains prisma-xyz
+  let databaseAnswer = result.database;
+  let prismaProviderAnswer = result.prismaProvider as string | undefined;
   if (typeof databaseAnswer === "string" && databaseAnswer.startsWith("prisma-")) {
     const parts = databaseAnswer.split("-");
     if (parts.length >= 2) {
@@ -345,13 +377,13 @@ async function getProjectConfig(
   }
 
   return {
-    projectName: (projectName || answers.projectName) as string,
-    framework: answers.framework,
+    projectName: (projectName || result.projectName) as string,
+    framework: result.framework as string,
     database: databaseAnswer as ProjectConfig["database"],
     prismaProvider: prismaProviderAnswer,
-    auth: answers.auth || "none",
-    language: answers.language,
-    packageManager: answers.packageManager,
+    auth: result.auth || "none",
+    language: result.language as "typescript" | "javascript",
+    packageManager: result.packageManager as "pnpm" | "npm" | "yarn" | "bun",
   };
 }
 
@@ -399,12 +431,10 @@ async function generateProject(
   }
 
   if (options?.git !== false && !(options?.["no-git"] || options?.noGit)) {
-    const gitSpinner = logger.startSpinner("Initializing git repository...");
     try {
       await initGit(targetDir);
-      gitSpinner.succeed("Git repository initialized");
     } catch (error) {
-      gitSpinner.warn(`Failed to initialize git repository: ${(error as Error).message}`);
+      logger.warn(`Failed to initialize git repository: ${(error as Error).message}`);
     }
   }
 }
