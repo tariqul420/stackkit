@@ -4,7 +4,6 @@
   "framework": "react",
   "description": "Production-ready React 19 + Vite with TypeScript, Router, TanStack Query, and more",
   "compatibility": {
-    "databases": ["prisma"],
     "auth": ["better-auth"]
   },
   "files": [

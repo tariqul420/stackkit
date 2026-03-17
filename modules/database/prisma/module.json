@@ -3,9 +3,9 @@
   "displayName": "Prisma",
   "category": "database",
   "provider": "prisma",
-  "supportedFrameworks": ["nextjs", "express"],
+  "supportedFrameworks": ["express"],
   "compatibility": {
-    "frameworks": ["nextjs", "express"],
+    "frameworks": ["express"],
     "databases": ["prisma"],
     "languages": ["typescript", "javascript"],
     "packageManagers": ["npm", "yarn", "pnpm", "bun"]

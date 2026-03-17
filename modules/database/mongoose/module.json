@@ -4,9 +4,9 @@
   "category": "database",
   "provider": "mongoose",
   "database": "mongodb",
-  "supportedFrameworks": ["nextjs", "express"],
+  "supportedFrameworks": ["express"],
   "compatibility": {
-    "frameworks": ["nextjs", "express"],
+    "frameworks": ["express"],
     "databases": ["mongoose"],
     "languages": ["typescript", "javascript"],
     "packageManagers": ["npm", "yarn", "pnpm", "bun"]

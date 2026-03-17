@@ -31,18 +31,7 @@
         }
       ]
     },
-    {
-      "type": "create-file",
-      "source": "lib/mongoose.ts",
-      "destination": "server/database/mongoose.ts",
-      "condition": { "framework": ["nextjs"] }
-    },
-    {
-      "type": "create-file",
-      "source": "models/health.ts",
-      "destination": "server/database/models/health.model.ts",
-      "condition": { "framework": ["nextjs"] }
-    },
+    
     {
       "type": "add-dependency",
       "dependencies": {

@@ -20,12 +20,6 @@
       "condition": { "framework": ["express"] }
     },
     {
-      "type": "create-file",
-      "source": "lib/prisma.ts",
-      "destination": "server/database/prisma.ts",
-      "condition": { "framework": ["nextjs"] }
-    },
-    {
       "type": "add-dependency",
       "dependencies": {
         "dotenv": "^17.2.3"

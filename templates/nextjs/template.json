@@ -4,7 +4,6 @@
   "framework": "nextjs",
   "description": "Next.js 16 App Router with TypeScript",
   "compatibility": {
-    "databases": ["prisma", "mongoose"],
     "auth": ["better-auth"]
   },
   "files": [

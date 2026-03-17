@@ -3,9 +3,9 @@
   "displayName": "Better Auth",
   "category": "auth",
   "provider": "better-auth",
-  "supportedFrameworks": ["nextjs", "express", "react"],
+  "supportedFrameworks": ["express", "nextjs", "react"],
   "compatibility": {
-    "frameworks": ["nextjs", "express", "react"],
+    "frameworks": ["express", "nextjs", "react"],
     "databases": ["prisma", "mongoose"],
     "languages": ["typescript", "javascript"],
     "packageManagers": ["npm", "yarn", "pnpm", "bun"]
