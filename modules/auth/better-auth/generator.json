@@ -112,11 +112,14 @@
       "condition": { "framework": "express" },
       "dependencies": {
         "ejs": "^4.0.1",
-        "jsonwebtoken": "^9.0.3"
+        "jsonwebtoken": "^9.0.3",
+        "better-auth": "^1.4.12",
+        "nodemailer": "^7.0.12"
       },
       "devDependencies": {
         "@types/ejs": "^3.1.5",
-        "@types/jsonwebtoken": "^9.0.10"
+        "@types/jsonwebtoken": "^9.0.10",
+        "@types/nodemailer": "^7.0.5"
       }
     },
     {
@@ -156,24 +159,6 @@
     },
     {
       "type": "create-file",
-      "source": "shared/config/env.ts",
-      "destination": "lib/env.ts",
-      "condition": { "framework": "nextjs" }
-    },
-    {
-      "type": "add-env",
-      "condition": { "framework": "nextjs" },
-      "envVars": {
-        "NEXT_PUBLIC_APP_NAME": "Your App",
-        "NEXT_PUBLIC_APP_URL": "http://localhost:3000",
-        "NEXT_PUBLIC_BETTER_AUTH_URL": "http://localhost:3000",
-        "BETTER_AUTH_SECRET": "your_better_auth_secret",
-        "GOOGLE_CLIENT_ID": "your_google_client_id",
-        "GOOGLE_CLIENT_SECRET": "your_google_client_secret"
-      }
-    },
-    {
-      "type": "create-file",
       "source": "shared/prisma/*",
       "destination": "prisma/*",
       "condition": { "database": "prisma" }
@@ -181,12 +166,9 @@
     {
       "type": "add-dependency",
       "dependencies": {
-        "better-auth": "^1.4.12",
-        "nodemailer": "^7.0.12"
+        "better-auth": "^1.4.12"
       },
-      "devDependencies": {
-        "@types/nodemailer": "^7.0.5"
-      }
+      "condition": ["react", "nextjs"]
     }
   ]
 }

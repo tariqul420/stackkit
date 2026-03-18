@@ -5,23 +5,21 @@
   "operations": [
     {
       "type": "create-file",
-      "source": "files/lib/cloudinary.ts",
-      "destination": "src/lib/cloudinary.ts",
+      "source": "express/config/*",
+      "destination": "src/config/*",
       "condition": { "framework": ["express"] }
     },
     {
       "type": "create-file",
-      "source": "files/server/upload.route.ts",
-      "destination": "src/routes/upload.route.ts",
+      "source": "express/modules/media/*",
+      "destination": "src/modules/media/*",
       "condition": { "framework": "express" }
     },
     {
       "type": "add-dependency",
       "dependencies": {
-        "cloudinary": "^1.36.0",
-        "multer": "^1.4.5"
-      },
-      "devDependencies": {}
+         "cloudinary": "^1.39.0"
+      }
     },
     {
       "type": "add-env",
