@@ -7,25 +7,11 @@ import { sendEmail } from "../shared/utils/email";
 import { prisma } from "../database/prisma";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 {{/if}}
-{{#if combo == "prisma:nextjs"}}
-import { Role, UserStatus } from "@prisma/client";
-import { sendEmail } from "@/lib/utils/email";
-import { prisma } from "../database/prisma";
-import { envVars } from "@/lib/env";
-import { prismaAdapter } from "better-auth/adapters/prisma";
-{{/if}}
 {{#if combo == "mongoose:express"}}
 import { envVars } from "../config/env";
 import { Role, UserStatus } from "../modules/auth/auth.constants";
 import { sendEmail } from "../shared/utils/email";
 import { getMongoClient, getMongoDb, mongoose } from "../database/mongoose";
-import { mongodbAdapter } from "better-auth/adapters/mongodb";
-{{/if}}
-{{#if combo == "mongoose:nextjs"}}
-import { sendEmail } from "../service/email/email-service";
-import { getMongoClient, getMongoDb, mongoose } from "../database/mongoose";
-import { Role, UserStatus } from "@/lib/auth/auth-constants";
-import { envVars } from "@/lib/env";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 {{/if}}
 

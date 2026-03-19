@@ -10,7 +10,9 @@ interface EnvConfig {
   PORT: string;
   APP_NAME?: string;
   APP_URL: string;
+  {{#if database}}
   DATABASE_URL: string;
+  {{/if}}
   CLOUDINARY: {
     CLOUDINARY_CLOUD_NAME: string;
     CLOUDINARY_API_KEY: string;
@@ -25,7 +27,9 @@ const loadEnvVars = (): EnvConfig => {
     "PORT",
     "APP_NAME",
     "APP_URL",
+    {{#if database}}
     "DATABASE_URL",
+    {{/if}}
     "CLOUDINARY_CLOUD_NAME",
     "CLOUDINARY_API_KEY",
     "CLOUDINARY_API_SECRET",
@@ -45,13 +49,15 @@ const loadEnvVars = (): EnvConfig => {
     PORT: process.env.PORT as string,
     APP_NAME: process.env.APP_NAME ?? "Your App",
     APP_URL: process.env.APP_URL as string,
+    {{#if database}}
     DATABASE_URL: process.env.DATABASE_URL as string,
+    {{/if}}
     CLOUDINARY: {
       CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME as string,
       CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY as string,
       CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET as string,
       CLOUDINARY_UPLOAD_PRESET:
-        process.env.CLOUDINARY_UPLOAD_PRESET || undefined,
+        process.env.CLOUDINARY_UPLOAD_PRESET as string,
     },
   };
 };

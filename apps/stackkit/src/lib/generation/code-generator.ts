@@ -305,6 +305,27 @@ export class AdvancedCodeGenerator {
             .replace(/\n+$/, "");
         }
 
+        const rawCond = condition.trim();
+        if (rawCond) {
+          if (rawCond.startsWith("!")) {
+            const varName = rawCond.slice(1).trim().replace(/['"]/g, "");
+            const val = context[varName];
+            const isTruthy = !!val && !(Array.isArray(val) && val.length === 0);
+            const contentToProcess = !isTruthy ? blockContent : elseContent || "";
+            return this.processTemplateRecursive(contentToProcess, context)
+              .replace(/^\n+/, "")
+              .replace(/\n+$/, "");
+          }
+
+          const varNameSimple = rawCond.replace(/['"]/g, "");
+          const val = context[varNameSimple];
+          const isTruthy = !!val && !(Array.isArray(val) && val.length === 0);
+          const contentToProcess = isTruthy ? blockContent : elseContent || "";
+          return this.processTemplateRecursive(contentToProcess, context)
+            .replace(/^\n+/, "")
+            .replace(/\n+$/, "");
+        }
+
         return "";
       },
     );

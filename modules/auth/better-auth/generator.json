@@ -148,14 +148,26 @@
     {
       "type": "create-file",
       "source": "shared/lib/auth-client.ts",
-      "destination": "src/shared/lib/auth-client.ts",
-      "condition": { "framework": "react" }
+      "destination": "lib/auth/auth-client.ts",
+      "condition": { "framework": "nextjs" }
+    },
+    {
+      "type": "create-file",
+      "source": "nextjs/pages/**",
+      "destination": "app/(public)/(auth)/**",
+      "condition": { "framework": "nextjs" }
+    },
+    {
+      "type": "create-file",
+      "source": "nextjs/features/**",
+      "destination": "features/auth/**",
+      "condition": { "framework": "nextjs" }
     },
     {
       "type": "create-file",
       "source": "shared/lib/auth-client.ts",
-      "destination": "lib/auth/auth-client.ts",
-      "condition": { "framework": "nextjs" }
+      "destination": "src/shared/lib/auth-client.ts",
+      "condition": { "framework": "react" }
     },
     {
       "type": "create-file",

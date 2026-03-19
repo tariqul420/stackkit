@@ -1,11 +1,10 @@
 import type { AxiosResponse } from "axios";
 import axios, { AxiosError } from "axios";
-import { toast } from "sonner";
-import { envVars } from "../env";
+import toast from "react-hot-toast";
 
 const api = axios.create({
-  baseURL: envVars.API_URL || "http://localhost:5000/api",
-  timeout: 30000,
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
+  timeout: 10000,
   headers: {
     "Content-Type": "application/json",
   },
@@ -20,7 +19,7 @@ api.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error: AxiosError) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem("auth_token");
+      cookieStore.delete("session_token");
       toast.error("Session expired. Please login again.");
     } else if (error.response?.status === 403) {
       toast.error("You do not have permission to perform this action.");
@@ -37,4 +36,4 @@ api.interceptors.response.use(
   },
 );
 
-export { api };
+export default api;
