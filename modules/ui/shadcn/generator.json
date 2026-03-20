@@ -15,8 +15,7 @@
     },
     {
       "type": "run-command",
-      "command": "{{packageManager=='pnpm' ? 'pnpm dlx shadcn@latest add button' : packageManager=='yarn' ? 'yarn dlx shadcn@latest add button' : packageManager=='bun' ? 'bunx shadcn@latest add button' : 'npx shadcn@latest add button'}}",
-      "description": "(optional) Add common components via shadcn CLI"
+      "command": "{{packageManager=='pnpm' ? 'pnpm dlx shadcn@latest add button -y' : packageManager=='yarn' ? 'yarn dlx shadcn@latest add button -y' : packageManager=='bun' ? 'bunx shadcn@latest add button -y' : 'npx shadcn@latest add button -y'}}"
     }
   ]
 }

@@ -1,5 +1,5 @@
+import ForgotPasswordForm from "@/features/auth/components/forgot-password-form";
+
 export default function ForgotPassword() {
-  return (
-    <div>Forgot Password</div>
-  )
+  return <ForgotPasswordForm />;
 }

@@ -165,6 +165,24 @@
     },
     {
       "type": "create-file",
+      "source": "nextjs/lib/**",
+      "destination": "lib/**",
+      "condition": { "framework": "nextjs" }
+    },
+    {
+      "type": "create-file",
+      "source": "nextjs/proxy.ts",
+      "destination": "proxy.ts",
+      "condition": { "framework": "nextjs" }
+    },
+    {
+      "type": "create-file",
+      "source": "nextjs/types/**",
+      "destination": "types/**",
+      "condition": { "framework": "nextjs" }
+    },
+    {
+      "type": "create-file",
       "source": "shared/lib/auth-client.ts",
       "destination": "src/shared/lib/auth-client.ts",
       "condition": { "framework": "react" }
@@ -176,11 +194,33 @@
       "condition": { "database": "prisma" }
     },
     {
+      "type": "create-file",
+      "source": "shared/ui/form-field/*",
+      "destination": "components/global/form-field/*",
+      "condition": { "framework": ["react", "nextjs"], "ui": "shadcn" }
+    },
+    {
       "type": "add-dependency",
       "dependencies": {
         "better-auth": "^1.4.12"
       },
-      "condition": ["react", "nextjs"]
+      "condition": { "framework": ["react", "nextjs"] }
+    },
+    {
+      "type": "add-dependency",
+      "dependencies": {
+        "jsonwebtoken": "^9.0.3",
+        "zod": "^4.3.6"
+      },
+      "devDependencies": {
+        "@types/jsonwebtoken": "^9.0.10"
+      },
+      "condition": { "framework": "nextjs" }
+    },
+    {
+      "type": "run-command",
+      "command": "{{packageManager=='pnpm' ? 'pnpm dlx shadcn@latest add card checkbox field input label -y' : packageManager=='yarn' ? 'yarn dlx shadcn@latest add card checkbox field input label -y' : packageManager=='bun' ? 'bunx shadcn@latest add card checkbox field input label -y' : 'npx shadcn@latest add card checkbox field input label -y'}}",
+      "condition": { "framework": ["react", "nextjs"], "ui": "shadcn" }
     }
   ]
 }

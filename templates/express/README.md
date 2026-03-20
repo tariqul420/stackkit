@@ -47,8 +47,8 @@ express-api/
 │
 │   ├── database/
 │   │   └── prisma.ts                     # PrismaClient singleton
-│   
-│   ├── lib/ 
+│
+│   ├── lib/
 │       └── auth.ts                   # Auth server config
 │
 │   ├── shared/
