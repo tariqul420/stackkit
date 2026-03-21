@@ -1,3 +1,5 @@
+export type SocialProvider = "google";
+
 export interface ILoginResponse {
   token: string;
   accessToken: string;
@@ -13,3 +15,26 @@ export interface ILoginResponse {
     emailVerified: boolean;
   };
 }
+
+export interface IUserResponse {
+  needPasswordChange: boolean;
+  email: string;
+  name: string;
+  role: string;
+  image: string;
+  status: string;
+  isDeleted: boolean;
+  emailVerified: boolean;
+}
+
+export type OAuthLoginPayload = {
+  provider: SocialProvider;
+  callbackURL: string;
+  signInEndpoint: string;
+};
+
+export type OAuthPayloadResponse = {
+  success: boolean;
+  message: string;
+  data: OAuthLoginPayload;
+};

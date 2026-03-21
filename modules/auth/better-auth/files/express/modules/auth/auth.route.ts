@@ -1,9 +1,5 @@
-{{#if database == "prisma"}}
 import { Role } from "@prisma/client";
-{{/if}}
-{{#if database == "mongoose"}}
-import { Role } from './auth.constants';
-{{/if}}
+
 import { Router } from "express";
 import { authorize } from "../../shared/middlewares/authorize.middleware";
 import { authController } from "./auth.controller";
@@ -19,7 +15,7 @@ router.post("/logout", authorize(Role.ADMIN, Role.USER), authController.logoutUs
 router.post("/verify-email", authController.verifyEmail)
 router.post("/forget-password", authController.forgetPassword)
 router.post("/reset-password", authController.resetPassword)
-
+router.post("/resend-otp", authController.resendOTP);
 router.get("/login/google", authController.googleLogin);
 router.get("/google/success", authController.googleLoginSuccess);
 router.get("/oauth/error", authController.handleOAuthError);

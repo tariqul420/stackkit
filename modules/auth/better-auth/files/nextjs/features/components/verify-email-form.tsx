@@ -1,21 +1,22 @@
 "use client";
 
+import InputField from "@/components/global/form-field/input-field";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { useVerifyEmailMutation } from "@/features/auth/queries/auth.mutations";
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  useResendOTPMutation,
+  useVerifyEmailMutation,
+} from "@/features/auth/queries/auth.mutations";
 import { verifyZodSchema } from "@/features/auth/validators/verify.validator";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useSearchParams } from "next/navigation";
+import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 type VerifyValues = {
@@ -24,70 +25,75 @@ type VerifyValues = {
 };
 
 export default function VerifyEmailForm() {
-  const router = useRouter();
   const mutation = useVerifyEmailMutation();
+  const resendMutation = useResendOTPMutation();
+
+  const params = useSearchParams();
+  const prefillEmail = params?.get("email") || "";
 
   const form = useForm<VerifyValues>({
     mode: "onTouched",
     resolver: zodResolver(verifyZodSchema),
-    defaultValues: { email: "", otp: "" },
+    defaultValues: { email: prefillEmail, otp: "" },
   });
 
   async function onSubmit(values: VerifyValues) {
     try {
       await mutation.mutateAsync(values);
-      router.push("/login");
     } catch {
-      toast.error(
-        "Verification failed. Please check your details and try again.",
-      );
+      // Error handling is done in the mutation's onError callback
     }
   }
 
+  const resend = async () => {
+    const email = form.getValues("email") || prefillEmail;
+
+    if (!email) {
+      toast.error("Email not available to resend OTP");
+      return;
+    }
+
+    try {
+      await resendMutation.mutateAsync({ email });
+    } catch {
+      // Error handling is done in the mutation's onError callback
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <Card className="w-full max-w-md">
-        <CardContent className="p-8">
-          <h1 className="text-2xl font-semibold mb-4">Verify email</h1>
+    <Card className="w-full max-w-md">
+      <CardHeader>
+        <CardTitle>Verify your email</CardTitle>
+        <CardDescription>
+          Enter the OTP sent to your email to verify your account
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="p-8">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormProvider {...form}>
+            {!prefillEmail ? (
+              <InputField
+                name="email"
+                label="Email"
+                type="email"
+                placeholder="you@example.com"
+              />
+            ) : null}
+            <InputField name="otp" label="OTP" placeholder="Enter OTP" />
 
-          <Form
-            form={form}
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4"
-          >
-            <FormField name="email">
-              {({ field, fieldState }) => (
-                <FormItem>
-                  <FormLabel htmlFor="email">Email</FormLabel>
-                  <FormControl>
-                    <Input id="email" type="email" {...field} />
-                  </FormControl>
-                  <FormMessage>{fieldState?.error?.message}</FormMessage>
-                </FormItem>
-              )}
-            </FormField>
-
-            <FormField name="otp">
-              {({ field, fieldState }) => (
-                <FormItem>
-                  <FormLabel htmlFor="otp">OTP</FormLabel>
-                  <FormControl>
-                    <Input id="otp" {...field} />
-                  </FormControl>
-                  <FormMessage>{fieldState?.error?.message}</FormMessage>
-                </FormItem>
-              )}
-            </FormField>
-
-            <div className="flex items-center justify-between mt-2">
-              <div />
-              <Button type="submit" disabled={mutation.isLoading}>
-                {mutation.isLoading ? "Verifying..." : "Verify email"}
+            <div className="flex items-center justify-between mt-2 gap-2">
+              <div className="flex gap-2">
+                <Button type="button" variant="ghost" onClick={resend}>
+                  Resend code
+                </Button>
+              </div>
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? "Verifying..." : "Verify email"}
               </Button>
             </div>
-          </Form>
-        </CardContent>
-      </Card>
-    </div>
+          </FormProvider>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

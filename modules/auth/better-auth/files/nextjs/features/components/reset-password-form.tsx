@@ -2,13 +2,18 @@
 
 import InputField from "@/components/global/form-field/input-field";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useResetPasswordMutation } from "@/features/auth/queries/auth.mutations";
 import { resetZodSchema } from "@/features/auth/validators/reset.validator";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { FormProvider, useForm } from "react-hook-form";
-import { toast } from "sonner";
 
 type ResetValues = {
   email: string;
@@ -18,7 +23,6 @@ type ResetValues = {
 };
 
 export default function ResetPasswordForm() {
-  const router = useRouter();
   const params = useSearchParams();
   const prefillEmail = params?.get("email") || "";
 
@@ -47,52 +51,50 @@ export default function ResetPasswordForm() {
         otp: values.otp,
         newPassword: values.newPassword,
       });
-      router.push("/login");
     } catch {
-      toast.error(
-        "Failed to reset password. Please check your details and try again.",
-      );
+      // Error handling is done in the mutation's onError callback
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <Card className="w-full max-w-md">
-        <CardContent className="p-8">
-          <h1 className="text-2xl font-semibold mb-4">Reset password</h1>
+    <Card className="w-full max-w-md">
+      <CardHeader>
+        <CardTitle>Reset password</CardTitle>
+        <CardDescription>
+          Enter your email and new password to reset your password
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="p-8">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormProvider {...form}>
+            <InputField
+              name="email"
+              label="Email"
+              type="email"
+              placeholder="you@example.com"
+            />
+            <InputField name="otp" label="OTP" placeholder="Enter OTP" />
+            <InputField
+              name="newPassword"
+              label="New password"
+              type="password"
+            />
+            <InputField
+              name="confirmPassword"
+              label="Confirm new password"
+              type="password"
+            />
 
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormProvider {...form}>
-              <InputField
-                name="email"
-                label="Email"
-                type="email"
-                placeholder="you@example.com"
-              />
-              <InputField name="otp" label="OTP" placeholder="Enter OTP" />
-              <InputField
-                name="newPassword"
-                label="New password"
-                type="password"
-              />
-              <InputField
-                name="confirmPassword"
-                label="Confirm new password"
-                type="password"
-              />
-
-              <div className="flex items-center justify-between mt-2">
-                <div />
-                <Button type="submit" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting
-                    ? "Resetting..."
-                    : "Reset password"}
-                </Button>
-              </div>
-            </FormProvider>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+            <div className="flex items-center justify-between mt-2">
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting
+                  ? "Resetting..."
+                  : "Reset password"}
+              </Button>
+            </div>
+          </FormProvider>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

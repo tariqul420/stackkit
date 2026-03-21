@@ -159,6 +159,12 @@
     },
     {
       "type": "create-file",
+      "source": "nextjs/layout.tsx",
+      "destination": "app/(public)/layout.tsx",
+      "condition": { "framework": "nextjs" }
+    },
+    {
+      "type": "create-file",
       "source": "nextjs/features/**",
       "destination": "features/auth/**",
       "condition": { "framework": "nextjs" }
@@ -177,9 +183,23 @@
     },
     {
       "type": "create-file",
+      "source": "nextjs/components/**",
+      "destination": "components/**",
+      "condition": { "framework": "nextjs" }
+    },
+    {
+      "type": "create-file",
       "source": "nextjs/types/**",
       "destination": "types/**",
       "condition": { "framework": "nextjs" }
+    },
+    {
+      "type": "add-env",
+      "condition": { "framework": "nextjs" },
+      "envVars": {
+        "NEXT_PUBLIC_BETTER_AUTH_URL": "http://localhost:5000",
+        "JWT_ACCESS_SECRET": "your_jwt_access_secret"
+      }
     },
     {
       "type": "create-file",
@@ -219,7 +239,7 @@
     },
     {
       "type": "run-command",
-      "command": "{{packageManager=='pnpm' ? 'pnpm dlx shadcn@latest add card checkbox field input label -y' : packageManager=='yarn' ? 'yarn dlx shadcn@latest add card checkbox field input label -y' : packageManager=='bun' ? 'bunx shadcn@latest add card checkbox field input label -y' : 'npx shadcn@latest add card checkbox field input label -y'}}",
+      "command": "{{packageManager=='pnpm' ? 'pnpm dlx shadcn@latest add card checkbox field input input-group label -y' : packageManager=='yarn' ? 'yarn dlx shadcn@latest add card checkbox field input input-group label -y' : packageManager=='bun' ? 'bunx shadcn@latest add card checkbox field input input-group label -y' : 'npx shadcn@latest add card checkbox field input input-group label -y'}}",
       "condition": { "framework": ["react", "nextjs"], "ui": "shadcn" }
     }
   ]

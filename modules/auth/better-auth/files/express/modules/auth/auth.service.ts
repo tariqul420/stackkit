@@ -1,24 +1,18 @@
 import status from "http-status";
 import { JwtPayload } from "jsonwebtoken";
 import { envVars } from "../../config/env";
-{{#if database == "prisma"}}
 import { prisma } from "../../database/prisma";
-{{/if}}
-{{#if database == "mongoose"}}
-import {
-  deleteAuthUserById,
-  getAuthCollections,
-} from "./auth.helper";
-{{/if}}
+
 import { auth } from "../../lib/auth";
 import { AppError } from "../../shared/errors/app-error";
 import { jwtUtils } from "../../shared/utils/jwt";
 import { tokenUtils } from "../../shared/utils/token";
+import type { NeedsVerification } from "./auth.type";
 import {
-    IChangePasswordPayload,
-    ILoginUserPayload,
-    IRegisterUserPayload,
-    IRequestUser,
+  IChangePasswordPayload,
+  ILoginUserPayload,
+  IRegisterUserPayload,
+  IRequestUser,
 } from "./auth.type";
 
 const registerUser = async (payload: IRegisterUserPayload) => {
@@ -76,16 +70,13 @@ const registerUser = async (payload: IRegisterUserPayload) => {
         user: data.user,
       };
     } catch (error) {
-      {{#if database == "prisma"}}
-      await prisma.user.delete({
+            await prisma.user.delete({
         where: {
           id: data.user.id,
         },
       });
-      {{/if}}
-      {{#if database == "mongoose"}}
-      await deleteAuthUserById(data.user.id);
-      {{/if}}
+      
+      
       throw error;
     }
 
@@ -94,12 +85,36 @@ const registerUser = async (payload: IRegisterUserPayload) => {
 const loginUser = async (payload: ILoginUserPayload) => {
     const { email, password } = payload;
 
-    const data = await auth.api.signInEmail({
+    let data;
+    try {
+      data = await auth.api.signInEmail({
         body: {
-            email,
-            password,
+          email,
+          password,
+        },
+      });
+    } catch (err: unknown) {
+      let msg = "";
+      if (err instanceof Error) msg = err.message;
+      else if (err && typeof err === "object") {
+        try {
+          msg = JSON.stringify(err);
+        } catch {
+          msg = String(err);
         }
-    })
+      } else {
+        msg = String(err);
+      }
+
+      if (
+        msg.includes("Email not verified") ||
+        msg.toLowerCase().includes("email not verified")
+      ) {
+        const needsVerification = { needsVerification: true, email };
+        return needsVerification as NeedsVerification;
+      }
+      throw err;
+    }
 
     if (data.user.status === "BLOCKED") {
       throw new AppError(status.FORBIDDEN, "User is blocked");
@@ -136,19 +151,69 @@ const loginUser = async (payload: ILoginUserPayload) => {
     };
 }
 
+const resendOTP = async (email: string) => {
+  const isUserExist = await prisma.user.findUnique({ where: { email } });
+  if (!isUserExist) {
+    throw new AppError(status.NOT_FOUND, "User not found");
+  }
+  if (isUserExist.emailVerified) {
+    throw new AppError(status.BAD_REQUEST, "Email already verified");
+  }
+
+  const existingVerification = await prisma.verification.findFirst({
+    where: {
+      identifier: email,
+      expiresAt: {
+        gt: new Date(),
+      },
+    },
+  });
+
+  if (existingVerification) {
+    throw new AppError(
+      status.TOO_MANY_REQUESTS,
+      "A verification email was already sent recently. Please check your inbox or try again later.",
+    );
+  }
+
+  try {
+    const sdk = auth.api as unknown as Record<
+      string,
+      (...args: unknown[]) => Promise<unknown>
+    >;
+
+    if (typeof sdk.requestEmailVerificationOTP === "function") {
+      await sdk.requestEmailVerificationOTP({ body: { email } } as unknown);
+    } else if (typeof sdk.requestVerificationEmailOTP === "function") {
+      await sdk.requestVerificationEmailOTP({ body: { email } } as unknown);
+    } else if (typeof sdk.requestEmailOTP === "function") {
+      await sdk.requestEmailOTP({
+        body: { email, type: "email-verification" },
+      } as unknown);
+    } else if (typeof sdk["requestSignInOTP"] === "function") {
+      await sdk["requestSignInOTP"]({ body: { email } } as unknown);
+    } else {
+      throw new Error(
+        "No suitable method available on auth SDK to request verification OTP",
+      );
+    }
+  } catch {
+    throw new AppError(
+      status.INTERNAL_SERVER_ERROR,
+      "Failed to resend verification OTP",
+    );
+  }
+};
+
 const getMe = async (user : IRequestUser) => {
-    {{#if database == "prisma"}}
-        const isUserExists = await prisma.user.findUnique({
+            const isUserExists = await prisma.user.findUnique({
       where: {
         id: user.id,
       },
       // Include other related models if needed
     });
-    {{/if}}
-    {{#if database == "mongoose"}}
-    const { users } = await getAuthCollections();
-    const isUserExists = await users.findOne({ id: user.id });
-    {{/if}}
+    
+    
 
     if (!isUserExists) {
         throw new AppError(status.NOT_FOUND, "User not found");
@@ -158,23 +223,16 @@ const getMe = async (user : IRequestUser) => {
 }
 
 const getNewToken = async (refreshToken : string, sessionToken : string) => {
-    {{#if database == "prisma"}}
-        const isSessionTokenExists = await prisma.session.findUnique({
-        where : {
-            token : sessionToken,
-        },
-        include : {
-            user : true,
-        }
-    })
-    {{/if}}
-    {{#if database == "mongoose"}}
-    const { sessions } = await getAuthCollections();
-    
-    const isSessionTokenExists = await sessions.findOne({
-      token: sessionToken,
+    const isSessionTokenExists = await prisma.session.findUnique({
+      where: {
+        token: sessionToken,
+      },
+      include: {
+        user: true,
+      },
     });
-    {{/if}}
+    
+    
 
     if(!isSessionTokenExists){
         throw new AppError(status.UNAUTHORIZED, "Invalid session token");
@@ -208,38 +266,18 @@ const getNewToken = async (refreshToken : string, sessionToken : string) => {
         emailVerified: data.emailVerified,
     });
 
-    {{#if database == "prisma"}}
-        const { token } = await prisma.session.update({
-        where : {
-            token : sessionToken
-        },
-        data : {
-            token : sessionToken,
-            expiresAt: new Date(Date.now() + 60 * 60 * 60 * 24 * 1000),
-            updatedAt: new Date(),
-        }
-    })
-    {{/if}}
-    {{#if database == "mongoose"}}
-    const updatedSession = await sessions.findOneAndUpdate(
-      { token: sessionToken },
-      {
-        $set: {
-          token: sessionToken,
-          expiresAt: new Date(Date.now() + 60 * 60 * 60 * 24 * 1000),
-          updatedAt: new Date(),
-        },
+    const { token } = await prisma.session.update({
+      where: {
+        token: sessionToken,
       },
-      {
-        returnDocument: "after",
+      data: {
+        token: sessionToken,
+        expiresAt: new Date(Date.now() + 60 * 60 * 60 * 24 * 1000),
+        updatedAt: new Date(),
       },
-    );
-
-    if (!updatedSession) {
-      throw new AppError(status.UNAUTHORIZED, "Session not found");
-    }
-    const token = updatedSession.token;
-    {{/if}}
+    });
+    
+    
 
     return {
         accessToken : newAccessToken,
@@ -273,8 +311,7 @@ const changePassword = async (payload : IChangePasswordPayload, sessionToken : s
     })
 
     if(session.user.needPasswordChange){
-        {{#if database == "prisma"}}
-        await prisma.user.update({
+                await prisma.user.update({
             where: {
                 id: session.user.id,
             },
@@ -282,20 +319,8 @@ const changePassword = async (payload : IChangePasswordPayload, sessionToken : s
                 needPasswordChange: false,
             }
         })
-        {{/if}}
-        {{#if database == "mongoose"}}
-        const { users } = await getAuthCollections();
-          await users.updateOne(
-            {
-              id: session.user.id,
-            },
-            {
-              $set: {
-                needPasswordChange: false,
-              },
-            },
-          );
-        {{/if}}
+        
+        
     }
 
     const accessToken = tokenUtils.getAccessToken({
@@ -346,8 +371,7 @@ const verifyEmail = async (email : string, otp : string) => {
     })
 
     if(result.status && !result.user.emailVerified){
-        {{#if database == "prisma"}}
-        await prisma.user.update({
+                await prisma.user.update({
             where : {
                 email,
             },
@@ -355,37 +379,19 @@ const verifyEmail = async (email : string, otp : string) => {
                 emailVerified: true,
             }
         })
-        {{/if}}
-        {{#if database == "mongoose"}}
-        const { users } = await getAuthCollections();
-          await users.updateOne(
-            {
-              email,
-            },
-            {
-              $set: {
-                emailVerified: true,
-              },
-            },
-          );
-        {{/if}}
+        
+        
     }
 }
 
 const forgetPassword = async (email : string) => {
-    {{#if database == "prisma"}}
-    const isUserExist = await prisma.user.findUnique({
+        const isUserExist = await prisma.user.findUnique({
         where : {
             email,
         }
     })
-    {{/if}}
-    {{#if database == "mongoose"}}
-    const { users } = await getAuthCollections();
-    const isUserExist = await users.findOne({
-      email,
-    });
-    {{/if}}
+    
+    
 
     if(!isUserExist){
         throw new AppError(status.NOT_FOUND, "User not found");
@@ -407,19 +413,13 @@ const forgetPassword = async (email : string) => {
 }
 
 const resetPassword = async (email : string, otp : string, newPassword : string) => {
-    {{#if database == "prisma"}}
-    const isUserExist = await prisma.user.findUnique({
+        const isUserExist = await prisma.user.findUnique({
         where : {
             email,
         }
     })
-    {{/if}}
-    {{#if database == "mongoose"}}
-    const { users } = await getAuthCollections();
-    const isUserExist = await users.findOne({
-      email,
-    });
-    {{/if}}
+    
+    
 
     if (!isUserExist) {
         throw new AppError(status.NOT_FOUND, "User not found");
@@ -441,8 +441,7 @@ const resetPassword = async (email : string, otp : string, newPassword : string)
         }
     })
 
-    {{#if database == "prisma"}}
-    if (isUserExist.needPasswordChange) {
+        if (isUserExist.needPasswordChange) {
         await prisma.user.update({
             where: {
                 email,
@@ -458,31 +457,13 @@ const resetPassword = async (email : string, otp : string, newPassword : string)
             userId : isUserExist.id,
         }
     })
-    {{/if}}
-    {{#if database == "mongoose"}}
-    if (isUserExist.needPasswordChange) {
-        await users.updateOne(
-            {
-              email,
-            },
-            {
-              $set: {
-                needPasswordChange: false,
-              },
-            },
-          );
-    }
-    const { sessions } = await getAuthCollections();
-    await sessions.deleteMany({
-      userId: isUserExist.id,
-    });
-    {{/if}}
+    
+    
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const googleLoginSuccess = async (session : Record<string, any>) =>{
-    {{#if database == "prisma"}}
-        const isUserExists = await prisma.user.findUnique({
+            const isUserExists = await prisma.user.findUnique({
       where: {
         id: session.user.id,
       },
@@ -497,25 +478,8 @@ const googleLoginSuccess = async (session : Record<string, any>) =>{
         },
       });
     }
-    {{/if}}
-    {{#if database == "mongoose"}}
-    const { users } = await getAuthCollections();
-    const isUserExists = await users.findOne({ id: session.user.id });
-
-    if (!isUserExists) {
-      await users.insertOne({
-        id: session.user.id,
-        name: session.user.name,
-        email: session.user.email,
-        role: "USER",
-        status: "ACTIVE",
-        needPasswordChange: false,
-        emailVerified: true,
-        isDeleted: false,
-        deletedAt: null,
-      });
-    }
-    {{/if}}
+    
+    
 
     const accessToken = tokenUtils.getAccessToken({
         userId: session.user.id,
@@ -536,14 +500,15 @@ const googleLoginSuccess = async (session : Record<string, any>) =>{
 }
 
 export const authService = {
-    registerUser: registerUser,
-    loginUser,
-    getMe,
-    getNewToken,
-    changePassword,
-    logoutUser,
-    verifyEmail,
-    forgetPassword,
-    resetPassword,
-    googleLoginSuccess,
+  registerUser: registerUser,
+  loginUser,
+  getMe,
+  getNewToken,
+  changePassword,
+  logoutUser,
+  verifyEmail,
+  resendOTP,
+  forgetPassword,
+  resetPassword,
+  googleLoginSuccess,
 };

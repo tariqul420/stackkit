@@ -9,8 +9,12 @@ import {
   FieldError,
   FieldLabel,
 } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { CloudUpload, type LucideIcon } from "lucide-react";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+import { CloudUpload, Eye, EyeOff, type LucideIcon } from "lucide-react";
 import type { ChangeEvent, HTMLInputTypeAttribute } from "react";
 import * as React from "react";
 import type { FieldPath, FieldValues } from "react-hook-form";
@@ -136,6 +140,11 @@ export default function InputField<
     string | number | boolean | undefined
   >(defaultValue);
 
+  const [showPassword, setShowPassword] = React.useState(false);
+  const isPassword = type === "password";
+  const effectiveType =
+    isPassword && showPassword ? ("text" as HTMLInputTypeAttribute) : type;
+
   const inFormMode = Boolean(name);
 
   const toNumberIfNeeded = (raw: string): string | number => {
@@ -245,10 +254,10 @@ export default function InputField<
                     ) : null}
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2 overflow-hidden rounded-md dark:bg-transparent">
-                    <Input
+                  <InputGroup>
+                    <InputGroupInput
                       id={inputId}
-                      type={type}
+                      type={effectiveType}
                       placeholder={placeholder}
                       disabled={effectiveDisabled}
                       value={toTextInputValue(field.value)}
@@ -262,7 +271,25 @@ export default function InputField<
                       ref={field.ref}
                       {...rest}
                     />
-                  </div>
+                    {isPassword ? (
+                      <InputGroupAddon align="inline-end">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-full px-3 py-2 hover:bg-transparent"
+                          onClick={() => setShowPassword(!showPassword)}
+                          disabled={effectiveDisabled}
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </InputGroupAddon>
+                    ) : null}
+                  </InputGroup>
                 )}
               </FieldContent>
 
@@ -368,10 +395,10 @@ export default function InputField<
           ) : null}
         </div>
       ) : (
-        <div className="mt-1 flex items-center gap-2 overflow-hidden rounded-md bg-light dark:bg-transparent">
-          <Input
+        <InputGroup>
+          <InputGroupInput
             id={inputId}
-            type={type}
+            type={effectiveType}
             placeholder={placeholder}
             disabled={effectiveDisabled}
             value={toTextInputValue(currentValue)}
@@ -384,7 +411,25 @@ export default function InputField<
             className={inputClassName}
             {...rest}
           />
-        </div>
+          {isPassword ? (
+            <InputGroupAddon align="inline-end">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-full px-3 py-2 hover:bg-transparent"
+                onClick={() => setShowPassword(!showPassword)}
+                disabled={effectiveDisabled}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </Button>
+            </InputGroupAddon>
+          ) : null}
+        </InputGroup>
       )}
 
       {hint ? (

@@ -502,7 +502,7 @@ async function generateProject(
     const postInstallSpinner = logger.startSpinner("Running post-install commands...");
     try {
       for (const command of postInstallCommands) {
-        execSync(command, { cwd: targetDir, stdio: "pipe" });
+        execSync(command, { cwd: targetDir, stdio: "inherit" });
       }
       postInstallSpinner.succeed("Post-install commands completed");
     } catch (error) {

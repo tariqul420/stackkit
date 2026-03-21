@@ -8,6 +8,7 @@ import { cookieUtils } from "../../shared/utils/cookie";
 import { sendResponse } from "../../shared/utils/send-response";
 import { tokenUtils } from "../../shared/utils/token";
 import { authService } from "./auth.service";
+import type { NeedsVerification } from "./auth.type";
 
 const registerUser = catchAsync(async (req: Request, res: Response) => {
   const payload = req.body;
@@ -33,36 +34,49 @@ const registerUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const loginUser = catchAsync(
-    async (req: Request, res: Response) => {
-        const payload = req.body;
-        const result = await authService.loginUser(payload);
-        const { accessToken, refreshToken, token, ...rest } = result
+const loginUser = catchAsync(async (req: Request, res: Response) => {
+  const payload = req.body;
+  const result = await authService.loginUser(payload);
+  if ((result as NeedsVerification)?.needsVerification) {
+    const n = result as NeedsVerification;
+    return sendResponse(res, {
+      status: status.FORBIDDEN,
+      success: false,
+      message: "Email not verified",
+      data: { email: n.email },
+    });
+  }
 
-        if (!token) {
-          throw new AppError(
-            status.INTERNAL_SERVER_ERROR,
-            "Session token is missing",
-          );
-        }
+  const { accessToken, refreshToken, token, ...rest } =
+    result as unknown as Record<string, unknown>;
 
-        tokenUtils.setAccessTokenCookie(res, accessToken);
-        tokenUtils.setRefreshTokenCookie(res, refreshToken);
-        tokenUtils.setBetterAuthSessionCookie(res, token);
+  if (typeof token !== "string") {
+    throw new AppError(
+      status.INTERNAL_SERVER_ERROR,
+      "Session token is missing",
+    );
+  }
 
-        sendResponse(res, {
-          status: status.OK,
-          success: true,
-          message: "User logged in successfully",
-          data: {
-            token,
-            accessToken,
-            refreshToken,
-            ...rest,
-          },
-        });
-    }
-)
+  if (typeof accessToken !== "string" || typeof refreshToken !== "string") {
+    throw new AppError(status.INTERNAL_SERVER_ERROR, "Auth tokens are missing");
+  }
+
+  tokenUtils.setAccessTokenCookie(res, accessToken);
+  tokenUtils.setRefreshTokenCookie(res, refreshToken);
+  tokenUtils.setBetterAuthSessionCookie(res, token);
+
+  sendResponse(res, {
+    status: status.OK,
+    success: true,
+    message: "User logged in successfully",
+    data: {
+      token,
+      accessToken,
+      refreshToken,
+      ...rest,
+    },
+  });
+});
 
 const getMe = catchAsync(
     async (req: Request, res: Response) => {
@@ -169,6 +183,17 @@ const verifyEmail = catchAsync(
     }
 )
 
+const resendOTP = catchAsync(async (req: Request, res: Response) => {
+  const { email } = req.body;
+  await authService.resendOTP(email);
+
+  sendResponse(res, {
+    status: status.OK,
+    success: true,
+    message: "Verification OTP resent successfully",
+  });
+});
+
 const forgetPassword = catchAsync(
     async (req: Request, res: Response) => {
         const { email } = req.body;
@@ -249,16 +274,17 @@ const handleOAuthError = catchAsync((req: Request, res: Response) => {
 })
 
 export const authController = {
-    registerUser,
-    loginUser,
-    getMe,
-    getNewToken,
-    changePassword,
-    logoutUser,
-    verifyEmail,
-    forgetPassword,
-    resetPassword,
-    googleLogin,
-    googleLoginSuccess,
-    handleOAuthError,
+  registerUser,
+  loginUser,
+  getMe,
+  getNewToken,
+  changePassword,
+  logoutUser,
+  verifyEmail,
+  resendOTP,
+  forgetPassword,
+  resetPassword,
+  googleLogin,
+  googleLoginSuccess,
+  handleOAuthError,
 };

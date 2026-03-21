@@ -506,7 +506,7 @@ async function addModuleToProject(
         const postInstallSpinner = logger.startSpinner("Running post-install commands...");
         try {
           for (const command of postInstall) {
-            execSync(command, { cwd: projectRoot, stdio: "pipe" });
+            execSync(command, { cwd: projectRoot, stdio: "inherit" });
           }
           postInstallSpinner.succeed("Post-install commands completed");
         } catch (error) {
@@ -604,7 +604,7 @@ async function addModuleToProject(
       const postInstallSpinner = logger.startSpinner("Running post-install commands...");
       try {
         for (const command of moduleMetadata.postInstall) {
-          execSync(command, { cwd: projectRoot, stdio: "pipe" });
+          execSync(command, { cwd: projectRoot, stdio: "inherit" });
         }
         postInstallSpinner.succeed("Post-install commands completed");
       } catch (error) {
