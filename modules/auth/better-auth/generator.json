@@ -221,10 +221,12 @@
     },
     {
       "type": "add-dependency",
+       "condition": { "framework": ["react", "nextjs"] },
       "dependencies": {
-        "better-auth": "^1.4.12"
-      },
-      "condition": { "framework": ["react", "nextjs"] }
+        "better-auth": "^1.4.12",
+        "@hookform/resolvers": "^3.0.0",
+        "react-hook-form": "^7.71.2"
+      }
     },
     {
       "type": "add-dependency",
@@ -239,7 +241,7 @@
     },
     {
       "type": "run-command",
-      "command": "{{packageManager=='pnpm' ? 'pnpm dlx shadcn@latest add card checkbox field input input-group label -y' : packageManager=='yarn' ? 'yarn dlx shadcn@latest add card checkbox field input input-group label -y' : packageManager=='bun' ? 'bunx shadcn@latest add card checkbox field input input-group label -y' : 'npx shadcn@latest add card checkbox field input input-group label -y'}}",
+      "command": "{{packageManager=='pnpm' ? 'pnpm dlx shadcn@latest add card checkbox field input input-group avatar separator sheet textarea label -y' : packageManager=='yarn' ? 'yarn dlx shadcn@latest add card checkbox field input input-group avatar separator sheet textarea label -y' : packageManager=='bun' ? 'bun dlx shadcn@latest add card checkbox field input input-group avatar separator sheet textarea label -y' : 'npx shadcn@latest add card checkbox field input input-group avatar separator sheet textarea label -y'}}",
       "condition": { "framework": ["react", "nextjs"], "ui": "shadcn" }
     }
   ]

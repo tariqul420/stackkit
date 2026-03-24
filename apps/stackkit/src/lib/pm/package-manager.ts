@@ -1,5 +1,5 @@
 import { detect } from "detect-package-manager";
-import execa, { ExecaError } from "execa";
+import { execa, ExecaError } from "execa";
 import * as fs from "fs-extra";
 import * as path from "path";
 import { LOCK_FILES_ARRAY, PACKAGE_MANAGERS, TIMEOUTS } from "../constants";
