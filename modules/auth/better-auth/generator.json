@@ -159,8 +159,8 @@
     },
     {
       "type": "create-file",
-      "source": "nextjs/layout.tsx",
-      "destination": "app/(public)/layout.tsx",
+      "source": "nextjs/layout/layout.tsx",
+      "destination": "app/(public)/(root)/layout.tsx",
       "condition": { "framework": "nextjs" }
     },
     {

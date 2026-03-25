@@ -16,7 +16,8 @@ import Link from "next/link";
 export default function Navbar() {
   const { data } = useMeQuery();
 
-  const user = data as { name?: string; image?: string } | null;
+  const user = data as { name?: string; image?: string; role: string } | null;
+  const role = user?.role;
 
   return (
     <header className="w-full border-b">
@@ -38,7 +39,7 @@ export default function Navbar() {
           {/* Desktop actions */}
           <div className="hidden md:flex items-center gap-4 ml-4">
             {user ? (
-              <Link href="/dashboard">
+              <Link href={role === "ADMIN" ? "/dashboard/admin" : "/dashboard"}>
                 <Avatar>
                   {user.image ? (
                     <AvatarImage
@@ -112,7 +113,9 @@ export default function Navbar() {
 
                   {user ? (
                     <Link
-                      href="/profile"
+                      href={
+                        role === "ADMIN" ? "/dashboard/admin" : "/dashboard"
+                      }
                       className="flex items-center gap-3 px-3 py-2 rounded-md text-sm"
                     >
                       <Avatar size="sm">

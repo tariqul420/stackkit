@@ -8,6 +8,7 @@ import {
 } from "@/features/auth/types/auth.type";
 import { api } from "@/lib/axios/http";
 import { envVars } from "@/lib/env";
+import { deleteCookie } from "@/lib/utils/cookie";
 import { setTokenInCookies } from "@/lib/utils/token";
 import { cookies } from "next/headers";
 
@@ -80,6 +81,16 @@ export async function resendOTPRequest(payload: { email: string }) {
 
 export async function logoutRequest() {
   const res = await api.post("/v1/auth/logout", {});
+
+  // remove local cookies used for auth
+  try {
+    await deleteCookie("accessToken");
+    await deleteCookie("refreshToken");
+    await deleteCookie("better-auth.session_token");
+  } catch (e) {
+    console.error("Error clearing auth cookies:", e);
+  }
+
   return res.data;
 }
 
@@ -183,7 +194,7 @@ export async function getSession() {
       return null;
     }
 
-    const res = await fetch(`${envVars.API_URL}/auth/me`, {
+    const res = await fetch(`${envVars.API_URL}/v1/auth/me`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

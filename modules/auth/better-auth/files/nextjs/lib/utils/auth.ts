@@ -19,7 +19,7 @@ export type RouteConfig = {
 
 export const commonProtectedRoutes: RouteConfig = {
   exact: ["/my-profile", "/change-password"],
-  pattern: [],
+  pattern: [/^\/dashboard(?!\/admin)(\/.*)?$/],
 };
 
 export const adminProtectedRoutes: RouteConfig = {
@@ -48,7 +48,7 @@ export const getRouteOwner = (pathname: string): "ADMIN" | "COMMON" | null => {
 
 export const getDefaultDashboardRoute = (role: UserRole) => {
   if (role === "ADMIN") {
-    return "/admin/dashboard";
+    return "/dashboard/admin";
   }
   if (role === "USER") {
     return "/dashboard";
