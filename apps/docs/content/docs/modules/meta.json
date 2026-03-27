@@ -3,6 +3,9 @@
   "defaultOpen": true,
   "pages": [
     "authentication",
-    "database"
+    "database",
+    "ui",
+    "storage",
+    "components"
   ]
 }

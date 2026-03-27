@@ -1,0 +1,83 @@
+---
+title: Components
+description: Add pre-built UI components to your project
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Production-ready UI components for Next.js and React projects — TypeScript only.
+
+## Compatible Frameworks
+
+- Next.js
+- React (Vite)
+
+<Callout type="info">
+  Components module requires TypeScript. JavaScript projects are not supported.
+</Callout>
+
+## Installation
+
+### Existing project
+
+```bash
+npx stackkit@latest add
+# Select "Components" → "Components"
+```
+
+## Included Components
+
+| Component | Description | Destination |
+|-----------|-------------|-------------|
+| `TiptapEditor` | Rich text editor powered by Tiptap | `components/tiptap-editor.tsx` (Next.js) / `src/components/tiptap-editor.tsx` (React) |
+| `DataTable` | Sortable, filterable table with TanStack Table | `components/data-table.tsx` / `src/components/data-table.tsx` |
+| `SearchBar` | Debounced search input component | `components/search-bar.tsx` / `src/components/search-bar.tsx` |
+| `FilterBar` | Filter controls for tables and lists | `components/filter-bar.tsx` / `src/components/filter-bar.tsx` |
+
+## Dependencies Installed
+
+```json
+{
+  "@tiptap/react": "^2.11.5",
+  "@tiptap/pm": "^2.11.5",
+  "@tiptap/starter-kit": "^2.11.5",
+  "@tanstack/react-table": "^8.21.3"
+}
+```
+
+## Usage
+
+### TiptapEditor
+
+```tsx
+import { TiptapEditor } from "@/components/tiptap-editor";
+
+export default function Page() {
+  return (
+    <TiptapEditor
+      content="<p>Hello world</p>"
+      onChange={(html) => console.log(html)}
+    />
+  );
+}
+```
+
+### DataTable
+
+```tsx
+import { DataTable } from "@/components/data-table";
+
+const columns = [
+  { accessorKey: "name", header: "Name" },
+  { accessorKey: "email", header: "Email" },
+];
+
+export default function Page() {
+  return <DataTable columns={columns} data={users} />;
+}
+```
+
+## Next Steps
+
+- [Shadcn UI](/docs/modules/ui/shadcn) - UI component library
+- [Troubleshooting](/docs/reference/troubleshooting) - Common issues

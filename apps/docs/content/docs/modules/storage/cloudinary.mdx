@@ -1,0 +1,50 @@
+---
+title: Cloudinary
+description: Add Cloudinary storage to your project
+---
+
+Cloudinary file upload and storage integration for Express projects.
+
+## Compatible Frameworks
+
+- Express
+
+## Installation
+
+### New project
+
+```bash
+npx stackkit@latest create my-api --framework express --storage-provider cloudinary
+```
+
+### Existing project
+
+```bash
+npx stackkit@latest add
+# Select "Storage" → "Cloudinary"
+```
+
+## What gets generated
+
+- `src/config/cloudinary.ts` - Cloudinary configuration
+- `src/modules/media/` - Media upload module with routes and controller
+
+## Setup
+
+1. Copy `.env.example` to `.env`
+2. Add your Cloudinary credentials to `.env`
+3. Start dev server
+
+## Environment Variables
+
+```bash
+CLOUDINARY_CLOUD_NAME="your_cloud_name"
+CLOUDINARY_API_KEY="your_api_key"
+CLOUDINARY_API_SECRET="your_api_secret"
+```
+
+Get your credentials from [cloudinary.com/console](https://cloudinary.com/console).
+
+## Next Steps
+
+- [Troubleshooting](/docs/reference/troubleshooting) - Common issues

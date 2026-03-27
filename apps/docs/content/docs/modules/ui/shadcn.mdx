@@ -1,0 +1,66 @@
+---
+title: Shadcn UI
+description: Add Shadcn UI to your project
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Shadcn-style component set with Tailwind CSS helpers for Next.js and React.
+
+## Compatible Frameworks
+
+- Next.js
+- React (Vite)
+
+## Installation
+
+### New project
+
+```bash
+npx stackkit@latest create my-app --ui shadcn
+```
+
+### Existing project
+
+```bash
+npx stackkit@latest add
+# Select "UI" → "Shadcn UI"
+```
+
+## What gets generated
+
+- Shadcn UI initialized via `shadcn@latest init`
+- `button` component added as a starter
+- Tailwind CSS configuration updated
+- `components/ui/` directory created
+
+<Callout type="info">
+  Shadcn components are copied directly into your project — you own and can customize every file.
+</Callout>
+
+## Setup
+
+Shadcn UI is initialized automatically during installation. To add more components after setup:
+
+```bash
+# Next.js
+npx shadcn@latest add <component>
+
+# React (Vite)
+npx shadcn@latest add <component>
+```
+
+## Example: Add more components
+
+```bash
+npx shadcn@latest add card
+npx shadcn@latest add dialog
+npx shadcn@latest add input
+```
+
+Browse all available components at [ui.shadcn.com/components](https://ui.shadcn.com/components).
+
+## Next Steps
+
+- [Components](/docs/modules/components/components) - Pre-built advanced components
+- [Troubleshooting](/docs/reference/troubleshooting) - Common issues
