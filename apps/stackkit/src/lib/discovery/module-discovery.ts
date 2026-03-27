@@ -33,6 +33,7 @@ export interface DiscoveredModules {
   auth: ModuleMetadata[];
   ui?: ModuleMetadata[];
   storage?: ModuleMetadata[];
+  components?: ModuleMetadata[];
 }
 
 async function readJsonSafe<T>(filePath: string): Promise<T | null> {
@@ -161,6 +162,20 @@ export async function discoverModules(modulesDir: string): Promise<DiscoveredMod
           if (!metadata.displayName) metadata.displayName = moduleName;
           discovered.storage.push(metadata);
         }
+      }
+    }
+  }
+
+  // discover frontend components module (flat: modules/components/module.json)
+  const componentsDir = path.join(modulesDir, "components");
+  if (await fs.pathExists(componentsDir)) {
+    const moduleJsonPath = path.join(componentsDir, "module.json");
+    if (await fs.pathExists(moduleJsonPath)) {
+      const metadata = await readJsonSafe<ModuleMetadata>(moduleJsonPath);
+      if (metadata) {
+        if (!metadata.name) metadata.name = "components";
+        if (!metadata.displayName) metadata.displayName = "Components";
+        discovered.components = [metadata];
       }
     }
   }

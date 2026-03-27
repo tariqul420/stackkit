@@ -192,6 +192,16 @@ async function getInteractiveConfig(
     categories.push({ name: "Auth", value: "auth" });
   }
 
+  if (["react", "nextjs"].includes(projectInfo?.framework || defaultFramework)) {
+    const fw = projectInfo?.framework || defaultFramework;
+    const availableComponents = (discovered.components || []).filter(
+      (c) => !c.supportedFrameworks || c.supportedFrameworks.includes(fw),
+    );
+    if (availableComponents.length > 0) {
+      categories.push({ name: "Components", value: "components" });
+    }
+  }
+
   const categoryResp = await prompts({
     type: "select",
     name: "category",
@@ -347,6 +357,43 @@ async function getInteractiveConfig(
       result.preAdded = [preAddedForReturn];
     }
     return result;
+  } else if (category === "components") {
+    const fw = projectInfo?.framework || defaultFramework;
+    const compMeta = (discovered.components || []).find(
+      (c) => !c.supportedFrameworks || c.supportedFrameworks.includes(fw),
+    );
+
+    if (!compMeta) {
+      logger.info("No components available for this framework");
+      process.exit(0);
+    }
+
+    const compResp = await prompts({
+      type: "confirm",
+      name: "add",
+      message: `Add ${compMeta.displayName || compMeta.name}?${
+        compMeta.description ? ` (${compMeta.description})` : ""
+      }`,
+      initial: true,
+    });
+
+    if ((compResp as { add?: boolean }).add === false) {
+      logger.info("No components selected");
+      process.exit(0);
+    }
+
+    const meta = await loadModuleMetadata(modulesDir, "components", "components");
+    if (!meta) {
+      logger.error("Failed to load components module metadata");
+      process.exit(1);
+    }
+
+    return {
+      module: "components",
+      provider: "components",
+      displayName: meta.displayName || "Components",
+      metadata: meta,
+    };
   }
 
   throw new Error("Invalid selection");
@@ -413,7 +460,8 @@ async function addModuleToProject(
     const available = gen.getAvailableGenerators();
     const alreadyRegistered =
       (config.module === "database" && available.databases.includes(moduleName)) ||
-      (config.module === "auth" && available.auths.includes(moduleName));
+      (config.module === "auth" && available.auths.includes(moduleName)) ||
+      (config.module === "components" && available.components.length > 0);
     if (!alreadyRegistered) {
       const ops: Operation[] = [];
       if (Array.isArray(moduleMetadata.patches)) {
@@ -430,13 +478,17 @@ async function addModuleToProject(
       }
 
       if (ops.length > 0) {
-        gen.registerGenerator(config.module as "database" | "auth" | "framework", moduleName, {
-          name: moduleName,
-          type: config.module as "database" | "auth" | "framework",
-          priority: 0,
-          operations: ops,
-          dependencies: {},
-        });
+        gen.registerGenerator(
+          config.module as "database" | "auth" | "framework" | "ui" | "storage" | "components",
+          moduleName,
+          {
+            name: moduleName,
+            type: config.module as "database" | "auth" | "framework",
+            priority: 0,
+            operations: ops,
+            dependencies: {},
+          },
+        );
       }
     }
 
@@ -445,6 +497,7 @@ async function addModuleToProject(
       database?: string;
       auth?: string;
       prismaProvider?: string;
+      components?: boolean;
     } = { framework: projectInfo.framework };
 
     try {
@@ -481,6 +534,8 @@ async function addModuleToProject(
 
     if (config.module === "auth" && config.provider) {
       selectedModules.auth = config.provider;
+    } else if (config.module === "components") {
+      selectedModules.components = true;
     }
 
     const postInstall = await gen.applyToProject(selectedModules, [], projectRoot);
@@ -702,6 +757,18 @@ async function loadModuleMetadata(
         }
       }
     }
+
+    // Check flat module (e.g., modules/components/module.json)
+    const flatMetaPath = path.join(categoryPath, "module.json");
+    if (await fs.pathExists(flatMetaPath)) {
+      const metadata = await fs.readJSON(flatMetaPath);
+      if (provider && category === provider) {
+        return metadata;
+      }
+      if (!provider && (metadata.category === moduleName || category === moduleName)) {
+        return metadata;
+      }
+    }
   }
 
   return null;
@@ -799,10 +866,23 @@ async function findModulePath(
         }
       }
     }
+
+    // Check flat module (e.g., modules/components/)
+    const flatMetaPath = path.join(categoryPath, "module.json");
+    if (await fs.pathExists(flatMetaPath)) {
+      const metadata = await fs.readJSON(flatMetaPath);
+      if (provider && category === provider) {
+        return categoryPath;
+      }
+      if (!provider && metadata.name === moduleName) {
+        return categoryPath;
+      }
+    }
   }
 
   return null;
 }
+
 async function applyFrameworkPatches(
   projectRoot: string,
   patches: Record<string, { [file: string]: { merge?: Record<string, unknown> } }>,

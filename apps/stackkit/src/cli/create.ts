@@ -30,6 +30,7 @@ interface ProjectConfig {
   packageManager: "pnpm" | "npm" | "yarn" | "bun";
   ui?: string;
   storageProvider?: string;
+  components?: boolean;
 }
 
 interface CliOptions {
@@ -120,6 +121,7 @@ async function getProjectConfig(
         packageManager: "pnpm",
         ui: "none",
         storageProvider: "none",
+        components: false,
       };
     }
     const framework = (options && (options.framework || options.f)) || undefined;
@@ -214,6 +216,7 @@ async function getProjectConfig(
       auth,
       language: (language || "typescript") as "typescript" | "javascript",
       packageManager: (pm || "pnpm") as "pnpm" | "npm" | "yarn" | "bun",
+      components: false,
     };
   }
 
@@ -393,6 +396,28 @@ async function getProjectConfig(
     result.storageProvider = "none";
   }
 
+  // Components — yes/no, default yes (React / Next.js only)
+  if (result.framework === "react" || result.framework === "nextjs") {
+    const compMeta = (discoveredModules.components || []).find(
+      (c) => !c.supportedFrameworks || c.supportedFrameworks.includes(result.framework || ""),
+    );
+    if (compMeta) {
+      const compResp = await prompts({
+        type: "confirm",
+        name: "add",
+        message: `Add ${compMeta.displayName || compMeta.name}?${
+          compMeta.description ? ` (${compMeta.description})` : ""
+        }`,
+        initial: true,
+      });
+      result.components = (compResp as { add?: boolean }).add !== false;
+    } else {
+      result.components = false;
+    }
+  } else {
+    result.components = false;
+  }
+
   // auth
   if (result.database !== "none" || result.framework === "react" || result.framework === "nextjs") {
     const authChoices = getCompatibleAuthOptions(
@@ -465,6 +490,7 @@ async function getProjectConfig(
     packageManager: result.packageManager as "pnpm" | "npm" | "yarn" | "bun",
     ui: result.ui || "none",
     storageProvider: result.storageProvider || "none",
+    components: result.components ?? false,
   };
 }
 
@@ -542,6 +568,7 @@ async function composeTemplate(config: ProjectConfig, targetDir: string): Promis
       prismaProvider: config.prismaProvider,
       ui: config.ui,
       storageProvider: config.storageProvider,
+      components: config.components === true ? true : undefined,
       packageManager: config.packageManager,
     },
     features,
@@ -653,6 +680,26 @@ async function processGeneratorEnvVars(config: ProjectConfig, targetDir: string)
     );
     if (await fs.pathExists(spGeneratorPath)) {
       const generator = await fs.readJson(spGeneratorPath);
+      if (generator.operations) {
+        for (const operation of generator.operations) {
+          if (
+            operation.type === "add-env" &&
+            (!operation.condition || checkCondition(operation.condition, config))
+          ) {
+            for (const [key, value] of Object.entries(operation.envVars)) {
+              envVars.push({ key, value: value as string, required: true });
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Components module env vars
+  if (config.components === true) {
+    const compGeneratorPath = path.join(modulesDir, "components", "generator.json");
+    if (await fs.pathExists(compGeneratorPath)) {
+      const generator = await fs.readJson(compGeneratorPath);
       if (generator.operations) {
         for (const operation of generator.operations) {
           if (

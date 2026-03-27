@@ -1,0 +1,11 @@
+{
+  "name": "components",
+  "displayName": "Components",
+  "category": "components",
+  "description": "UI components: TiptapEditor, DataTable, SearchBar, FilterBar",
+  "supportedFrameworks": ["react", "nextjs"],
+  "compatibility": {
+    "frameworks": ["react", "nextjs"],
+    "languages": ["typescript"]
+  }
+}

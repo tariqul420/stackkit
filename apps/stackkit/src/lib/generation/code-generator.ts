@@ -15,6 +15,7 @@ export interface GenerationContext {
   packageManager?: string;
   ui?: string;
   storageProvider?: string;
+  components?: boolean;
   [key: string]: unknown;
 }
 
@@ -33,6 +34,7 @@ type SelectedModules = {
   ui?: string;
   storageProvider?: string;
   packageManager?: string;
+  components?: boolean;
 };
 
 export interface Operation {
@@ -65,7 +67,7 @@ export interface PatchOperation {
 
 export interface GeneratorConfig {
   name: string;
-  type: "framework" | "database" | "auth" | "ui" | "storage";
+  type: "framework" | "database" | "auth" | "ui" | "storage" | "components";
   priority: number;
   operations?: Operation[];
   dependencies?: Record<string, string>;
@@ -115,16 +117,30 @@ export class AdvancedCodeGenerator {
       (genType === "database" && name === selectedModules.database) ||
       (genType === "auth" && name === selectedModules.auth) ||
       (genType === "ui" && name === selectedModules.ui) ||
-      (genType === "storage" && name === selectedModules.storageProvider)
+      (genType === "storage" && name === selectedModules.storageProvider) ||
+      (genType === "components" && selectedModules.components === true)
     );
   }
 
   async loadGenerators(modulesPath: string): Promise<void> {
-    const moduleTypes = ["auth", "database", "ui", "storage"];
+    const moduleTypes = ["auth", "database", "ui", "storage", "components"];
 
     for (const type of moduleTypes) {
       const typePath = path.join(modulesPath, type);
       if (await fs.pathExists(typePath)) {
+        // Check for flat module (generator.json at type root, e.g. modules/components/generator.json)
+        const flatGeneratorPath = path.join(typePath, "generator.json");
+        if (await fs.pathExists(flatGeneratorPath)) {
+          try {
+            const config: GeneratorConfig = await fs.readJson(flatGeneratorPath);
+            await mergeModuleIntoGeneratorConfig(config, typePath);
+            this.generators.set(`${type}:${type}`, config);
+          } catch {
+            // skip
+          }
+          continue; // skip subdir scanning for this type
+        }
+
         const modules = await fs.readdir(typePath);
         for (const moduleName of modules) {
           const generatorPath = path.join(typePath, moduleName, "generator.json");
@@ -1190,10 +1206,16 @@ export class AdvancedCodeGenerator {
     return this.postInstallCommands;
   }
 
-  getAvailableGenerators(): { frameworks: string[]; databases: string[]; auths: string[] } {
+  getAvailableGenerators(): {
+    frameworks: string[];
+    databases: string[];
+    auths: string[];
+    components: string[];
+  } {
     const frameworks: string[] = [];
     const databases: string[] = [];
     const auths: string[] = [];
+    const components: string[] = [];
 
     for (const [key] of this.generators) {
       const [type, name] = key.split(":");
@@ -1207,14 +1229,17 @@ export class AdvancedCodeGenerator {
         case "auth":
           auths.push(name);
           break;
+        case "components":
+          components.push(name);
+          break;
       }
     }
 
-    return { frameworks, databases, auths };
+    return { frameworks, databases, auths, components };
   }
 
   registerGenerator(
-    type: "framework" | "database" | "auth",
+    type: "framework" | "database" | "auth" | "ui" | "storage" | "components",
     name: string,
     config: GeneratorConfig,
   ): void {
