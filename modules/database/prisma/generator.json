@@ -17,7 +17,7 @@
       "type": "create-file",
       "source": "lib/prisma.ts",
       "destination": "src/database/prisma.ts",
-      "condition": { "framework": ["express"] }
+      "condition": { "framework": "express" }
     },
     {
       "type": "add-dependency",

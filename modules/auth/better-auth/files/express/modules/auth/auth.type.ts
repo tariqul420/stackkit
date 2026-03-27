@@ -1,4 +1,9 @@
+{{#if database == "prisma"}}
 import { Role } from "@prisma/client";
+{{/if}}
+{{#if database == "mongoose"}}
+import { Role } from "./auth.constants";
+{{/if}}
 
 export interface IRequestUser {
   id: string;

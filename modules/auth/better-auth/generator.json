@@ -7,7 +7,7 @@
       "type": "create-file",
       "source": "shared/lib/auth.ts",
       "destination": "src/lib/auth.ts",
-      "condition": { "framework": ["express"] }
+      "condition": { "framework": "express" }
     },
     {
       "type": "create-file",

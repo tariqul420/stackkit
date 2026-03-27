@@ -27,6 +27,14 @@ export type AuthSessionDocument = {
   expiresAt?: Date;
 };
 
+export type AuthVerificationDocument = {
+  identifier: string;
+  value: string;
+  expiresAt?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+};
+
 export const getAuthCollections = async () => {
   await mongoose();
 
@@ -36,6 +44,7 @@ export const getAuthCollections = async () => {
     return {
       users: db.collection<AuthUserDocument>("user"),
       sessions: db.collection<AuthSessionDocument>("session"),
+      verifications: db.collection<AuthVerificationDocument>("verification"),
     };
   } catch {
     throw new AppError(

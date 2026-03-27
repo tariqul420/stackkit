@@ -7,7 +7,7 @@
       "type": "create-file",
       "source": "express/config/*",
       "destination": "src/config/*",
-      "condition": { "framework": ["express"] }
+      "condition": { "framework": "express" }
     },
     {
       "type": "create-file",

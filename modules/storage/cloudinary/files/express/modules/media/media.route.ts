@@ -1,4 +1,9 @@
+{{#if database == "prisma"}}
 import { Role } from "@prisma/client";
+{{/if}}
+{{#if database == "mongoose"}}
+import { Role } from "../../modules/auth/auth.constants";
+{{/if}}
 import { Router } from "express";
 import { authorize } from "../../shared/middlewares/authorize.middleware";
 import { mediaController } from "./media.controller";

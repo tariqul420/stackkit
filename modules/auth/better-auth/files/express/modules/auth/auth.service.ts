@@ -1,8 +1,12 @@
 import status from "http-status";
 import { JwtPayload } from "jsonwebtoken";
 import { envVars } from "../../config/env";
+{{#if database == "prisma"}}
 import { prisma } from "../../database/prisma";
-
+{{/if}}
+{{#if database == "mongoose"}}
+import { getAuthCollections } from "./auth.helper";
+{{/if}}
 import { auth } from "../../lib/auth";
 import { AppError } from "../../shared/errors/app-error";
 import { jwtUtils } from "../../shared/utils/jwt";
@@ -19,11 +23,17 @@ const registerUser = async (payload: IRegisterUserPayload) => {
     const { name, email, password } = payload;
 
     if (email) {
+      {{#if database == "prisma"}}
       const existingUser = await prisma.user.findUnique({
         where: {
           email: email,
         },
       });
+      {{/if}}
+      {{#if database == "mongoose"}}
+      const { users } = await getAuthCollections();
+      const existingUser = await users.findOne({ email });
+      {{/if}}
 
       if (existingUser) {
         throw new AppError(status.CONFLICT, "Email already exists");
@@ -70,13 +80,17 @@ const registerUser = async (payload: IRegisterUserPayload) => {
         user: data.user,
       };
     } catch (error) {
-            await prisma.user.delete({
+      {{#if database == "prisma"}}
+      await prisma.user.delete({
         where: {
           id: data.user.id,
         },
       });
-      
-      
+      {{/if}}
+      {{#if database == "mongoose"}}
+      const { users: rollbackUsers } = await getAuthCollections();
+      await rollbackUsers.deleteOne({ id: data.user.id });
+      {{/if}}
       throw error;
     }
 
@@ -152,7 +166,13 @@ const loginUser = async (payload: ILoginUserPayload) => {
 }
 
 const resendOTP = async (email: string) => {
+  {{#if database == "prisma"}}
   const isUserExist = await prisma.user.findUnique({ where: { email } });
+  {{/if}}
+  {{#if database == "mongoose"}}
+  const { users, verifications } = await getAuthCollections();
+  const isUserExist = await users.findOne({ email });
+  {{/if}}
   if (!isUserExist) {
     throw new AppError(status.NOT_FOUND, "User not found");
   }
@@ -160,6 +180,7 @@ const resendOTP = async (email: string) => {
     throw new AppError(status.BAD_REQUEST, "Email already verified");
   }
 
+  {{#if database == "prisma"}}
   const existingVerification = await prisma.verification.findFirst({
     where: {
       identifier: email,
@@ -168,6 +189,13 @@ const resendOTP = async (email: string) => {
       },
     },
   });
+  {{/if}}
+  {{#if database == "mongoose"}}
+  const existingVerification = await verifications.findOne({
+    identifier: email,
+    expiresAt: { $gt: new Date() },
+  });
+  {{/if}}
 
   if (existingVerification) {
     throw new AppError(
@@ -206,14 +234,17 @@ const resendOTP = async (email: string) => {
 };
 
 const getMe = async (user : IRequestUser) => {
-            const isUserExists = await prisma.user.findUnique({
-      where: {
-        id: user.id,
-      },
-      // Include other related models if needed
-    });
-    
-    
+  {{#if database == "prisma"}}
+  const isUserExists = await prisma.user.findUnique({
+    where: {
+      id: user.id,
+    },
+  });
+  {{/if}}
+  {{#if database == "mongoose"}}
+  const { users } = await getAuthCollections();
+  const isUserExists = await users.findOne({ id: user.id });
+  {{/if}}
 
     if (!isUserExists) {
         throw new AppError(status.NOT_FOUND, "User not found");
@@ -223,6 +254,7 @@ const getMe = async (user : IRequestUser) => {
 }
 
 const getNewToken = async (refreshToken : string, sessionToken : string) => {
+    {{#if database == "prisma"}}
     const isSessionTokenExists = await prisma.session.findUnique({
       where: {
         token: sessionToken,
@@ -231,8 +263,11 @@ const getNewToken = async (refreshToken : string, sessionToken : string) => {
         user: true,
       },
     });
-    
-    
+    {{/if}}
+    {{#if database == "mongoose"}}
+    const { sessions } = await getAuthCollections();
+    const isSessionTokenExists = await sessions.findOne({ token: sessionToken });
+    {{/if}}
 
     if(!isSessionTokenExists){
         throw new AppError(status.UNAUTHORIZED, "Invalid session token");
@@ -266,6 +301,7 @@ const getNewToken = async (refreshToken : string, sessionToken : string) => {
         emailVerified: data.emailVerified,
     });
 
+    {{#if database == "prisma"}}
     const { token } = await prisma.session.update({
       where: {
         token: sessionToken,
@@ -276,8 +312,19 @@ const getNewToken = async (refreshToken : string, sessionToken : string) => {
         updatedAt: new Date(),
       },
     });
-    
-    
+    {{/if}}
+    {{#if database == "mongoose"}}
+    await sessions.updateOne(
+      { token: sessionToken },
+      {
+        $set: {
+          expiresAt: new Date(Date.now() + 60 * 60 * 60 * 24 * 1000),
+          updatedAt: new Date(),
+        },
+      }
+    );
+    const token = sessionToken;
+    {{/if}}
 
     return {
         accessToken : newAccessToken,
@@ -311,16 +358,23 @@ const changePassword = async (payload : IChangePasswordPayload, sessionToken : s
     })
 
     if(session.user.needPasswordChange){
-                await prisma.user.update({
-            where: {
-                id: session.user.id,
-            },
-            data: {
-                needPasswordChange: false,
-            }
-        })
-        
-        
+      {{#if database == "prisma"}}
+      await prisma.user.update({
+        where: {
+          id: session.user.id,
+        },
+        data: {
+          needPasswordChange: false,
+        }
+      });
+      {{/if}}
+      {{#if database == "mongoose"}}
+      const { users } = await getAuthCollections();
+      await users.updateOne(
+        { id: session.user.id },
+        { $set: { needPasswordChange: false } }
+      );
+      {{/if}}
     }
 
     const accessToken = tokenUtils.getAccessToken({
@@ -371,27 +425,38 @@ const verifyEmail = async (email : string, otp : string) => {
     })
 
     if(result.status && !result.user.emailVerified){
-                await prisma.user.update({
-            where : {
-                email,
-            },
-            data : {
-                emailVerified: true,
-            }
-        })
-        
-        
+      {{#if database == "prisma"}}
+      await prisma.user.update({
+        where : {
+          email,
+        },
+        data : {
+          emailVerified: true,
+        }
+      });
+      {{/if}}
+      {{#if database == "mongoose"}}
+      const { users } = await getAuthCollections();
+      await users.updateOne(
+        { email },
+        { $set: { emailVerified: true } }
+      );
+      {{/if}}
     }
 }
 
 const forgetPassword = async (email : string) => {
-        const isUserExist = await prisma.user.findUnique({
-        where : {
-            email,
-        }
-    })
-    
-    
+  {{#if database == "prisma"}}
+  const isUserExist = await prisma.user.findUnique({
+    where : {
+      email,
+    }
+  });
+  {{/if}}
+  {{#if database == "mongoose"}}
+  const { users } = await getAuthCollections();
+  const isUserExist = await users.findOne({ email });
+  {{/if}}
 
     if(!isUserExist){
         throw new AppError(status.NOT_FOUND, "User not found");
@@ -413,13 +478,17 @@ const forgetPassword = async (email : string) => {
 }
 
 const resetPassword = async (email : string, otp : string, newPassword : string) => {
-        const isUserExist = await prisma.user.findUnique({
-        where : {
-            email,
-        }
-    })
-    
-    
+  {{#if database == "prisma"}}
+  const isUserExist = await prisma.user.findUnique({
+    where : {
+      email,
+    }
+  });
+  {{/if}}
+  {{#if database == "mongoose"}}
+  const { users, sessions } = await getAuthCollections();
+  const isUserExist = await users.findOne({ email });
+  {{/if}}
 
     if (!isUserExist) {
         throw new AppError(status.NOT_FOUND, "User not found");
@@ -441,31 +510,48 @@ const resetPassword = async (email : string, otp : string, newPassword : string)
         }
     })
 
-        if (isUserExist.needPasswordChange) {
-        await prisma.user.update({
-            where: {
-                email,
-            },
-            data: {
-                needPasswordChange: false,
-            }
-        })
+    if (isUserExist.needPasswordChange) {
+      {{#if database == "prisma"}}
+      await prisma.user.update({
+        where: {
+          email,
+        },
+        data: {
+          needPasswordChange: false,
+        }
+      });
+      {{/if}}
+      {{#if database == "mongoose"}}
+      await users.updateOne(
+        { email },
+        { $set: { needPasswordChange: false } }
+      );
+      {{/if}}
     }
 
+    {{#if database == "prisma"}}
     await prisma.session.deleteMany({
         where:{
             userId : isUserExist.id,
         }
-    })
-    
-    
+    });
+    {{/if}}
+    {{#if database == "mongoose"}}
+    await sessions.deleteMany({ userId: isUserExist.id });
+    {{/if}}
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const socialLoginSuccess = async (session: Record<string, any>) => {
+  {{#if database == "prisma"}}
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
   });
+  {{/if}}
+  {{#if database == "mongoose"}}
+  const { users } = await getAuthCollections();
+  const user = await users.findOne({ id: session.user.id });
+  {{/if}}
 
   if (!user) {
     throw new AppError(
