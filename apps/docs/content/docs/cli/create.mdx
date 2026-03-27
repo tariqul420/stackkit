@@ -27,7 +27,9 @@ You'll be prompted for:
 - **Framework**: Next.js, Express.js, or React
 - **Database**: Prisma, Mongoose, or None
 - **Database Provider** (for Prisma): PostgreSQL, MongoDB, MySQL, or SQLite
-- **Authentication**: Better Auth, Auth.js, or None
+- **Authentication**: Better Auth, or None
+- **UI**: Shadcn UI, or None
+- **Storage**: Cloudinary, or None
 - **Language**: TypeScript or JavaScript
 - **Package Manager**: pnpm, npm, yarn, or bun
 
@@ -57,6 +59,14 @@ For Prisma provider options, see:
 - `--auth, -a <auth>`: Authentication library
   - `better-auth`: TypeScript-first auth
   - `none`: Skip authentication
+
+### UI Options
+- `--ui, -u <ui>`: UI component library
+  - `shadcn`: Shadcn UI components (Next.js and React only)
+
+### Storage Options
+- `--storage-provider <provider>`: File storage provider
+  - `cloudinary`: Cloudinary (Express only)
 
 ### Other Options
 - `--language, -l <language>`: `typescript` or `javascript`
@@ -99,15 +109,16 @@ npx stackkit@latest create my-app --yes
 
 ## Compatibility Matrix
 
-| Framework | Database | Auth |
-|-----------|----------|------|
-| Next.js | Prisma, Mongoose, None | Better Auth, None |
-| Express | Prisma, Mongoose, None | Better Auth, None |
-| React | None | Better Auth, None |
+| Framework | Database | Auth | UI | Storage |
+|-----------|----------|------|----|---------|
+| Next.js | Prisma, None | Better Auth, None | Shadcn UI | - |
+| Express | Prisma, Mongoose, None | Better Auth, None | - | Cloudinary |
+| React | None | Better Auth, None | Shadcn UI | - |
 
 **Notes:**
-  - Better Auth requires a database for server frameworks
+- Better Auth requires a database for server frameworks
 - React only supports frontend authentication
+- Mongoose is only available for Express projects
 
 Next steps:
 - [Quick Start](/docs/getting-started/quickstart) for your first project

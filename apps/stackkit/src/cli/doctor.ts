@@ -570,6 +570,7 @@ async function checkEslintConfigExists(projectRoot: string): Promise<boolean> {
     ".eslintrc.yml",
     ".eslintrc.yaml",
     "eslint.config.js",
+    "eslint.config.cjs",
     "eslint.config.mjs",
   ];
   for (const config of possibleConfigs) {

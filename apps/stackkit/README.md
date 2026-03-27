@@ -33,6 +33,8 @@ npx stackkit@latest create my-app \
 - `--framework, -f` - nextjs, express, react
 - `--database, -d` - prisma-postgresql, prisma-mysql, prisma-sqlite, prisma-mongodb, mongoose, none
 - `--auth, -a` - better-auth, none
+- `--ui, -u` - shadcn
+- `--storage-provider` - cloudinary
 - `--language, -l` - typescript, javascript
 - `--package-manager, -p` - pnpm, npm, yarn, bun
 - `--yes, -y` - Use defaults
@@ -47,7 +49,7 @@ Add features to existing project:
 npx stackkit@latest add
 ```
 
-Interactively select and install modules.
+Interactively select and install modules (database, auth, ui, storage, components).
 
 ### doctor
 
@@ -61,14 +63,23 @@ npx stackkit@latest doctor --verbose
 
 # JSON output (for CI/CD)
 npx stackkit@latest doctor --json
+
+# Treat warnings as errors (CI/CD strict mode)
+npx stackkit@latest doctor --strict
 ```
 
 ### list
 
-Show available options:
+Show available frameworks and modules:
 
 ```bash
 npx stackkit@latest list
+
+# List only frameworks
+npx stackkit@latest list --frameworks
+
+# List only modules
+npx stackkit@latest list --modules
 ```
 
 ## Supported Technologies
@@ -87,7 +98,18 @@ npx stackkit@latest list
 **Authentication:**
 
 - Better Auth (All frameworks)
-- Auth.js (Next.js only)
+
+**UI:**
+
+- Shadcn UI (Next.js, React)
+
+**Storage:**
+
+- Cloudinary (Express)
+
+**Components:**
+
+- TiptapEditor, DataTable, SearchBar, FilterBar, and more (Next.js, React)
 
 ## Examples
 

@@ -1,16 +1,36 @@
 ---
 title: list
-description: List available modules
+description: List available frameworks and modules
 ---
 
 ## When to use
 
-Discovering what modules are available for your project.
+Discovering what frameworks and modules are available.
 
 ## Command
 
 ```bash
 npx stackkit@latest list
+```
+
+## Options
+
+| Option | Description |
+|--------|-------------|
+| `-f, --frameworks` | List only frameworks |
+| `-m, --modules` | List only modules |
+
+## Examples
+
+```bash
+# List everything
+npx stackkit@latest list
+
+# List only frameworks
+npx stackkit@latest list --frameworks
+
+# List only modules
+npx stackkit@latest list --modules
 ```
 
 ## Output
@@ -21,16 +41,25 @@ Example output:
 ```
 FRAMEWORKS
   ├── Next.js
-  ├── Express.js
+  ├── Express
   └── React
 
 MODULES
-  ├── Auth
+  ├── Auth (1)
   │   └── Better Auth
-  └── Database
-      ├── Prisma (PostgreSQL, MongoDB, MySQL, SQLite)
-      └── Mongoose (MongoDB)
+  ├── Database (2)
+  │   ├── Prisma
+  │   │   └── Providers: PostgreSQL, Mysql, Sqlite, Mongodb
+  │   └── Mongoose
+  ├── Ui (1)
+  │   └── Shadcn UI
+  ├── Storage (1)
+  │   └── Cloudinary Storage
+  └── Components (1)
+      └── Components
+
+Use 'stackkit add <module>' to add modules to your project
 ```
 
 Next steps:
-- [Add](/docs/cli/add) to install modules
+- [add](/docs/cli/add) to install modules

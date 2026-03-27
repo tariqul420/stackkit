@@ -19,8 +19,6 @@ export async function listCommand(options: ListOptions = {}): Promise<void> {
   try {
     logger.header("StackKit Resources");
     logger.newLine();
-    logger.header("StackKit Resources");
-    logger.newLine();
 
     let hasContent = false;
 
