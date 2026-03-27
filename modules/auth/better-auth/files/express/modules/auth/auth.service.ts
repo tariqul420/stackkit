@@ -462,45 +462,55 @@ const resetPassword = async (email : string, otp : string, newPassword : string)
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const googleLoginSuccess = async (session : Record<string, any>) =>{
-            const isUserExists = await prisma.user.findUnique({
-      where: {
-        id: session.user.id,
-      },
-    });
+const socialLoginSuccess = async (session: Record<string, any>) => {
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+  });
 
-    if (!isUserExists) {
-      await prisma.user.create({
-        data: {
-          id: session.user.id,
-          name: session.user.name,
-          email: session.user.email,
-        },
-      });
-    }
-    
-    
+  if (!user) {
+    throw new AppError(
+      status.NOT_FOUND,
+      "User not found after social login. Please try again.",
+    );
+  }
 
-    const accessToken = tokenUtils.getAccessToken({
-        userId: session.user.id,
-        role: session.user.role,
-        name: session.user.name,
-    });
+  if (user.status === "BLOCKED") {
+    throw new AppError(status.FORBIDDEN, "Your account has been blocked.");
+  }
 
-    const refreshToken = tokenUtils.getRefreshToken({
-        userId: session.user.id,
-        role: session.user.role,
-        name: session.user.name,
-    });
+  if (user.isDeleted || user.status === "DELETED") {
+    throw new AppError(status.FORBIDDEN, "Your account has been deleted.");
+  }
 
-    return {
-        accessToken,
-        refreshToken,
-    }
-}
+  const accessToken = tokenUtils.getAccessToken({
+    userId: user.id,
+    role: user.role,
+    name: user.name,
+    email: user.email,
+    status: user.status,
+    isDeleted: user.isDeleted,
+    emailVerified: user.emailVerified,
+  });
+
+  const refreshToken = tokenUtils.getRefreshToken({
+    userId: user.id,
+    role: user.role,
+    name: user.name,
+    email: user.email,
+    status: user.status,
+    isDeleted: user.isDeleted,
+    emailVerified: user.emailVerified,
+  });
+
+  return { accessToken, refreshToken };
+};
+
+const googleLoginSuccess = async (session: Record<string, unknown>) => {
+  return socialLoginSuccess(session);
+};
 
 export const authService = {
-  registerUser: registerUser,
+  registerUser,
   loginUser,
   getMe,
   getNewToken,
@@ -510,5 +520,6 @@ export const authService = {
   resendOTP,
   forgetPassword,
   resetPassword,
+  socialLoginSuccess,
   googleLoginSuccess,
 };

@@ -173,20 +173,20 @@ export const auth = betterAuth({
     signIn: `${envVars.BETTER_AUTH_URL}/api/v1/auth/google/success`,
   },
   advanced: {
-    useSecureCookies: false,
+    useSecureCookies: envVars.NODE_ENV === "production",
     cookies: {
       state: {
         attributes: {
-          sameSite: "none",
-          secure: true,
+          sameSite: envVars.NODE_ENV === "production" ? "none" : "lax",
+          secure: envVars.NODE_ENV === "production",
           httpOnly: true,
           path: "/",
         },
       },
       sessionToken: {
         attributes: {
-          sameSite: "none",
-          secure: true,
+          sameSite: envVars.NODE_ENV === "production" ? "none" : "lax",
+          secure: envVars.NODE_ENV === "production",
           httpOnly: true,
           path: "/",
         },

@@ -26,3 +26,12 @@ export type NeedsVerification = {
   needsVerification: true;
   email: string;
 };
+
+export type SocialProvider =
+  | "google"
+  | "github"
+  | "facebook"
+  | "twitter"
+  | "discord"
+  | "linkedin"
+  | "apple";

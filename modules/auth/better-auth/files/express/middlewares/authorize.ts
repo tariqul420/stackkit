@@ -185,6 +185,24 @@ export const authorize = (...authRoles: AuthRole[]) =>
         );
       }
 
+      if (!req.user) {
+        const tokenData = verifiedToken.data!;
+
+        req.user = {
+          id: String(tokenData.userId || tokenData.id || ""),
+          name: String(tokenData.name || ""),
+          email: String(tokenData.email || ""),
+          role: (tokenData.role as Role) || Role.USER,
+        };
+      }
+
+      if (!req.user?.id) {
+        throw new AppError(
+          status.UNAUTHORIZED,
+          "Unauthorized access! User information is missing in the token.",
+        );
+      }
+
       next();
     } catch (error: unknown) {
       next(error);
