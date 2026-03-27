@@ -23,20 +23,14 @@
     },
     {
       "type": "create-file",
-      "source": "express/modules/auth/*",
+      "source": "express/modules/*",
       "destination": "src/modules/auth/*",
       "condition": { "framework": "express" }
     },
     {
       "type": "create-file",
-      "source": "shared/mongoose/auth/helper.ts",
-      "destination": "src/modules/auth/auth.helper.ts",
-      "condition": { "framework": "express", "database": "mongoose" }
-    },
-    {
-      "type": "create-file",
-      "source": "shared/mongoose/auth/constants.ts",
-      "destination": "src/modules/auth/auth.constants.ts",
+      "source": "express/mongo-modules/*",
+      "destination": "src/modules/auth/*",
       "condition": { "framework": "express", "database": "mongoose" }
     },
     {

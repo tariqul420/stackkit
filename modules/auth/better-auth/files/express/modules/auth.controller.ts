@@ -7,8 +7,8 @@ import { catchAsync } from "../../shared/utils/catch-async";
 import { cookieUtils } from "../../shared/utils/cookie";
 import { sendResponse } from "../../shared/utils/send-response";
 import { tokenUtils } from "../../shared/utils/token";
-import { authService } from "./auth.service";
-import type { NeedsVerification, SocialProvider } from "./auth.type";
+import { authService } from "./auth/auth.service";
+import type { NeedsVerification, SocialProvider } from "./auth/auth.type";
 
 const getSocialAuthPayload = (
   provider: SocialProvider,

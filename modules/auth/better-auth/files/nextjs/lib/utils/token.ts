@@ -16,8 +16,7 @@ const getTokenSecondsRemaining = (token: string): number => {
       (tokenPayload.exp as number) - Math.floor(Date.now() / 1000);
 
     return remainingSeconds > 0 ? remainingSeconds : 0;
-  } catch (error) {
-    console.error("Error decoding token:", error);
+  } catch {
     return 0;
   }
 };
