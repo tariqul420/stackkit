@@ -1,8 +1,22 @@
 "use client";
 
+import { cn } from "@/lib/cn";
+import { Check, Copy } from "lucide-react";
 import { useState } from "react";
-import { Copy, Check } from "lucide-react";
-import { Github, Package } from "lucide-react";
+
+function NpmIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      role="img"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+      className={cn("fill-current", className)}
+    >
+      <title>npm</title>
+      <path d="M20,4H4V20h8V8h4V20h4V4" />
+    </svg>
+  );
+}
 
 export default function CopyCommand() {
   const [copied, setCopied] = useState(false);
@@ -49,18 +63,11 @@ export default function CopyCommand() {
             </span>
             <div className="flex items-center gap-2 ml-auto">
               <a
-                href="https://github.com/tariqul420/stackkit"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Github className="w-5 h-5" />
-              </a>
-              <a
                 href="https://www.npmjs.com/package/stackkit"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Package className="w-5 h-5" />
+                <NpmIcon className="w-6 h-6" />
               </a>
             </div>
           </div>
