@@ -13,7 +13,10 @@ Scaffold complete full-stack applications in seconds with your choice of framewo
 - Project ready in under 60 seconds
 - Framework support: Next.js, Express, React
 - Multiple databases: PostgreSQL, MySQL, MongoDB, SQLite
-- Authentication: Better Auth or Auth.js
+- Authentication: Better Auth
+- UI components: Shadcn UI
+- File storage: Cloudinary
+- Pre-built components: TiptapEditor, DataTable, SearchBar, FilterBar, and more
 - Modular architecture - add features incrementally
 - TypeScript-first with strict mode
 - Production-ready with best practices built-in
@@ -64,8 +67,19 @@ npx stackkit@latest doctor
 
 ### Authentication
 
-- **Better Auth** - TypeScript-first auth for all frameworks
-- **Auth.js** - NextAuth.js v5 for Next.js
+- **Better Auth** - TypeScript-first auth for all frameworks (Next.js, Express, React)
+
+### UI
+
+- **Shadcn UI** - Component library with Tailwind CSS (Next.js, React)
+
+### Storage
+
+- **Cloudinary** - File upload and storage (Express)
+
+### Components
+
+- **Components** - TiptapEditor, DataTable, SearchBar, FilterBar, and more (Next.js, React)
 
 ## Examples
 
