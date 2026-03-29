@@ -7,8 +7,8 @@ import { catchAsync } from "../../shared/utils/catch-async";
 import { cookieUtils } from "../../shared/utils/cookie";
 import { sendResponse } from "../../shared/utils/send-response";
 import { tokenUtils } from "../../shared/utils/token";
-import { authService } from "./auth/auth.service";
-import type { NeedsVerification, SocialProvider } from "./auth/auth.type";
+import { authService } from "./auth.service";
+import type { NeedsVerification, SocialProvider } from "./auth.type";
 
 const getSocialAuthPayload = (
   provider: SocialProvider,
@@ -223,20 +223,24 @@ const forgetPassword = catchAsync(
     }
 )
 
-const resetPassword = catchAsync(
-    async (req: Request, res: Response) => {
-        const { email, otp, newPassword } = req.body;
-        await authService.resetPassword(email, otp, newPassword);
+const resetPassword = catchAsync(async (req: Request, res: Response) => {
+  const { email, otp, newPassword } = req.body;
+  await authService.resetPassword(email, otp, newPassword);
 
-        sendResponse(res, {
-          status: status.OK,
-          success: true,
-          message: "Password reset successfully",
-        });
-    }
-)
+  sendResponse(res, {
+    status: status.OK,
+    success: true,
+    message: "Password reset successfully",
+  });
+});
 
-const SUPPORTED_PROVIDERS: SocialProvider[] = ["google"];
+const SUPPORTED_PROVIDERS: SocialProvider[] = [
+  "google",
+  "github",
+  "facebook",
+  "twitter",
+  "discord",
+];
 
 const socialLogin = catchAsync((req: Request, res: Response) => {
   const provider = req.params.provider as SocialProvider;
@@ -251,19 +255,11 @@ const socialLogin = catchAsync((req: Request, res: Response) => {
 
   const payload = getSocialAuthPayload(provider, redirectPath);
 
-  if (req.query.json === "true") {
-    return sendResponse(res, {
-      status: status.OK,
-      success: true,
-      message: `${provider} login payload generated successfully`,
-      data: payload,
-    });
-  }
-
-  return res.render("google-redirect", {
-    callbackURL: payload.callbackURL,
-    provider: payload.provider,
-    signInEndpoint: payload.signInEndpoint,
+  return sendResponse(res, {
+    status: status.OK,
+    success: true,
+    message: `${provider} login payload generated successfully`,
+    data: payload,
   });
 });
 
@@ -300,7 +296,7 @@ const socialLoginSuccess = catchAsync(async (req: Request, res: Response) => {
   } catch (error) {
     const message =
       error instanceof AppError
-        ? encodeURIComponent(error.message)
+        ? encodeURIComponent(error?.message)
         : "oauth_failed";
     return res.redirect(`${envVars.FRONTEND_URL}/login?error=${message}`);
   }

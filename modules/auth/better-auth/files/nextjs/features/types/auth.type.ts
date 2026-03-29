@@ -1,4 +1,9 @@
-export type SocialProvider = "google";
+export type SocialProvider =
+  | "google"
+  | "github"
+  | "facebook"
+  | "twitter"
+  | "discord";
 
 export interface ILoginResponse {
   token: string;

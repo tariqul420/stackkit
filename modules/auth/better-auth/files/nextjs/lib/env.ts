@@ -7,13 +7,21 @@ interface EnvVars {
 }
 
 const loadEnvVars = (): EnvVars => {
-  const requiredEnvVars = ["NEXT_PUBLIC_APP_NAME", "NEXT_PUBLIC_APP_URL", "NEXT_PUBLIC_API_URL", "NEXT_PUBLIC_BETTER_AUTH_URL", "JWT_ACCESS_SECRET"];
+  const requiredVars: (keyof EnvVars)[] = [
+    "APP_NAME",
+    "APP_URL",
+    "API_URL",
+    "BETTER_AUTH_URL",
+    "JWT_ACCESS_SECRET",
+  ];
 
-  requiredEnvVars.forEach((varName) => {
-    if (!process.env[varName]) {
-      throw new Error(`Environment variable ${varName} is required but not defined.`);
+  for (const varName of requiredVars) {
+    if (!process.env[`NEXT_PUBLIC_${varName}`]) {
+      console.warn(
+        `Environment variable NEXT_PUBLIC_${varName} is not set. Using default value.`,
+      );
     }
-  });
+  }
 
   return {
     APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || "App Name",

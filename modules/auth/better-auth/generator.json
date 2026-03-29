@@ -17,7 +17,7 @@
     },
     {
       "type": "create-file",
-      "source": "shared/config/env.ts",
+      "source": "express/config/env.ts",
       "destination": "src/config/env.ts",
       "condition": { "framework": "express" }
     },
@@ -141,12 +141,6 @@
     },
     {
       "type": "create-file",
-      "source": "shared/lib/auth-client.ts",
-      "destination": "lib/auth/auth-client.ts",
-      "condition": { "framework": "nextjs" }
-    },
-    {
-      "type": "create-file",
       "source": "nextjs/pages/**",
       "destination": "app/(public)/(auth)/**",
       "condition": { "framework": "nextjs" }
@@ -177,8 +171,8 @@
     },
     {
       "type": "create-file",
-      "source": "nextjs/components/**",
-      "destination": "components/**",
+      "source": "nextjs/api-route.ts",
+      "destination": "app/api/auth/callback/[provider]/route.ts",
       "condition": { "framework": "nextjs" }
     },
     {
@@ -186,6 +180,12 @@
       "source": "nextjs/types/**",
       "destination": "types/**",
       "condition": { "framework": "nextjs" }
+    },
+    {
+      "type": "create-file",
+      "source": "shared/ui/shadcn/components/**",
+      "destination": "{{framework=='nextjs' ? components/** : src/shared/components/**}}",
+      "condition": { "framework": ["nextjs", "react"] }
     },
     {
       "type": "add-env",
@@ -198,8 +198,8 @@
     {
       "type": "create-file",
       "source": "shared/lib/auth-client.ts",
-      "destination": "src/shared/lib/auth-client.ts",
-      "condition": { "framework": "react" }
+      "destination": "{{framework=='nextjs' ? lib/auth/auth-client.ts : src/shared/lib/auth-client.ts}}",
+      "condition": { "framework": ["nextjs", "react"] }
     },
     {
       "type": "create-file",
@@ -209,7 +209,7 @@
     },
     {
       "type": "create-file",
-      "source": "shared/ui/form-field/*",
+      "source": "shared/ui/shadcn/form-field/*",
       "destination": "components/global/form-field/*",
       "condition": { "framework": ["react", "nextjs"], "ui": "shadcn" }
     },
@@ -235,7 +235,7 @@
     },
     {
       "type": "run-command",
-      "command": "{{packageManager=='pnpm' ? 'pnpm dlx shadcn@latest add card checkbox field input input-group avatar separator sheet textarea label -y' : packageManager=='yarn' ? 'yarn dlx shadcn@latest add card checkbox field input input-group avatar separator sheet textarea label -y' : packageManager=='bun' ? 'bun dlx shadcn@latest add card checkbox field input input-group avatar separator sheet textarea label -y' : 'npx shadcn@latest add card checkbox field input input-group avatar separator sheet textarea label -y'}}",
+      "command": "{{packageManager=='pnpm' ? 'pnpm dlx shadcn@latest add card checkbox field input input-group avatar separator sheet textarea label dropdown-menu -y' : packageManager=='yarn' ? 'yarn dlx shadcn@latest add card checkbox field input input-group avatar separator sheet textarea label dropdown-menu -y' : packageManager=='bun' ? 'bun dlx shadcn@latest add card checkbox field input input-group avatar separator sheet textarea label dropdown-menu -y' : 'npx shadcn@latest add card checkbox field input input-group avatar separator sheet textarea label dropdown-menu -y'}}",
       "condition": { "framework": ["react", "nextjs"], "ui": "shadcn" }
     }
   ]

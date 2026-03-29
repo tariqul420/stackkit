@@ -18,6 +18,7 @@ import {
   IRegisterUserPayload,
   IRequestUser,
 } from "./auth/auth.type";
+import { ISocialLoginSession } from "./auth.type";
 
 const registerUser = async (payload: IRegisterUserPayload) => {
     const { name, email, password } = payload;
@@ -541,8 +542,7 @@ const resetPassword = async (email : string, otp : string, newPassword : string)
     {{/if}}
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const socialLoginSuccess = async (session: Record<string, any>) => {
+const socialLoginSuccess = async (session: ISocialLoginSession) => {
   {{#if database == "prisma"}}
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
@@ -591,7 +591,7 @@ const socialLoginSuccess = async (session: Record<string, any>) => {
   return { accessToken, refreshToken };
 };
 
-const googleLoginSuccess = async (session: Record<string, unknown>) => {
+const googleLoginSuccess = async (session: ISocialLoginSession) => {
   return socialLoginSuccess(session);
 };
 

@@ -40,3 +40,7 @@ export type SocialProvider =
   | "discord"
   | "linkedin"
   | "apple";
+
+export type ISocialLoginSession = {
+  user: { id: string };
+};

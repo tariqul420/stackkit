@@ -5,37 +5,9 @@
   "operations": [
     {
       "type": "create-file",
-      "source": "tiptap-editor.tsx",
-      "destination": "{{framework=='react' ? 'src/components/tiptap-editor.tsx' : 'components/tiptap-editor.tsx'}}",
-      "condition": { "framework": ["react", "nextjs"] }
-    },
-    {
-      "type": "create-file",
-      "source": "data-table.tsx",
-      "destination": "{{framework=='react' ? 'src/components/data-table.tsx' : 'components/data-table.tsx'}}",
-      "condition": { "framework": ["react", "nextjs"] }
-    },
-    {
-      "type": "create-file",
-      "source": "search-bar.tsx",
-      "destination": "{{framework=='react' ? 'src/components/search-bar.tsx' : 'components/search-bar.tsx'}}",
-      "condition": { "framework": ["react", "nextjs"] }
-    },
-    {
-      "type": "create-file",
-      "source": "filter-bar.tsx",
-      "destination": "{{framework=='react' ? 'src/components/filter-bar.tsx' : 'components/filter-bar.tsx'}}",
-      "condition": { "framework": ["react", "nextjs"] }
-    },
-    {
-      "type": "add-dependency",
-      "dependencies": {
-        "@tiptap/react": "^2.11.5",
-        "@tiptap/pm": "^2.11.5",
-        "@tiptap/starter-kit": "^2.11.5",
-        "@tanstack/react-table": "^8.21.3"
-      },
-      "condition": { "framework": ["react", "nextjs"] }
+      "source": "shadcn/**",
+      "destination": "shadcn/components/**",
+      "condition": { "framework": ["nextjs", "react"], "ui": "shadcn" }
     }
   ]
 }

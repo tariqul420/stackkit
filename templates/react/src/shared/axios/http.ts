@@ -1,10 +1,11 @@
-import type { AxiosResponse } from "axios";
-import axios, { AxiosError } from "axios";
-import toast from "react-hot-toast";
+import axios from "axios";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
-  timeout: 10000,
+  baseURL: API_URL || "http://localhost:5000/api/v1",
+  withCredentials: true,
+  timeout: 30000,
   headers: {
     "Content-Type": "application/json",
   },
@@ -12,28 +13,12 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => config,
-  (error: AxiosError) => Promise.reject(error),
+  (error) => Promise.reject(error),
 );
 
 api.interceptors.response.use(
-  (response: AxiosResponse) => response,
-  (error: AxiosError) => {
-    if (error.response?.status === 401) {
-      cookieStore.delete("session_token");
-      toast.error("Session expired. Please login again.");
-    } else if (error.response?.status === 403) {
-      toast.error("You do not have permission to perform this action.");
-    } else if (error.response?.status === 404) {
-      toast.error("Resource not found.");
-    } else if (error.response?.status === 500) {
-      toast.error("Server error. Please try again later.");
-    } else if (error.code === "ECONNABORTED") {
-      toast.error("Request timeout. Please try again.");
-    } else if (!error.response) {
-      toast.error("Network error. Please check your connection.");
-    }
-    return Promise.reject(error);
-  },
+  (response) => response,
+  (error) => Promise.reject(error),
 );
 
 export default api;

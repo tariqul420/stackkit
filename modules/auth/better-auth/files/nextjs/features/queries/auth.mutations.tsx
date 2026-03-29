@@ -7,11 +7,10 @@ import {
   registerRequest,
   resendOTPRequest,
   resetPasswordRequest,
-  setTokens,
-  socialLogin,
-  socialLoginPayload,
   verifyEmailRequest,
-} from "@/features/auth/services/auth.service";
+} from "@/features/auth/services/auth.api";
+import { setTokens } from "@/features/auth/services/auth.service";
+import { envVars } from "@/lib/env";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -68,7 +67,6 @@ export const useLoginMutation = () => {
     onSuccess: async (data, variables) => {
       toast.success("Login successful!");
 
-      // Persist tokens in HTTP-only cookies via server action so `me` can read them
       try {
         await setTokens({
           accessToken: data?.accessToken,
@@ -179,28 +177,39 @@ export const useResendOTPMutation = () => {
 };
 
 export const useSocialLoginMutation = () => {
-  return useMutation({
+  return useMutation<string, Error, SocialProvider>({
     mutationKey: AUTH_MUTATION_KEYS.socialLogin,
-    mutationFn: async (provider: SocialProvider) => {
-      const payload = await socialLoginPayload(provider);
+    mutationFn: async (provider) => {
+      const payloadRes = await fetch(
+        `${envVars.API_URL}/v1/auth/login/${provider}?redirect=/dashboard`,
+      );
+      if (!payloadRes.ok) throw new Error("Failed to initiate social login.");
+      const { data: payload } = await payloadRes.json();
 
-      if (
-        !payload?.provider ||
-        !payload?.callbackURL ||
-        !payload?.signInEndpoint
-      ) {
-        throw new Error("Invalid social login payload");
-      }
+      const authRes = await fetch(
+        `${envVars.BETTER_AUTH_URL}${payload.signInEndpoint}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            provider: payload.provider,
+            callbackURL: payload.callbackURL,
+          }),
+        },
+      );
+      if (!authRes.ok) throw new Error("Social login request failed.");
 
-      return socialLogin(payload);
+      const json = await authRes.json();
+      const redirectUrl: string | undefined = json?.url || json?.redirectUrl;
+
+      if (!redirectUrl)
+        throw new Error("No redirect URL returned from social login.");
+
+      return redirectUrl;
     },
-    onSuccess: (url) => {
-      if (!url) {
-        toast.error("Login URL not found. Please try again.");
-        return;
-      }
-
-      window.location.href = url;
+    onSuccess: (redirectUrl) => {
+      window.location.href = redirectUrl;
     },
     onError: (error) => {
       toast.error(error.message || "Social login failed. Please try again.");
