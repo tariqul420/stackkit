@@ -188,6 +188,18 @@
       "condition": { "framework": "nextjs", "ui": "shadcn" }
     },
     {
+      "type": "create-file",
+      "source": "nextjs/dashboard/components/**",
+      "destination": "components/**",
+      "condition": { "framework": "nextjs", "ui": "shadcn" }
+    },
+    {
+      "type": "create-file",
+      "source": "nextjs/dashboard/pages/**",
+      "destination": "app/dashboard/**",
+      "condition": { "framework": "nextjs", "ui": "shadcn" }
+    },
+    {
       "type": "patch-file",
       "destination": "app/layout.tsx",
       "condition": { "framework": "nextjs" },
@@ -268,7 +280,7 @@
     },
     {
       "type": "run-command",
-      "command": "{{packageManager=='pnpm' ? 'pnpm dlx shadcn@latest add card checkbox field input input-group avatar separator sheet textarea label dropdown-menu -y' : packageManager=='yarn' ? 'yarn dlx shadcn@latest add card checkbox field input input-group avatar separator sheet textarea label dropdown-menu -y' : packageManager=='bun' ? 'bun dlx shadcn@latest add card checkbox field input input-group avatar separator sheet textarea label dropdown-menu -y' : 'npx shadcn@latest add card checkbox field input input-group avatar separator sheet textarea label dropdown-menu -y'}}",
+      "command": "{{packageManager=='pnpm' ? 'pnpm dlx shadcn@latest add card checkbox field input input-group avatar separator sheet textarea label dropdown-menu sidebar -y' : packageManager=='yarn' ? 'yarn dlx shadcn@latest add card checkbox field input input-group avatar separator sheet textarea label dropdown-menu sidebar -y' : packageManager=='bun' ? 'bun dlx shadcn@latest add card checkbox field input input-group avatar separator sheet textarea label dropdown-menu sidebar -y' : 'npx shadcn@latest add card checkbox field input input-group avatar separator sheet textarea label dropdown-menu sidebar -y'}}",
       "condition": { "framework": ["react", "nextjs"], "ui": "shadcn" }
     }
   ]
