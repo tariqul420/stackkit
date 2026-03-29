@@ -183,6 +183,38 @@
     },
     {
       "type": "create-file",
+      "source": "nextjs/theme/**",
+      "destination": "components/**",
+      "condition": { "framework": "nextjs", "ui": "shadcn" }
+    },
+    {
+      "type": "patch-file",
+      "destination": "app/layout.tsx",
+      "condition": { "framework": "nextjs" },
+      "operations": [
+        {
+          "type": "add-import",
+          "imports": ["import { ThemeProvider } from \"@/components/providers/theme-provider\";"]
+        },
+        {
+          "type": "add-code",
+          "after": "<body className={`${geist.variable} antialiased`}>",
+          "code": ["<ThemeProvider",
+          "  attribute=\"class\"",
+          "  defaultTheme=\"system\"",
+          "  enableSystem",
+          "  disableTransitionOnChange",
+          ">"]
+        },
+        {
+          "type": "add-code",
+          "before": "</body>",
+          "code": ["</ThemeProvider>"]
+        }
+      ]
+    },
+    {
+      "type": "create-file",
       "source": "shared/ui/shadcn/components/**",
       "destination": "{{framework=='nextjs' ? components/** : src/shared/components/**}}",
       "condition": { "framework": ["nextjs", "react"] }
@@ -226,7 +258,8 @@
       "type": "add-dependency",
       "dependencies": {
         "jsonwebtoken": "^9.0.3",
-        "zod": "^4.3.6"
+        "zod": "^4.3.6",
+        "next-themes": "^0.4.6"
       },
       "devDependencies": {
         "@types/jsonwebtoken": "^9.0.10"
