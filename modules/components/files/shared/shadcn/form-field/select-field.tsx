@@ -111,8 +111,8 @@ export default function SelectField<
     const current = externalValue !== undefined ? externalValue : internal;
     const selectValue = normalizeIn(current);
 
-    const handleChange = (raw: string) => {
-      const next = normalizeOut(raw, { valueAsNumber });
+    const handleChange = (raw: string | null) => {
+      const next = raw ? normalizeOut(raw, { valueAsNumber }) : undefined;
       if (onValueChange) onValueChange(next);
       else setInternal(next);
     };
@@ -184,8 +184,8 @@ export default function SelectField<
             : (field.value as string | number | undefined);
         const selectValue = normalizeIn(current);
 
-        const handleChange = (raw: string) => {
-          const next = normalizeOut(raw, { valueAsNumber });
+        const handleChange = (raw: string | null) => {
+          const next = raw ? normalizeOut(raw, { valueAsNumber }) : undefined;
           field.onChange(next);
           onValueChange?.(next);
         };

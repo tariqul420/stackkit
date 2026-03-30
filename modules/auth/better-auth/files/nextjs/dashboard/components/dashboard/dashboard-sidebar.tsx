@@ -139,13 +139,12 @@ export function DashboardSidebar({ menu = [], user }: DashboardSidebarProps) {
                     return (
                       <SidebarMenuItem key={item.title}>
                         <Tooltip delayDuration={200}>
-                          <TooltipTrigger asChild>
+                          <TooltipTrigger>
                             <SidebarMenuButton
                               className={cn(
                                 "hover:bg-muted dark:hover:bg-muted/80",
                                 active && "bg-muted dark:bg-muted/80",
                               )}
-                              asChild
                             >
                               <Link
                                 href={item.url || "#"}
@@ -180,7 +179,7 @@ export function DashboardSidebar({ menu = [], user }: DashboardSidebarProps) {
 
         <SidebarFooter className="border-t bg-muted/40 p-3">
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            <DropdownMenuTrigger>
               <button className="flex w-full items-center justify-between gap-3 rounded-lg px-2 py-1.5 text-left hover:bg-muted">
                 <span className="flex items-center gap-3">
                   <span className="relative">
@@ -213,7 +212,7 @@ export function DashboardSidebar({ menu = [], user }: DashboardSidebarProps) {
             </DropdownMenuTrigger>
             <DropdownMenuContent side="top" align="end" className="w-56">
               <DropdownMenuLabel>Account</DropdownMenuLabel>
-              <DropdownMenuItem asChild>
+              <DropdownMenuItem>
                 <Link href="/dashboard/profile">Profile</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />

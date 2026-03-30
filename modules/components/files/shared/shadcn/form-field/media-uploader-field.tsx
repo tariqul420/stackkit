@@ -7,10 +7,8 @@ import {
   FieldError,
   FieldLabel,
 } from "@/components/ui/field";
-import {
-  type FileWithPreview,
-  useFileUpload,
-} from "@/lib/hooks/use-file-upload";
+import { type FileWithPreview, useFileUpload } from "@/hooks/use-file-upload";
+import { api } from "@/lib/axios/http";
 import { cn } from "@/lib/utils";
 import {
   closestCenter,
@@ -27,7 +25,6 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import axios from "axios";
 import {
   AlertCircleIcon,
   GripVerticalIcon,
@@ -92,19 +89,25 @@ async function uploadToCloudinaryViaPresign(
     ? "raw"
     : "auto";
 
-  const res = await axios.post<{ data: Record<string, unknown> }>("/images/upload/presign", {
-    folder: keyPrefix,
-    resourceType,
-  });
+  const res = await api.post<{ data: Record<string, unknown> }>(
+    "/v1/images/upload/presign",
+    {
+      folder: keyPrefix,
+      resourceType,
+    },
+  );
   const payload = (res.data?.data as Record<string, unknown>) || {};
 
   const form = new FormData();
 
   if (payload.unsigned && payload.upload_preset) {
-    form.append("upload_preset", payload.upload_preset);
-    if (payload.folder) form.append("folder", payload.folder);
+    form.append("upload_preset", payload.upload_preset as string);
+    if (payload.folder) form.append("folder", payload.folder as string);
     form.append("file", file);
-    const { data: upJson } = await axios.post<Record<string, unknown>>(payload.uploadUrl as string, form);
+    const { data: upJson } = await api.post<Record<string, unknown>>(
+      payload.uploadUrl as string,
+      form,
+    );
     return {
       key: upJson.public_id as string,
       publicUrl: upJson.secure_url as string,
@@ -121,7 +124,10 @@ async function uploadToCloudinaryViaPresign(
     if (payload.resourceType) form.append("resource_type", payload.resourceType as string);
     form.append("file", file);
 
-    const { data: upJson } = await axios.post<Record<string, unknown>>(payload.uploadUrl as string, form);
+    const { data: upJson } = await api.post<Record<string, unknown>>(
+      payload.uploadUrl as string,
+      form,
+    );
     return {
       key: upJson.public_id as string,
       publicUrl: upJson.url as string,
@@ -176,11 +182,21 @@ function SortableMediaItem({
     >
       {src ? (
         isVideo ? (
-          <video src={src} controls className="rounded-[inherit] object-cover w-full h-full" />
+          <video
+            src={src}
+            controls
+            className="rounded-[inherit] object-cover w-full h-full"
+          />
         ) : isPdf ? (
-          <div className="flex items-center justify-center h-full text-xs">PDF</div>
+          <div className="flex items-center justify-center h-full text-xs">
+            PDF
+          </div>
         ) : (
-          <img src={src} alt={file.file?.name ?? "media"} className="absolute inset-0 w-full h-full rounded-[inherit] object-cover" />
+          <img
+            src={src}
+            alt={file.file?.name ?? "media"}
+            className="absolute inset-0 w-full h-full rounded-[inherit] object-cover"
+          />
         )
       ) : (
         <div className="text-muted-foreground flex h-full w-full items-center justify-center text-xs">

@@ -2,7 +2,7 @@
   "name": "components",
   "displayName": "Components",
   "category": "components",
-  "description": "UI components: TiptapEditor, DataTable, SearchBar, FilterBar, and more",
+  "description": "Pre-built form fields, data table, and more",
   "supportedFrameworks": ["react", "nextjs"],
   "compatibility": {
     "frameworks": ["react", "nextjs"],

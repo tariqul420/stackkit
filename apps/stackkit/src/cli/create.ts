@@ -405,9 +405,7 @@ async function getProjectConfig(
       const compResp = await prompts({
         type: "confirm",
         name: "add",
-        message: `Add ${compMeta.displayName || compMeta.name}?${
-          compMeta.description ? ` (${compMeta.description})` : ""
-        }`,
+        message: `Add ${compMeta.displayName || compMeta.name}?`,
         initial: true,
       });
       result.components = (compResp as { add?: boolean }).add !== false;

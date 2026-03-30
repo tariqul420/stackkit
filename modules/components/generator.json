@@ -10,6 +10,12 @@
       "condition": { "framework": ["nextjs", "react"], "ui": "shadcn" }
     },
     {
+      "type": "create-file",
+      "source": "shared/hooks/**",
+      "destination": "{{framework == 'nextjs' ? 'hooks/**' : 'src/hooks/**'}}",
+      "condition": { "framework": ["nextjs", "react"] }
+    },
+    {
       "type": "run-command",
       "command": "{{packageManager=='pnpm' ? 'pnpm dlx shadcn@latest add button checkbox field input input-group textarea select badge command popover scroll-area -y' : packageManager=='yarn' ? 'yarn dlx shadcn@latest add button checkbox field input input-group textarea select badge command popover scroll-area -y' : packageManager=='bun' ? 'bun dlx shadcn@latest add button checkbox field input input-group textarea select badge command popover scroll-area -y' : 'npx shadcn@latest add button checkbox field input input-group textarea select badge command popover scroll-area -y'}}",
       "condition": { "framework": ["react", "nextjs"], "ui": "shadcn" }

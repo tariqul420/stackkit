@@ -133,7 +133,7 @@ export default function MultiSelectField({
             {label && <FieldLabel>{label}</FieldLabel>}
             <FieldContent>
               <Popover open={open} onOpenChange={setOpen}>
-                <PopoverTrigger className="overflow-hidden" asChild>
+                <PopoverTrigger className="overflow-hidden">
                   <Button
                     type="button"
                     variant="outline"
