@@ -1,6 +1,6 @@
 
 export default function Page() {
   return (
-    <div>This is user dashboard page.</div>
+    <div>This is the admin dashboard page</div>
   )
 }
