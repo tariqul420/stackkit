@@ -1,12 +1,19 @@
 import { QueryProviders } from "@/components/providers/query-provider";
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 
 const geist = Geist({
-  variable: "--font-geist",
+  variable: "--font-sans",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
 });
 
 export const metadata: Metadata = {
@@ -22,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head />
-      <body className={`${geist.variable} antialiased`}>
+      <body className={`${geist.variable} ${geistMono.variable} antialiased font-sans`}>
         <QueryProviders>{children}</QueryProviders>
         <Toaster theme="system" position="top-right" richColors />
       </body>

@@ -6,7 +6,7 @@
     {
       "type": "create-file",
       "source": "shared/shadcn/**",
-      "destination": "{{framework == 'nextjs' ? 'components/**' : 'src/shared/components/**'}}",
+      "destination": "{{framework == 'nextjs' ? 'components/global/**' : 'src/shared/components/**'}}",
       "condition": { "framework": ["nextjs", "react"], "ui": "shadcn" }
     },
     {

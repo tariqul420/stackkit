@@ -103,7 +103,9 @@ export function locateOperationSource(
   const moduleBasePath =
     generatorType === "framework"
       ? path.join(templatesPath, generatorName)
-      : path.join(modulesPath, generatorType, generatorName);
+      : generatorType === generatorName
+        ? path.join(modulesPath, generatorType)
+        : path.join(modulesPath, generatorType, generatorName);
 
   return path.join(moduleBasePath, "files", sourceRel);
 }
