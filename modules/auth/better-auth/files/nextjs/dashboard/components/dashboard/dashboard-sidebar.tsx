@@ -37,18 +37,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Separator } from "../ui/separator";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../ui/tooltip";
+
 
 const iconMap = {
   LayoutDashboard,
@@ -105,125 +101,118 @@ export function DashboardSidebar({ menu = [], user }: DashboardSidebarProps) {
   ).filter((group) => group.items.length > 0);
 
   return (
-    <TooltipProvider>
-      <Sidebar className="bg-linear-to-b from-background to-muted/30 backdrop-blur supports-backdrop-filter:bg-background/80">
-        <SidebarHeader className="px-3 py-2">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="text-lg font-bold">
-             StackKit
-            </Link>
-            {/* Collapser for small screens */}
-            <button
-              onClick={toggleSidebar}
-              className="rounded-md p-1.5 text-muted-foreground hover:bg-muted/60 hover:text-foreground lg:hidden"
-              aria-label="Toggle sidebar"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-        </SidebarHeader>
+    <Sidebar className="bg-linear-to-b from-background to-muted/30 backdrop-blur supports-backdrop-filter:bg-background/80">
+      <SidebarHeader className="px-3 py-2">
+        <div className="flex items-center justify-between">
+          <Link href="/" className="text-lg font-bold">
+            StackKit
+          </Link>
+          {/* Collapser for small screens */}
+          <button
+            onClick={toggleSidebar}
+            className="rounded-md p-1.5 text-muted-foreground hover:bg-muted/60 hover:text-foreground lg:hidden"
+            aria-label="Toggle sidebar"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+      </SidebarHeader>
 
-        <Separator />
+      <Separator />
 
-        <SidebarContent>
-          {groupedMenu.map((group) => (
-            <SidebarGroup key={group.label}>
-              <SidebarGroupLabel className="text-xs font-medium tracking-wide text-muted-foreground">
-                {group.label}
-              </SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {group.items.map((item) => {
-                    const Icon = iconMap[item.icon] ?? LayoutDashboard;
-                    const active = isActive(item.url);
-                    return (
-                      <SidebarMenuItem key={item.title}>
-                        <Tooltip delayDuration={200}>
-                          <TooltipTrigger>
-                            <SidebarMenuButton
-                              className={cn(
-                                "hover:bg-muted dark:hover:bg-muted/80",
-                                active && "bg-muted dark:bg-muted/80",
-                              )}
-                            >
-                              <Link
-                                href={item.url || "#"}
-                                onClick={() => {
-                                  if (
-                                    typeof window !== "undefined" &&
-                                    window.innerWidth < 768
-                                  ) {
-                                    toggleSidebar();
-                                  }
-                                }}
-                              >
-                                <Icon className="h-4 w-4" />
-                                <span>{item.title}</span>
-                              </Link>
-                            </SidebarMenuButton>
-                          </TooltipTrigger>
-                          <TooltipContent side="right">
-                            {item.title}
-                          </TooltipContent>
-                        </Tooltip>
-                      </SidebarMenuItem>
-                    );
-                  })}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          ))}
-        </SidebarContent>
+      <SidebarContent>
+        {groupedMenu.map((group) => (
+          <SidebarGroup key={group.label}>
+            <SidebarGroupLabel className="text-xs font-medium tracking-wide text-muted-foreground">
+              {group.label}
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {group.items.map((item) => {
+                  const Icon = iconMap[item.icon] ?? LayoutDashboard;
+                  const active = isActive(item.url);
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        tooltip={item.title}
+                        render={
+                          <Link
+                            href={item.url || "#"}
+                            onClick={() => {
+                              if (
+                                typeof window !== "undefined" &&
+                                window.innerWidth < 768
+                              ) {
+                                toggleSidebar();
+                              }
+                            }}
+                          />
+                        }
+                        className={cn(
+                          "hover:bg-muted dark:hover:bg-muted/80",
+                          active && "bg-muted dark:bg-muted/80",
+                        )}
+                      >
+                        <Icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
+      </SidebarContent>
 
-        <Separator className="mt-auto" />
+      <Separator className="mt-auto" />
 
-        <SidebarFooter className="border-t bg-muted/40 p-3">
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <button className="flex w-full items-center justify-between gap-3 rounded-lg px-2 py-1.5 text-left hover:bg-muted">
-                <span className="flex items-center gap-3">
-                  <span className="relative">
-                    <Avatar className="h-9 w-9">
-                      <AvatarImage
-                        src={user?.image || "/assets/images/logo.png"}
-                        alt={user?.name || "User"}
-                        className="object-cover"
-                      />
-                      <AvatarFallback>
-                        {user?.name?.toUpperCase().charAt(0) || "U"}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span
-                      className="absolute -right-0.5 -top-0.5 block h-2.5 w-2.5 rounded-full border-2 border-background bg-primary"
-                      aria-label="Online"
-                    />
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block truncate text-sm font-medium">
-                      {user?.name || "Admin"}
-                    </span>
-                    <span className="block truncate text-xs text-muted-foreground">
-                      {user?.email}
-                    </span>
-                  </span>
+      <SidebarFooter className="border-t bg-muted/40 p-3">
+        <DropdownMenu>
+          <DropdownMenuTrigger className="flex w-full items-center justify-between gap-3 rounded-lg px-2 py-1.5 text-left hover:bg-muted">
+            <span className="flex items-center gap-3">
+              <span className="relative">
+                <Avatar className="h-9 w-9">
+                  <AvatarImage
+                    src={user?.image || "/assets/images/logo.png"}
+                    alt={user?.name || "User"}
+                    className="object-cover"
+                  />
+                  <AvatarFallback>
+                    {user?.name?.toUpperCase().charAt(0) || "U"}
+                  </AvatarFallback>
+                </Avatar>
+                <span
+                  className="absolute -right-0.5 -top-0.5 block h-2.5 w-2.5 rounded-full border-2 border-background bg-primary"
+                  aria-label="Online"
+                />
+              </span>
+              <span className="min-w-0">
+                <span className="block truncate text-sm font-medium">
+                  {user?.name || "Admin"}
                 </span>
-                <MoreVertical className="h-4 w-4 text-muted-foreground" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent side="top" align="end" className="w-56">
+                <span className="block truncate text-xs text-muted-foreground">
+                  {user?.email}
+                </span>
+              </span>
+            </span>
+            <MoreVertical className="h-4 w-4 text-muted-foreground" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent side="top" align="end" className="w-56">
+            <DropdownMenuGroup>
               <DropdownMenuLabel>Account</DropdownMenuLabel>
               <DropdownMenuItem>
                 <Link href="/dashboard/profile">Profile</Link>
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem disabled={isPending} onClick={() => logout()}>
-                Log out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </SidebarFooter>
-      </Sidebar>
-    </TooltipProvider>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem disabled={isPending} onClick={() => logout()}>
+              Log out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </SidebarFooter>
+    </Sidebar>
   );
 }
 

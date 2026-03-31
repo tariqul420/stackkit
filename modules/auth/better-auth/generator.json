@@ -210,7 +210,7 @@
         },
         {
           "type": "add-code",
-          "after": "<body className={`${geist.variable} ${geistMono.variable} antialiased font-sans`}>",
+          "after": "<body className=\"font-sans antialiased\" suppressHydrationWarning>",
           "code": ["<ThemeProvider",
           "  attribute=\"class\"",
           "  defaultTheme=\"system\"",

@@ -4,7 +4,7 @@ import DashboardHeader from "@/components/dashboard/dashboard-header";
 import DashboardSidebar from "@/components/dashboard/dashboard-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import {
-    getSession,
+  getSession,
 } from "@/features/auth/services/auth.service";
 import { sidebar } from "@/lib/constant/dashboard";
 
@@ -16,6 +16,11 @@ export default async function layout({
   children: React.ReactNode;
 }) {
   const user = await getSession();
+
+  if (!user) {
+    redirect("/login");
+  }
+
   const role = user?.role as Role | undefined;
 
   return (
