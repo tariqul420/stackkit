@@ -28,11 +28,11 @@
     {
       "type": "add-script",
       "scripts": {
-        "generate": "prisma generate",
-        "push": "prisma db push",
-        "seed": "tsx prisma/seed.ts",
-        "migrate": "prisma migrate dev",
-        "studio": "prisma studio"
+        "prisma:generate": "prisma generate",
+        "prisma:push": "prisma db push",
+        "prisma:seed": "tsx prisma/seed.ts",
+        "prisma:migrate": "prisma migrate dev",
+        "prisma:studio": "prisma studio"
       }
     },
     {

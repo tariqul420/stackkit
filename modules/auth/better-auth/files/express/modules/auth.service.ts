@@ -11,14 +11,14 @@ import { auth } from "../../lib/auth";
 import { AppError } from "../../shared/errors/app-error";
 import { jwtUtils } from "../../shared/utils/jwt";
 import { tokenUtils } from "../../shared/utils/token";
-import type { NeedsVerification } from "./auth/auth.type";
 import {
   IChangePasswordPayload,
   ILoginUserPayload,
   IRegisterUserPayload,
   IRequestUser,
-} from "./auth/auth.type";
-import { ISocialLoginSession } from "./auth.type";
+  ISocialLoginSession,
+  type NeedsVerification,
+} from "./auth.type";
 
 const registerUser = async (payload: IRegisterUserPayload) => {
     const { name, email, password } = payload;

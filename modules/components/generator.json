@@ -12,7 +12,13 @@
     {
       "type": "create-file",
       "source": "shared/hooks/**",
-      "destination": "{{framework == 'nextjs' ? 'hooks/**' : 'src/hooks/**'}}",
+      "destination": "{{framework == 'nextjs' ? 'hooks/**' : 'src/shared/hooks/**'}}",
+      "condition": { "framework": ["nextjs", "react"] }
+    },
+    {
+      "type": "create-file",
+      "source": "shared/lib/**",
+      "destination": "{{framework == 'nextjs' ? 'lib/**' : 'src/shared/lib/**'}}",
       "condition": { "framework": ["nextjs", "react"] }
     },
     {

@@ -7,6 +7,7 @@ import {
   getSession,
 } from "@/features/auth/services/auth.service";
 import { sidebar } from "@/lib/constant/dashboard";
+import { redirect } from "next/navigation";
 
 type Role = keyof typeof sidebar;
 

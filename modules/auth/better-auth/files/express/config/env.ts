@@ -35,6 +35,7 @@ interface EnvConfig {
     CLOUDINARY_CLOUD_NAME: string;
     CLOUDINARY_API_KEY: string;
     CLOUDINARY_API_SECRET: string;
+    CLOUDINARY_UPLOAD_PRESET: string;
   };
   {{/if}}
 }
@@ -67,6 +68,7 @@ const loadEnvVars = (): EnvConfig => {
     "CLOUDINARY_CLOUD_NAME",
     "CLOUDINARY_API_KEY",
     "CLOUDINARY_API_SECRET",
+    "CLOUDINARY_UPLOAD_PRESET",
     {{/if}}
   ];
 
@@ -111,6 +113,7 @@ const loadEnvVars = (): EnvConfig => {
       CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME as string,
       CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY as string,
       CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET as string,
+      CLOUDINARY_UPLOAD_PRESET: process.env.CLOUDINARY_UPLOAD_PRESET as string,
     },
     {{/if}}
   };
