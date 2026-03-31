@@ -121,7 +121,7 @@
       "condition": { "framework": "express" },
       "envVars": {
         "APP_NAME": "Your App",
-        "BETTER_AUTH_URL": "http://localhost:3000",
+        "BETTER_AUTH_URL": "http://localhost:5000",
         "BETTER_AUTH_SECRET": "your_better_auth_secret",
         "BETTER_AUTH_SESSION_TOKEN_EXPIRES_IN": "1d",
         "BETTER_AUTH_SESSION_TOKEN_UPDATE_AGE": "1d",
@@ -210,7 +210,7 @@
         },
         {
           "type": "add-code",
-          "after": "<body className={`${geist.variable} antialiased`}>",
+          "after": "<body className={`${geist.variable} ${geistMono.variable} antialiased font-sans`}>",
           "code": ["<ThemeProvider",
           "  attribute=\"class\"",
           "  defaultTheme=\"system\"",

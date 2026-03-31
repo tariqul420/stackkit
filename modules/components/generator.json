@@ -6,7 +6,7 @@
     {
       "type": "create-file",
       "source": "shared/shadcn/**",
-      "destination": "{{framework == 'nextjs' ? 'components/global/**' : 'src/shared/components/**'}}",
+      "destination": "{{framework == 'nextjs' ? 'components/**' : 'src/shared/components/**'}}",
       "condition": { "framework": ["nextjs", "react"], "ui": "shadcn" }
     },
     {
@@ -16,17 +16,43 @@
       "condition": { "framework": ["nextjs", "react"] }
     },
     {
+      "type": "create-file",
+      "source": "nextjs/url/*",
+      "destination": "components/global/url/*",
+      "condition": { "framework": "nextjs" }
+    },
+    {
       "type": "run-command",
-      "command": "{{packageManager=='pnpm' ? 'pnpm dlx shadcn@latest add button checkbox field input input-group textarea select badge command popover scroll-area -y' : packageManager=='yarn' ? 'yarn dlx shadcn@latest add button checkbox field input input-group textarea select badge command popover scroll-area -y' : packageManager=='bun' ? 'bun dlx shadcn@latest add button checkbox field input input-group textarea select badge command popover scroll-area -y' : 'npx shadcn@latest add button checkbox field input input-group textarea select badge command popover scroll-area -y'}}",
+      "command": "{{packageManager=='pnpm' ? 'pnpm dlx shadcn@latest add button checkbox field input input-group textarea select badge command popover scroll-area toggle -y' : packageManager=='yarn' ? 'yarn dlx shadcn@latest add button checkbox field input input-group textarea select badge command popover scroll-area toggle -y' : packageManager=='bun' ? 'bun dlx shadcn@latest add button checkbox field input input-group textarea select badge command popover scroll-area toggle -y' : 'npx shadcn@latest add button checkbox field input input-group textarea select badge command popover scroll-area toggle -y'}}",
       "condition": { "framework": ["react", "nextjs"], "ui": "shadcn" }
     },
     {
       "type": "add-dependency",
-      "condition": { "framework": ["react", "nextjs"] },
+      "condition": { "framework": ["react", "nextjs"], "ui": "shadcn" },
       "dependencies": {
         "@dnd-kit/core": "^6.3.1",
         "@dnd-kit/sortable": "^10.0.0",
-        "@dnd-kit/utilities": "^3.2.2"
+        "@dnd-kit/utilities": "^3.2.2",
+        "@tiptap/core": "^3.20.0",
+        "@tiptap/extension-blockquote": "^3.20.0",
+        "@tiptap/extension-bold": "^3.20.0",
+        "@tiptap/extension-bullet-list": "^3.20.0",
+        "@tiptap/extension-code": "^3.20.0",
+        "@tiptap/extension-hard-break": "^3.20.0",
+        "@tiptap/extension-heading": "^3.20.0",
+        "@tiptap/extension-highlight": "^3.20.0",
+        "@tiptap/extension-history": "^3.20.0",
+        "@tiptap/extension-horizontal-rule": "^3.20.0",
+        "@tiptap/extension-italic": "^3.20.0",
+        "@tiptap/extension-link": "^3.20.0",
+        "@tiptap/extension-list-item": "^3.20.0",
+        "@tiptap/extension-ordered-list": "^3.20.0",
+        "@tiptap/extension-strike": "^3.20.0",
+        "@tiptap/extension-table": "^3.20.0",
+        "@tiptap/extension-text-align": "^3.20.0",
+        "@tiptap/extension-underline": "^3.20.0",
+        "@tiptap/react": "^3.20.0",
+        "@tiptap/starter-kit": "^3.20.0"
       }
     }
   ]

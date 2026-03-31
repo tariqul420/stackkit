@@ -384,7 +384,10 @@ async function getProjectConfig(
       name: "storageProvider",
       message: "Select storage provider:",
       choices: storageChoices,
-      initial: storageChoices.findIndex((c) => c.value === "none") || 0,
+      initial: Math.max(
+        0,
+        storageChoices.findIndex((c) => c.value === "cloudinary"),
+      ),
     });
     const storageProviderAnswer = (spRaw as Record<string, unknown>)["storageProvider"];
     if (typeof storageProviderAnswer === "string") {
