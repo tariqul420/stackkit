@@ -1,4 +1,6 @@
+{{#if framework == "nextjs"}}
 "use client";
+{{/if}}
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -10,7 +12,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LayoutDashboard, LogOut, User } from "lucide-react";
+{{#if framework == "nextjs"}}
 import Link from "next/link";
+{{else}}
+import { Link } from "react-router";
+{{/if}}
 import { useLogoutMutation } from "../queries/auth.mutations";
 import { useMeQuery } from "../queries/auth.querie";
 
@@ -20,7 +26,15 @@ export default function UserProfileMenu() {
 
   if (!user) {
     return (
-      <Button render={<Link href="/login" />} nativeButton={false} variant="ghost" size="icon" aria-label="Sign in">
+      <Button
+        render={
+          {{#if framework == "nextjs"}}<Link href="/login" />{{else}}<Link to="/login" />{{/if}}
+        }
+        variant="ghost"
+        size="icon"
+        aria-label="Sign in"
+        nativeButton={false}
+      >
         <User />
       </Button>
     );
@@ -61,9 +75,13 @@ export default function UserProfileMenu() {
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem render={<Link href="/dashboard" />} className="gap-2">
-          <LayoutDashboard className="size-4" />
-          Dashboard
+        <DropdownMenuItem
+          render={
+            {{#if framework == "nextjs"}}<Link href="/dashboard" />{{else}}<Link to="/dashboard" />{{/if}}
+          }
+          className="gap-2"
+        >
+          <LayoutDashboard className="size-4" /> Dashboard
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />

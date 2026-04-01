@@ -6,19 +6,19 @@
     {
       "type": "create-file",
       "source": "shared/shadcn/**",
-      "destination": "{{framework == 'nextjs' ? 'components/**' : 'src/shared/components/**'}}",
+      "destination": "{{framework == 'nextjs' ? 'components/**' : 'src/components/**'}}",
       "condition": { "framework": ["nextjs", "react"], "ui": "shadcn" }
     },
     {
       "type": "create-file",
       "source": "shared/hooks/**",
-      "destination": "{{framework == 'nextjs' ? 'hooks/**' : 'src/shared/hooks/**'}}",
+      "destination": "hooks/**",
       "condition": { "framework": ["nextjs", "react"] }
     },
     {
       "type": "create-file",
       "source": "shared/lib/**",
-      "destination": "{{framework == 'nextjs' ? 'lib/**' : 'src/shared/lib/**'}}",
+      "destination": "{{framework == 'nextjs' ? 'lib/**' : 'src/lib/**'}}",
       "condition": { "framework": ["nextjs", "react"] }
     },
     {
@@ -44,6 +44,27 @@
         {
           "type": "add-code",
           "after": "<QueryProviders>{children}</QueryProviders>",
+          "code": ["</TooltipProvider>"]
+        }
+      ]
+    },
+    {
+      "type": "patch-file",
+      "destination": "src/main.tsx",
+      "condition": { "framework": "react" },
+      "operations": [
+        {
+          "type": "add-import",
+          "imports": ["import { TooltipProvider } from \"./components/ui/tooltip\";"]
+        },
+        {
+          "type": "add-code",
+          "before": "<QueryProvider>",
+          "code": ["<TooltipProvider>"]
+        },
+        {
+          "type": "add-code",
+          "after": "</QueryProvider>",
           "code": ["</TooltipProvider>"]
         }
       ]

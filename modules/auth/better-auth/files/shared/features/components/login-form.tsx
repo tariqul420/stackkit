@@ -1,4 +1,6 @@
+{{#if framework == "nextjs"}}
 "use client";
+{{/if}}
 
 import InputField from "@/components/global/form-field/input-field";
 import { Button } from "@/components/ui/button";
@@ -12,30 +14,36 @@ import {
 } from "@/components/ui/card";
 import { FieldGroup } from "@/components/ui/field";
 import { useLoginMutation } from "@/features/auth/queries/auth.mutations";
-import {
-  ILoginPayload,
-  loginZodSchema,
-} from "@/features/auth/validators/login.validator";
+import type { ILoginPayload } from "@/features/auth/validators/login.validator";
+import { loginZodSchema } from "@/features/auth/validators/login.validator";
 import { zodResolver } from "@hookform/resolvers/zod";
+{{#if framework == "nextjs"}}
 import Link from "next/link";
+{{else}}
+import { Link, useSearchParams } from "react-router";
+{{/if}}
 import { FormProvider, useForm } from "react-hook-form";
 import SocialLoginButtons from "./social-login-buttons";
 
+{{#if framework == "nextjs"}}
 export default function LoginForm({
   searchParams,
 }: {
   searchParams?: { redirect?: string };
 }) {
   const mutation = useLoginMutation();
+  const redirectPath = searchParams?.redirect || "";
+{{else}}
+export default function LoginForm() {
+  const mutation = useLoginMutation();
+  const [searchParams] = useSearchParams();
+  const redirectPath = searchParams.get("redirect") || "";
+{{/if}}
 
   const form = useForm<ILoginPayload & { redirectPath?: string }>({
     mode: "onTouched",
     resolver: zodResolver(loginZodSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-      redirectPath: searchParams?.redirect || "",
-    },
+    defaultValues: { email: "", password: "", redirectPath },
   });
 
   async function onSubmit(values: ILoginPayload & { redirectPath?: string }) {
@@ -84,19 +92,25 @@ export default function LoginForm({
 
               <div className="flex justify-between">
                 <div className="text-sm flex flex-col gap-1">
-                  <Link
-                    href="/register"
-                    className="text-muted-foreground underline"
-                  >
-                    Don’t have an account? Create one
+                  {{#if framework == "nextjs"}}
+                  <Link href="/register" className="text-muted-foreground underline">
+                    Don't have an account? Create one
                   </Link>
+                  {{else}}
+                  <Link to="/register" className="text-muted-foreground underline">
+                    Don't have an account? Create one
+                  </Link>
+                  {{/if}}
                 </div>
-                <Link
-                  href="/forgot-password"
-                  className="text-muted-foreground underline flex items-end"
-                >
+                {{#if framework == "nextjs"}}
+                <Link href="/forgot-password" className="text-muted-foreground underline flex items-end text-sm">
                   Forgot password?
                 </Link>
+                {{else}}
+                <Link to="/forgot-password" className="text-muted-foreground underline flex items-end text-sm">
+                  Forgot password?
+                </Link>
+                {{/if}}
               </div>
             </FieldGroup>
 

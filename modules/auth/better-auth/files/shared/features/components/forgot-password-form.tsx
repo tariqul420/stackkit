@@ -1,4 +1,6 @@
+{{#if framework == "nextjs"}}
 "use client";
+{{/if}}
 
 import InputField from "@/components/global/form-field/input-field";
 import { Button } from "@/components/ui/button";
@@ -12,7 +14,11 @@ import {
 import { useForgotPasswordMutation } from "@/features/auth/queries/auth.mutations";
 import { forgotZodSchema } from "@/features/auth/validators/forgot.validator";
 import { zodResolver } from "@hookform/resolvers/zod";
+{{#if framework == "nextjs"}}
 import Link from "next/link";
+{{else}}
+import { Link } from "react-router";
+{{/if}}
 import { FormProvider, useForm } from "react-hook-form";
 
 type ForgotValues = {
@@ -56,9 +62,15 @@ export default function ForgotPasswordForm() {
 
             <div className="flex items-center justify-between mt-2">
               <div className="text-sm flex flex-col gap-1">
+                {{#if framework == "nextjs"}}
                 <Link href="/login" className="text-muted-foreground underline">
                   Back to sign in
                 </Link>
+                {{else}}
+                <Link to="/login" className="text-muted-foreground underline">
+                  Back to sign in
+                </Link>
+                {{/if}}
               </div>
               <Button type="submit" disabled={form.formState.isSubmitting}>
                 {form.formState.isSubmitting ? "Sending..." : "Send reset OTP"}

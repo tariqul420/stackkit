@@ -1,4 +1,6 @@
+{{#if framework == "nextjs"}}
 "use client";
+{{/if}}
 
 import InputField from "@/components/global/form-field/input-field";
 import { Button } from "@/components/ui/button";
@@ -15,7 +17,11 @@ import {
 } from "@/features/auth/queries/auth.mutations";
 import { verifyZodSchema } from "@/features/auth/validators/verify.validator";
 import { zodResolver } from "@hookform/resolvers/zod";
+{{#if framework == "nextjs"}}
 import { useSearchParams } from "next/navigation";
+{{else}}
+import { useSearchParams } from "react-router";
+{{/if}}
 import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -28,8 +34,13 @@ export default function VerifyEmailForm() {
   const mutation = useVerifyEmailMutation();
   const resendMutation = useResendOTPMutation();
 
+  {{#if framework == "nextjs"}}
   const params = useSearchParams();
   const prefillEmail = params?.get("email") || "";
+  {{else}}
+  const [searchParams] = useSearchParams();
+  const prefillEmail = searchParams.get("email") || "";
+  {{/if}}
 
   const form = useForm<VerifyValues>({
     mode: "onTouched",

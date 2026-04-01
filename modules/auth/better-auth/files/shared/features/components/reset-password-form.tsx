@@ -1,4 +1,6 @@
+{{#if framework == "nextjs"}}
 "use client";
+{{/if}}
 
 import InputField from "@/components/global/form-field/input-field";
 import { Button } from "@/components/ui/button";
@@ -12,7 +14,11 @@ import {
 import { useResetPasswordMutation } from "@/features/auth/queries/auth.mutations";
 import { resetZodSchema } from "@/features/auth/validators/reset.validator";
 import { zodResolver } from "@hookform/resolvers/zod";
+{{#if framework == "nextjs"}}
 import { useSearchParams } from "next/navigation";
+{{else}}
+import { useSearchParams } from "react-router";
+{{/if}}
 import { FormProvider, useForm } from "react-hook-form";
 
 type ResetValues = {
@@ -23,8 +29,13 @@ type ResetValues = {
 };
 
 export default function ResetPasswordForm() {
+  {{#if framework == "nextjs"}}
   const params = useSearchParams();
   const prefillEmail = params?.get("email") || "";
+  {{else}}
+  const [searchParams] = useSearchParams();
+  const prefillEmail = searchParams.get("email") || "";
+  {{/if}}
 
   const mutation = useResetPasswordMutation();
 

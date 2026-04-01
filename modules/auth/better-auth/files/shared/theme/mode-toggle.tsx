@@ -2,13 +2,17 @@
 
 import { Button } from "@/components/ui/button";
 import { MoonIcon, SunIcon } from "lucide-react";
+{{#if framework == "nextjs"}}
 import { useTheme } from "next-themes";
+{{else}}
+import { useTheme } from "../hooks/use-theme";
+{{/if}}
 
 export function ModeToggle() {
-  const { resolvedTheme, setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
 
   const toggleTheme = () => {
-    setTheme(resolvedTheme === "dark" ? "light" : "dark");
+    setTheme(theme === "dark" ? "light" : "dark");
   };
 
   return (

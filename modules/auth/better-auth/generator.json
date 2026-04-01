@@ -189,12 +189,6 @@
     },
     {
       "type": "create-file",
-      "source": "nextjs/dashboard/components/**",
-      "destination": "components/**",
-      "condition": { "framework": "nextjs", "ui": "shadcn" }
-    },
-    {
-      "type": "create-file",
       "source": "nextjs/dashboard/pages/**",
       "destination": "app/dashboard/**",
       "condition": { "framework": "nextjs", "ui": "shadcn" }
@@ -226,12 +220,6 @@
       ]
     },
     {
-      "type": "create-file",
-      "source": "shared/ui/shadcn/components/**",
-      "destination": "{{framework=='nextjs' ? components/** : src/shared/components/**}}",
-      "condition": { "framework": ["nextjs", "react"] }
-    },
-    {
       "type": "add-env",
       "condition": { "framework": "nextjs" },
       "envVars": {
@@ -241,9 +229,102 @@
     },
     {
       "type": "create-file",
-      "source": "shared/lib/auth-client.ts",
-      "destination": "{{framework=='nextjs' ? lib/auth/auth-client.ts : src/shared/lib/auth-client.ts}}",
+      "source": "shared/ui/shadcn/components/**",
+      "destination": "{{framework=='nextjs' ? 'components/**' : 'src/components/**'}}",
       "condition": { "framework": ["nextjs", "react"] }
+    },
+    {
+      "type": "create-file",
+      "source": "shared/lib/auth-client.ts",
+      "destination": "{{framework=='nextjs' ? 'lib/auth/auth-client.ts' : 'src/lib/auth/auth-client.ts'}}",
+      "condition": { "framework": ["nextjs", "react"] }
+    },
+    {
+      "type": "create-file",
+      "source": "shared/theme/mode-toggle.tsx",
+      "destination": "{{framework=='nextjs' ? 'components/mode-toggle.tsx' : 'src/components/mode-toggle.tsx'}}",
+      "condition": { "framework": ["nextjs", "react"], "ui": "shadcn" }
+    },
+    {
+      "type": "create-file",
+      "source": "shared/ui/shadcn/form-field/*",
+      "destination": "{{framework=='nextjs' ? 'components/global/form-field/*' : 'src/components/global/form-field/*'}}",
+      "condition": { "framework": ["react", "nextjs"], "ui": "shadcn" }
+    },
+    {
+      "type": "create-file",
+      "source": "shared/lib/constant/**",
+      "destination": "{{framework=='nextjs' ? 'lib/constant/**' : 'src/lib/constant/**'}}",
+      "condition": { "framework": ["react", "nextjs"]}
+    },
+    {
+      "type": "create-file",
+      "source": "shared/features/**",
+      "destination": "{{framework=='nextjs' ? 'lib/features/auth/**' : 'src/lib/features/auth/**'}}",
+      "condition": { "framework": ["react", "nextjs"]}
+    },
+    {
+      "type": "create-file",
+      "source": "react/theme/**",
+      "destination": "src/**",
+      "condition": { "framework": "react", "ui": "shadcn" }
+    },
+    {
+      "type": "create-file",
+      "source": "react/components/**",
+      "destination": "src/components/**",
+      "condition": { "framework": "react" }
+    },
+    {
+      "type": "create-file",
+      "source": "react/layout/**",
+      "destination": "src/layout/**",
+      "condition": { "framework": "react" }
+    },
+    {
+      "type": "create-file",
+      "source": "react/lib/**",
+      "destination": "src/lib/**",
+      "condition": { "framework": "react" }
+    },
+    {
+      "type": "patch-file",
+      "destination": "src/main.tsx",
+      "condition": { "framework": "react" },
+      "operations": [
+        {
+          "type": "add-import",
+          "imports": ["import { ThemeProvider } from \"./components/providers/theme-provider\";"]
+        },
+        {
+          "type": "add-code",
+          "after": "<StrictMode>",
+          "code": ["<ThemeProvider defaultTheme=\"dark\" storageKey=\"vite-ui-theme\">"]
+        },
+        {
+          "type": "add-code",
+          "before": "</StrictMode>,",
+          "code": ["</ThemeProvider>"]
+        }
+      ]
+    },
+    {
+      "type": "create-file",
+      "source": "react/router.tsx",
+      "destination": "src/router.tsx",
+      "condition": { "framework": "react" }
+    },
+    {
+      "type": "create-file",
+      "source": "react/dashboard/**",
+      "destination": "src/features/dashboard/**",
+      "condition": { "framework": "react" }
+    },
+    {
+      "type": "create-file",
+      "source": "react/features/auth/**",
+      "destination": "src/features/auth/**",
+      "condition": { "framework": "react" }
     },
     {
       "type": "create-file",
@@ -252,16 +333,11 @@
       "condition": { "database": "prisma" }
     },
     {
-      "type": "create-file",
-      "source": "shared/ui/shadcn/form-field/*",
-      "destination": "components/global/form-field/*",
-      "condition": { "framework": ["react", "nextjs"], "ui": "shadcn" }
-    },
-    {
       "type": "add-dependency",
        "condition": { "framework": ["react", "nextjs"] },
       "dependencies": {
         "better-auth": "^1.4.12",
+        "zod": "^4.3.6",
         "@hookform/resolvers": "^3.0.0",
         "react-hook-form": "^7.71.2"
       }
@@ -270,7 +346,6 @@
       "type": "add-dependency",
       "dependencies": {
         "jsonwebtoken": "^9.0.3",
-        "zod": "^4.3.6",
         "next-themes": "^0.4.6"
       },
       "devDependencies": {

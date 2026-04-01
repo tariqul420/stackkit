@@ -1,4 +1,6 @@
+{{#if framework == "nextjs"}}
 "use client";
+{{/if}}
 
 import {
   ChevronRight,
@@ -15,8 +17,12 @@ import {
   Tag,
   Users,
 } from "lucide-react";
+{{#if framework == "nextjs"}}
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+{{else}}
+import { Link, useLocation } from "react-router";
+{{/if}}
 
 import {
   Sidebar,
@@ -84,7 +90,11 @@ export interface DashboardSidebarProps {
 }
 
 export function DashboardSidebar({ menu = [], user }: DashboardSidebarProps) {
+  {{#if framework == "nextjs"}}
   const pathname = usePathname();
+  {{else}}
+  const { pathname } = useLocation();
+  {{/if}}
   const { toggleSidebar } = useSidebar();
   const { mutate: logout, isPending } = useLogoutMutation();
 
@@ -104,9 +114,15 @@ export function DashboardSidebar({ menu = [], user }: DashboardSidebarProps) {
     <Sidebar className="bg-linear-to-b from-background to-muted/30 backdrop-blur supports-backdrop-filter:bg-background/80">
       <SidebarHeader className="px-3 py-2">
         <div className="flex items-center justify-between">
+          {{#if framework == "nextjs"}}
           <Link href="/" className="text-lg font-bold">
             StackKit
           </Link>
+          {{else}}
+          <Link to="/" className="text-lg font-bold">
+            StackKit
+          </Link>
+          {{/if}}
           {/* Collapser for small screens */}
           <button
             onClick={toggleSidebar}
@@ -136,6 +152,7 @@ export function DashboardSidebar({ menu = [], user }: DashboardSidebarProps) {
                       <SidebarMenuButton
                         tooltip={item.title}
                         render={
+                          {{#if framework == "nextjs"}}
                           <Link
                             href={item.url || "#"}
                             onClick={() => {
@@ -147,6 +164,19 @@ export function DashboardSidebar({ menu = [], user }: DashboardSidebarProps) {
                               }
                             }}
                           />
+                          {{else}}
+                          <Link
+                            to={item.url || "/"}
+                            onClick={() => {
+                              if (
+                                typeof window !== "undefined" &&
+                                window.innerWidth < 768
+                              ) {
+                                toggleSidebar();
+                              }
+                            }}
+                          />
+                          {{/if}}
                         }
                         className={cn(
                           "hover:bg-muted dark:hover:bg-muted/80",
@@ -202,7 +232,11 @@ export function DashboardSidebar({ menu = [], user }: DashboardSidebarProps) {
             <DropdownMenuGroup>
               <DropdownMenuLabel>Account</DropdownMenuLabel>
               <DropdownMenuItem>
+                {{#if framework == "nextjs"}}
                 <Link href="/dashboard/profile">Profile</Link>
+                {{else}}
+                <Link to="/dashboard/profile">Profile</Link>
+                {{/if}}
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

@@ -1,4 +1,6 @@
+{{#if framework == "nextjs"}}
 "use client";
+{{/if}}
 
 import InputField from "@/components/global/form-field/input-field";
 import { Button } from "@/components/ui/button";
@@ -13,7 +15,11 @@ import {
 import { useRegisterMutation } from "@/features/auth/queries/auth.mutations";
 import { registerZodSchema } from "@/features/auth/validators/register.validator";
 import { zodResolver } from "@hookform/resolvers/zod";
+{{#if framework == "nextjs"}}
 import Link from "next/link";
+{{else}}
+import { Link } from "react-router";
+{{/if}}
 import { FormProvider, useForm } from "react-hook-form";
 import SocialLoginButtons from "./social-login-buttons";
 
@@ -67,12 +73,15 @@ export default function RegisterForm() {
 
             <CardFooter className="flex flex-col gap-4">
               <div className="flex w-full items-center justify-between">
-                <Link
-                  href="/login"
-                  className="text-sm text-muted-foreground underline"
-                >
+                {{#if framework == "nextjs"}}
+                <Link href="/login" className="text-muted-foreground underline">
                   Already have an account? Sign in
                 </Link>
+                {{else}}
+                <Link to="/login" className="text-muted-foreground underline">
+                  Already have an account? Sign in
+                </Link>
+                {{/if}}
 
                 <Button type="submit" disabled={form.formState.isSubmitting}>
                   {form.formState.isSubmitting

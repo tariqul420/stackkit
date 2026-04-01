@@ -55,6 +55,7 @@ export async function logoutRequest() {
   await deleteCookie("accessToken");
   await deleteCookie("refreshToken");
   await deleteCookie("better-auth.session_token");
+  await deleteCookie("better-auth.session_data");
 
   return res.data;
 }

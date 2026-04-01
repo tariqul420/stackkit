@@ -437,6 +437,7 @@ const MediaUploaderField = forwardRef<MediaUploaderFieldRef, Props>(
                   throw e;
                 } finally {
                   setBusyIds((p) => {
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
                     const { [id]: _omit, ...rest } = p;
                     return rest;
                   });
