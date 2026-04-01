@@ -1,22 +1,19 @@
-import { QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { Toaster } from "sonner";
 import { RouterProvider } from "react-router";
+import { Toaster } from "sonner";
+import QueryProvider from "./components/providers/query-provider";
+import { SEOProvider } from "./components/seo";
 import "./index.css";
 import { router } from "./router";
-import { queryClient } from "./shared/lib/query-client";
-import { SEOProvider } from "./shared/components/seo";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <SEOProvider>
-      <QueryClientProvider client={queryClient}>
+      <QueryProvider>
         <RouterProvider router={router} />
         <Toaster theme="system" position="top-right" richColors />
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
+      </QueryProvider>
     </SEOProvider>
   </StrictMode>,
 );
