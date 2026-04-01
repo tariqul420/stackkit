@@ -2,7 +2,7 @@ import axios from "axios";
 import { envVars } from "../env";
 
 const api = axios.create({
-  baseURL: envVars.API_URL || "http://localhost:5000/api/v1",
+  baseURL: envVars.API_URL || "http://localhost:5000/api",
   withCredentials: true,
   timeout: 30000,
   headers: {

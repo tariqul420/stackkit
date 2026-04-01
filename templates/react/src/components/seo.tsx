@@ -9,13 +9,13 @@ interface SEOProps {
 }
 
 const defaultSEO = {
-  title: "React App",
-  description: "A modern React application built with Vite",
-  keywords: "react, vite, typescript, spa",
+  title: "Stackkit - Production-ready React starter template",
+  description: "Production-ready React starter template",
+  keywords: "react, vite, typescript, stackkit, production-ready, starter template",
   image: "/og-image.png",
 };
 
-export function SEOProvider({ children }: { children: React.ReactNode }) {
+export function SEOProvider({ children }: { children: ReactNode }) {
   return <HelmetProvider>{children}</HelmetProvider>;
 }
 
