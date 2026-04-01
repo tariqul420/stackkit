@@ -2,7 +2,9 @@
 
 import { ILoginResponse, IUserResponse } from "@/features/auth/types/auth.type";
 import { api } from "@/lib/axios/http";
+{{#if framework == "nextjs"}}
 import { deleteCookie } from "@/lib/utils/cookie";
+{{/if}}
 
 export async function loginRequest(payload: {
   email: string;
@@ -50,13 +52,13 @@ export async function resendOTPRequest(payload: { email: string }) {
 
 export async function logoutRequest() {
   const res = await api.post("/v1/auth/logout", {});
-
+  {{#if framework == "nextjs"}}
   // remove local cookies used for auth
   await deleteCookie("accessToken");
   await deleteCookie("refreshToken");
   await deleteCookie("better-auth.session_token");
   await deleteCookie("better-auth.session_data");
-
+  {{/if}}
   return res.data;
 }
 

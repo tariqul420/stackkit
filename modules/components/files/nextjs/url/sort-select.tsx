@@ -1,11 +1,11 @@
 "use client";
 
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { formUrlQuery } from "@/lib/utils/url-helpers";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -90,7 +90,10 @@ export default function SortSelect({
     onValueChange,
   ]);
 
-  const handleChange = React.useCallback((v: string) => setValue(v), []);
+  const handleChange = React.useCallback(
+    (v: string | null) => setValue(v ?? ""),
+    [],
+  );
 
   return (
     <div className="overflow-hidden rounded-md dark:bg-transparent">

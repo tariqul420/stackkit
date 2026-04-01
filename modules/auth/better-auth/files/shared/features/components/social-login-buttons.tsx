@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import * as React from "react";
-import { useSocialLoginMutation } from "../../../nextjs/features/queries/auth.mutations";
+import { useSocialLoginMutation } from "../queries/auth.mutations";
 
 function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
   return (

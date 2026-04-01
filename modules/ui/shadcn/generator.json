@@ -15,7 +15,7 @@
     },
     {
       "type": "run-command",
-      "command": "{{packageManager=='pnpm' ? 'pnpm dlx shadcn@latest add button -y' : packageManager=='yarn' ? 'yarn dlx shadcn@latest add button -y' : packageManager=='bun' ? 'bunx shadcn@latest add button -y' : 'npx shadcn@latest add button -y'}}"
+      "command": "{{packageManager=='pnpm' ? 'pnpm dlx shadcn@latest add button -y' : packageManager=='yarn' ? 'yarn dlx shadcn@latest add button -y' : packageManager=='bun' ? 'bun dlx shadcn@latest add button -y' : 'npx shadcn@latest add button -y'}}"
     }
   ]
 }

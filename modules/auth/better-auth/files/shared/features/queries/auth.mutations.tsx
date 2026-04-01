@@ -1,4 +1,6 @@
+{{#if framework == "nextjs"}}
 "use client";
+{{/if}}
 
 import {
   forgetPasswordRequest,
@@ -12,10 +14,14 @@ import {
 import { setTokens } from "@/features/auth/services/auth.service";
 import { envVars } from "@/lib/env";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+{{#if framework == "nextjs"}}
 import { useRouter } from "next/navigation";
+{{else}}
+import { useNavigate } from "react-router";
+{{/if}}
 import { toast } from "sonner";
-import { ILoginResponse, SocialProvider } from "../types/auth.type";
-import { ILoginPayload } from "../validators/login.validator";
+import type { ILoginResponse, SocialProvider } from "../types/auth.type";
+import type { ILoginPayload } from "../validators/login.validator";
 
 export const AUTH_QUERY_KEYS = {
   me: ["auth", "me"] as const,
@@ -33,13 +39,18 @@ export const AUTH_MUTATION_KEYS = {
 };
 
 export const useRegisterMutation = () => {
+  {{#if framework == "nextjs"}}
   const router = useRouter();
+  const navigate = (path: string) => router.push(path);
+  {{else}}
+  const navigate = useNavigate();
+  {{/if}}
 
   return useMutation({
     mutationKey: AUTH_MUTATION_KEYS.register,
     mutationFn: registerRequest,
     onSuccess: (data, variables) => {
-      router.push(`/verify-email?email=${encodeURIComponent(variables.email)}`);
+      navigate(`/verify-email?email=${encodeURIComponent(variables.email)}`);
 
       toast.success("Registration successful! Please verify your email.");
     },
@@ -54,7 +65,12 @@ export const useRegisterMutation = () => {
 };
 
 export const useLoginMutation = () => {
+  {{#if framework == "nextjs"}}
   const router = useRouter();
+  const navigate = (path: string) => router.push(path);
+  {{else}}
+  const navigate = useNavigate();
+  {{/if}}
   const queryClient = useQueryClient();
 
   return useMutation<
@@ -80,13 +96,12 @@ export const useLoginMutation = () => {
       await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEYS.me });
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      router.push(variables?.redirectPath || "/");
+      const defaultRoute = data?.user?.role === "ADMIN" ? "/dashboard/admin" : "/dashboard";
+      navigate(variables?.redirectPath || defaultRoute);
     },
     onError: (error: unknown, variables) => {
       if (error instanceof Error && error.message === "Email not verified") {
-        router.push(
-          `/verify-email?email=${encodeURIComponent(variables.email)}`,
-        );
+        navigate(`/verify-email?email=${encodeURIComponent(variables.email)}`);
         return;
       }
 
@@ -100,16 +115,21 @@ export const useLoginMutation = () => {
 };
 
 export const useForgotPasswordMutation = () => {
+  {{#if framework == "nextjs"}}
   const router = useRouter();
+  const navigate = (path: string) => router.push(path);
+  {{else}}
+  const navigate = useNavigate();
+  {{/if}}
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationKey: AUTH_MUTATION_KEYS.forgotPassword,
     mutationFn: forgetPasswordRequest,
     onSuccess: async () => {
-      toast.success("Password reset email sent!");
+      toast.success("Password reset OTP sent to your email!");
       await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEYS.me });
-      router.push("/login");
+      navigate("/reset-password");
     },
     onError: (error) => {
       toast.error(
@@ -121,16 +141,19 @@ export const useForgotPasswordMutation = () => {
 };
 
 export const useResetPasswordMutation = () => {
+  {{#if framework == "nextjs"}}
   const router = useRouter();
+  const navigate = (path: string) => router.push(path);
+  {{else}}
+  const navigate = useNavigate();
+  {{/if}}
 
   return useMutation({
     mutationKey: AUTH_MUTATION_KEYS.resetPassword,
     mutationFn: resetPasswordRequest,
     onSuccess: () => {
-      toast.success(
-        "Password reset successful! Please log in with your new password.",
-      );
-      router.push("/login");
+      toast.success("Password reset successful! Please log in with your new password.");
+      navigate("/login");
     },
     onError: (error) => {
       toast.error(
@@ -142,14 +165,19 @@ export const useResetPasswordMutation = () => {
 };
 
 export const useVerifyEmailMutation = () => {
+  {{#if framework == "nextjs"}}
   const router = useRouter();
+  const navigate = (path: string) => router.push(path);
+  {{else}}
+  const navigate = useNavigate();
+  {{/if}}
 
   return useMutation({
     mutationKey: AUTH_MUTATION_KEYS.verifyEmail,
     mutationFn: verifyEmailRequest,
     onSuccess: () => {
       toast.success("Email verified successfully! Please log in.");
-      router.push("/login");
+      navigate("/login");
     },
     onError: (error) => {
       toast.error(
@@ -218,17 +246,21 @@ export const useSocialLoginMutation = () => {
 };
 
 export const useLogoutMutation = () => {
+  {{#if framework == "nextjs"}}
   const router = useRouter();
+  const navigate = (path: string) => router.push(path);
+  {{else}}
+  const navigate = useNavigate();
+  {{/if}}
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationKey: AUTH_MUTATION_KEYS.logout,
     mutationFn: logoutRequest,
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEYS.me });
+      queryClient.clear();
       toast.success("Logged out successfully");
-      router.push("/login");
-      router.refresh();
+      navigate("/login");
     },
     onError: (error) => {
       toast.error(error.message || "Failed to log out. Please try again.");

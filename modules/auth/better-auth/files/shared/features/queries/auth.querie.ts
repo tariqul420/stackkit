@@ -1,4 +1,6 @@
+{{#if framework == "nextjs"}}
 "use client";
+{{/if}}
 
 import { IUserResponse } from "@/features/auth/types/auth.type";
 import { useQuery } from "@tanstack/react-query";

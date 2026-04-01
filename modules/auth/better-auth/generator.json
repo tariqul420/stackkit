@@ -260,7 +260,7 @@
     {
       "type": "create-file",
       "source": "shared/features/**",
-      "destination": "{{framework=='nextjs' ? 'lib/features/auth/**' : 'src/lib/features/auth/**'}}",
+      "destination": "{{framework=='nextjs' ? 'features/auth/**' : 'src/features/auth/**'}}",
       "condition": { "framework": ["react", "nextjs"]}
     },
     {
