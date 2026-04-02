@@ -1,7 +1,8 @@
 {{#if framework == "nextjs"}}
 "use client";
-{{/if}}
 
+import { setTokens } from "@/features/auth/services/auth.service";
+{{/if}}
 import {
   forgetPasswordRequest,
   loginRequest,
@@ -11,7 +12,6 @@ import {
   resetPasswordRequest,
   verifyEmailRequest,
 } from "@/features/auth/services/auth.api";
-import { setTokens } from "@/features/auth/services/auth.service";
 import { envVars } from "@/lib/env";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 {{#if framework == "nextjs"}}
@@ -49,9 +49,8 @@ export const useRegisterMutation = () => {
   return useMutation({
     mutationKey: AUTH_MUTATION_KEYS.register,
     mutationFn: registerRequest,
-    onSuccess: (data, variables) => {
+    onSuccess: (_data, variables) => {
       navigate(`/verify-email?email=${encodeURIComponent(variables.email)}`);
-
       toast.success("Registration successful! Please verify your email.");
     },
     onError: (error: unknown) => {
@@ -73,45 +72,44 @@ export const useLoginMutation = () => {
   {{/if}}
   const queryClient = useQueryClient();
 
-  return useMutation<
-    ILoginResponse,
-    unknown,
-    ILoginPayload & { redirectPath?: string }
-  >({
-    mutationKey: AUTH_MUTATION_KEYS.login,
-    mutationFn: loginRequest,
-    onSuccess: async (data, variables) => {
-      toast.success("Login successful!");
+  return useMutation<ILoginResponse, unknown, ILoginPayload & { redirectPath?: string }>(
+    {
+      mutationKey: AUTH_MUTATION_KEYS.login,
+      mutationFn: loginRequest,
+      onSuccess: async (data, variables) => {
+        toast.success("Login successful!");
 
-      try {
-        await setTokens({
-          accessToken: data?.accessToken,
-          refreshToken: data?.refreshToken,
-          token: data?.token,
-        });
-      } catch (err) {
-        console.error("Failed to set tokens in cookies:", err);
-      }
+        {{#if framework == "nextjs"}}
+        try {
+          await setTokens({
+            accessToken: data?.accessToken,
+            refreshToken: data?.refreshToken,
+            token: data?.token,
+          });
+        } catch (err) {
+          console.error("Failed to set tokens in cookies:", err);
+        }
+        {{/if}}
 
-      await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEYS.me });
-      await new Promise((resolve) => setTimeout(resolve, 100));
+        await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEYS.me });
+        await new Promise((resolve) => setTimeout(resolve, 100));
 
-      const defaultRoute = data?.user?.role === "ADMIN" ? "/dashboard/admin" : "/dashboard";
-      navigate(variables?.redirectPath || defaultRoute);
+        const defaultRoute = data?.user?.role === "ADMIN" ? "/dashboard/admin" : "/dashboard";
+        navigate(variables?.redirectPath || defaultRoute);
+      },
+      onError: (error: unknown, variables) => {
+        if (error instanceof Error && error.message === "Email not verified") {
+          navigate(`/verify-email?email=${encodeURIComponent(variables.email)}`);
+          return;
+        }
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : "Login failed. Please check your credentials and try again.",
+        );
+      },
     },
-    onError: (error: unknown, variables) => {
-      if (error instanceof Error && error.message === "Email not verified") {
-        navigate(`/verify-email?email=${encodeURIComponent(variables.email)}`);
-        return;
-      }
-
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Login failed. Please check your credentials and try again.",
-      );
-    },
-  });
+  );
 };
 
 export const useForgotPasswordMutation = () => {
@@ -131,7 +129,7 @@ export const useForgotPasswordMutation = () => {
       await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEYS.me });
       navigate("/reset-password");
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast.error(
         error.message ||
           "Failed to send password reset email. Please check the email and try again.",
@@ -155,10 +153,9 @@ export const useResetPasswordMutation = () => {
       toast.success("Password reset successful! Please log in with your new password.");
       navigate("/login");
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast.error(
-        error.message ||
-          "Failed to reset password. Please check your details and try again.",
+        error.message || "Failed to reset password. Please check your details and try again.",
       );
     },
   });
@@ -179,10 +176,9 @@ export const useVerifyEmailMutation = () => {
       toast.success("Email verified successfully! Please log in.");
       navigate("/login");
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast.error(
-        error.message ||
-          "Email verification failed. Please check your details and try again.",
+        error.message || "Email verification failed. Please check your details and try again.",
       );
     },
   });
@@ -262,7 +258,7 @@ export const useLogoutMutation = () => {
       toast.success("Logged out successfully");
       navigate("/login");
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast.error(error.message || "Failed to log out. Please try again.");
     },
   });

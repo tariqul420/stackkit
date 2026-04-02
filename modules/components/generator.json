@@ -12,7 +12,7 @@
     {
       "type": "create-file",
       "source": "shared/hooks/**",
-      "destination": "hooks/**",
+      "destination": "{{framework == 'nextjs' ? 'hooks/**' : 'src/hooks/**'}}",
       "condition": { "framework": ["nextjs", "react"] }
     },
     {

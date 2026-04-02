@@ -1,6 +1,6 @@
-import {
-    DashboardSidebarMenuGroup,
-    IconMapKey,
+import type {
+  DashboardSidebarMenuGroup,
+  IconMapKey,
 } from "@/components/dashboard/dashboard-sidebar";
 
 export const ADMIN: DashboardSidebarMenuGroup[] = [

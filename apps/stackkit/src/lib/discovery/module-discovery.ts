@@ -217,8 +217,8 @@ export function getCompatibleAuthOptions(
   framework: string,
   database: string,
   frameworksMeta?: ModuleMetadata[],
-): Array<{ name: string; value: string }> {
-  const compatible: Array<{ name: string; value: string }> = [];
+): Array<{ name: string; value: string; description?: string }> {
+  const compatible: Array<{ name: string; value: string; description?: string }> = [];
 
   for (const auth of authModules) {
     if (auth.supportedFrameworks && !auth.supportedFrameworks.includes(framework)) {
@@ -248,6 +248,7 @@ export function getCompatibleAuthOptions(
     compatible.push({
       name: auth.displayName,
       value: auth.name,
+      description: auth.description || "",
     });
   }
 

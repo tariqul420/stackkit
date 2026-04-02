@@ -317,10 +317,16 @@ async function getInteractiveConfig(
       projectInfo?.framework || defaultFramework,
       dbString,
     );
-    const authChoicesNormalized = authChoices.map((c: { name?: string; value?: string }) => ({
-      title: c.name || String(c.value ?? ""),
-      value: c.value ?? String(c.name ?? ""),
-    }));
+    const authChoicesNormalized = authChoices.map(
+      (c: { name?: string; value?: string; description?: string }) => ({
+        title: c.name
+          ? c.description
+            ? `${c.name} — ${c.description}`
+            : c.name
+          : String(c.value ?? ""),
+        value: c.value ?? String(c.name ?? ""),
+      }),
+    );
     const authResp = await prompts({
       type: "select",
       name: "auth",

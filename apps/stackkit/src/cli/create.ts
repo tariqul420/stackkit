@@ -408,7 +408,7 @@ async function getProjectConfig(
       const compResp = await prompts({
         type: "confirm",
         name: "add",
-        message: `Add ${compMeta.displayName || compMeta.name}?`,
+        message: `Add ${compMeta.displayName || compMeta.name}?${compMeta.description ? ` › ${compMeta.description}` : ""}`,
         initial: true,
       });
       result.components = (compResp as { add?: boolean }).add !== false;
@@ -428,8 +428,12 @@ async function getProjectConfig(
       discoveredModules.frameworks,
     );
     const authChoicesNormalized = (authChoices || []).map(
-      (c: { name?: string; value?: string }) => ({
-        title: c.name || String(c.value ?? ""),
+      (c: { name?: string; value?: string; description?: string }) => ({
+        title: c.name
+          ? c.description
+            ? `${c.name} — ${c.description}`
+            : c.name
+          : String(c.value ?? ""),
         value: c.value ?? String(c.name ?? ""),
       }),
     );

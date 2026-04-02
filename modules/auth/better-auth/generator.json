@@ -322,7 +322,7 @@
     },
     {
       "type": "create-file",
-      "source": "react/features/auth/**",
+      "source": "react/features/**",
       "destination": "src/features/auth/**",
       "condition": { "framework": "react" }
     },

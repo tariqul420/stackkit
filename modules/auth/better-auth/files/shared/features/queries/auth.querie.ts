@@ -2,7 +2,7 @@
 "use client";
 {{/if}}
 
-import { IUserResponse } from "@/features/auth/types/auth.type";
+import type { IUserResponse } from "../types/auth.type";
 import { useQuery } from "@tanstack/react-query";
 import { getMeRequest } from "../services/auth.api";
 

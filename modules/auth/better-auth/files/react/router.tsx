@@ -10,10 +10,10 @@ import ResetPasswordPage from "./features/auth/pages/reset-password";
 import VerifyEmailPage from "./features/auth/pages/verify-email";
 import AdminOverview from "./features/dashboard/admin/pages/overview";
 import DashboardOverview from "./features/dashboard/pages/overview";
-import About from "./features/pages/about";
-import Home from "./features/pages/home";
-import NotFound from "./features/pages/not-found";
-import DashboardLayout from "./layouts/dashboard-layout";
+import DashboardLayout from "./layout/dashboard-layout";
+import About from "./pages/about";
+import Home from "./pages/home";
+import NotFound from "./pages/not-found";
 
 export const router = createBrowserRouter([
   {

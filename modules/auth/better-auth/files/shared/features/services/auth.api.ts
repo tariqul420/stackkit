@@ -1,10 +1,10 @@
+{{#if framework == "nextjs"}}
 "use server";
 
-import { ILoginResponse, IUserResponse } from "@/features/auth/types/auth.type";
-import { api } from "@/lib/axios/http";
-{{#if framework == "nextjs"}}
 import { deleteCookie } from "@/lib/utils/cookie";
 {{/if}}
+import type { ILoginResponse, IUserResponse } from "../types/auth.type";
+import { api } from "@/lib/axios/http";
 
 export async function loginRequest(payload: {
   email: string;
