@@ -6,7 +6,7 @@ import * as React from "react";
 {{#if framework == "nextjs"}}
 import { useRouter, useSearchParams } from "next/navigation";
 {{else}}
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router";
 {{/if}}
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";

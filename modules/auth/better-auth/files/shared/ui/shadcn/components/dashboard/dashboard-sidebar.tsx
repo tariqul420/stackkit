@@ -233,9 +233,9 @@ export function DashboardSidebar({ menu = [], user }: DashboardSidebarProps) {
               <DropdownMenuLabel>Account</DropdownMenuLabel>
               <DropdownMenuItem>
                 {{#if framework == "nextjs"}}
-                <Link href="/dashboard/profile">Profile</Link>
+                <Link href="/dashboard/my-profile">Profile</Link>
                 {{else}}
-                <Link to="/dashboard/profile">Profile</Link>
+                <Link to="/dashboard/my-profile">Profile</Link>
                 {{/if}}
               </DropdownMenuItem>
             </DropdownMenuGroup>

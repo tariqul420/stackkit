@@ -21,8 +21,12 @@ import { useLogoutMutation } from "../queries/auth.mutations";
 import { useMeQuery } from "../queries/auth.querie";
 
 export default function UserProfileMenu() {
-  const { data: user } = useMeQuery();
+  const { data: user, isLoading } = useMeQuery();
   const { mutate: logout, isPending } = useLogoutMutation();
+
+  if (isLoading) {
+    return <Skeleton className="h-8 w-8 rounded-full" />;
+  }
 
   if (!user) {
     return (
@@ -51,7 +55,7 @@ export default function UserProfileMenu() {
         aria-label="User menu"
       >
         <Avatar size="default">
-          <AvatarImage src={user.image || ""} alt={user.name} />
+          <AvatarImage src={user.image || ""} alt={user.name} referrerPolicy="no-referrer" />
           <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
             {initials}
           </AvatarFallback>
@@ -62,7 +66,7 @@ export default function UserProfileMenu() {
         {/* User info header */}
         <div className="flex items-center gap-3 px-2 py-2.5">
           <Avatar size="lg">
-            <AvatarImage src={user.image || ""} alt={user.name} />
+            <AvatarImage src={user.image || ""} alt={user.name} referrerPolicy="no-referrer" />
             <AvatarFallback className="bg-primary text-primary-foreground text-sm font-semibold">
               {initials}
             </AvatarFallback>

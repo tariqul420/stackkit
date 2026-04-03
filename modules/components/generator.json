@@ -71,7 +71,7 @@
     },
     {
       "type": "run-command",
-      "command": "{{packageManager=='pnpm' ? 'pnpm dlx shadcn@latest add button checkbox field input input-group textarea select badge command popover scroll-area toggle -y' : packageManager=='yarn' ? 'yarn dlx shadcn@latest add button checkbox field input input-group textarea select badge command popover scroll-area toggle -y' : packageManager=='bun' ? 'bun dlx shadcn@latest add button checkbox field input input-group textarea select badge command popover scroll-area toggle -y' : 'npx shadcn@latest add button checkbox field input input-group textarea select badge command popover scroll-area toggle -y'}}",
+      "command": "{{packageManager=='pnpm' ? 'pnpm dlx shadcn@latest add button checkbox field input input-group textarea select badge command popover scroll-area toggle tabs dialog skeleton table -y' : packageManager=='yarn' ? 'yarn dlx shadcn@latest add button checkbox field input input-group textarea select badge command popover scroll-area toggle tabs dialog skeleton table -y' : packageManager=='bun' ? 'bun dlx shadcn@latest add button checkbox field input input-group textarea select badge command popover scroll-area toggle tabs dialog skeleton table -y' : 'npx shadcn@latest add button checkbox field input input-group textarea select badge command popover scroll-area toggle tabs dialog skeleton table -y'}}",
       "condition": { "framework": ["react", "nextjs"], "ui": "shadcn" }
     },
     {

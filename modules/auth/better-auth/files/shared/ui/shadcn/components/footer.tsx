@@ -16,14 +16,14 @@ export default function Footer() {
         <div>© {new Date().getFullYear()} StackKit</div>
         <div className="flex gap-4">
           {{#if framework == "nextjs"}}
-          {footerLinks.map((link) => (
-            <Link key={link.href} href={link.href} className="underline">
+          {footerLinks.map((link, idx) => (
+            <Link key={idx} href={link.href} className="underline">
               {link.name}
             </Link>
           ))}
           {{else}}
-          {footerLinks.map((link) => (
-            <Link key={link.href} to={link.href} className="underline">
+          {footerLinks.map((link, idx) => (
+            <Link key={idx} to={link.href} className="underline">
               {link.name}
             </Link>
           ))}

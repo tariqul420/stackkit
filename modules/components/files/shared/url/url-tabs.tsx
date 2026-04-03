@@ -6,7 +6,7 @@ import * as React from "react";
 {{#if framework == "nextjs"}}
 import { useRouter, useSearchParams } from "next/navigation";
 {{else}}
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router";
 {{/if}}
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formUrlQuery } from "@/lib/utils/url-helpers";
