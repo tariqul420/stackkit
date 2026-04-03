@@ -1,9 +1,10 @@
 import { createBrowserRouter } from "react-router";
 import { ErrorBoundary } from "./components/error-boundary";
 import Layout from "./components/layout";
-import { AdminRoute, UserRoute } from "./components/route-guards";
+import { AdminRoute, AuthenticatedRoute, UserRoute } from "./components/route-guards";
 import ForgotPasswordPage from "./features/auth/pages/forgot-password";
 import LoginPage from "./features/auth/pages/login";
+import MyProfilePage from "./features/auth/pages/my-profile";
 import OAuthCallbackPage from "./features/auth/pages/oauth-callback";
 import RegisterPage from "./features/auth/pages/register";
 import ResetPasswordPage from "./features/auth/pages/reset-password";
@@ -41,9 +42,7 @@ export const router = createBrowserRouter([
       {
         path: "dashboard",
         Component: DashboardLayout,
-        children: [
-          { index: true, Component: DashboardOverview },
-        ],
+        children: [{ index: true, Component: DashboardOverview }],
       },
     ],
   },
@@ -54,6 +53,16 @@ export const router = createBrowserRouter([
         path: "dashboard/admin",
         Component: DashboardLayout,
         children: [{ index: true, Component: AdminOverview }],
+      },
+    ],
+  },
+  {
+    Component: AuthenticatedRoute,
+    children: [
+      {
+        path: "dashboard",
+        Component: DashboardLayout,
+        children: [{ path: "my-profile", Component: MyProfilePage }],
       },
     ],
   },

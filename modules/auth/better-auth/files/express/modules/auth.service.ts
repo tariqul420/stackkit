@@ -650,6 +650,7 @@ export const authService = {
   registerUser,
   loginUser,
   getMe,
+  updateProfile,
   getNewToken,
   changePassword,
   logoutUser,

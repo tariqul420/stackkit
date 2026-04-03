@@ -273,13 +273,6 @@ export const useChangePasswordMutation = () => {
 export const useUpdateProfileMutation = () => {
   const queryClient = useQueryClient();
 
-  {{#if framework == "nextjs"}}
-  const router = useRouter();
-  const navigate = (path: string) => router.push(path);
-  {{else}}
-  const navigate = useNavigate();
-  {{/if}}
-
   return useMutation({
     mutationKey: AUTH_MUTATION_KEYS.updateProfile,
     mutationFn: updateProfile,

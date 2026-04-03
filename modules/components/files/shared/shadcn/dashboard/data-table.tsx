@@ -48,7 +48,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 {{else}}
-import { Link, useNavigate } from "react-router";
+import { Link } from "react-router";
 {{/if}}
 import * as React from "react";
 import { toast } from "sonner";
@@ -100,8 +100,6 @@ export function DataTable<T extends BaseRecord>({
 }: DataTableProps<T>) {
   {{#if framework == "nextjs"}}
   const router = useRouter();
-  {{else}}
-  const navigate = useNavigate();
   {{/if}}
   const [data, setData] = React.useState<T[]>(initialData);
   const [isInitialLoad, setIsInitialLoad] = React.useState(true);
@@ -203,7 +201,11 @@ export function DataTable<T extends BaseRecord>({
         error: (err) => (err?.message as string) || "Failed to delete items",
       },
     );
+{{#if framework != "nextjs"}}
   }, [onDeleteMany, selectedIds, table, router]);
+{{else}}
+  }, [onDeleteMany, selectedIds, table]);
+{{/if}}
 
   return (
     <Tabs
@@ -370,6 +372,7 @@ export function DataTable<T extends BaseRecord>({
 }
 
 /** Selection checkbox column */
+// eslint-disable-next-line react-refresh/only-export-components
 export function createSelectionColumn<T extends BaseRecord>() {
   return {
     id: "select",
