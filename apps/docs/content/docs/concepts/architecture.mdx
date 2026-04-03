@@ -1,68 +1,99 @@
 ---
-title: Architecture
-description: How StackKit works under the hood
+title: How StackKit Works
+description: A technical look at how StackKit generates projects and integrates modules under the hood.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-## Overview
+StackKit is built around a simple idea: take a base template and layer optional modules on top of it. Understanding how this process works helps you predict what StackKit will do and makes it easier to customize the output if you need to.
 
-StackKit has three main parts:
+## Repository structure
 
-1. **CLI** - Commands (create, add, doctor, list)
-2. **Templates** - Base projects for frameworks
-3. **Modules** - Optional features (database, auth)
-
-## Project Structure
+The StackKit monorepo is organized into three main areas:
 
 ```
 stackkit/
-├── apps/stackkit/    # CLI package
-├── modules/          # Auth & database modules
-└── templates/        # Framework templates
+├── apps/
+│   ├── stackkit/     # The CLI tool (published to npm as "stackkit")
+│   └── docs/         # This documentation site
+├── modules/          # Integration code for each optional module
+│   ├── auth/         # Better Auth configuration
+│   ├── database/     # Prisma and Mongoose setup
+│   ├── storage/      # Cloudinary integration
+│   ├── ui/           # Shadcn UI initialization
+│   └── components/   # Pre-built UI components
+└── templates/        # Base project structures
+    ├── nextjs/        # Next.js App Router template
+    ├── express/       # Express REST API template
+    └── react/         # React + Vite SPA template
 ```
 
-## How Commands Work
+## How `stackkit create` works
 
-### create
+When you run `stackkit create my-app`, here's what happens step by step:
 
-1. User selects framework, database, auth
-2. Copy template files
-3. Integrate selected modules
-4. Install dependencies
-5. Initialize Git
+1. **Collect preferences** — The CLI shows interactive prompts (or reads flags) to determine which framework, database, auth, and other modules you want.
 
-### add
+2. **Copy the template** — The matching template folder is copied into a new directory with your project name. This gives you the base project structure.
 
-1. Detect current framework from package.json
-2. Show compatible modules
-3. Generate integration files
-4. Update dependencies
-5. Install packages
+3. **Apply modules** — Each selected module has a set of files and configuration changes associated with it. StackKit reads these from the `modules/` directory and merges them into your project.
 
-### doctor
+4. **Write environment variables** — All variables needed by selected modules are appended to `.env.example` with clear comments.
 
-1. Read project configuration
-2. Validate files and dependencies
-3. Check module compatibility
-4. Generate health report
+5. **Install dependencies** — StackKit runs your chosen package manager to install everything at once.
 
-## Key Features
+6. **Initialize git** — A git repository is created with an initial commit (unless you opted out).
 
-### Compatibility Checking
+<Callout type="info">
+  All of this happens in one shot. There's no intermediate state where your project is "partially configured" — StackKit either completes successfully or rolls back on failure.
+</Callout>
 
-Verifies modules work with your framework before installation.
+## How `stackkit add` works
 
-### Package Manager Detection
+The `add` command is designed for projects that were created without certain modules, or potentially created without StackKit at all.
 
-Auto-detects from lock files: pnpm, npm, yarn, or bun.
+1. **Detect framework** — StackKit reads your `package.json` to figure out whether you're in a Next.js, Express, or React project. It uses the presence of specific packages as signals.
 
-### Error Handling
+2. **Filter available modules** — Only modules compatible with your detected framework are shown.
 
-- Auto-retry on network failures
-- Clear error messages
-- Suggested fixes
+3. **Generate integration files** — The selected module's files are written into your project, following the same paths as if you'd created the project with that module from the start.
 
-## For Contributors
+4. **Update `package.json`** — Required packages are added and installed.
 
-See [Contributing Guide](/docs/community/contributing) to add modules or templates.
+5. **Update `.env.example`** — New environment variable entries are appended (existing ones are never overwritten).
+
+## Module structure
+
+Each module in the `modules/` directory contains a `generator.json` file that describes how to apply it. This file defines:
+
+- Which files to copy and where
+- What conditions apply (e.g., only do X when using PostgreSQL)
+- Which npm packages to install
+- What environment variables to document
+
+This declarative approach means adding new modules or updating existing ones is straightforward — you don't need to modify CLI source code.
+
+## Compatibility rules
+
+Compatibility is enforced at two levels:
+
+1. **Prompt filtering** — When you run `stackkit create`, you'll only see options that make sense for your current selections. For example, if you select React as your framework, the database prompt won't appear because React projects are frontend-only.
+
+2. **`stackkit add` filtering** — Only modules that work with your detected framework are shown. This prevents mistakes like trying to add Prisma to a React project.
+
+## Package manager detection
+
+StackKit detects your package manager by looking for lockfiles in the project root:
+
+| Lockfile | Package manager |
+|----------|----------------|
+| `pnpm-lock.yaml` | pnpm |
+| `yarn.lock` | Yarn |
+| `bun.lockb` | Bun |
+| `package-lock.json` | npm |
+
+If no lockfile is found, it falls back to `npm`. You can always override this with the `--package-manager` flag.
+
+## Want to contribute?
+
+The architecture is designed to make contributions straightforward. If you want to add a new module or template, see the [Contributing guide](/docs/community/contributing).

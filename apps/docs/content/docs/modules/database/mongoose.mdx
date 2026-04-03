@@ -1,63 +1,172 @@
 ---
 title: Mongoose
-description: Add Mongoose ODM to your project
+description: Elegant MongoDB object modeling for Node.js. Mongoose provides schema-based data modeling with built-in validation and query helpers.
 ---
 
-MongoDB object modeling for Node.js.
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+[Mongoose](https://mongoosejs.com) is the most widely used MongoDB ODM for Node.js. It lets you define schemas for your data, and provides a clean interface for querying and validating MongoDB documents. StackKit generates a working connection and an example model so you can start writing queries right away.
+
+## Compatible frameworks
+
+Mongoose is available for **Express** projects only.
+
+<Callout type="info">
+  If you need MongoDB in a Next.js project or want to use a different database alongside MongoDB, consider using [Prisma](/docs/modules/database/prisma) with the MongoDB provider instead.
+</Callout>
 
 ## Installation
 
-### New project
+### In a new project
 
-```bash
-npx stackkit@latest create my-app --database mongoose
-```
+<Tabs items={['npm', 'pnpm', 'yarn', 'bun']}>
+  <Tab value="npm">
+    ```bash
+    npx stackkit@latest create my-api --framework express --database mongoose
+    ```
+  </Tab>
+  <Tab value="pnpm">
+    ```bash
+    pnpm dlx stackkit@latest create my-api --framework express --database mongoose
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn dlx stackkit@latest create my-api --framework express --database mongoose
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bun x stackkit@latest create my-api --framework express --database mongoose
+    ```
+  </Tab>
+</Tabs>
 
-### Existing project
+### In an existing project
 
 ```bash
 npx stackkit@latest add
-# Select "Database" → "Mongoose"
+# Navigate to: Database → Mongoose
 ```
 
 ## What gets generated
 
-- `lib/db.ts` - MongoDB connection
-- `lib/models/User.ts` - Example model
-- Environment variable template
+- `src/lib/db.ts` — MongoDB connection function using Mongoose. Connects once on startup and reuses the connection.
+- `src/lib/models/User.ts` — An example `User` model to show you the pattern for defining schemas.
+- `.env.example` — A `DATABASE_URL` entry with the correct format.
 
 ## Setup
 
-1. Copy `.env.example` to `.env`
-2. Set your `DATABASE_URL`
-3. Ensure MongoDB is running (local) or accessible (Atlas)
-4. Start dev server
+<Steps>
 
-Connection is handled automatically on app start.
+<Step>
 
-## Verify MongoDB
+### Copy your environment file
+
+```bash
+cp .env.example .env
+```
+
+</Step>
+
+<Step>
+
+### Set your MongoDB connection URL
+
+Open `.env` and update `DATABASE_URL`:
 
 ```bash
 # Local MongoDB
-mongosh
+DATABASE_URL="mongodb://localhost:27017/my-database"
 
-# Check service (macOS)
-brew services list | grep mongodb
+# With authentication
+DATABASE_URL="mongodb://username:password@localhost:27017/my-database?authSource=admin"
 
-# Check service (Linux)
-systemctl status mongod
+# MongoDB Atlas (cloud)
+DATABASE_URL="mongodb+srv://username:password@cluster.mongodb.net/my-database"
 ```
 
-## Environment Variables
+</Step>
+
+<Step>
+
+### Make sure MongoDB is accessible
+
+If you're running MongoDB locally, verify it's running:
 
 ```bash
-DATABASE_URL="mongodb://username:password@localhost:27017/database_name?authSource=admin"
+# macOS (Homebrew)
+brew services list | grep mongodb
 
-# For MongoDB Atlas
-DATABASE_URL="mongodb+srv://user:pass@cluster.mongodb.net/mydb?authSource=admin"
+# Linux (systemd)
+systemctl status mongod
+
+# Or just try to connect
+mongosh
 ```
 
-## Next Steps
+If you're using MongoDB Atlas, make sure your IP address is whitelisted in the Atlas dashboard.
 
-- [Prisma](/docs/modules/database/prisma) - Alternative with multi-database support
-- [Troubleshooting](/docs/reference/troubleshooting) - Common issues
+</Step>
+
+<Step>
+
+### Start the development server
+
+```bash
+npm run dev
+```
+
+The database connection is established automatically when your app starts.
+
+</Step>
+
+</Steps>
+
+## Using the connection and models
+
+The generated `src/lib/db.ts` connects to MongoDB automatically. You can import it in your app's entry point or it may already be called in the generated server setup.
+
+To create your own models, follow the pattern in the generated `User.ts`:
+
+```ts
+import mongoose, { Schema, model } from "mongoose";
+
+interface IPost {
+  title: string;
+  body: string;
+  author: string;
+  createdAt: Date;
+}
+
+const postSchema = new Schema<IPost>({
+  title: { type: String, required: true },
+  body: { type: String, required: true },
+  author: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now },
+});
+
+export const Post = model<IPost>("Post", postSchema);
+```
+
+Then use it in your routes or controllers:
+
+```ts
+import { Post } from "@/lib/models/Post";
+
+// Create
+const post = await Post.create({ title: "Hello", body: "World", author: "Alice" });
+
+// Find
+const posts = await Post.find({ author: "Alice" });
+
+// Update
+await Post.findByIdAndUpdate(id, { title: "Updated" });
+```
+
+## Next steps
+
+- [Prisma](/docs/modules/database/prisma) — Alternative ORM with support for PostgreSQL, MySQL, SQLite and MongoDB
+- [Troubleshooting](/docs/reference/troubleshooting) — Common connection issues

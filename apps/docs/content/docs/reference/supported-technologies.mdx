@@ -1,63 +1,87 @@
 ---
 title: Supported Technologies
-description: Compatibility matrix for frameworks, databases, auth, UI, storage, and components
+description: The complete compatibility matrix for StackKit frameworks, modules, and providers.
 ---
+
+This page is a single-source reference for everything StackKit supports and how each piece fits together.
 
 ## Frameworks
 
-| Framework | Status | Description |
-|-----------|--------|-------------|
-| Next.js | Stable | Full-stack with App Router |
-| Express | Stable | Backend REST API |
-| React | Stable | Frontend SPA with Vite |
+These are the base templates you can choose when running `stackkit create`:
 
-## Databases
+| Framework | Description | Status |
+|-----------|-------------|--------|
+| **Next.js** | Full-stack React with App Router, server components, and TypeScript | Stable |
+| **Express** | Node.js REST API with TypeScript and modular folder structure | Stable |
+| **React** | Frontend SPA with Vite, React Router, and TypeScript | Stable |
 
-| Database | ORM/ODM | Providers | Frameworks | Status |
-|----------|---------|-----------|------------|--------|
-| Prisma | ORM | PostgreSQL, MongoDB, MySQL, SQLite | Express | Stable |
-| Mongoose | ODM | MongoDB | Express | Stable |
+## Modules
 
-## Authentication
+### Authentication
 
-| Provider | Frameworks | Databases | Status |
-|----------|------------|-----------|--------|
-| Better Auth | Next.js, Express, React | Prisma, Mongoose | Stable |
+| Module | Frameworks | Notes | Status |
+|--------|------------|-------|--------|
+| **Better Auth** | Next.js, Express, React | Requires a database when used with Express | Stable |
 
-## UI
+### Database
 
-| Library | Frameworks | Status |
-|---------|------------|--------|
-| Shadcn UI | Next.js, React | Stable |
+| Module | Frameworks | Providers | Status |
+|--------|------------|-----------|--------|
+| **Prisma** | Express | PostgreSQL, MySQL, SQLite, MongoDB | Stable |
+| **Mongoose** | Express | MongoDB | Stable |
 
-## Storage
+### UI
 
-| Provider | Frameworks | Status |
-|----------|------------|--------|
-| Cloudinary | Express | Stable |
+| Module | Frameworks | Notes | Status |
+|--------|------------|-------|--------|
+| **Shadcn UI** | Next.js, React | Includes Tailwind CSS | Stable |
 
-## Components
+### Storage
 
-| Module | Frameworks | Included | Status |
-|--------|------------|----------|--------|
-| Components | Next.js, React | TiptapEditor, DataTable, SearchBar, FilterBar, and more | Stable |
+| Module | Frameworks | Notes | Status |
+|--------|------------|-------|--------|
+| **Cloudinary** | Express | Includes media upload routes | Stable |
 
-## Compatibility Matrix
+### Components
+
+| Module | Frameworks | Requires | Status |
+|--------|------------|---------|--------|
+| **Components** | Next.js, React | TypeScript | Stable |
+
+## Full compatibility matrix
 
 | Module | Next.js | Express | React |
-|--------|---------|---------|-------|
-| Prisma | No | Yes | No |
-| Mongoose | No | Yes | No |
-| Better Auth | Yes | Yes | Yes |
-| Shadcn UI | Yes | No | Yes |
-| Cloudinary | No | Yes | No |
-| Components | Yes | No | Yes |
+|--------|:-------:|:-------:|:-----:|
+| Better Auth | ✓ | ✓ | ✓ |
+| Prisma | — | ✓ | — |
+| Mongoose | — | ✓ | — |
+| Shadcn UI | ✓ | — | ✓ |
+| Cloudinary | — | ✓ | — |
+| Components | ✓ | — | ✓ |
 
-## Notes
+## Important compatibility notes
 
-- React projects skip database selection (frontend-only)
-- Better Auth on server frameworks (Express) requires a database
-- Prisma is available for Next.js when added via Better Auth's schema setup
+- **React is frontend-only.** React projects cannot use Prisma, Mongoose, or Cloudinary since they require a server runtime.
+- **Better Auth on Express requires a database.** The Express adapter needs somewhere to store user sessions and records.
+- **Components require TypeScript.** The Components module uses TypeScript features and is not available for JavaScript projects.
+- **Shadcn UI requires Tailwind CSS.** It's set up automatically during installation, but your project needs to support CSS imports.
 
-Next steps:
-- [CLI Overview](/docs/cli/overview) for command reference
+## Prisma provider details
+
+When you select Prisma, you also choose a database provider. The `DATABASE_URL` format differs by provider:
+
+| Provider | Example URL |
+|----------|-------------|
+| PostgreSQL | `postgresql://user:pass@localhost:5432/mydb` |
+| MySQL | `mysql://user:pass@localhost:3306/mydb` |
+| SQLite | `file:./dev.db` |
+| MongoDB | `mongodb://localhost:27017/mydb` |
+
+## Language support
+
+| Language | Frameworks | Notes |
+|----------|------------|-------|
+| TypeScript | All | Default, recommended |
+| JavaScript | All | Supported, but TypeScript is strongly recommended |
+
+TypeScript strict mode is enabled by default in all generated projects.

@@ -1,105 +1,38 @@
 ---
 title: CLI Overview
-description: Complete guide to StackKit commands
+description: StackKit provides four commands that cover the full lifecycle of project creation and maintenance.
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-## Installation
-
-No installation needed:
+StackKit is a command-line tool. You don't need to install it globally — `npx` always fetches the latest version when you need it.
 
 ```bash
 npx stackkit@latest <command>
 ```
 
 <Callout type="info">
-  Using `npx` ensures you always get the latest version.
+  Using `npx stackkit@latest` ensures you always run the most current version. If you prefer faster startup, you can install it globally with `npm install -g stackkit`.
 </Callout>
 
-## Commands
+## Commands at a glance
 
-### create
+| Command | What it does |
+|---------|--------------|
+| [`create`](/docs/cli/create) | Scaffold a brand-new project from a template |
+| [`add`](/docs/cli/add) | Add a module (database, auth, etc.) to an existing project |
+| [`list`](/docs/cli/list) | Show all available frameworks and modules |
+| [`doctor`](/docs/cli/doctor) | Diagnose your project and catch configuration issues |
 
-Generate new project with framework, database, and auth.
+## `create`
 
-```bash
-stackkit create my-app
-```
-
-**What it does:**
-- Creates project directory
-- Copies framework template
-- Integrates modules
-- Installs dependencies
-- Initializes Git
-
-[Full docs →](/docs/cli/create)
-
-### add
-
-Add database or auth to existing project.
-
-```bash
-stackkit add
-```
-
-**What it does:**
-- Detects your framework
-- Shows compatible modules
-- Generates integration code
-- Installs dependencies
-
-[Full docs →](/docs/cli/add)
-
-### doctor
-
-Verify project health.
-
-```bash
-stackkit doctor
-```
-
-**What it checks:**
-- Required files exist
-- Dependencies installed
-- Configurations valid
-- Environment variables documented
-
-[Full docs →](/docs/cli/doctor)
-
-### list
-
-Show available options.
-
-```bash
-stackkit list
-```
-
-**Shows:**
-- Supported frameworks
-- Available modules
-- Compatibility info
-
-[Full docs →](/docs/cli/list)
-
-## Global Options
-
-| Option | Description |
-|--------|-------------|
-| `--help` | Show help |
-| `--version` | Show version |
-
-## Usage Examples
-
-### Interactive (Recommended)
+Start a new project from scratch. StackKit walks you through choosing a framework, modules, language, and package manager.
 
 ```bash
 npx stackkit@latest create my-app
-# Answer prompts
 ```
 
-### Full Command
+You can also skip the prompts and use flags:
 
 ```bash
 npx stackkit@latest create my-app \
@@ -108,20 +41,86 @@ npx stackkit@latest create my-app \
   --auth better-auth
 ```
 
-### Minimal Start
+→ [Full `create` reference](/docs/cli/create)
+
+## `add`
+
+Add a module to an existing StackKit project (or any compatible project). StackKit detects your framework automatically and shows you what's available.
 
 ```bash
-# Start simple
-stackkit create my-app --framework nextjs --database none
-
-# Add features later
-cd my-app
-stackkit add
+npx stackkit@latest add
 ```
 
-## Next Steps
+You can also specify what to add directly:
 
-- [create](/docs/cli/create) - Project generation
-- [add](/docs/cli/add) - Add features
-- [doctor](/docs/cli/doctor) - Health checks
-- [Troubleshooting](/docs/reference/troubleshooting) - Common issues
+```bash
+npx stackkit@latest add database --provider prisma-postgresql
+```
+
+→ [Full `add` reference](/docs/cli/add)
+
+## `list`
+
+See everything StackKit supports — frameworks, modules, and their compatibility.
+
+```bash
+npx stackkit@latest list
+```
+
+Filter to just what you need:
+
+```bash
+npx stackkit@latest list --frameworks
+npx stackkit@latest list --modules
+```
+
+→ [Full `list` reference](/docs/cli/list)
+
+## `doctor`
+
+Check that your project is set up correctly. Doctor verifies your Node.js version, environment variables, configuration files, and installed modules.
+
+```bash
+npx stackkit doctor
+```
+
+→ [Full `doctor` reference](/docs/cli/doctor)
+
+## Global options
+
+| Flag | Description |
+|------|-------------|
+| `--help` | Print help text for a command |
+| `--version` | Print the installed StackKit version |
+
+## Common workflows
+
+### Start a new project interactively
+
+```bash
+npx stackkit@latest create my-app
+# Answer the prompts, then:
+cd my-app
+cp .env.example .env
+npm run dev
+```
+
+### Start with defaults (Next.js + Prisma + Better Auth)
+
+```bash
+npx stackkit@latest create my-app --yes
+```
+
+### Add a database to an existing project
+
+```bash
+cd existing-project
+npx stackkit@latest add
+# Select Database → Prisma → PostgreSQL
+```
+
+### Check what went wrong
+
+```bash
+npx stackkit doctor
+```

@@ -1,66 +1,116 @@
 ---
 title: Shadcn UI
-description: Add Shadcn UI to your project
+description: Beautiful, accessible components built on Radix UI and Tailwind CSS. Shadcn UI components live in your project — you own and customize every file.
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 
-Shadcn-style component set with Tailwind CSS helpers for Next.js and React.
+[Shadcn UI](https://ui.shadcn.com) takes a different approach to component libraries: instead of installing a package and importing components from it, Shadcn copies the component source code directly into your project. This means you own the code and can change anything you want without fighting an external dependency.
 
-## Compatible Frameworks
+StackKit runs the official Shadcn setup for you and gets it configured with Tailwind CSS.
 
-- Next.js
-- React (Vite)
+## Compatible frameworks
+
+Shadcn UI is available for **Next.js** and **React (Vite)** projects.
 
 ## Installation
 
-### New project
+### In a new project
 
-```bash
-npx stackkit@latest create my-app --ui shadcn
-```
+<Tabs items={['Next.js', 'React']}>
+  <Tab value="Next.js">
+    ```bash
+    npx stackkit@latest create my-app --framework nextjs --ui shadcn
+    ```
+  </Tab>
+  <Tab value="React">
+    ```bash
+    npx stackkit@latest create my-app --framework react --ui shadcn
+    ```
+  </Tab>
+</Tabs>
 
-### Existing project
+### In an existing project
 
 ```bash
 npx stackkit@latest add
-# Select "UI" → "Shadcn UI"
+# Navigate to: UI → Shadcn UI
 ```
 
 ## What gets generated
 
-- Shadcn UI initialized via `shadcn@latest init`
-- `button` component added as a starter
-- Tailwind CSS configuration updated
-- `components/ui/` directory created
+StackKit runs `shadcn@latest init` during installation, so you get the exact same output as the official Shadcn setup:
+
+- `components/ui/` — The directory where all Shadcn components will live. A `button` component is added as a starter.
+- `lib/utils.ts` — The `cn()` utility function that merges Tailwind classes.
+- Updated `tailwind.config` — Content paths and CSS variables configured for Shadcn.
+- Updated global CSS — CSS custom properties for the Shadcn color palette.
 
 <Callout type="info">
-  Shadcn components are copied directly into your project — you own and can customize every file.
+  All component files are copied into your project — not installed as a package. You can modify them freely without affecting anything else.
 </Callout>
 
-## Setup
+## Adding more components
 
-Shadcn UI is initialized automatically during installation. To add more components after setup:
+After setup, you can add any Shadcn component using the official CLI:
 
 ```bash
-# Next.js
-npx shadcn@latest add <component>
-
-# React (Vite)
 npx shadcn@latest add <component>
 ```
 
-## Example: Add more components
+**Examples:**
 
 ```bash
 npx shadcn@latest add card
 npx shadcn@latest add dialog
 npx shadcn@latest add input
+npx shadcn@latest add table
+npx shadcn@latest add form
 ```
 
-Browse all available components at [ui.shadcn.com/components](https://ui.shadcn.com/components).
+Browse the full list at [ui.shadcn.com/components](https://ui.shadcn.com/components).
 
-## Next Steps
+## Using the Button component
 
-- [Components](/docs/modules/components/components) - Pre-built advanced components
-- [Troubleshooting](/docs/reference/troubleshooting) - Common issues
+The starter `button` component is added during setup. Here's how to use it:
+
+```tsx
+import { Button } from "@/components/ui/button";
+
+export default function Page() {
+  return (
+    <div>
+      <Button>Click me</Button>
+      <Button variant="outline">Outline</Button>
+      <Button variant="ghost">Ghost</Button>
+      <Button size="sm">Small</Button>
+    </div>
+  );
+}
+```
+
+## Customizing components
+
+Because the component files live in your project, you can edit them directly. Open `components/ui/button.tsx` and make any changes you need:
+
+```tsx
+// Change the default variant, add a new one, adjust styles — it's all yours.
+const buttonVariants = cva(
+  "inline-flex items-center ...",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary ...",
+        // Add your own variant here:
+        brand: "bg-purple-600 text-white hover:bg-purple-700",
+      },
+    },
+  }
+);
+```
+
+## Next steps
+
+- [Components module](/docs/modules/components/components) — Pre-built advanced components like DataTable and TiptapEditor
+- [Troubleshooting](/docs/reference/troubleshooting) — Common issues

@@ -1,79 +1,185 @@
 ---
 title: Prisma
-description: Add Prisma ORM to your project
+description: A modern, type-safe ORM for PostgreSQL, MySQL, SQLite, and MongoDB. Prisma gives you auto-generated types and a clean query API.
 ---
 
-Modern ORM with support for PostgreSQL, MySQL, MongoDB, and SQLite.
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+[Prisma](https://www.prisma.io) is a TypeScript-first ORM that turns your database schema into fully-typed query methods. StackKit sets it up with the right configuration for your chosen database provider.
+
+## Compatible frameworks
+
+Prisma is currently available for **Express** projects.
 
 ## Installation
 
-### New project
+### In a new project
 
-```bash
-# PostgreSQL
-npx stackkit@latest create my-app --database prisma-postgresql
+Choose your database provider with the `--database` flag:
 
-# MySQL
-npx stackkit@latest create my-app --database prisma-mysql
+<Tabs items={['PostgreSQL', 'MySQL', 'SQLite', 'MongoDB']}>
+  <Tab value="PostgreSQL">
+    ```bash
+    npx stackkit@latest create my-app --database prisma-postgresql
+    ```
+  </Tab>
+  <Tab value="MySQL">
+    ```bash
+    npx stackkit@latest create my-app --database prisma-mysql
+    ```
+  </Tab>
+  <Tab value="SQLite">
+    ```bash
+    npx stackkit@latest create my-app --database prisma-sqlite
+    ```
+  </Tab>
+  <Tab value="MongoDB">
+    ```bash
+    npx stackkit@latest create my-app --database prisma-mongodb
+    ```
+  </Tab>
+</Tabs>
 
-# SQLite
-npx stackkit@latest create my-app --database prisma-sqlite
-
-# MongoDB
-npx stackkit@latest create my-app --database prisma-mongodb
-```
-
-### Existing project
+### In an existing project
 
 ```bash
 npx stackkit@latest add
-# Select "Database" → "Prisma" → Choose provider
+# Navigate to: Database → Prisma → (select your provider)
 ```
 
 ## What gets generated
 
-- `prisma/schema.prisma` - Database schema
-- `lib/db.ts` - Prisma client instance
-- `prisma/migrations/` - Migration history
-- Environment variable template
+- `prisma/schema.prisma` — Your database schema. The `provider` is pre-configured for your chosen database.
+- `src/lib/db.ts` — A singleton Prisma Client instance ready to import anywhere in your app.
+- `.env.example` — A `DATABASE_URL` entry with the correct format for your provider.
 
 ## Setup
 
-1. Copy `.env.example` to `.env`
-2. Set your `DATABASE_URL`
-3. Run migrations:
-   ```bash
-   npx prisma migrate dev --name init
-   npx prisma generate
-   ```
-4. Start dev server
+<Steps>
 
-## Common Commands
+<Step>
+
+### Copy your environment file
 
 ```bash
-npx prisma migrate dev    # Create and apply migration
-npx prisma generate       # Generate Prisma Client
-npx prisma studio         # Open database GUI
-npx prisma db push        # Push schema without migration
+cp .env.example .env
 ```
 
-## Environment Variables
+</Step>
+
+<Step>
+
+### Set your database URL
+
+Open `.env` and update `DATABASE_URL` with your actual connection details:
+
+<Tabs items={['PostgreSQL', 'MySQL', 'SQLite', 'MongoDB']}>
+  <Tab value="PostgreSQL">
+    ```bash
+    DATABASE_URL="postgresql://user:password@localhost:5432/mydb"
+    ```
+  </Tab>
+  <Tab value="MySQL">
+    ```bash
+    DATABASE_URL="mysql://user:password@localhost:3306/mydb"
+    ```
+  </Tab>
+  <Tab value="SQLite">
+    ```bash
+    DATABASE_URL="file:./dev.db"
+    ```
+    SQLite stores data in a local file. No database server needed.
+  </Tab>
+  <Tab value="MongoDB">
+    ```bash
+    DATABASE_URL="mongodb://localhost:27017/mydb"
+    # MongoDB Atlas:
+    DATABASE_URL="mongodb+srv://user:pass@cluster.mongodb.net/mydb"
+    ```
+  </Tab>
+</Tabs>
+
+</Step>
+
+<Step>
+
+### Run your first migration
+
+For PostgreSQL, MySQL, and SQLite, create and apply the initial migration:
 
 ```bash
-# PostgreSQL
-DATABASE_URL="postgresql://user:password@localhost:5432/mydb"
-
-# MySQL
-DATABASE_URL="mysql://user:password@localhost:3306/mydb"
-
-# MongoDB
-DATABASE_URL="mongodb://localhost:27017/mydb"
-
-# SQLite
-DATABASE_URL="file:./dev.db"
+npx prisma migrate dev --name init
 ```
 
-## Next Steps
+For MongoDB, push your schema directly (Prisma doesn't use migrations with MongoDB):
 
-- [Mongoose](/docs/modules/database/mongoose) - Alternative for MongoDB
-- [Troubleshooting](/docs/reference/troubleshooting) - Common issues
+```bash
+npx prisma db push
+```
+
+</Step>
+
+<Step>
+
+### Generate Prisma Client
+
+This step is automatic after migrations, but you can run it manually if needed:
+
+```bash
+npx prisma generate
+```
+
+</Step>
+
+<Step>
+
+### Start the development server
+
+```bash
+npm run dev
+```
+
+</Step>
+
+</Steps>
+
+## Common commands
+
+```bash
+npx prisma migrate dev              # Create and apply a new migration
+npx prisma migrate dev --name init  # Create with a specific name
+npx prisma generate                 # Regenerate the Prisma Client
+npx prisma studio                   # Open the visual database browser
+npx prisma db push                  # Sync schema without creating a migration
+npx prisma db seed                  # Run your seed script
+```
+
+## Using the Prisma Client
+
+The generated `src/lib/db.ts` file exports a singleton Prisma Client instance. Import it wherever you need to query the database:
+
+```ts
+import { db } from "@/lib/db";
+
+// Fetch all users
+const users = await db.user.findMany();
+
+// Create a new user
+const user = await db.user.create({
+  data: {
+    name: "Alice",
+    email: "alice@example.com",
+  },
+});
+```
+
+<Callout type="info">
+  The Prisma Client types are generated from your schema, so you get full autocomplete and type checking for every query.
+</Callout>
+
+## Next steps
+
+- [Mongoose](/docs/modules/database/mongoose) — An alternative for MongoDB-only projects
+- [Troubleshooting](/docs/reference/troubleshooting) — Common setup issues

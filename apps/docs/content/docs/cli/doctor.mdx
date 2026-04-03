@@ -1,29 +1,31 @@
 ---
 title: doctor
-description: Diagnose and validate your project
+description: Diagnose your project and identify configuration issues before they cause problems.
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-Verify your project is correctly configured and catch issues early.
+The `doctor` command inspects your project and reports on its health. Think of it as a quick sanity check — it catches the most common setup mistakes so you don't have to debug them yourself.
 
-## Command
+## Usage
 
 ```bash
-npx stackkit@latest doctor
+npx stackkit doctor
 ```
 
-## What It Checks
+Run this after creating a project, after adding a module, or whenever something isn't working and you're not sure why.
 
-- Node.js version compatibility
-- Package manager detected
-- Framework configuration
-- Module installations
-- Dependencies installed
-- Environment variables documented
-- Configuration files valid
+## What it checks
 
-## Output Example
+- **Node.js version** — Ensures you're running a compatible version
+- **Package manager** — Detects which one you're using
+- **Framework detection** — Identifies your project type (Next.js, Express, or React)
+- **Installed modules** — Checks which StackKit modules are present
+- **Configuration files** — Verifies `tsconfig.json`, ESLint config, and other required files exist
+- **Git repository** — Checks whether git is initialized
+- **Environment variables** — Confirms that variables listed in `.env.example` are present in your `.env` or `.env.local`
+
+## Example output
 
 ```
 ╔══════════════════════════════╗
@@ -32,7 +34,7 @@ npx stackkit@latest doctor
 
 Project
   Type: nextjs
-  Root: /path/to/my-app
+  Root: /home/user/projects/my-app
   Package Manager: pnpm
 
 Runtime
@@ -43,8 +45,8 @@ Modules
   Database: prisma
 
 Files
-  ✓ .env.example file found
-  ✓ .env/.env.local file found
+  ✓ .env.example found
+  ✓ .env.local found
   ✓ Prisma schema found
   ✓ Auth routes configured
   ✓ tsconfig.json found
@@ -52,52 +54,74 @@ Files
   ✓ Git repository initialized
 
 Environment Variables
-  ✓ Present: DATABASE_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL
+  ✓ DATABASE_URL
+  ✓ BETTER_AUTH_SECRET
+  ✓ BETTER_AUTH_URL
 
 Summary
-  Errors: 0
+  Errors:   0
   Warnings: 0
 
 Suggestions
-  • stackkit list         - View available modules
+  • stackkit list    — View available modules
 ```
+
+A clean report means your project is configured correctly and ready for development.
 
 ## Options
 
-| Option | Description |
-|--------|-------------|
-| `--verbose` | Show detailed information |
-| `--json` | Output as JSON (for CI/CD) |
-| `--strict` | Exit with error on warnings |
+| Flag | Description |
+|------|-------------|
+| `--verbose` | Print detailed information about each check |
+| `--json` | Output results as JSON (useful for CI/CD pipelines) |
+| `--strict` | Exit with a non-zero code when there are warnings (not just errors) |
 
-## Usage
+## Common use cases
 
-### After Project Creation
-
+**After creating a project:**
 ```bash
-stackkit create my-app
+npx stackkit@latest create my-app
 cd my-app
-stackkit doctor
+npx stackkit doctor
 ```
 
-### After Adding Modules
+**After adding a module:**
+```bash
+npx stackkit add
+npx stackkit doctor
+```
+
+**In a CI pipeline:**
+```bash
+npx stackkit doctor --strict --json
+```
+
+## What to do when doctor reports errors
+
+### Missing environment variables
+
+You have variables in `.env.example` that aren't in your `.env` file. Copy the missing ones over and fill them in:
 
 ```bash
-stackkit add
-stackkit doctor
+# Add any missing variables from .env.example to your .env
+cp .env.example .env.missing && diff .env .env.missing
 ```
 
-### In CI/CD
+### Missing configuration files
+
+A required file (like `prisma/schema.prisma` or auth routes) wasn't found. This usually means a module didn't install correctly. Try running `add` again:
 
 ```bash
-stackkit doctor --strict --json
+npx stackkit add
 ```
 
-## Common Issues
+### Node.js version incompatible
 
-### Missing Environment Variables
+Update Node.js to version 18 or higher. We recommend using a version manager like [nvm](https://github.com/nvm-sh/nvm) or [fnm](https://github.com/Schniz/fnm).
 
-**Problem:** Variables documented in `.env.example` but not in `.env`
+<Callout type="info">
+  If doctor shows warnings but no errors, your project will still work — warnings are informational and suggest improvements rather than blocking issues.
+</Callout>
 
 **Solution:**
 ```bash

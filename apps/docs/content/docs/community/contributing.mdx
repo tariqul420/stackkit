@@ -1,62 +1,148 @@
 ---
 title: Contributing
-description: How to contribute to StackKit
+description: Help make StackKit better. Learn how to report bugs, suggest features, and contribute code.
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
 
-## Ways to Contribute
+StackKit is open source and contributions are very welcome. Whether you're fixing a typo, reporting a bug, or adding a new module — every contribution matters.
 
-- **Bug Reports**: Found a bug? [Open an issue](https://github.com/tariqul420/stackkit/issues/new?template=bug_report.md)
-- **Feature Requests**: Have an idea? [Open an issue](https://github.com/tariqul420/stackkit/issues/new?template=feature_request.md)
-- **Documentation**: Help improve docs or add examples
-- **Code**: Fix bugs, add features, or improve performance
-- **Testing**: Add tests or improve test coverage
+## Ways to contribute
 
-## Development Setup
+- **Report a bug** — Something broken? [Open a bug report](https://github.com/tariqul420/stackkit/issues/new?template=bug_report.md) with steps to reproduce.
+- **Suggest a feature** — Have an idea for a new module or improvement? [Open a feature request](https://github.com/tariqul420/stackkit/issues/new?template=feature_request.md).
+- **Improve the docs** — Found a confusing explanation or a missing example? Send a PR.
+- **Fix a bug** — Browse [open issues](https://github.com/tariqul420/stackkit/issues) and pick one to work on.
+- **Add a module** — Implement a new integration (e.g., a different auth provider or storage service).
 
-### Prerequisites
+## Development setup
 
-- Node.js 18+
-- pnpm (recommended) or npm/yarn
-- Git
+<Steps>
 
-### Setup Steps
+<Step>
 
-1. **Fork and Clone**
-   ```bash
-   git clone https://github.com/tariqul420/stackkit.git
-   cd stackkit
-   ```
+### Fork and clone the repository
 
-2. **Install Dependencies**
-   ```bash
-   pnpm install
-   ```
+```bash
+git clone https://github.com/tariqul420/stackkit.git
+cd stackkit
+```
 
-3. **Build Packages**
-   ```bash
-   pnpm build
-   ```
+</Step>
 
-4. **Test Installation**
-   ```bash
-   pnpm test
-   ```
+<Step>
 
-## Project Structure
+### Install dependencies
+
+StackKit uses pnpm workspaces. Install everything from the root:
+
+```bash
+pnpm install
+```
+
+</Step>
+
+<Step>
+
+### Build all packages
+
+```bash
+pnpm build
+```
+
+</Step>
+
+<Step>
+
+### Test your changes
+
+To test the CLI locally without publishing:
+
+```bash
+cd apps/stackkit
+node bin/stackkit.js create test-app
+```
+
+</Step>
+
+</Steps>
+
+## Project structure
+
+Understanding the repo layout will help you find where to make changes:
 
 ```
 stackkit/
 ├── apps/
-│   ├── stackkit/          # Main CLI package
-│   └── docs/              # Documentation site
-├── modules/               # Feature modules
+│   ├── stackkit/          # The CLI package (published to npm)
+│   │   ├── src/           # TypeScript source
+│   │   │   ├── cli/       # Command implementations (create, add, doctor, list)
+│   │   │   ├── lib/       # Shared utilities (discovery, generation, prompts)
+│   │   │   └── types/     # TypeScript type definitions
+│   │   └── bin/           # CLI entry point
+│   └── docs/              # This documentation site (Next.js + Fumadocs)
+├── modules/               # Module definitions
 │   ├── auth/              # Authentication modules
-│   └── database/          # Database modules
-├── templates/             # Base project templates
-└── packages.json          # Workspace configuration
+│   │   └── better-auth/   # Better Auth files and generator config
+│   ├── database/          # Database modules
+│   │   ├── prisma/        # Prisma files and generator config
+│   │   └── mongoose/      # Mongoose files and generator config
+│   ├── storage/           # Storage modules
+│   ├── ui/                # UI modules
+│   └── components/        # Pre-built UI components
+└── templates/             # Base project templates
+    ├── nextjs/            # Next.js template
+    ├── express/           # Express template
+    └── react/             # React + Vite template
 ```
+
+## Adding a new module
+
+Each module in the `modules/` directory follows the same structure:
+
+```
+modules/<category>/<module-name>/
+├── module.json       # Module metadata (name, description, frameworks, etc.)
+├── generator.json    # File operations and conditions
+└── files/            # Files to copy into the project
+```
+
+The `generator.json` file is declarative — it describes what files to copy, what conditions apply, and what packages to install. You don't need to modify CLI source code to add most modules.
+
+## Adding a new template
+
+Templates live in `templates/<framework>/`. A template is just a complete project structure for that framework. The CLI copies it as-is, then applies any selected modules on top.
+
+When adding a template, make sure it:
+- Uses TypeScript with strict mode
+- Includes ESLint configuration
+- Has a `.env.example` file
+- Has a helpful `README.md`
+- Follows the framework's official conventions
+
+## Code style
+
+The codebase uses TypeScript and ESLint. Before submitting a PR, make sure your changes pass the linter:
+
+```bash
+pnpm lint
+```
+
+## Submitting a pull request
+
+1. Create a branch from `main` with a descriptive name (e.g., `feat/add-drizzle-module` or `fix/mongoose-connection`)
+2. Make your changes
+3. Test locally with `node bin/stackkit.js`
+4. Submit the PR against `main` with a clear description of what changed and why
+
+<Callout type="info">
+  For large changes (new modules, template rewrites, architecture changes), open an issue first to discuss the approach before writing code. This avoids wasted effort on work that might not align with the project's direction.
+</Callout>
+
+## Questions?
+
+Join the [Discord server](https://discord.gg/PD8XWdpA) or open a [GitHub Discussion](https://github.com/tariqul420/stackkit/discussions) — we're happy to help.
 
 ### Key Directories
 

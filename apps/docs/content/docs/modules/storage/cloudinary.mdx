@@ -1,41 +1,63 @@
 ---
 title: Cloudinary
-description: Add Cloudinary storage to your project
+description: File upload and media management for Express projects. Cloudinary handles storage, transformation, and delivery of images and videos.
 ---
 
-Cloudinary file upload and storage integration for Express projects.
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
 
-## Compatible Frameworks
+[Cloudinary](https://cloudinary.com) is a cloud-based media management platform. It handles storing, transforming, optimizing, and delivering images and videos. StackKit generates a complete media upload module for your Express API, including routes, a controller, and configuration.
 
-- Express
+## Compatible frameworks
+
+Cloudinary is available for **Express** projects only.
 
 ## Installation
 
-### New project
+### In a new project
 
 ```bash
 npx stackkit@latest create my-api --framework express --storage-provider cloudinary
 ```
 
-### Existing project
+### In an existing project
 
 ```bash
 npx stackkit@latest add
-# Select "Storage" → "Cloudinary"
+# Navigate to: Storage → Cloudinary
 ```
 
 ## What gets generated
 
-- `src/config/cloudinary.ts` - Cloudinary configuration
-- `src/modules/media/` - Media upload module with routes and controller
+- `src/config/cloudinary.ts` — Cloudinary SDK configuration using your credentials from environment variables.
+- `src/modules/media/media.controller.ts` — Controller with an upload handler that accepts a file and returns the Cloudinary URL.
+- `src/modules/media/media.routes.ts` — Express routes for the media upload endpoint (`POST /api/media/upload`).
 
 ## Setup
 
-1. Copy `.env.example` to `.env`
-2. Add your Cloudinary credentials to `.env`
-3. Start dev server
+<Steps>
 
-## Environment Variables
+<Step>
+
+### Get your Cloudinary credentials
+
+Log in to [cloudinary.com/console](https://cloudinary.com/console). You'll find your **Cloud Name**, **API Key**, and **API Secret** on the dashboard.
+
+</Step>
+
+<Step>
+
+### Copy your environment file
+
+```bash
+cp .env.example .env
+```
+
+</Step>
+
+<Step>
+
+### Add your credentials to `.env`
 
 ```bash
 CLOUDINARY_CLOUD_NAME="your_cloud_name"
@@ -43,8 +65,65 @@ CLOUDINARY_API_KEY="your_api_key"
 CLOUDINARY_API_SECRET="your_api_secret"
 ```
 
-Get your credentials from [cloudinary.com/console](https://cloudinary.com/console).
+<Callout type="warn">
+  Never expose your `CLOUDINARY_API_SECRET` to the client. It belongs only in server-side environment variables.
+</Callout>
 
-## Next Steps
+</Step>
 
-- [Troubleshooting](/docs/reference/troubleshooting) - Common issues
+<Step>
+
+### Start the development server
+
+```bash
+npm run dev
+```
+
+The media upload route is automatically registered at `POST /api/media/upload`.
+
+</Step>
+
+</Steps>
+
+## Using the upload endpoint
+
+Send a `multipart/form-data` request to upload a file:
+
+```bash
+curl -X POST http://localhost:3000/api/media/upload \
+  -F "file=@/path/to/your/image.png"
+```
+
+The response includes the Cloudinary URL and other metadata:
+
+```json
+{
+  "url": "https://res.cloudinary.com/your-cloud/image/upload/v1234567890/sample.png",
+  "public_id": "sample",
+  "format": "png",
+  "width": 800,
+  "height": 600
+}
+```
+
+## Customizing uploads
+
+Edit `src/config/cloudinary.ts` to set default upload options:
+
+```ts
+import { v2 as cloudinary } from "cloudinary";
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+export default cloudinary;
+```
+
+And edit the controller to apply transformations, set a folder, restrict file types, and more. See the [Cloudinary Upload API docs](https://cloudinary.com/documentation/image_upload_api_reference) for all options.
+
+## Next steps
+
+- [Troubleshooting](/docs/reference/troubleshooting) — Common issues

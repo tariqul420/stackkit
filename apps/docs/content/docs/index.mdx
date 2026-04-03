@@ -1,28 +1,28 @@
 ---
-title: StackKit
-description: Production-ready project generator and modular CLI for full-stack applications
+title: Introduction
+description: StackKit is a CLI tool that scaffolds production-ready full-stack applications with your choice of framework, database, and authentication.
 ---
 
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { Callout } from 'fumadocs-ui/components/callout';
 
-StackKit is a modern CLI tool that scaffolds full-stack applications with your choice of framework, database, and authentication—all configured and ready to use in under 2 minutes.
+**StackKit** is a CLI tool that creates full-stack project foundations for you — complete with your preferred framework, database, authentication, and UI setup. Run one command, answer a few prompts, and get a clean, production-ready codebase in under a minute.
 
 <Callout type="info">
-  StackKit generates clean, production-ready code. Once created, you own everything—no vendor lock-in, no runtime dependencies.
+  **You own everything.** StackKit is a code generator, not a framework. Once your project is created, there is no StackKit runtime dependency — just your code and the libraries you chose.
 </Callout>
 
-## Quick Start
+## Start in seconds
 
-<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
-  <Tab value="pnpm">
-    ```bash
-    pnpm dlx stackkit@latest create my-app
-    ```
-  </Tab>
+<Tabs items={['npm', 'pnpm', 'yarn', 'bun']}>
   <Tab value="npm">
     ```bash
     npx stackkit@latest create my-app
+    ```
+  </Tab>
+  <Tab value="pnpm">
+    ```bash
+    pnpm dlx stackkit@latest create my-app
     ```
   </Tab>
   <Tab value="yarn">
@@ -37,58 +37,52 @@ StackKit is a modern CLI tool that scaffolds full-stack applications with your c
   </Tab>
 </Tabs>
 
+That's it. Follow the interactive prompts to pick your stack, and StackKit handles the rest.
+
 ## Why StackKit?
 
-### Skip the Boilerplate
-No more spending hours setting up TypeScript configs, ESLint rules, or integrating auth libraries. Get a fully configured project instantly.
+Every new project starts with the same boring questions: How do I wire up the database? Which auth library should I use? How do I structure the folders? What goes in the `.env` file?
 
-### Modular by Design
-Start minimal or go full-stack. Add databases, authentication, and other features incrementally—only what you need, when you need it.
+StackKit answers all of that for you — not with opinions forced on your code, but with clean, standard patterns that any developer can read and modify. Think of it like a really smart project template that understands which tools work together and configures them correctly from day one.
 
-### Production-Grade Setup
-Every project includes TypeScript strict mode, ESLint configuration, environment variable management, and best practices built-in.
+### No lock-in, ever
 
-### Smart Compatibility
-Automatic checks ensure modules work together. No configuration conflicts, no manual debugging of integration issues.
+Everything StackKit generates is plain code using popular, well-documented libraries. You can open any generated file and immediately understand what it does. There's no StackKit-specific abstraction layer to learn or work around.
 
-## What You Get
+### Modular by design
 
-### Templates
-- **Next.js** - Full-stack React with App Router
-- **Express** - Node.js REST API with TypeScript
-- **React** - Frontend SPA with Vite
+Start with just a framework, or go all-in with a database and auth from the beginning. If your project grows and you need to add a database later, run `stackkit add` and it integrates cleanly into your existing project.
 
-### Database Integration
-- **Prisma** - Modern ORM for PostgreSQL, MySQL, MongoDB, SQLite
-- **Mongoose** - Elegant MongoDB ODM
-- Pre-configured connection, schema files, and type safety
+### Compatibility guaranteed
 
-### Authentication
-- **Better Auth** - TypeScript-first auth for all frameworks
-- Complete setup with routes, middleware, and environment config
+Not all tools work together out of the box. StackKit knows which modules are compatible with which frameworks, and prevents you from accidentally combining things that don't work together. No more wasted hours debugging integration issues.
 
-### Developer Experience
-- Automatic package manager detection
-- Git initialization with proper .gitignore
-- Environment variable templates
-- Health diagnostics with `doctor` command
+## What can StackKit generate?
 
-## Common Workflows
+### Frameworks
 
-```bash
-# Create new project (interactive)
-npx stackkit@latest create my-app
+| Framework | Description |
+|-----------|-------------|
+| **Next.js** | Full-stack React app with App Router, TypeScript, and Tailwind CSS |
+| **Express** | Node.js REST API with TypeScript and a modular folder structure |
+| **React** | Frontend SPA powered by Vite with TypeScript and React Router |
 
-# Add features to existing project
-npx stackkit@latest add
+### Modules
 
-# Validate project setup
-npx stackkit@latest doctor
-```
+| Category | Options |
+|----------|---------|
+| **Database** | Prisma (PostgreSQL, MySQL, SQLite, MongoDB), Mongoose |
+| **Authentication** | Better Auth |
+| **UI** | Shadcn UI |
+| **Storage** | Cloudinary |
+| **Components** | TiptapEditor, DataTable, SearchBar, FilterBar |
 
-## Documentation
+## Explore the docs
 
-- [Quick Start](/docs/getting-started/quickstart) - Create your first project
-- [CLI Commands](/docs/cli/overview) - Command reference
-- [Concepts](/docs/concepts/what-is-stackkit) - How StackKit works
-- [Modules](/docs/modules) - Available integrations
+| Section | What you'll find |
+|---------|-----------------|
+| [Quick Start](/docs/getting-started/quickstart) | Create your first project step by step |
+| [What is StackKit](/docs/concepts/what-is-stackkit) | Core concepts and the design philosophy |
+| [CLI Reference](/docs/cli/overview) | Every command, flag, and option explained |
+| [Modules](/docs/modules/authentication/better-auth) | Deep dives into each integration |
+| [Troubleshooting](/docs/reference/troubleshooting) | Common problems and how to fix them |

@@ -1,13 +1,11 @@
 ---
 title: list
-description: List available frameworks and modules
+description: Show all frameworks and modules available in StackKit, along with their compatibility.
 ---
 
-## When to use
+The `list` command gives you a quick overview of everything StackKit supports. It's useful when you're planning a project and want to see what's available, or when you're checking compatibility before running `add`.
 
-Discovering what frameworks and modules are available.
-
-## Command
+## Usage
 
 ```bash
 npx stackkit@latest list
@@ -15,29 +13,30 @@ npx stackkit@latest list
 
 ## Options
 
-| Option | Description |
-|--------|-------------|
-| `-f, --frameworks` | List only frameworks |
-| `-m, --modules` | List only modules |
+| Flag | Description |
+|------|-------------|
+| `--frameworks, -f` | Show only frameworks |
+| `--modules, -m` | Show only modules |
 
 ## Examples
 
+**Show everything:**
 ```bash
-# List everything
 npx stackkit@latest list
+```
 
-# List only frameworks
+**Show only frameworks:**
+```bash
 npx stackkit@latest list --frameworks
+```
 
-# List only modules
+**Show only modules:**
+```bash
 npx stackkit@latest list --modules
 ```
 
-## Output
+## Sample output
 
-Lists frameworks and modules grouped by category.
-
-Example output:
 ```
 FRAMEWORKS
   ├── Next.js
@@ -49,17 +48,20 @@ MODULES
   │   └── Better Auth
   ├── Database (2)
   │   ├── Prisma
-  │   │   └── Providers: PostgreSQL, Mysql, Sqlite, Mongodb
+  │   │   └── Providers: PostgreSQL, MySQL, SQLite, MongoDB
   │   └── Mongoose
-  ├── Ui (1)
+  ├── UI (1)
   │   └── Shadcn UI
   ├── Storage (1)
-  │   └── Cloudinary Storage
+  │   └── Cloudinary
   └── Components (1)
       └── Components
 
-Use 'stackkit add <module>' to add modules to your project
+Use 'stackkit add' to add a module to your project.
 ```
 
-Next steps:
-- [add](/docs/cli/add) to install modules
+## What the output means
+
+Each module shown in `list` is something you can add to a compatible project using `stackkit add`. Compatibility is enforced at runtime — if a module doesn't support your framework, it won't appear when you run `add`.
+
+For a detailed breakdown of what works with what, see the [Supported Technologies](/docs/reference/supported-technologies) reference.

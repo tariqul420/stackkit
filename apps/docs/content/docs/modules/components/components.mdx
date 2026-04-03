@@ -1,53 +1,59 @@
 ---
 title: Components
-description: Add pre-built UI components to your project
+description: Production-ready UI components for Next.js and React. Includes a rich text editor, sortable data table, search input, and filter controls.
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 
-Production-ready UI components for Next.js and React projects — TypeScript only.
+The Components module gives you a collection of pre-built, ready-to-use UI components for data-heavy applications. Each component is copied directly into your project as TypeScript source code — no black-box package to fight against.
 
-## Compatible Frameworks
+## Compatible frameworks
 
-- Next.js
-- React (Vite)
+| Framework | Supported |
+|-----------|-----------|
+| Next.js | ✓ |
+| React (Vite) | ✓ |
+| Express | — |
 
-<Callout type="info">
-  Components module requires TypeScript. JavaScript projects are not supported.
+<Callout type="warn">
+  The Components module requires **TypeScript**. JavaScript projects are not supported.
 </Callout>
 
 ## Installation
 
-### Existing project
+The Components module is only available via `stackkit add` — it's not offered during `create` because it's typically added after your core stack is set up.
 
 ```bash
 npx stackkit@latest add
-# Select "Components" → "Components"
+# Navigate to: Components → Components
 ```
 
-## Included Components
+## What gets generated
 
-| Component | Description | Destination |
-|-----------|-------------|-------------|
-| `TiptapEditor` | Rich text editor powered by Tiptap | `components/tiptap-editor.tsx` (Next.js) / `src/components/tiptap-editor.tsx` (React) |
-| `DataTable` | Sortable, filterable table with TanStack Table | `components/data-table.tsx` / `src/components/data-table.tsx` |
-| `SearchBar` | Debounced search input component | `components/search-bar.tsx` / `src/components/search-bar.tsx` |
-| `FilterBar` | Filter controls for tables and lists | `components/filter-bar.tsx` / `src/components/filter-bar.tsx` |
+| Component | Description | Location (Next.js) | Location (React) |
+|-----------|-------------|-------------------|-----------------|
+| `TiptapEditor` | Rich text editor with toolbar | `components/tiptap-editor.tsx` | `src/components/tiptap-editor.tsx` |
+| `DataTable` | Sortable, filterable table | `components/data-table.tsx` | `src/components/data-table.tsx` |
+| `SearchBar` | Debounced search input | `components/search-bar.tsx` | `src/components/search-bar.tsx` |
+| `FilterBar` | Filter controls for lists | `components/filter-bar.tsx` | `src/components/filter-bar.tsx` |
 
-## Dependencies Installed
+The following packages are also installed:
 
 ```json
 {
-  "@tiptap/react": "^2.11.5",
-  "@tiptap/pm": "^2.11.5",
-  "@tiptap/starter-kit": "^2.11.5",
-  "@tanstack/react-table": "^8.21.3"
+  "@tiptap/react": "^2.x",
+  "@tiptap/pm": "^2.x",
+  "@tiptap/starter-kit": "^2.x",
+  "@tanstack/react-table": "^8.x"
 }
 ```
 
-## Usage
+## Component usage
 
 ### TiptapEditor
+
+A full-featured rich text editor with formatting toolbar. Built on [Tiptap](https://tiptap.dev) and ProseMirror.
 
 ```tsx
 import { TiptapEditor } from "@/components/tiptap-editor";
@@ -55,14 +61,18 @@ import { TiptapEditor } from "@/components/tiptap-editor";
 export default function Page() {
   return (
     <TiptapEditor
-      content="<p>Hello world</p>"
+      content="<p>Start typing here...</p>"
       onChange={(html) => console.log(html)}
     />
   );
 }
 ```
 
+The editor supports bold, italic, headings, lists, blockquotes, and code blocks out of the box. You can extend it with any Tiptap extension by editing the component file.
+
 ### DataTable
+
+A sortable, filterable, paginated table powered by [TanStack Table](https://tanstack.com/table).
 
 ```tsx
 import { DataTable } from "@/components/data-table";
@@ -70,14 +80,66 @@ import { DataTable } from "@/components/data-table";
 const columns = [
   { accessorKey: "name", header: "Name" },
   { accessorKey: "email", header: "Email" },
+  { accessorKey: "role", header: "Role" },
 ];
 
-export default function Page() {
+const users = [
+  { name: "Alice", email: "alice@example.com", role: "Admin" },
+  { name: "Bob", email: "bob@example.com", role: "User" },
+];
+
+export default function UsersPage() {
   return <DataTable columns={columns} data={users} />;
 }
 ```
 
-## Next Steps
+### SearchBar
 
-- [Shadcn UI](/docs/modules/ui/shadcn) - UI component library
-- [Troubleshooting](/docs/reference/troubleshooting) - Common issues
+A debounced search input that delays the onChange callback until the user stops typing, reducing unnecessary API calls.
+
+```tsx
+import { SearchBar } from "@/components/search-bar";
+
+export default function Page() {
+  const handleSearch = (query: string) => {
+    // Called 300ms after the user stops typing
+    console.log("Searching for:", query);
+  };
+
+  return <SearchBar placeholder="Search users..." onChange={handleSearch} />;
+}
+```
+
+### FilterBar
+
+A row of filter controls (dropdowns, toggles) for narrowing down list results alongside a DataTable or similar component.
+
+```tsx
+import { FilterBar } from "@/components/filter-bar";
+
+const filters = [
+  {
+    key: "role",
+    label: "Role",
+    options: ["All", "Admin", "User", "Viewer"],
+  },
+  {
+    key: "status",
+    label: "Status",
+    options: ["All", "Active", "Inactive"],
+  },
+];
+
+export default function Page() {
+  const handleFilterChange = (key: string, value: string) => {
+    console.log(`${key}: ${value}`);
+  };
+
+  return <FilterBar filters={filters} onChange={handleFilterChange} />;
+}
+```
+
+## Next steps
+
+- [Shadcn UI](/docs/modules/ui/shadcn) — The UI component library that these components are styled with
+- [Troubleshooting](/docs/reference/troubleshooting) — Common issues

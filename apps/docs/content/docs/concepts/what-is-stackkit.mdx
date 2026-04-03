@@ -1,103 +1,91 @@
 ---
-title: What is StackKit
-description: Core concepts and design philosophy
+title: What is StackKit?
+description: Understand the design philosophy behind StackKit and how it fits into your development workflow.
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-StackKit is a code generator that creates standard projects using popular tools, then gets out of your way. It provides a solid foundation with best practices, so you can focus on building your app instead of configuring it.
+StackKit is a **code generator** — not a framework, not a library, not a runtime dependency. It generates a complete project foundation using the tools and libraries you already know, then gets completely out of the way.
+
+When you run `stackkit create`, it asks you what you want (Next.js? Prisma? Better Auth?), creates all the files, wires the pieces together correctly, installs the dependencies, and hands you a project that's ready to go. After that, StackKit plays no further role. You work directly with Next.js, Prisma, and Better Auth — not with any StackKit layer on top.
 
 <Callout type="info">
-  Once generated, you own 100% of the code. StackKit is not a runtime dependency.
+  Once your project is generated, you can delete StackKit entirely from your system. Your project will continue to work perfectly because it only depends on the libraries you chose.
 </Callout>
 
-## Core Concepts
+## The problem StackKit solves
+
+Starting a new project from scratch is deceptively tedious. You need to:
+
+- Set up TypeScript with strict mode enabled
+- Configure ESLint and understand which rules matter
+- Install and wire up a database ORM
+- Set up authentication routes, middleware, and session handling
+- Create a `.env` file and document all the variables
+- Initialize a git repository with a sensible `.gitignore`
+- Write a `README.md` explaining how to run the project
+
+None of these tasks are hard individually, but together they consume the first few hours of every new project. And if you've done them ten times already, they feel like a chore. StackKit handles all of it in under a minute.
+
+## Core concepts
 
 ### Templates
-Base project structures:
-- **Next.js** - Full-stack with App Router
-- **Express** - REST API with TypeScript
-- **React** - SPA with Vite
+
+A **template** is the base project structure for a given framework. StackKit includes three templates:
+
+- **Next.js** — Full-stack React with App Router, server components, and TypeScript
+- **Express** — Node.js REST API with TypeScript and a clean modular folder layout
+- **React** — Frontend SPA built with Vite, TypeScript, and React Router
+
+Templates are intentionally minimal. They give you the scaffolding and best-practice defaults without adding anything you didn't ask for.
 
 ### Modules
-Optional features:
-- **Databases** - Prisma, Mongoose
-- **Auth** - Better Auth
-- **UI** - Shadcn UI
-- **Storage** - Cloudinary
-- **Components** - TiptapEditor, DataTable, SearchBar, FilterBar, and more
 
-### Commands
-- `create` - New project
-- `add` - Add features
-- `doctor` - Verify health
-- `list` - Show options
+A **module** is an optional integration that gets layered on top of a template. Modules handle the boring part of "installing and configuring library X" for you.
 
-## When to Use
+| Category | Available modules |
+|----------|------------------|
+| Database | Prisma, Mongoose |
+| Authentication | Better Auth |
+| UI Components | Shadcn UI |
+| File Storage | Cloudinary |
+| Pre-built Components | TiptapEditor, DataTable, SearchBar, FilterBar |
 
-**Good for:**
-- New projects
-- Team standardization
-- Learning full-stack
-- Prototypes
+When a module is installed, StackKit writes the configuration files, adds the required environment variables to `.env.example`, and installs all the necessary packages. You get a working integration, not just a bare dependency in `package.json`.
 
-**Not for:**
-- Custom build configs
-- Non-JS/TS projects
+### Compatibility checking
 
-## How It Works
+Not every module works with every framework. For example, Prisma and Mongoose are only available for Express projects right now. Shadcn UI only works with Next.js and React. StackKit knows this, and it won't let you accidentally combine incompatible things.
 
-### Create Project
-```
-stackkit create my-app
-  ↓
-Select options
-  ↓
-Generate files
-  ↓
-Install deps
-  ↓
-Ready!
-```
+This is different from just reading docs. When you run `stackkit add` in an Express project, you'll only see modules that actually work with Express — no guesswork required.
 
-### Add Features
-```
-stackkit add
-  ↓
-Detect framework
-  ↓
-Show modules
-  ↓
-Install
-  ↓
-Ready!
-```
+## When to use StackKit
 
-## Design Principles
+StackKit works best when you're starting something new and want a clean, well-configured foundation. Some common scenarios:
 
-### No Lock-in
-- You own all code
-- No runtime dependency
-- Standard tools work
-- Deploy anywhere
+- **New side project** — Skip the setup and get straight to building
+- **Team standardization** — Every project in your org starts with the same structure and conventions
+- **Rapid prototyping** — Validate an idea quickly without worrying about setup
+- **Learning full-stack** — Understand how different layers of a stack connect by reading generated code
 
-### Follow Standards
-- Framework conventions
-- TypeScript strict mode
-- ESLint best practices
-- Standard env vars
+## When StackKit might not be the right fit
 
-### Smart Defaults
-- Everything pre-configured
-- Minimal dependencies
-- Fast builds
-- Type-safe
+StackKit is opinionated about project structure and module integration. If you have very specific requirements that conflict with the patterns StackKit uses, you might be better served by writing your own setup.
 
-## What's Included
+Some situations where StackKit may not help:
+- You need a non-JavaScript/TypeScript project
+- You need a custom build system or bundler setup that differs significantly from the defaults
+- You're working inside a monorepo with existing conventions that must be followed
 
-Every project has:
-- TypeScript configuration
-- ESLint setup
+## How it relates to the tools it uses
+
+StackKit is built on top of the official CLIs and SDKs for each tool it integrates:
+
+- **Shadcn UI** — StackKit runs `shadcn@latest init` during installation, so you get the exact same setup as if you'd done it manually
+- **Prisma** — Schema files and scripts follow Prisma's official conventions
+- **Better Auth** — Configuration follows the Better Auth documentation patterns
+
+You don't need to learn a new abstraction. Everything StackKit generates is standard code for each respective tool.
 - Environment variables (.env + .env.example)
 - Package scripts
 - Git-ready

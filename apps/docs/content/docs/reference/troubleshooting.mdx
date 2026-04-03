@@ -1,103 +1,200 @@
 ---
 title: Troubleshooting
-description: Common issues and solutions
+description: Solutions to the most common problems you might run into when using StackKit.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-## Quick Fixes
+If something isn't working, start here. This page covers the issues people run into most often.
 
-### Permission Error
+<Callout type="info">
+  When in doubt, run `npx stackkit doctor`. It checks your project's configuration and tells you exactly what's wrong.
+</Callout>
+
+## Installation and setup
+
+### Permission error when running `npx stackkit`
+
+If you see a permissions error, use `npx stackkit@latest` instead of a globally installed version. It always fetches the latest, pre-built release.
 
 ```bash
-# Use npx instead
 npx stackkit@latest create my-app
 ```
 
-### Network Timeout
+### Network timeout during installation
+
+If dependency installation times out, increase npm's fetch timeout and try again:
 
 ```bash
-# Increase timeout
 npm config set fetch-timeout 300000
 ```
 
-### Port Already in Use
+Or switch to a different package manager like pnpm, which tends to be faster:
 
 ```bash
-# Kill process
+pnpm dlx stackkit@latest create my-app
+```
+
+### Dependencies failed to install
+
+Delete `node_modules` and reinstall from scratch:
+
+```bash
+rm -rf node_modules
+npm install
+```
+
+If you're using pnpm:
+
+```bash
+rm -rf node_modules
+pnpm install
+```
+
+## Running the dev server
+
+### Port is already in use
+
+Kill whatever is running on port 3000 (or 5173 for React/Vite):
+
+```bash
+# Kill any process on port 3000
 lsof -ti:3000 | xargs kill -9
+
+# For React/Vite on port 5173
+lsof -ti:5173 | xargs kill -9
 ```
 
-### Dependencies Not Installing
+Or specify a different port when starting:
+
+```bash
+PORT=3001 npm run dev
+```
+
+## Module issues
+
+### Incompatibility error when running `add`
+
+Not all modules work with every framework. If you see a compatibility error, run `stackkit list` to see what's available for your project:
+
+```bash
+npx stackkit list
+```
+
+**Full compatibility matrix:**
+
+| Module | Next.js | Express | React |
+|--------|:-------:|:-------:|:-----:|
+| Better Auth | ✓ | ✓ | ✓ |
+| Prisma | — | ✓ | — |
+| Mongoose | — | ✓ | — |
+| Shadcn UI | ✓ | — | ✓ |
+| Cloudinary | — | ✓ | — |
+| Components | ✓ | — | ✓ |
+
+### A module doesn't seem to be working
+
+First, check your project health:
+
+```bash
+npx stackkit doctor
+```
+
+If that doesn't surface the issue, try reinstalling your dependencies:
 
 ```bash
 npm install
 ```
 
-## Module Issues
+## Database issues
 
-### Compatibility Error
+### Prisma Client is not found or outdated
 
-Check compatibility:
-
-```bash
-stackkit list
-```
-
-**Compatibility:**
-
-| Module      | Next.js | Express | React |
-| ----------- | ------- | ------- | ----- |
-| Better Auth | Yes     | Yes     | Yes   |
-| Prisma      | No      | Yes     | No    |
-| Mongoose    | No      | Yes     | No    |
-| Shadcn UI   | Yes     | No      | Yes   |
-| Cloudinary  | No      | Yes     | No    |
-
-### Module Not Working
-
-```bash
-# Check health
-stackkit doctor
-
-# Reinstall
-npm install
-```
-
-## Database Issues
-
-### Prisma Client Missing
+Regenerate the Prisma Client after any schema change:
 
 ```bash
 npx prisma generate
 ```
 
-### Connection Failed
+### Database connection failed
 
-1. Check DATABASE_URL in `.env`
-2. Verify database is running
-3. Test: `npx prisma db push`
-
-### MongoDB Connection
-
-Ensure MongoDB is running:
+1. Confirm your `DATABASE_URL` in `.env` is correct
+2. Make sure your database server is actually running
+3. Test whether Prisma can reach it:
 
 ```bash
-# Check status
-brew services list | grep mongodb
-# or
-systemctl status mongod
+npx prisma db push
 ```
 
-## Environment Variables
+If you see a connection refused error, the issue is with the database server, not StackKit.
 
-### Missing Variables
+### MongoDB connection refused (Mongoose)
+
+Make sure MongoDB is running on your machine:
 
 ```bash
-# Copy template
-cp .env.example .env
+# macOS (Homebrew)
+brew services start mongodb-community
 
-# Generate secrets
+# Linux (systemd)
+sudo systemctl start mongod
+```
+
+If you're using MongoDB Atlas, double-check that:
+- Your IP address is in the Atlas allowlist
+- Your username and password are correct in the connection string
+
+## Authentication issues
+
+### Better Auth: Missing secret
+
+If you see an error about a missing or invalid secret, generate one and add it to your `.env`:
+
+```bash
+openssl rand -base64 32
+```
+
+Then set it in `.env`:
+
+```bash
+BETTER_AUTH_SECRET="your-generated-secret-here"
+BETTER_AUTH_URL="http://localhost:3000"
+```
+
+### Better Auth: Session not persisting
+
+Make sure `BETTER_AUTH_URL` matches the exact URL you're accessing in the browser, including the port.
+
+```bash
+# Development
+BETTER_AUTH_URL="http://localhost:3000"
+
+# Production
+BETTER_AUTH_URL="https://yourdomain.com"
+```
+
+## Environment variables
+
+### Variables are missing or not loading
+
+Copy the example file and fill in your values:
+
+```bash
+cp .env.example .env
+```
+
+For Next.js, make sure you restart the dev server after changing `.env` — Next.js doesn't hot-reload environment variables.
+
+<Callout type="warn">
+  Never commit your `.env` file to version control. Check that `.gitignore` includes `.env` and `.env.local`.
+</Callout>
+
+## Still stuck?
+
+- Run `npx stackkit doctor` and share the output when asking for help
+- Search [existing GitHub issues](https://github.com/tariqul420/stackkit/issues)
+- Open a [new issue](https://github.com/tariqul420/stackkit/issues/new?template=bug_report.md) with details about your setup and what you tried
+- Join the [Discord server](https://discord.gg/PD8XWdpA) for community help
 openssl rand -base64 32
 ```
 

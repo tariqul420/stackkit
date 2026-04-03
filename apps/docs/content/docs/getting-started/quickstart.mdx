@@ -1,29 +1,35 @@
 ---
 title: Quick Start
-description: Create your first StackKit project in under 2 minutes
+description: Create your first StackKit project in under two minutes. Follow these steps to get a fully configured full-stack application up and running.
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { Steps, Step } from 'fumadocs-ui/components/steps';
 
-Get your first StackKit project running in three simple steps.
+This guide walks you through creating a new project from scratch. By the end, you'll have a fully configured, running application on your machine.
 
 <Callout type="info">
-  **Requirements**: Node.js 18 or higher
+  **Before you start** — Make sure you have **Node.js 18 or higher** installed. Run `node --version` to check.
 </Callout>
 
-## Step 1: Generate Project
+<Steps>
 
-<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
-  <Tab value="pnpm">
-    ```bash
-    pnpm dlx stackkit@latest create my-app
-    ```
-  </Tab>
+<Step>
+
+## Create your project
+
+Run the `create` command with your preferred package manager. StackKit will walk you through an interactive setup — no flags required.
+
+<Tabs items={['npm', 'pnpm', 'yarn', 'bun']}>
   <Tab value="npm">
     ```bash
     npx stackkit@latest create my-app
+    ```
+  </Tab>
+  <Tab value="pnpm">
+    ```bash
+    pnpm dlx stackkit@latest create my-app
     ```
   </Tab>
   <Tab value="yarn">
@@ -38,116 +44,138 @@ Get your first StackKit project running in three simple steps.
   </Tab>
 </Tabs>
 
-## Step 2: Choose Your Stack
-
-Answer a few quick prompts:
-
-1. **Framework** - Next.js, Express, or React
-2. **Database** - Prisma, Mongoose, or skip for now
-3. **Authentication** - Better Auth, or skip for now
-4. **Language** - TypeScript (recommended) or JavaScript
-5. **Package Manager** - Auto-detected or choose manually
-6. **Git** - Initialize repository (recommended)
-
-StackKit generates everything in seconds.
-
-## Step 3: Start Development
-
-```bash
-cd my-app
-npm run dev
-```
-
-Your application runs at:
-- Next.js: http://localhost:3000
-- Express: http://localhost:3000
-- React: http://localhost:5173
-
-## Project Structure
-
-Generated structure varies by framework. Check your project's README for details.
-
-Common files in all projects:
-- `.env.example` - Environment variable template
-- `package.json` - Dependencies and scripts
-- `tsconfig.json` - TypeScript configuration
-- `README.md` - Project-specific documentation
-
-## Configure Environment
-
-Copy `.env.example` to `.env` and fill in your values:
-
-```bash
-cp .env.example .env
-```
-
-Required variables depend on your selected modules. Check `.env.example` for details.
-
-<Callout type="warn">
-  Generate secrets: `openssl rand -base64 32`
-</Callout>
-
-## Available Commands
-
-```bash
-npm run dev            # Start development
-npm run build          # Build for production
-npm start              # Run production build
-npm run lint           # Lint code
-```
-
-Check your project's README for module-specific commands.
-
-## Next Steps
-
-<Steps>
-
-<Step>
-
-### Configure Environment
-
-Copy `.env.example` to `.env` and add your credentials.
+Replace `my-app` with whatever you'd like to name your project.
 
 </Step>
 
 <Step>
 
-### Run Health Check
+## Answer the prompts
+
+StackKit will ask you a series of questions to configure your project. Each one has a sensible default, so you can press Enter to skip if you're unsure.
+
+| Prompt | Options | Notes |
+|--------|---------|-------|
+| Framework | Next.js, Express, React | Pick the foundation for your app |
+| Database | Prisma, Mongoose, None | Skip if you don't need a database yet |
+| Database Provider | PostgreSQL, MySQL, SQLite, MongoDB | Only shown when Prisma is selected |
+| Authentication | Better Auth, None | Requires a database on Express |
+| UI Library | Shadcn UI, None | Available for Next.js and React |
+| Storage | Cloudinary, None | Available for Express only |
+| Language | TypeScript, JavaScript | TypeScript is recommended |
+| Package Manager | pnpm, npm, yarn, bun | Auto-detected from your environment |
+| Initialize Git | Yes, No | Creates a git repo with an initial commit |
+
+Once you confirm, StackKit generates your files and installs dependencies automatically.
+
+</Step>
+
+<Step>
+
+## Set up your environment
+
+Every generated project includes a `.env.example` file listing all the environment variables your app needs. Copy it to `.env` and fill in your values.
+
+```bash
+cd my-app
+cp .env.example .env
+```
+
+Open `.env` in your editor and replace the placeholder values. If you added **Better Auth**, you'll need a secret key — generate one with:
+
+```bash
+openssl rand -base64 32
+```
+
+<Callout type="warn">
+  Never commit your `.env` file to version control. A `.gitignore` entry is already included, but double-check before pushing.
+</Callout>
+
+</Step>
+
+<Step>
+
+## Start the development server
+
+```bash
+npm run dev
+```
+
+Your application should now be running locally:
+
+| Framework | URL |
+|-----------|-----|
+| Next.js | http://localhost:3000 |
+| Express | http://localhost:3000 |
+| React | http://localhost:5173 |
+
+</Step>
+
+<Step>
+
+## Verify your setup
+
+Run the `doctor` command to check that your project is configured correctly. It will flag missing environment variables, uninstalled dependencies, or any misconfigured files.
 
 ```bash
 npx stackkit doctor
 ```
 
-</Step>
-
-<Step>
-
-### Start Building
-
-Check the generated README for module-specific setup instructions.
+A clean output means you're ready to build.
 
 </Step>
 
 </Steps>
 
+## What was generated?
+
+The generated files depend on the modules you chose, but every project includes:
+
+- `package.json` — Dependencies and npm scripts
+- `tsconfig.json` — TypeScript configuration (strict mode enabled)
+- `.env.example` — Environment variable template with comments
+- `README.md` — Project-specific setup notes and commands
+- `.gitignore` — Sensible defaults for your framework
+
+## Development commands
+
+```bash
+npm run dev      # Start the development server with hot reload
+npm run build    # Build an optimized production bundle
+npm start        # Serve the production build
+npm run lint     # Check for code style issues
+```
+
+Some modules add extra scripts — check your `package.json` or `README.md` for details.
+
+## Add more features later
+
+You don't need to add everything upfront. If you decide you need a database or authentication after the project is created, just run:
+
+```bash
+npx stackkit add
+```
+
+StackKit will detect your framework and show you the modules that are compatible with your setup.
+
 ## Troubleshooting
 
-### Common Issues
-
-**Port already in use:**
+**The port is already in use:**
 ```bash
 lsof -ti:3000 | xargs kill -9
 ```
 
-**Dependencies not working:**
-```bash
-npm install
-```
-
-**Need help?**
+**Something looks broken after adding a module:**
 ```bash
 npx stackkit doctor
 ```
+
+**Dependencies are in a weird state:**
+```bash
+rm -rf node_modules && npm install
+```
+
+For more issues, see the [Troubleshooting guide](/docs/reference/troubleshooting).
 
 See [Troubleshooting Guide](/docs/reference/troubleshooting) for more solutions.
 

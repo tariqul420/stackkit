@@ -1,102 +1,124 @@
 ---
 title: add
-description: Add modules to existing projects
+description: Add a database, authentication, UI library, or other module to an existing project.
 ---
 
-## When to use
+import { Callout } from 'fumadocs-ui/components/callout';
 
-Adding authentication or database features to an existing project.
+The `add` command lets you integrate a new module into a project you've already started — whether it was created with StackKit or not.
 
-## Command
+## Usage
 
 ```bash
-npx stackkit@latest add [options]
+npx stackkit@latest add [module] [options]
 ```
 
-## Interactive Mode
-
-When run without options, the CLI guides you through adding modules:
+Run it without arguments for interactive mode. StackKit will automatically detect your framework and show only the modules that are compatible with your project.
 
 ```bash
 npx stackkit@latest add
 ```
 
-You'll be prompted to choose:
-- **Category**: Database or Authentication
-- **Module**: Specific database/ORM or auth provider
-- **Provider** (for databases): Database type and connection details
+## What happens when you run `add`
+
+1. StackKit reads your `package.json` to detect whether you're working in a Next.js, Express, or React project.
+2. You're shown a list of modules that are compatible with your framework.
+3. You select a module (and a provider, if applicable).
+4. StackKit writes the integration files into your project using the same paths as if you'd started with that module.
+5. Required packages are added and installed.
+6. New environment variables are appended to `.env.example`.
+
+<Callout type="info">
+  Running `add` never overwrites existing files unless you pass `--force`. Your current code is safe.
+</Callout>
 
 ## Options
 
-### Module Options
-- `--provider <provider>`: Database provider (e.g., `postgresql`, `mongodb`)
-
-### Other Options
-- `--force`: Overwrite existing files
-- `--dry-run`: Show changes without applying
-- `--no-install`: Skip dependency installation
-- `--yes, -y`: Skip interactive prompts (requires module name)
+| Flag | Description |
+|------|-------------|
+| `--provider <value>` | Specify a database provider (e.g., `prisma-postgresql`) |
+| `--force` | Overwrite existing files if there are conflicts |
+| `--dry-run` | Show what would be generated without writing any files |
+| `--no-install` | Skip running the package manager after generating files |
+| `--yes, -y` | Skip confirmation prompts (module name must be provided) |
 
 ## Examples
 
+**Interactive setup (recommended):**
 ```bash
-# Interactive setup
 npx stackkit@latest add
+```
 
-# Add database with specific provider
+**Add Prisma with PostgreSQL directly:**
+```bash
 npx stackkit@latest add database --provider prisma-postgresql
+```
 
-# Add authentication
+**Add Better Auth:**
+```bash
 npx stackkit@latest add auth --provider better-auth
+```
 
-# Preview changes
+**Preview changes without applying them:**
+```bash
 npx stackkit@latest add --dry-run
 ```
 
-## Available Modules
+**Add files without installing packages:**
+```bash
+npx stackkit@latest add --no-install
+```
 
-### Database Modules
-| Module | Providers | Frameworks | Description |
-|--------|-----------|------------|-------------|
-| `prisma` | PostgreSQL, MongoDB, MySQL, SQLite | Express | Prisma ORM with multiple database support |
-| `mongoose` | MongoDB | Express | Mongoose ODM for MongoDB |
+## Available modules
 
-### Authentication Modules
-| Module | Frameworks | Description |
-|--------|------------|-------------|
-| `better-auth` | Next.js, Express, React | TypeScript-first authentication library |
+### Authentication
 
-### UI Modules
-| Module | Frameworks | Description |
-|--------|------------|-------------|
-| `shadcn` | Next.js, React | Shadcn UI components + Tailwind helpers |
+| Module | Compatible Frameworks |
+|--------|----------------------|
+| Better Auth | Next.js, Express, React |
 
-### Storage Modules
-| Module | Frameworks | Description |
-|--------|------------|-------------|
-| `cloudinary` | Express | Cloudinary file storage integration |
+### Database
 
-### Component Modules
-| Module | Frameworks | Description |
-|--------|------------|-------------|
-| `components` | Next.js, React | TiptapEditor, DataTable, SearchBar, FilterBar, and more |
+| Module | Compatible Frameworks | Notes |
+|--------|----------------------|-------|
+| Prisma | Express | Supports PostgreSQL, MySQL, SQLite, MongoDB |
+| Mongoose | Express | MongoDB only |
+
+### UI
+
+| Module | Compatible Frameworks |
+|--------|----------------------|
+| Shadcn UI | Next.js, React |
+
+### Storage
+
+| Module | Compatible Frameworks |
+|--------|----------------------|
+| Cloudinary | Express |
+
+### Components
+
+| Module | Compatible Frameworks | Notes |
+|--------|----------------------|-------|
+| Components | Next.js, React | TypeScript only |
 
 ## What gets generated
 
-- Source files (auth configs, database clients)
-- Dependencies added to package.json
-- Environment variables in .env.example
-- Schema files (for databases)
-- Configuration updates for your framework
+The exact output depends on the module, but every `add` operation:
 
-## Compatibility
+- Writes configuration and client files to the correct locations
+- Appends new variables to `.env.example` with descriptions
+- Updates `package.json` with required dependencies
+- Installs packages with your detected package manager
 
-The CLI automatically detects your project type and ensures compatibility:
+For module-specific details, see the [Modules section](/docs/modules/authentication/better-auth).
 
-- **Framework Detection**: Reads package.json to identify Next.js, Express, or React
-- **Module Validation**: Checks if selected modules support your framework
-- **Dependency Resolution**: Installs appropriate packages for your setup
+## After adding a module
 
-Next steps:
-- [Environment Variables](/docs/reference/environment-variables) for setup
-- [Doctor Command](/docs/cli/doctor) to verify your setup
+Run `doctor` to verify everything is configured correctly:
+
+```bash
+npx stackkit doctor
+```
+
+Then update your `.env` file with any new variables that were added to `.env.example`.

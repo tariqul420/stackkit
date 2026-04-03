@@ -1,54 +1,174 @@
 ---
 title: Better Auth
-description: Add Better Auth to your project
+description: TypeScript-first authentication for Next.js, Express, and React. Better Auth handles sessions, credentials, OAuth, and more.
 ---
 
-TypeScript-first authentication for Next.js, Express, and React.
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
 
-## Compatible Frameworks
+[Better Auth](https://www.better-auth.com) is a framework-agnostic TypeScript authentication library. StackKit sets it up with the right configuration for your framework so you can start authenticating users immediately.
 
-- Next.js
-- Express
-- React
+## Compatible frameworks
+
+Better Auth works across all three StackKit frameworks:
+
+| Framework | Notes |
+|-----------|-------|
+| **Next.js** | API routes, server-side session access, React hooks |
+| **Express** | Mounted as a middleware with dedicated auth routes |
+| **React** | Client-side session management and sign-in/sign-up flows |
+
+<Callout type="warn">
+  When using Better Auth with Express, a database is required. Better Auth needs somewhere to persist sessions and user records.
+</Callout>
 
 ## Installation
 
-### New project
+### In a new project
 
-```bash
-npx stackkit@latest create my-app --auth better-auth
-```
+<Tabs items={['npm', 'pnpm', 'yarn', 'bun']}>
+  <Tab value="npm">
+    ```bash
+    npx stackkit@latest create my-app --auth better-auth
+    ```
+  </Tab>
+  <Tab value="pnpm">
+    ```bash
+    pnpm dlx stackkit@latest create my-app --auth better-auth
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn dlx stackkit@latest create my-app --auth better-auth
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bun x stackkit@latest create my-app --auth better-auth
+    ```
+  </Tab>
+</Tabs>
 
-### Existing project
+### In an existing project
 
 ```bash
 npx stackkit@latest add
-# Select "Authentication" → "Better Auth"
+# Navigate to: Authentication → Better Auth
 ```
 
 ## What gets generated
 
-- `lib/auth.ts` - Auth configuration
-- API routes (framework-specific)
-- Environment variable template
+StackKit writes all the files Better Auth needs — you don't have to touch any configuration manually.
+
+**Next.js:**
+- `lib/auth.ts` — Core auth configuration (plugins, social providers, etc.)
+- `lib/auth-client.ts` — Client-side hooks (useSession, signIn, signOut)
+- `app/api/auth/[...all]/route.ts` — API handler that mounts Better Auth
+
+**Express:**
+- `src/lib/auth.ts` — Auth instance with database adapter
+- `src/routes/auth.routes.ts` — Express router for auth endpoints
+
+**React:**
+- `src/lib/auth-client.ts` — Client configured for your backend URL
 
 ## Setup
 
-1. Copy `.env.example` to `.env`
-2. Generate secret:
-   ```bash
-   openssl rand -base64 32
-   ```
-3. Add your secret and URL to `.env`
-4. Start dev server
+<Steps>
 
-## Environment Variables
+<Step>
+
+### Copy your environment file
 
 ```bash
-BETTER_AUTH_SECRET="your-secret-key"
+cp .env.example .env
+```
+
+</Step>
+
+<Step>
+
+### Generate a secret key
+
+Better Auth requires a secret for signing sessions. Generate a strong one:
+
+```bash
+openssl rand -base64 32
+```
+
+Copy the output into your `.env` file.
+
+</Step>
+
+<Step>
+
+### Set your environment variables
+
+Open `.env` and fill in:
+
+```bash
+BETTER_AUTH_SECRET="paste-your-generated-secret-here"
 BETTER_AUTH_URL="http://localhost:3000"
 ```
 
-## Next Steps
+`BETTER_AUTH_URL` is the base URL of your application. In production, this should be your actual domain.
 
-- [Troubleshooting](/docs/reference/troubleshooting) - Common issues
+</Step>
+
+<Step>
+
+### Run the database migration (if applicable)
+
+If your project includes Prisma, Better Auth adds user and session tables to your schema. Apply them with:
+
+```bash
+npx prisma migrate dev --name better-auth-init
+```
+
+</Step>
+
+<Step>
+
+### Start the development server
+
+```bash
+npm run dev
+```
+
+</Step>
+
+</Steps>
+
+## Environment variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `BETTER_AUTH_SECRET` | Yes | Secret key for signing session tokens. Must be at least 32 characters. |
+| `BETTER_AUTH_URL` | Yes | Base URL of your app (e.g., `http://localhost:3000`). |
+
+## Customizing your auth setup
+
+The generated `lib/auth.ts` (or `src/lib/auth.ts` for Express) is where you configure Better Auth. You can add social providers, enable 2FA, set session duration, and more — all by editing this single file.
+
+For example, to add Google OAuth:
+
+```ts
+import { betterAuth } from "better-auth";
+
+export const auth = betterAuth({
+  // ... existing config
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    },
+  },
+});
+```
+
+For the full list of options, see the [Better Auth documentation](https://www.better-auth.com/docs).
+
+## Next steps
+
+- [Troubleshooting](/docs/reference/troubleshooting) — Common auth-related issues

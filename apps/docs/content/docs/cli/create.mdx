@@ -1,126 +1,180 @@
 ---
 title: create
-description: Create new projects with StackKit
+description: Scaffold a new full-stack project with your choice of framework, database, authentication, and more.
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { ModuleProviders } from "@/components/docs-meta";
 
-## When to use
+The `create` command is your entry point for every new project. It generates a complete, production-ready project structure in one step.
 
-Starting a new project from scratch with your preferred framework, database, and authentication.
-
-## Command
+## Usage
 
 ```bash
 npx stackkit@latest create <project-name> [options]
 ```
 
-## Interactive Mode
-
-When run without options, the CLI guides you through setup:
+Run it without any flags to use the interactive mode — StackKit will ask you everything it needs:
 
 ```bash
 npx stackkit@latest create my-app
 ```
 
-You'll be prompted for:
-- **Framework**: Next.js, Express.js, or React
-- **Database**: Prisma, Mongoose, or None
-- **Database Provider** (for Prisma): PostgreSQL, MongoDB, MySQL, or SQLite
-- **Authentication**: Better Auth, or None
-- **UI**: Shadcn UI, or None
-- **Storage**: Cloudinary, or None
-- **Language**: TypeScript or JavaScript
-- **Package Manager**: pnpm, npm, yarn, or bun
+## Interactive prompts
+
+When you run `create` without flags, you'll be guided through the following choices:
+
+1. **Framework** — Next.js, Express.js, or React
+2. **Database** — Prisma, Mongoose, or None
+3. **Database provider** — PostgreSQL, MySQL, SQLite, or MongoDB *(shown when Prisma is selected)*
+4. **Authentication** — Better Auth, or None
+5. **UI library** — Shadcn UI, or None
+6. **Storage** — Cloudinary, or None
+7. **Language** — TypeScript or JavaScript
+8. **Package manager** — pnpm, npm, yarn, or bun *(auto-detected if a lockfile exists)*
+9. **Initialize git** — Yes or No
+
+After you confirm, StackKit generates all the files, installs dependencies, and creates an initial git commit.
 
 ## Options
 
-### Framework Options
-- `--framework, -f <framework>`: Framework to use
-  - `nextjs`: Full-stack React with App Router
-  - `express`: Node.js REST API
-  - `react`: Frontend-only SPA
+### `--framework, -f <value>`
 
-### Database Options
-- `--database, -d <database>`: Database/ORM to use
-  - `prisma`: Prisma ORM
-  - `prisma-postgresql`: Prisma with PostgreSQL
-  - `prisma-mongodb`: Prisma with MongoDB
-  - `prisma-mysql`: Prisma with MySQL
-  - `prisma-sqlite`: Prisma with SQLite
-  - `mongoose`: Mongoose ODM (MongoDB only)
-  - `none`: Skip database setup
+The base framework for your project.
 
-For Prisma provider options, see:
+| Value | Description |
+|-------|-------------|
+| `nextjs` | Next.js with App Router and TypeScript |
+| `express` | Node.js REST API with TypeScript |
+| `react` | Vite + React SPA with TypeScript |
+
+### `--database, -d <value>`
+
+The database ORM or ODM to integrate.
+
+| Value | Description |
+|-------|-------------|
+| `prisma` | Prisma ORM (prompts for provider) |
+| `prisma-postgresql` | Prisma with PostgreSQL |
+| `prisma-mongodb` | Prisma with MongoDB |
+| `prisma-mysql` | Prisma with MySQL |
+| `prisma-sqlite` | Prisma with SQLite |
+| `mongoose` | Mongoose ODM for MongoDB (Express only) |
+| `none` | Skip database setup |
+
+For Prisma provider details:
 
 <ModuleProviders moduleType="database" moduleName="prisma" />
 
-### Authentication Options
-- `--auth, -a <auth>`: Authentication library
-  - `better-auth`: TypeScript-first auth
-  - `none`: Skip authentication
+### `--auth, -a <value>`
 
-### UI Options
-- `--ui, -u <ui>`: UI component library
-  - `shadcn`: Shadcn UI components (Next.js and React only)
+The authentication library to integrate.
 
-### Storage Options
-- `--storage-provider <provider>`: File storage provider
-  - `cloudinary`: Cloudinary (Express only)
+| Value | Description |
+|-------|-------------|
+| `better-auth` | Better Auth — TypeScript-first auth |
+| `none` | Skip authentication |
 
-### Other Options
-- `--language, -l <language>`: `typescript` or `javascript`
-- `--package-manager, -p <pm>`: `pnpm`, `npm`, `yarn`, or `bun`
-- `--yes, -y`: Use default settings (Next.js + Prisma + Better Auth + TypeScript + pnpm)
-- `--install`: Install dependencies (default: true)
-- `--skip-install`: Skip dependency installation
-- `--git`: Initialize git repository (default: true)
-- `--no-git`: Skip git initialization
+### `--ui, -u <value>`
+
+A UI component library to add.
+
+| Value | Description |
+|-------|-------------|
+| `shadcn` | Shadcn UI with Tailwind CSS (Next.js and React only) |
+
+### `--storage-provider <value>`
+
+File storage integration.
+
+| Value | Description |
+|-------|-------------|
+| `cloudinary` | Cloudinary media uploads (Express only) |
+
+### Other options
+
+| Flag | Description |
+|------|-------------|
+| `--language, -l` | `typescript` (default) or `javascript` |
+| `--package-manager, -p` | `pnpm`, `npm`, `yarn`, or `bun` |
+| `--yes, -y` | Accept all defaults (Next.js + Prisma PostgreSQL + Better Auth + TypeScript + pnpm) |
+| `--skip-install` | Generate files without installing packages |
+| `--no-git` | Skip git repository initialization |
 
 ## Examples
 
+**Interactive — recommended for first-time use:**
 ```bash
-# Interactive setup
 npx stackkit@latest create my-app
+```
 
-# Next.js with Prisma and PostgreSQL
-npx stackkit@latest create my-app --framework nextjs --database prisma-postgresql --auth better-auth
+**Next.js with Prisma and Better Auth:**
+```bash
+npx stackkit@latest create my-app \
+  --framework nextjs \
+  --database prisma-postgresql \
+  --auth better-auth
+```
 
-# Express API with MongoDB
-npx stackkit@latest create my-api --framework express --database mongoose --auth better-auth
+**Express REST API with MongoDB:**
+```bash
+npx stackkit@latest create my-api \
+  --framework express \
+  --database mongoose \
+  --auth better-auth
+```
 
-# React SPA with auth
-npx stackkit@latest create my-spa --framework react --auth better-auth
+**React frontend with Shadcn UI:**
+```bash
+npx stackkit@latest create my-spa \
+  --framework react \
+  --ui shadcn
+```
 
-# Use defaults
+**Generate files only, install later:**
+```bash
+npx stackkit@latest create my-app --skip-install
+cd my-app
+pnpm install
+```
+
+**Use all defaults:**
+```bash
 npx stackkit@latest create my-app --yes
 ```
 
 ## What gets generated
 
-- Complete project structure with your chosen framework
-- Database configuration and schema files
-- Authentication setup and routes
-- Environment variables (`.env.example`)
-- Package.json with all dependencies
-- TypeScript/JavaScript configuration
-- Git repository initialized
-- Development scripts configured
+Every generated project includes:
 
-## Compatibility Matrix
+- **Framework structure** — Folder layout, routing, and entry points following framework conventions
+- **Module integrations** — Config files, clients, and routes for each module you selected
+- **`package.json`** — All required dependencies pre-listed
+- **`tsconfig.json`** — TypeScript with strict mode enabled
+- **`.env.example`** — All environment variables documented with descriptions
+- **`.gitignore`** — Tailored for your framework and modules
+- **`README.md`** — Project-specific setup and run instructions
 
-| Framework | Database | Auth | UI | Storage |
-|-----------|----------|------|----|---------|
-| Next.js | Prisma, None | Better Auth, None | Shadcn UI | - |
-| Express | Prisma, Mongoose, None | Better Auth, None | - | Cloudinary |
-| React | None | Better Auth, None | Shadcn UI | - |
+## Compatibility matrix
 
-**Notes:**
-- Better Auth requires a database for server frameworks
-- React only supports frontend authentication
-- Mongoose is only available for Express projects
+Not all modules work with every framework. Here's the full picture:
 
-Next steps:
-- [Quick Start](/docs/getting-started/quickstart) for your first project
-- [Environment Variables](/docs/reference/environment-variables) for configuration
-- [Add Command](/docs/cli/add) to extend existing projects
+| Module | Next.js | Express | React |
+|--------|:-------:|:-------:|:-----:|
+| Prisma | — | ✓ | — |
+| Mongoose | — | ✓ | — |
+| Better Auth | ✓ | ✓ | ✓ |
+| Shadcn UI | ✓ | — | ✓ |
+| Cloudinary | — | ✓ | — |
+| Components | ✓ | — | ✓ |
+
+<Callout type="warn">
+  Better Auth on Express requires a database. The interactive prompt will enforce this — you can't select Better Auth without also selecting a database when the framework is Express.
+</Callout>
+
+## Next steps
+
+- [Quick Start](/docs/getting-started/quickstart) — Walk through your first project end to end
+- [`add` command](/docs/cli/add) — Extend an existing project with more modules
+- [Better Auth module](/docs/modules/authentication/better-auth) — Post-generation setup for authentication
