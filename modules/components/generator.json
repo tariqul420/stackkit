@@ -23,9 +23,9 @@
     },
     {
       "type": "create-file",
-      "source": "nextjs/url/*",
-      "destination": "components/global/url/*",
-      "condition": { "framework": "nextjs" }
+      "source": "shared/url/*",
+      "destination": "{{framework == 'nextjs' ? 'components/global/url/*' : 'src/components/global/url/*'}}",
+      "condition": { "framework": ["nextjs", "react"] }
     },
     {
       "type": "patch-file",

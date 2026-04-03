@@ -1,7 +1,13 @@
+{{#if framework == "nextjs"}}
 "use client";
+{{/if}}
 
-import { useRouter, useSearchParams } from "next/navigation";
 import * as React from "react";
+{{#if framework == "nextjs"}}
+import { useRouter, useSearchParams } from "next/navigation";
+{{else}}
+import { useNavigate, useSearchParams } from "react-router-dom";
+{{/if}}
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { formUrlQuery, removeKeysFromQuery } from "@/lib/utils/url-helpers";
@@ -35,8 +41,13 @@ export default function SearchBar({
   ariaLabel = "Search",
   onDebouncedChange,
 }: SearchBarProps) {
+  {{#if framework == "nextjs"}}
   const router = useRouter();
   const searchParams = useSearchParams();
+  {{else}}
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  {{/if}}
 
   const [value, setValue] = React.useState<string>(() => {
     return searchParams?.get(paramKey) ?? defaultValue;
@@ -47,31 +58,23 @@ export default function SearchBar({
     setValue((prev) => (prev !== urlVal ? urlVal : prev));
   }, [searchParams, paramKey, defaultValue]);
 
-  // Debounced URL update
   React.useEffect(() => {
     const t = setTimeout(() => {
-      if (!searchParams) return;
-
       const trimmed = value.trim();
       const meetsMin = trimmed.length >= minLength;
+      const qs = searchParams?.toString() ?? "";
 
       const newUrl =
         meetsMin && trimmed !== defaultValue
-          ? formUrlQuery({
-              params: searchParams.toString(),
-              key: paramKey,
-              value: trimmed,
-            })
-          : removeKeysFromQuery({
-              params: searchParams.toString(),
-              keysToRemove: [paramKey],
-            });
+          ? formUrlQuery({ params: qs, key: paramKey, value: trimmed })
+          : removeKeysFromQuery({ params: qs, keysToRemove: [paramKey] });
 
-      if (replace) {
-        router.replace(newUrl, { scroll: false });
-      } else {
-        router.push(newUrl, { scroll: false });
-      }
+      {{#if framework == "nextjs"}}
+      if (replace) router.replace(newUrl, { scroll: false });
+      else router.push(newUrl, { scroll: false });
+      {{else}}
+      navigate(newUrl, { replace });
+      {{/if}}
 
       onDebouncedChange?.(trimmed);
     }, debounceMs);
@@ -81,7 +84,11 @@ export default function SearchBar({
     value,
     debounceMs,
     replace,
+    {{#if framework == "nextjs"}}
     router,
+    {{else}}
+    navigate,
+    {{/if}}
     searchParams,
     paramKey,
     defaultValue,
@@ -90,9 +97,7 @@ export default function SearchBar({
   ]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Escape" && value) {
-      setValue("");
-    }
+    if (e.key === "Escape" && value) setValue("");
   };
 
   return (

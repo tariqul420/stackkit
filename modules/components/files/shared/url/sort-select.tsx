@@ -1,5 +1,13 @@
+{{#if framework == "nextjs"}}
 "use client";
+{{/if}}
 
+import * as React from "react";
+{{#if framework == "nextjs"}}
+import { useRouter, useSearchParams } from "next/navigation";
+{{else}}
+import { useNavigate, useSearchParams } from "react-router-dom";
+{{/if}}
 import {
   Select,
   SelectContent,
@@ -8,8 +16,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { formUrlQuery } from "@/lib/utils/url-helpers";
-import { useRouter, useSearchParams } from "next/navigation";
-import * as React from "react";
 
 export type SortOption = {
   value: string;
@@ -39,8 +45,13 @@ export default function SortSelect({
   onValueChange,
   ariaLabel = "Sort options",
 }: SortSelectProps) {
+  {{#if framework == "nextjs"}}
   const router = useRouter();
   const searchParams = useSearchParams();
+  {{else}}
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  {{/if}}
 
   const [value, setValue] = React.useState(() => {
     return searchParams?.get(paramKey) ?? defaultValue;
@@ -51,29 +62,21 @@ export default function SortSelect({
     setValue((prev) => (prev !== urlVal ? urlVal : prev));
   }, [searchParams, paramKey, defaultValue]);
 
-  // Debounced URL update
   React.useEffect(() => {
     const t = setTimeout(() => {
-      if (!searchParams) return;
+      const qs = searchParams?.toString() ?? "";
+      const newUrl = formUrlQuery({
+        params: qs,
+        key: paramKey,
+        value: value && value !== defaultValue ? value : null,
+      });
 
-      const newUrl =
-        value && value !== defaultValue
-          ? formUrlQuery({
-              params: searchParams.toString(),
-              key: paramKey,
-              value,
-            })
-          : formUrlQuery({
-              params: searchParams.toString(),
-              key: paramKey,
-              value: null,
-            });
-
-      if (replace) {
-        router.replace(newUrl, { scroll: false });
-      } else {
-        router.push(newUrl, { scroll: false });
-      }
+      {{#if framework == "nextjs"}}
+      if (replace) router.replace(newUrl, { scroll: false });
+      else router.push(newUrl, { scroll: false });
+      {{else}}
+      navigate(newUrl, { replace });
+      {{/if}}
 
       onValueChange?.(value);
     }, debounceMs);
@@ -83,17 +86,18 @@ export default function SortSelect({
     value,
     debounceMs,
     replace,
+    {{#if framework == "nextjs"}}
     router,
+    {{else}}
+    navigate,
+    {{/if}}
     searchParams,
     paramKey,
     defaultValue,
     onValueChange,
   ]);
 
-  const handleChange = React.useCallback(
-    (v: string | null) => setValue(v ?? ""),
-    [],
-  );
+  const handleChange = React.useCallback((v: string | null) => setValue(v ?? ""), []);
 
   return (
     <div className="overflow-hidden rounded-md dark:bg-transparent">
