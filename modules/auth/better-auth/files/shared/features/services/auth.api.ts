@@ -50,6 +50,19 @@ export async function resendOTPRequest(payload: { email: string }) {
   return res.data;
 }
 
+export async function ChangePassword(payload: {
+  currentPassword: string;
+  newPassword: string;
+}) {
+  const res = await api.post("/v1/auth/change-password", payload);
+  return res.data;
+}
+
+export async function updateProfile(payload: { name: string; image?: string }) {
+  const res = await api.patch("/v1/auth/profile", payload);
+  return res.data;
+}
+
 export async function logoutRequest() {
   const res = await api.post("/v1/auth/logout", {});
   {{#if framework == "nextjs"}}

@@ -22,6 +22,7 @@ export interface ILoginResponse {
 }
 
 export interface IUserResponse {
+  id: string;
   needPasswordChange: boolean;
   email: string;
   name: string;
@@ -30,6 +31,7 @@ export interface IUserResponse {
   status: string;
   isDeleted: boolean;
   emailVerified: boolean;
+  createdAt?: string;
 }
 
 export type OAuthLoginPayload = {

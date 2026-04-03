@@ -254,6 +254,57 @@ const getMe = async (user : IRequestUser) => {
     return isUserExists;
 }
 
+const updateProfile = async (
+  user: IRequestUser,
+  payload: { name?: string; image?: string },
+) => {
+  {{#if database == "prisma"}}
+    const isUserExists = await prisma.user.findUnique({
+    where: {
+      id: user.id,
+    },
+  });
+  {{/if}}
+  {{#if database == "mongoose"}}
+  const { users } = await getAuthCollections();
+  const isUserExists = await users.findOne({ id: user.id });
+  {{/if}}
+
+  if (!isUserExists) {
+    throw new AppError(status.NOT_FOUND, "User not found");
+  }
+
+  if (isUserExists.isDeleted || isUserExists.status === "DELETED") {
+    throw new AppError(status.NOT_FOUND, "User not found");
+  }
+
+  {{#if database == "prisma"}}
+    const updated = await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      name: payload.name || isUserExists.name,
+      image: payload.image || isUserExists.image,
+      updatedAt: new Date(),
+    },
+  });
+  {{/if}}
+  {{#if database == "mongoose"}}
+  await users.updateOne(
+    { id: user.id },
+    {
+      $set: {
+        name: payload.name || isUserExists.name,
+        image: payload.image || isUserExists.image,
+        updatedAt: new Date(),
+      },
+    }
+  );
+  const updated = await users.findOne({ id: user.id });
+  {{/if}}
+
+  return updated;
+};
+
 const getNewToken = async (refreshToken : string, sessionToken : string) => {
     {{#if database == "prisma"}}
     const isSessionTokenExists = await prisma.session.findUnique({

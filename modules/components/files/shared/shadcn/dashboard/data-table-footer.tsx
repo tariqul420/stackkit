@@ -15,7 +15,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 {{else}}
 import { useNavigate, useSearchParams } from "react-router";
 {{/if}}
-import SelectField from "../form-field/select-field";
+import SelectField from "../global/form-field/select-field";
 import { Button } from "../ui/button";
 import type { BaseRecord } from "./data-table";
 

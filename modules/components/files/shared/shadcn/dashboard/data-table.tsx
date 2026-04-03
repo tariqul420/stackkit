@@ -223,7 +223,7 @@ export function DataTable<T extends BaseRecord>({
 
           {actionModal && (
             <Dialog>
-              <DialogTrigger asChild>
+              <DialogTrigger>
                 <Button variant="outline" className="h-8">
                   <IconPlus size={16} />
                   <span>{actionModal.label}</span>
@@ -245,7 +245,7 @@ export function DataTable<T extends BaseRecord>({
           {/* Bulk Delete */}
           {onDeleteMany && selectedIds.length > 0 && (
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
+              <DialogTrigger>
                 <Button variant="destructive" size="sm" className="h-8">
                   Delete ({selectedIds.length})
                 </Button>
@@ -278,7 +278,7 @@ export function DataTable<T extends BaseRecord>({
         {/* RIGHT */}
         <div className="flex items-center justify-end gap-2">
           {actionLink && (
-            <Button variant="outline" asChild>
+            <Button variant="outline">
               {{#if framework == "nextjs"}}
               <Link href={actionLink.href} className="flex items-center gap-2">
               {{else}}
@@ -376,9 +376,10 @@ export function createSelectionColumn<T extends BaseRecord>() {
     header: ({ table }: { table: TableInstance<T> }) => (
       <div className="flex items-center justify-center">
         <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
+          checked={table.getIsAllPageRowsSelected()}
+          indeterminate={
+            table.getIsSomePageRowsSelected() &&
+            !table.getIsAllPageRowsSelected()
           }
           onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
           aria-label="Select all"

@@ -19,6 +19,7 @@ import { Link } from "react-router";
 {{/if}}
 import { useLogoutMutation } from "../queries/auth.mutations";
 import { useMeQuery } from "../queries/auth.querie";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function UserProfileMenu() {
   const { data: user, isLoading } = useMeQuery();
@@ -81,7 +82,7 @@ export default function UserProfileMenu() {
 
         <DropdownMenuItem
           render={
-            {{#if framework == "nextjs"}}<Link href="/dashboard" />{{else}}<Link to="/dashboard" />{{/if}}
+            {{#if framework == "nextjs"}}<Link href={user.role === "ADMIN" ? "/dashboard/admin" : "/dashboard"} />{{else}}<Link to={user.role === "ADMIN" ? "/dashboard/admin" : "/dashboard"} />{{/if}}
           }
           className="gap-2"
         >

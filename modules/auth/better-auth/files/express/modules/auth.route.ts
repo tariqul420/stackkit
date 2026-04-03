@@ -23,5 +23,10 @@ router.post("/resend-otp", authController.resendOTP);
 router.get("/login/:provider", authController.socialLogin);
 router.get("/:provider/success", authController.socialLoginSuccess);
 router.get("/oauth/error", authController.handleOAuthError);
+router.patch(
+  "/profile",
+  authorize(Role.ADMIN, Role.USER),
+  authController.updateProfile,
+);
 
 export const authRoutes = router;

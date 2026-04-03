@@ -355,7 +355,7 @@
     },
     {
       "type": "run-command",
-      "command": "{{packageManager=='pnpm' ? 'pnpm dlx shadcn@latest add button card checkbox field input input-group avatar separator sheet textarea label dropdown-menu sidebar -y' : packageManager=='yarn' ? 'yarn dlx shadcn@latest add button card checkbox field input input-group avatar separator sheet textarea label dropdown-menu sidebar -y' : packageManager=='bun' ? 'bun dlx shadcn@latest add button card checkbox field input input-group avatar separator sheet textarea label dropdown-menu sidebar -y' : 'npx shadcn@latest add button card checkbox field input input-group avatar separator sheet textarea label dropdown-menu sidebar -y'}}",
+      "command": "{{packageManager=='pnpm' ? 'pnpm dlx shadcn@latest add button card checkbox field input input-group avatar separator sheet textarea label dropdown-menu sidebar skeleton -y' : packageManager=='yarn' ? 'yarn dlx shadcn@latest add button card checkbox field input input-group avatar separator sheet textarea label dropdown-menu sidebar skeleton -y' : packageManager=='bun' ? 'bun dlx shadcn@latest add button card checkbox field input input-group avatar separator sheet textarea label dropdown-menu sidebar skeleton -y' : 'npx shadcn@latest add button card checkbox field input input-group avatar separator sheet textarea label dropdown-menu sidebar skeleton -y'}}",
       "condition": { "framework": ["react", "nextjs"], "ui": "shadcn" }
     }
   ]

@@ -19,7 +19,7 @@ export default function DataTableColumnSelector<TData extends BaseRecord>({
 }: DataTableColumnSelectorProps<TData>) {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger>
         <Button variant="outline">
           <Columns3Icon />
           <span className="hidden lg:inline">View</span>

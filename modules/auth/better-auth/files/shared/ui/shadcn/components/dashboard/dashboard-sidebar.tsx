@@ -151,40 +151,42 @@ export function DashboardSidebar({ menu = [], user }: DashboardSidebarProps) {
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton
                         tooltip={item.title}
-                        render={
-                          {{#if framework == "nextjs"}}
-                          <Link
-                            href={item.url || "#"}
-                            onClick={() => {
-                              if (
-                                typeof window !== "undefined" &&
-                                window.innerWidth < 768
-                              ) {
-                                toggleSidebar();
-                              }
-                            }}
-                          />
-                          {{else}}
-                          <Link
-                            to={item.url || "/"}
-                            onClick={() => {
-                              if (
-                                typeof window !== "undefined" &&
-                                window.innerWidth < 768
-                              ) {
-                                toggleSidebar();
-                              }
-                            }}
-                          />
-                          {{/if}}
-                        }
                         className={cn(
                           "hover:bg-muted dark:hover:bg-muted/80",
                           active && "bg-muted dark:bg-muted/80",
                         )}
                       >
-                        <Icon className="h-4 w-4" />
-                        <span>{item.title}</span>
+                        {{#if framework == "nextjs"}}
+                        <Link
+                          href={item.url || "#"}
+                          onClick={() => {
+                            if (
+                              typeof window !== "undefined" &&
+                              window.innerWidth < 768
+                            ) {
+                              toggleSidebar();
+                            }
+                          }}
+                        >
+                          <Icon className="h-4 w-4" />
+                          <span>{item.title}</span>
+                        </Link>
+                        {{else}}
+                        <Link
+                          to={item.url || "/"}
+                          onClick={() => {
+                            if (
+                              typeof window !== "undefined" &&
+                              window.innerWidth < 768
+                            ) {
+                              toggleSidebar();
+                            }
+                          }}
+                        >
+                          <Icon className="h-4 w-4" />
+                          <span>{item.title}</span>
+                        </Link>
+                        {{/if}}
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   );

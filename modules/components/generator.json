@@ -82,6 +82,8 @@
         "@dnd-kit/sortable": "^10.0.0",
         "@dnd-kit/utilities": "^3.2.2",
         "@tiptap/core": "^3.20.0",
+        "@tabler/icons-react": "^3.41.1",
+        "@tanstack/react-table": "^8.21.3",
         "@tiptap/extension-blockquote": "^3.20.0",
         "@tiptap/extension-bold": "^3.20.0",
         "@tiptap/extension-bullet-list": "^3.20.0",

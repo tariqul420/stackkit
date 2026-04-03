@@ -22,6 +22,7 @@ import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import type { ILoginResponse, SocialProvider } from "../types/auth.type";
 import type { ILoginPayload } from "../validators/login.validator";
+import { ChangePassword, updateProfile } from "../services/auth.api";
 
 export const AUTH_QUERY_KEYS = {
   me: ["auth", "me"] as const,
@@ -35,6 +36,8 @@ export const AUTH_MUTATION_KEYS = {
   verifyEmail: ["auth", "verify-email"] as const,
   resendOTP: ["auth", "resend-otp"] as const,
   socialLogin: ["auth", "social-login"] as const,
+  changePassword: ["auth", "change-password"] as const,
+  updateProfile: ["auth", "update-profile"] as const,
   logout: ["auth", "logout"] as const,
 };
 
@@ -237,6 +240,57 @@ export const useSocialLoginMutation = () => {
     },
     onError: (error) => {
       toast.error(error.message || "Social login failed. Please try again.");
+    },
+  });
+};
+
+export const useChangePasswordMutation = () => {
+  {{#if framework == "nextjs"}}
+  const router = useRouter();
+  const navigate = (path: string) => router.push(path);
+  {{else}}
+  const navigate = useNavigate();
+  {{/if}}
+
+  return useMutation({
+    mutationKey: AUTH_MUTATION_KEYS.changePassword,
+    mutationFn: ChangePassword,
+    onSuccess: () => {
+      toast.success(
+        "Password changed successfully! Please log in with your new password.",
+      );
+      navigate("/login");
+    },
+    onError: (error) => {
+      toast.error(
+        error.message ||
+          "Failed to change password. Please check your details and try again.",
+      );
+    },
+  });
+};
+
+export const useUpdateProfileMutation = () => {
+  const queryClient = useQueryClient();
+
+  {{#if framework == "nextjs"}}
+  const router = useRouter();
+  const navigate = (path: string) => router.push(path);
+  {{else}}
+  const navigate = useNavigate();
+  {{/if}}
+
+  return useMutation({
+    mutationKey: AUTH_MUTATION_KEYS.updateProfile,
+    mutationFn: updateProfile,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEYS.me });
+      toast.success("Profile updated successfully");
+    },
+    onError: (error) => {
+      toast.error(
+        error.message || "Failed to update profile. Please check your details and try again.",
+      );
     },
   });
 };
