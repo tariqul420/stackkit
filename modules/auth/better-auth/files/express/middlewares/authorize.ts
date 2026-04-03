@@ -9,6 +9,7 @@ import { Role, UserStatus } from "@prisma/client";
 import { prisma } from "../../database/prisma";
 {{/if}}
 {{#if database == "mongoose"}}
+import { Types } from "mongoose";
 import { Role, UserStatus } from "../../modules/auth/auth.constants";
 import { getAuthCollections } from "../../modules/auth/auth.helper";
 {{/if}}
@@ -56,7 +57,7 @@ export const authorize = (...authRoles: AuthRole[]) =>
 
         const user = sessionExists
           ? await users.findOne({
-              id: sessionExists.userId,
+              _id: new Types.ObjectId(sessionExists.userId),
             })
           : null;
         {{/if}}

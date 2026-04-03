@@ -5,6 +5,7 @@ import { envVars } from "../../config/env";
 import { prisma } from "../../database/prisma";
 {{/if}}
 {{#if database == "mongoose"}}
+import { Types } from "mongoose";
 import { getAuthCollections } from "./auth.helper";
 {{/if}}
 import { auth } from "../../lib/auth";
@@ -90,7 +91,7 @@ const registerUser = async (payload: IRegisterUserPayload) => {
       {{/if}}
       {{#if database == "mongoose"}}
       const { users: rollbackUsers } = await getAuthCollections();
-      await rollbackUsers.deleteOne({ id: data.user.id });
+      await rollbackUsers.deleteOne({ _id: new Types.ObjectId(data.user.id) });
       {{/if}}
       throw error;
     }
@@ -244,7 +245,7 @@ const getMe = async (user : IRequestUser) => {
   {{/if}}
   {{#if database == "mongoose"}}
   const { users } = await getAuthCollections();
-  const isUserExists = await users.findOne({ id: user.id });
+  const isUserExists = await users.findOne({ _id: new Types.ObjectId(user.id) });
   {{/if}}
 
     if (!isUserExists) {
@@ -267,7 +268,7 @@ const updateProfile = async (
   {{/if}}
   {{#if database == "mongoose"}}
   const { users } = await getAuthCollections();
-  const isUserExists = await users.findOne({ id: user.id });
+  const isUserExists = await users.findOne({ _id: new Types.ObjectId(user.id) });
   {{/if}}
 
   if (!isUserExists) {
@@ -290,7 +291,7 @@ const updateProfile = async (
   {{/if}}
   {{#if database == "mongoose"}}
   await users.updateOne(
-    { id: user.id },
+    { _id: new Types.ObjectId(user.id) },
     {
       $set: {
         name: payload.name || isUserExists.name,
@@ -299,7 +300,7 @@ const updateProfile = async (
       },
     }
   );
-  const updated = await users.findOne({ id: user.id });
+  const updated = await users.findOne({ _id: new Types.ObjectId(user.id) });
   {{/if}}
 
   return updated;
@@ -423,7 +424,7 @@ const changePassword = async (payload : IChangePasswordPayload, sessionToken : s
       {{#if database == "mongoose"}}
       const { users } = await getAuthCollections();
       await users.updateOne(
-        { id: session.user.id },
+        { _id: new Types.ObjectId(session.user.id) },
         { $set: { needPasswordChange: false } }
       );
       {{/if}}
@@ -601,7 +602,7 @@ const socialLoginSuccess = async (session: ISocialLoginSession) => {
   {{/if}}
   {{#if database == "mongoose"}}
   const { users } = await getAuthCollections();
-  const user = await users.findOne({ id: session.user.id });
+  const user = await users.findOne({ _id: new Types.ObjectId(session.user.id) });
   {{/if}}
 
   if (!user) {
