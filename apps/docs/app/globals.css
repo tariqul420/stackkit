@@ -1,2 +1,44 @@
 @import 'tailwindcss';
 @import 'fumadocs-ui/style.css';
+
+/* ── Custom keyframes ──────────────────────────────────────── */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-slow {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(20px, -16px) scale(1.04);
+  }
+  66% {
+    transform: translate(-14px, 10px) scale(0.97);
+  }
+}
+
+/* ── Animation utilities ───────────────────────────────────── */
+@theme {
+  --animate-fade-up: fade-up 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-pulse-slow: pulse-slow 5s ease-in-out infinite;
+  --animate-drift: drift 14s ease-in-out infinite;
+}

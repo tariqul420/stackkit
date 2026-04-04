@@ -94,58 +94,102 @@ export default async function HomePage() {
 
   return (
     <main className="flex flex-col items-center">
-      {/* ── Hero ─────────────────────────────────────────── */}
-      <section className="w-full max-w-5xl px-6 pt-20 pb-24 text-center sm:px-10">
-        {/* Badge */}
-        <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-fd-border bg-fd-card px-3.5 py-1 text-xs font-medium text-fd-muted-foreground">
-          <span className="size-1.5 rounded-full bg-fd-primary" />
-          Open-source · No lock-in · TypeScript first
-        </div>
+      {/* Hero */}
+      <section className="relative w-full overflow-hidden px-6 pt-20 pb-24 text-center sm:px-10">
+        {/* Dot grid */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.045] dark:opacity-[0.07] text-fd-primary"
+          style={{
+            backgroundImage: "radial-gradient(circle, currentColor 1px, transparent 1px)",
+            backgroundSize: "28px 28px",
+          }}
+        />
 
-        {/* Headline */}
-        <h1 className="mx-auto max-w-3xl text-5xl font-bold tracking-tight sm:text-6xl md:text-7xl">
-          Stop setting up.{" "}
-          <span className="bg-linear-to-br from-fd-primary to-fd-primary/60 bg-clip-text text-transparent">
-            Start building.
-          </span>
-        </h1>
+        {/* Glow orb — top center */}
+        <div
+          aria-hidden
+          className="animate-pulse-slow pointer-events-none absolute -top-48 left-1/2 -z-10 h-130 w-180 -translate-x-1/2 rounded-full bg-fd-primary/15 blur-3xl"
+        />
 
-        <p className="mx-auto mt-6 max-w-xl text-base text-fd-muted-foreground sm:text-lg">
-          StackKit scaffolds a production-ready project with your chosen framework, database, and
-          auth — fully wired and ready to run in under a minute.
-        </p>
+        {/* Glow orb — bottom right */}
+        <div
+          aria-hidden
+          className="animate-drift pointer-events-none absolute -bottom-24 -right-24 -z-10 h-72 w-72 rounded-full bg-fd-primary/10 blur-3xl"
+          style={{ animationDelay: "3s" }}
+        />
 
-        {/* Actions */}
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-          <Link
-            href="/docs/getting-started/quickstart"
-            className="inline-flex h-10 items-center gap-2 rounded-lg bg-fd-primary px-6 text-sm font-medium text-fd-primary-foreground transition-opacity hover:opacity-90"
+        {/* Glow orb — left */}
+        <div
+          aria-hidden
+          className="animate-drift pointer-events-none absolute top-1/3 -left-20 -z-10 h-56 w-56 rounded-full bg-fd-primary/8 blur-3xl"
+          style={{ animationDelay: "7s" }}
+        />
+
+        <div className="relative mx-auto max-w-5xl">
+          {/* Badge */}
+          <div className="animate-fade-up mb-8 inline-flex items-center gap-2 rounded-full border border-fd-border bg-fd-card px-3.5 py-1 text-xs font-medium text-fd-muted-foreground">
+            <span className="size-1.5 rounded-full bg-fd-primary" />
+            Open-source · No lock-in · TypeScript first
+          </div>
+
+          {/* Headline */}
+          <h1
+            className="animate-fade-up mx-auto max-w-3xl text-5xl font-bold tracking-tight sm:text-6xl md:text-7xl"
+            style={{ animationDelay: "100ms" }}
           >
-            Get Started <ArrowRight />
-          </Link>
-          <a
-            href="https://github.com/tariqul420/stackkit"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex h-10 items-center gap-2 rounded-lg border border-fd-border bg-fd-card px-5 text-sm font-medium transition-colors hover:bg-fd-accent"
-          >
-            <GithubIcon />
-            GitHub
-            {stars !== null && stars > 0 && (
-              <span className="ml-0.5 rounded-full bg-fd-muted px-1.5 py-0.5 text-xs font-semibold">
-                <GithubStarCount count={stars} />
-              </span>
-            )}
-          </a>
-        </div>
+            Stop setting up.{" "}
+            <span className="bg-linear-to-br from-fd-primary to-fd-primary/60 bg-clip-text text-transparent">
+              Start building.
+            </span>
+          </h1>
 
-        {/* Terminal */}
-        <div className="mx-auto mt-10 max-w-2xl">
-          <CopyCommand />
+          <p
+            className="animate-fade-up mx-auto mt-6 max-w-xl text-base text-fd-muted-foreground sm:text-lg"
+            style={{ animationDelay: "200ms" }}
+          >
+            StackKit scaffolds a production-ready project with your chosen framework, database, and
+            auth — fully wired and ready to run in under a minute.
+          </p>
+
+          {/* Actions */}
+          <div
+            className="animate-fade-up mt-8 flex flex-wrap items-center justify-center gap-3"
+            style={{ animationDelay: "300ms" }}
+          >
+            <Link
+              href="/docs/getting-started/quickstart"
+              className="inline-flex h-10 items-center gap-2 rounded-lg bg-fd-primary px-6 text-sm font-medium text-fd-primary-foreground transition-opacity hover:opacity-90"
+            >
+              Get Started <ArrowRight />
+            </Link>
+            <a
+              href="https://github.com/tariqul420/stackkit"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex h-10 items-center gap-2 rounded-lg border border-fd-border bg-fd-card px-5 text-sm font-medium transition-colors hover:bg-fd-accent"
+            >
+              <GithubIcon />
+              GitHub
+              {stars !== null && stars > 0 && (
+                <span className="ml-0.5 rounded-full bg-fd-muted px-1.5 py-0.5 text-xs font-semibold">
+                  <GithubStarCount count={stars} />
+                </span>
+              )}
+            </a>
+          </div>
+
+          {/* Terminal */}
+          <div
+            className="animate-fade-up mx-auto mt-10 max-w-2xl"
+            style={{ animationDelay: "420ms" }}
+          >
+            <CopyCommand />
+          </div>
         </div>
       </section>
 
-      {/* ── Features ─────────────────────────────────────── */}
+      {/* Features */}
       <section className="w-full border-t border-fd-border">
         <div className="mx-auto max-w-5xl px-6 py-20 sm:px-10">
           <div className="mb-12 text-center">
@@ -171,7 +215,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── Steps ────────────────────────────────────────── */}
+      {/* Steps */}
       <section className="w-full border-t border-fd-border bg-fd-card/40">
         <div className="mx-auto max-w-5xl px-6 py-20 sm:px-10">
           <div className="mb-12 text-center">
@@ -201,7 +245,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── Docs links ───────────────────────────────────── */}
+      {/* Docs links */}
       <section className="w-full border-t border-fd-border">
         <div className="mx-auto max-w-5xl px-6 py-20 sm:px-10">
           <div className="mb-10 text-center">
@@ -229,7 +273,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── CTA ──────────────────────────────────────────── */}
+      {/* CTA */}
       <section className="w-full border-t border-fd-border">
         <div className="mx-auto max-w-5xl px-6 py-20 text-center sm:px-10">
           <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
