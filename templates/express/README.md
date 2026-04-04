@@ -23,11 +23,11 @@ npm run dev
 
 ## Scripts
 
-| Command           | Description                 |
-| ----------------- | --------------------------- |
-| `pnpm dev`        | Start development server    |
-| `pnpm build`      | Compile TypeScript          |
-| `pnpm start`      | Start production server     |
+| Command      | Description              |
+| ------------ | ------------------------ |
+| `pnpm dev`   | Start development server |
+| `pnpm build` | Compile TypeScript       |
+| `pnpm start` | Start production server  |
 
 ## Environment
 

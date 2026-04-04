@@ -29,18 +29,18 @@ npx stackkit@latest create my-app \
 
 **Options:**
 
-| Flag                    | Values                                                                               |
-| ----------------------- | ------------------------------------------------------------------------------------ |
-| `--framework, -f`       | `nextjs`, `express`, `react`                                                         |
+| Flag                    | Values                                                                                     |
+| ----------------------- | ------------------------------------------------------------------------------------------ |
+| `--framework, -f`       | `nextjs`, `express`, `react`                                                               |
 | `--database, -d`        | `prisma-postgresql`, `prisma-mysql`, `prisma-sqlite`, `prisma-mongodb`, `mongoose`, `none` |
-| `--auth, -a`            | `better-auth`, `none`                                                                |
-| `--ui, -u`              | `shadcn`                                                                             |
-| `--storage-provider`    | `cloudinary`                                                                         |
-| `--language, -l`        | `typescript`, `javascript`                                                           |
-| `--package-manager, -p` | `pnpm`, `npm`, `yarn`, `bun`                                                         |
-| `--yes, -y`             | Use defaults, skip prompts                                                           |
-| `--skip-install`        | Skip dependency installation                                                         |
-| `--no-git`              | Skip git initialization                                                              |
+| `--auth, -a`            | `better-auth`, `none`                                                                      |
+| `--ui, -u`              | `shadcn`                                                                                   |
+| `--storage-provider`    | `cloudinary`                                                                               |
+| `--language, -l`        | `typescript`, `javascript`                                                                 |
+| `--package-manager, -p` | `pnpm`, `npm`, `yarn`, `bun`                                                               |
+| `--yes, -y`             | Use defaults, skip prompts                                                                 |
+| `--skip-install`        | Skip dependency installation                                                               |
+| `--no-git`              | Skip git initialization                                                                    |
 
 ### add
 
@@ -81,14 +81,14 @@ npx stackkit@latest list --modules
 
 ## Supported stack
 
-| Category       | Options                                                    |
-| -------------- | ---------------------------------------------------------- |
-| Frameworks     | Next.js (App Router), Express (TypeScript), React (Vite)   |
-| Databases      | Prisma (PostgreSQL, MySQL, SQLite, MongoDB), Mongoose       |
-| Authentication | Better Auth (all frameworks)                               |
-| UI             | Shadcn UI (Next.js, React)                                 |
-| Storage        | Cloudinary (Express)                                       |
-| Components     | TiptapEditor, DataTable, SearchBar, FilterBar, and more    |
+| Category       | Options                                                  |
+| -------------- | -------------------------------------------------------- |
+| Frameworks     | Next.js (App Router), Express (TypeScript), React (Vite) |
+| Databases      | Prisma (PostgreSQL, MySQL, SQLite, MongoDB), Mongoose    |
+| Authentication | Better Auth (all frameworks)                             |
+| UI             | Shadcn UI (Next.js, React)                               |
+| Storage        | Cloudinary (Express)                                     |
+| Components     | TiptapEditor, DataTable, SearchBar, FilterBar, and more  |
 
 ## Examples
 

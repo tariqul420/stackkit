@@ -53,14 +53,14 @@ npx stackkit@latest doctor
 
 ## Supported stack
 
-| Category       | Options                                                    |
-| -------------- | ---------------------------------------------------------- |
-| Frameworks     | Next.js (App Router), Express (TypeScript), React (Vite)   |
-| Databases      | Prisma (PostgreSQL, MySQL, SQLite, MongoDB), Mongoose       |
-| Authentication | Better Auth (all frameworks)                               |
-| UI             | Shadcn UI (Next.js, React)                                 |
-| Storage        | Cloudinary (Express)                                       |
-| Components     | TiptapEditor, DataTable, SearchBar, FilterBar, and more    |
+| Category       | Options                                                  |
+| -------------- | -------------------------------------------------------- |
+| Frameworks     | Next.js (App Router), Express (TypeScript), React (Vite) |
+| Databases      | Prisma (PostgreSQL, MySQL, SQLite, MongoDB), Mongoose    |
+| Authentication | Better Auth (all frameworks)                             |
+| UI             | Shadcn UI (Next.js, React)                               |
+| Storage        | Cloudinary (Express)                                     |
+| Components     | TiptapEditor, DataTable, SearchBar, FilterBar, and more  |
 
 ## Examples
 

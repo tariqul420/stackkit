@@ -32,12 +32,12 @@ npm run dev
 
 ## Scripts
 
-| Command           | Description                 |
-| ----------------- | --------------------------- |
-| `pnpm dev`        | Start development server    |
-| `pnpm build`      | Build for production        |
-| `pnpm preview`    | Preview production build    |
-| `pnpm lint`       | Run ESLint                  |
+| Command        | Description              |
+| -------------- | ------------------------ |
+| `pnpm dev`     | Start development server |
+| `pnpm build`   | Build for production     |
+| `pnpm preview` | Preview production build |
+| `pnpm lint`    | Run ESLint               |
 
 ## Environment Variables
 

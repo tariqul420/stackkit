@@ -1,9 +1,9 @@
 ---
 name: Bug report
 about: Report a reproducible bug in StackKit
-title: '[Bug] '
+title: "[Bug] "
 labels: bug
-assignees: ''
+assignees: ""
 ---
 
 ### StackKit version

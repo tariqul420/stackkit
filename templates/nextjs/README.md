@@ -30,12 +30,12 @@ npm run dev
 
 ## Scripts
 
-| Command           | Description                 |
-| ----------------- | --------------------------- |
-| `pnpm dev`        | Start development server    |
-| `pnpm build`      | Build for production        |
-| `pnpm start`      | Start production server     |
-| `pnpm lint`       | Run ESLint                  |
+| Command      | Description              |
+| ------------ | ------------------------ |
+| `pnpm dev`   | Start development server |
+| `pnpm build` | Build for production     |
+| `pnpm start` | Start production server  |
+| `pnpm lint`  | Run ESLint               |
 
 ## Recommended Folder & File Structure
 

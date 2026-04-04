@@ -202,9 +202,9 @@ export function DataTable<T extends BaseRecord>({
       },
     );
 {{#if framework != "nextjs"}}
-  }, [onDeleteMany, selectedIds, table, router]);
-{{else}}
   }, [onDeleteMany, selectedIds, table]);
+{{else}}
+  }, [onDeleteMany, selectedIds, table, router]);
 {{/if}}
 
   return (

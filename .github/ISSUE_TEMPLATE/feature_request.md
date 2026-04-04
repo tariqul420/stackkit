@@ -1,9 +1,9 @@
 ---
 name: Feature request
 about: Suggest a new feature or improvement for StackKit
-title: '[Feature] '
+title: "[Feature] "
 labels: enhancement
-assignees: ''
+assignees: ""
 ---
 
 ### Summary
