@@ -1,25 +1,25 @@
-## What & Why
+## Summary
 
-Explain what this PR changes and why the change is needed.
+What does this PR change and why?
 
 ## How to test
 
-Steps reviewers can follow to verify the change locally:
+Steps a reviewer can follow to verify this locally:
 
 1.
 2.
 
 ## Checklist
 
-- [ ] Lint passes (if applicable)
-- [ ] Build succeeds (if applicable)
+- [ ] Lint passes
+- [ ] Build succeeds
 - [ ] Tests pass (if applicable)
-- [ ] Documentation updated (if applicable)
+- [ ] Docs updated (if this is a user-facing change)
 
-## Breaking change
+## Breaking changes
 
-Does this PR introduce breaking changes? If yes, describe the impact and migration notes.
+Does this PR introduce breaking changes? If yes, describe the impact and migration path.
 
-## Related issues
+## Related
 
-Link related issues or PRs, if any.
+Link any related issues or PRs.

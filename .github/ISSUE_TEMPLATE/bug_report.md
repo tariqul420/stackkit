@@ -1,40 +1,38 @@
 ---
 name: Bug report
-about: Create a report to help us improve
----
-
----
-
-name: Bug report
 about: Report a reproducible bug in StackKit
-
+title: '[Bug] '
+labels: bug
+assignees: ''
 ---
 
 ### StackKit version
 
-Please include the StackKit version (e.g. `0.1.0` or `npx stackkit@latest`):
+Run `npx stackkit@latest --version` and paste the output:
 
 ### Environment
 
 - Node version (e.g. `v20.4.0`):
-- Package manager and version (e.g. `pnpm 8.15.0`, `npm 10.x`):
-- OS (e.g. Ubuntu 22.04, macOS 14.0):
+- Package manager and version (e.g. `pnpm 9.0.0`):
+- OS (e.g. Ubuntu 22.04, macOS 14):
 
-### CLI command
+### Command
 
-The exact CLI command you ran (copy-paste):
+The exact CLI command you ran:
+
+```bash
+npx stackkit@latest ...
+```
 
 ### What happened
 
-Explain the actual behavior you observed.
+Describe the actual behavior you observed.
 
 ### What you expected
 
-Explain the expected behavior.
+Describe the expected behavior.
 
-### Reproduction steps
-
-Steps to reproduce the issue, including minimal example or sequence:
+### Steps to reproduce
 
 1.
 2.
@@ -42,8 +40,10 @@ Steps to reproduce the issue, including minimal example or sequence:
 
 ### Logs / error output
 
-Paste any relevant logs, stack traces, or screenshots.
+```
+paste logs or error here
+```
 
 ### Additional context
 
-Any other information that might help (config files, environment variables).
+Any other info that might help (config files, env vars, screenshots).

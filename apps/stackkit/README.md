@@ -2,9 +2,9 @@
 
 Production-ready full-stack project generator.
 
-## Installation
+## Usage
 
-No installation required. Use npx to get the latest version:
+No installation required:
 
 ```bash
 npx stackkit@latest <command>
@@ -14,36 +14,37 @@ npx stackkit@latest <command>
 
 ### create
 
-Generate a new project:
+Scaffold a new project:
 
 ```bash
-# Interactive mode
+# Interactive — follow the prompts
 npx stackkit@latest create my-app
 
-# With options
+# With flags — skip the prompts
 npx stackkit@latest create my-app \
   --framework nextjs \
   --database prisma-postgresql \
-  --auth better-auth \
-  --language typescript
+  --auth better-auth
 ```
 
 **Options:**
 
-- `--framework, -f` - nextjs, express, react
-- `--database, -d` - prisma-postgresql, prisma-mysql, prisma-sqlite, prisma-mongodb, mongoose, none
-- `--auth, -a` - better-auth, none
-- `--ui, -u` - shadcn
-- `--storage-provider` - cloudinary
-- `--language, -l` - typescript, javascript
-- `--package-manager, -p` - pnpm, npm, yarn, bun
-- `--yes, -y` - Use defaults
-- `--skip-install` - Don't install dependencies
-- `--no-git` - Don't initialize git
+| Flag                    | Values                                                                               |
+| ----------------------- | ------------------------------------------------------------------------------------ |
+| `--framework, -f`       | `nextjs`, `express`, `react`                                                         |
+| `--database, -d`        | `prisma-postgresql`, `prisma-mysql`, `prisma-sqlite`, `prisma-mongodb`, `mongoose`, `none` |
+| `--auth, -a`            | `better-auth`, `none`                                                                |
+| `--ui, -u`              | `shadcn`                                                                             |
+| `--storage-provider`    | `cloudinary`                                                                         |
+| `--language, -l`        | `typescript`, `javascript`                                                           |
+| `--package-manager, -p` | `pnpm`, `npm`, `yarn`, `bun`                                                         |
+| `--yes, -y`             | Use defaults, skip prompts                                                           |
+| `--skip-install`        | Skip dependency installation                                                         |
+| `--no-git`              | Skip git initialization                                                              |
 
 ### add
 
-Add features to existing project:
+Add a module to an existing project:
 
 ```bash
 npx stackkit@latest add
@@ -64,7 +65,7 @@ npx stackkit@latest doctor --verbose
 # JSON output (for CI/CD)
 npx stackkit@latest doctor --json
 
-# Treat warnings as errors (CI/CD strict mode)
+# Treat warnings as errors
 npx stackkit@latest doctor --strict
 ```
 
@@ -74,61 +75,46 @@ Show available frameworks and modules:
 
 ```bash
 npx stackkit@latest list
-
-# List only frameworks
 npx stackkit@latest list --frameworks
-
-# List only modules
 npx stackkit@latest list --modules
 ```
 
-## Supported Technologies
+## Supported stack
 
-**Frameworks:**
-
-- Next.js (App Router)
-- Express (TypeScript API)
-- React (Vite SPA)
-
-**Databases:**
-
-- Prisma (PostgreSQL, MySQL, SQLite, MongoDB)
-- Mongoose (MongoDB)
-
-**Authentication:**
-
-- Better Auth (All frameworks)
-
-**UI:**
-
-- Shadcn UI (Next.js, React)
-
-**Storage:**
-
-- Cloudinary (Express)
-
-**Components:**
-
-- TiptapEditor, DataTable, SearchBar, FilterBar, and more (Next.js, React)
+| Category       | Options                                                    |
+| -------------- | ---------------------------------------------------------- |
+| Frameworks     | Next.js (App Router), Express (TypeScript), React (Vite)   |
+| Databases      | Prisma (PostgreSQL, MySQL, SQLite, MongoDB), Mongoose       |
+| Authentication | Better Auth (all frameworks)                               |
+| UI             | Shadcn UI (Next.js, React)                                 |
+| Storage        | Cloudinary (Express)                                       |
+| Components     | TiptapEditor, DataTable, SearchBar, FilterBar, and more    |
 
 ## Examples
 
 ```bash
 # Full-stack Next.js
-npx stackkit@latest create my-app --framework nextjs --database prisma-postgresql --auth better-auth
+npx stackkit@latest create my-app \
+  --framework nextjs \
+  --database prisma-postgresql \
+  --auth better-auth
 
-# Express API
-npx stackkit@latest create my-api --framework express --database mongoose
+# Express API with MongoDB
+npx stackkit@latest create my-api \
+  --framework express \
+  --database mongoose
 
-# React frontend
-npx stackkit@latest create my-spa --framework react --auth better-auth
+# React SPA with auth
+npx stackkit@latest create my-spa \
+  --framework react \
+  --auth better-auth
 ```
 
 ## Links
 
-- **Documentation**: https://stackkit.tariqul.dev
-- **GitHub**: https://github.com/tariqul420/stackkit
-- **Issues**: https://github.com/tariqul420/stackkit/issues
+- [Documentation](https://stackkit.tariqul.dev)
+- [GitHub](https://github.com/tariqul420/stackkit)
+- [Issues](https://github.com/tariqul420/stackkit/issues)
 
 ## License
 

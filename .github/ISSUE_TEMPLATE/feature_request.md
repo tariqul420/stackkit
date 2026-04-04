@@ -1,38 +1,37 @@
 ---
 name: Feature request
-about: Suggest an idea for this project
----
-
----
-
-name: Feature request
-about: Suggest an idea or improvement for StackKit
-
+about: Suggest a new feature or improvement for StackKit
+title: '[Feature] '
+labels: enhancement
+assignees: ''
 ---
 
 ### Summary
 
 Describe the feature or improvement you'd like to see.
 
-### Motivation / Use Case
+### Motivation
 
-Explain the problem this solves and who benefits.
+What problem does this solve? Who benefits from it?
 
-### Proposed implementation
+### Proposed solution
 
-Optional: how you would implement this (high level).
+How would you implement this? A high-level description is fine.
 
 ### CLI command or workflow
 
-If applicable, include the CLI command or workflow where this feature applies.
+If relevant, show the CLI command or workflow where this applies:
 
-### Environment (optional)
+```bash
+npx stackkit@latest ...
+```
+
+### Environment
 
 - StackKit version:
 - Node version:
-- Package manager and version:
 - OS:
 
 ### Additional context
 
-Any other notes, examples, or mockups.
+Any other notes, mockups, or examples.

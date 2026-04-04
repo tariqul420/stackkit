@@ -8,19 +8,18 @@ Production-ready full-stack project generator with zero configuration.
 
 Scaffold complete full-stack applications in seconds with your choice of framework, database, and authentication—all pre-configured and production-ready.
 
-## Features
+## What it does
 
-- Project ready in under 60 seconds
-- Framework support: Next.js, Express, React
-- Multiple databases: PostgreSQL, MySQL, MongoDB, SQLite
-- Authentication: Better Auth
-- UI components: Shadcn UI
-- File storage: Cloudinary
-- Pre-built components: TiptapEditor, DataTable, SearchBar, FilterBar, and more
-- Modular architecture - add features incrementally
-- TypeScript-first with strict mode
-- Production-ready with best practices built-in
-- Built-in health diagnostics
+Answer a few prompts. StackKit generates a project with everything already configured:
+
+- Your choice of framework: **Next.js**, **Express**, or **React**
+- Database integration with **Prisma** or **Mongoose**
+- Authentication via **Better Auth**
+- UI components from **Shadcn UI**
+- File storage with **Cloudinary**
+- TypeScript strict mode, ESLint, and documented `.env` templates — all included
+
+No manual wiring. No dependency hunting. Just working code.
 
 ## Requirements
 
@@ -52,34 +51,16 @@ npx stackkit@latest add
 npx stackkit@latest doctor
 ```
 
-## Available Options
+## Supported stack
 
-### Frameworks
-
-- **Next.js** - Full-stack React with App Router
-- **Express** - Node.js REST API with TypeScript
-- **React** - Frontend SPA with Vite
-
-### Databases
-
-- **Prisma** - PostgreSQL, MySQL, MongoDB, SQLite
-- **Mongoose** - MongoDB ODM
-
-### Authentication
-
-- **Better Auth** - TypeScript-first auth for all frameworks (Next.js, Express, React)
-
-### UI
-
-- **Shadcn UI** - Component library with Tailwind CSS (Next.js, React)
-
-### Storage
-
-- **Cloudinary** - File upload and storage (Express)
-
-### Components
-
-- **Components** - TiptapEditor, DataTable, SearchBar, FilterBar, and more (Next.js, React)
+| Category       | Options                                                    |
+| -------------- | ---------------------------------------------------------- |
+| Frameworks     | Next.js (App Router), Express (TypeScript), React (Vite)   |
+| Databases      | Prisma (PostgreSQL, MySQL, SQLite, MongoDB), Mongoose       |
+| Authentication | Better Auth (all frameworks)                               |
+| UI             | Shadcn UI (Next.js, React)                                 |
+| Storage        | Cloudinary (Express)                                       |
+| Components     | TiptapEditor, DataTable, SearchBar, FilterBar, and more    |
 
 ## Examples
 
@@ -107,64 +88,45 @@ cd my-app
 npx stackkit@latest add
 ```
 
-## CLI Commands
+## Commands
 
-| Command         | Description                      |
-| --------------- | -------------------------------- |
-| `create <name>` | Generate new project             |
-| `add`           | Add features to existing project |
-| `doctor`        | Diagnose project health          |
-| `list`          | Show available options           |
-| `--help`        | Show help for any command        |
+| Command         | Description                               |
+| --------------- | ----------------------------------------- |
+| `create <name>` | Scaffold a new project interactively      |
+| `add`           | Add a database, auth, or UI module        |
+| `doctor`        | Diagnose issues and missing configuration |
+| `list`          | Show all supported frameworks and modules |
 
-## What You Get
+## What every project includes
 
-Every StackKit project includes:
-
-- TypeScript with strict configuration
+- TypeScript with strict mode enabled
 - ESLint with recommended rules
-- Environment variable management
-- Git initialization with .gitignore
-- Package scripts for dev, build, and production
-- Comprehensive README with setup instructions
-- Module-specific configurations
+- `.env.example` with every variable documented
+- Git initialized with a sensible `.gitignore`
+- `dev`, `build`, and `start` scripts ready to use
+- A generated README with setup and deployment instructions
 
 ## Documentation
 
-Full documentation: https://stackkit.tariqul.dev
+Full docs at **[stackkit.tariqul.dev](https://stackkit.tariqul.dev)**
 
-- [Quick Start Guide](https://stackkit.tariqul.dev/docs/getting-started/quickstart)
+- [Quick Start](https://stackkit.tariqul.dev/docs/getting-started/quickstart)
 - [CLI Reference](https://stackkit.tariqul.dev/docs/cli/overview)
-- [Modules](https://stackkit.tariqul.dev/docs/modules)
+- [Modules](https://stackkit.tariqul.dev/docs/modules/authentication/better-auth)
 - [Troubleshooting](https://stackkit.tariqul.dev/docs/reference/troubleshooting)
 
 ## Development
-
-Clone and run locally:
 
 ```bash
 git clone https://github.com/tariqul420/stackkit.git
 cd stackkit
 pnpm install
 pnpm build
-pnpm dev
 ```
-
-Notes:
-
-- Commands run across the workspace using pnpm workspaces where applicable.
-- Use `pnpm -w -r run <script>` to target workspace scripts explicitly.
 
 ## Contributing
 
-Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines and code style.
-
-When opening issues or pull requests, please include relevant details (version, Node, package manager, OS, command, reproduction steps).
-
-## Support & Security
-
-- For general questions or feature requests: open an issue or discussion on GitHub.
-- For security-sensitive reports: use GitHub Security Advisories (private) or open an issue and mark it with the `security` label — do not post exploit details publicly.
+Contributions are welcome — bug reports, feature requests, and pull requests. See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ## License
 
@@ -172,4 +134,4 @@ MIT © [Tariqul Islam](https://github.com/tariqul420)
 
 ---
 
-Questions? Open an [issue](https://github.com/tariqul420/stackkit/issues) or start a discussion.
+Questions? Open an [issue](https://github.com/tariqul420/stackkit/issues) or start a [discussion](https://github.com/tariqul420/stackkit/discussions).

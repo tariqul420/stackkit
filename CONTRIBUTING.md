@@ -1,10 +1,10 @@
 # Contributing to StackKit
 
-Thank you for contributing! We welcome bug reports, feature requests, and pull requests.
+Thank you for taking the time to contribute! We welcome bug reports, feature requests, and pull requests from everyone.
 
-For detailed contributing guide, see [Online Docs](https://stackkit.tariqul.dev/docs/community/contributing).
+For the full contributing guide, see the [documentation](https://stackkit.tariqul.dev/docs/community/contributing).
 
-## Quick Start
+## Getting started
 
 ```bash
 git clone https://github.com/tariqul420/stackkit.git
@@ -12,52 +12,53 @@ cd stackkit
 pnpm install && pnpm build
 ```
 
-## Adding a Module
+## Adding a module
 
-1. Create directory: `modules/{category}/{provider}/`
-2. Add `module.json` configuration
-3. Add template files in `files/` subdirectory
-4. Test with CLI: `npx stackkit@latest add {module}`
-5. Submit PR
+1. Create the directory: `modules/{category}/{provider}/`
+2. Add a `module.json` configuration file
+3. Add template files in a `files/` subdirectory
+4. Test with the CLI: `npx stackkit@latest add`
+5. Submit a pull request
 
-## Testing
+## Testing your changes
 
 ```bash
-# Test new project creation
+# Test project creation
 cd apps/stackkit && npm run build
 node bin/stackkit.js my-test-app
 
 # Test module addition
-cd apps/stackkit && npm run build
 cd /tmp/my-test-app
-node /path/to/bin/stackkit.js add auth
+node /path/to/bin/stackkit.js add
 ```
 
-## Code Standards
+## Code style
 
 - Use TypeScript
-- Follow existing patterns
-- Add error handling
+- Follow existing patterns in the codebase
+- Add error handling where appropriate
 - Test before submitting
 
-## Commit Messages
+## Commit messages
 
 Follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ```
-feat: add stripe module
-fix: resolve path issue
-docs: update guide
+feat: add stripe payment module
+fix: resolve template path resolution
+docs: update quickstart guide
+chore: bump dependency versions
 ```
 
-## Pull Requests
+## Pull requests
 
-1. Fork and create branch
-2. Make changes and test
-3. Update docs if needed
-4. Submit PR with clear description
+1. Fork the repo and create a branch from `main`
+2. Make your changes and test them
+3. Update docs if your change is user-facing
+4. Open a PR with a clear description of what changed and why
 
-## Need Help?
+## Questions or bugs?
 
-- [Discussions](https://github.com/tariqul420/stackkit/discussions)
-- [Issues](https://github.com/tariqul420/stackkit/issues)
+- [GitHub Discussions](https://github.com/tariqul420/stackkit/discussions) — general questions and ideas
+- [GitHub Issues](https://github.com/tariqul420/stackkit/issues) — bug reports and feature requests
+- [Discord](https://discord.gg/PD8XWdpA) — chat and community

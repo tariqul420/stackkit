@@ -6,54 +6,28 @@ We pledge to make participation in our community a harassment-free experience fo
 
 ## Our Standards
 
-**Positive behavior:**
+**Positive behavior includes:**
 
-- Be respectful and kind
-- Accept constructive feedback gracefully
-- Focus on what's best for the community
+- Being respectful and kind to others
+- Accepting constructive feedback gracefully
+- Focusing on what is best for the community
+- Showing empathy toward other community members
 
-**Unacceptable behavior:**
+**Unacceptable behavior includes:**
 
-- Harassment or discriminatory comments
-- Trolling or personal attacks
+- Harassment or discriminatory comments of any kind
+- Trolling, insulting, or personal attacks
 - Publishing private information without consent
+- Any conduct that would be considered inappropriate in a professional setting
+
+## Scope
+
+This Code of Conduct applies within all community spaces — including GitHub issues, pull requests, discussions, Discord, and any other official channels — and when an individual is officially representing the community in public spaces.
 
 ## Enforcement
 
-Community leaders will enforce these standards fairly and take appropriate action for violations.
-
-## Reporting
-
-Report unacceptable behavior to [tariqul@tariqul.dev](mailto:tariqul@tariqul.dev).
+Community leaders will enforce these standards fairly and take appropriate action for violations. Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to [tariqul@tariqul.dev](mailto:tariqul@tariqul.dev). All complaints will be reviewed promptly and fairly, with reporter privacy fully respected.
 
 ## Attribution
 
 Adapted from the [Contributor Covenant](https://www.contributor-covenant.org), version 2.1.
-
-## Scope
-
-This Code of Conduct applies within all community spaces, and also applies when
-an individual is officially representing the community in public spaces.
-Examples of representing our community include using an official e-mail address,
-posting via an official social media account, or acting as an appointed
-representative at an online or offline event.
-
-## Enforcement
-
-Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported to the community leaders responsible for enforcement at
-[tariqul@tariqul.dev](mailto:tariqul@tariqul.dev).
-
-All complaints will be reviewed and investigated promptly and fairly.
-
-All community leaders are obligated to respect the privacy and security of the
-reporter of any incident.
-
-## Attribution
-
-This Code of Conduct is adapted from the [Contributor Covenant][homepage],
-version 2.1, available at
-[https://www.contributor-covenant.org/version/2/1/code_of_conduct.html][v2.1].
-
-[homepage]: https://www.contributor-covenant.org
-[v2.1]: https://www.contributor-covenant.org/version/2/1/code_of_conduct.html

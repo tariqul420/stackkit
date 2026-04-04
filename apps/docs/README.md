@@ -1,27 +1,22 @@
-# StackKit Documentation
+# StackKit Docs
 
-Official documentation for StackKit, built with Fumadocs.
+Official documentation for StackKit, built with [Fumadocs](https://fumadocs.vercel.app) and Next.js.
+
+**Live site:** [stackkit.tariqul.dev](https://stackkit.tariqul.dev)
 
 ## Development
 
 ```bash
-# Install dependencies
 pnpm install
-
-# Run dev server
 pnpm dev
-
-# Open browser
-open http://localhost:3000
 ```
+
+Open [http://localhost:3000](http://localhost:3000).
 
 ## Build
 
 ```bash
-# Production build
 pnpm build
-
-# Preview production build
 pnpm start
 ```
 
@@ -30,21 +25,26 @@ pnpm start
 ```
 app/
 ├── (home)/          # Landing page
-├── docs/            # Documentation app
+├── docs/            # Docs layout and pages
 └── layout.tsx       # Root layout
 
-content/docs/        # MDX documentation
-├── index.mdx        # Docs home
-├── getting-started/ # Quick start guides
-├── cli/             # CLI command docs
-├── concepts/        # Core concepts
-├── modules/         # Module documentation
-└── reference/       # Reference material
+content/docs/        # MDX content files
+├── index.mdx
+├── getting-started/
+├── cli/
+├── concepts/
+├── modules/
+├── reference/
+└── community/
+
+components/          # Shared UI components
+lib/                 # Source config and shared helpers
+public/              # Static assets (logos, images)
 ```
 
-## Adding Content
+## Adding content
 
-1. Create `.mdx` file in `content/docs/`
+1. Create an `.mdx` file inside `content/docs/`
 2. Add frontmatter:
    ```mdx
    ---
@@ -52,30 +52,24 @@ content/docs/        # MDX documentation
    description: Page description
    ---
    ```
-3. Update `meta.json` in parent folder for navigation
+3. Update `meta.json` in the parent folder for navigation ordering
 
-## Key Files
+## Key files
 
-- `source.config.ts` - Fumadocs configuration
-- `lib/source.ts` - Content source adapter
-- `lib/layout.shared.tsx` - Shared layout components
-- `app/layout.config.tsx` - Navigation config
-
-## Components
-
-Available components:
-
-- Callout - Info and warning boxes
-- Tabs - Tabbed content blocks
-- Steps - Step-by-step guides
-- Accordion - Collapsible sections
+| File                          | Purpose                        |
+| ----------------------------- | ------------------------------ |
+| `source.config.ts`            | Fumadocs content configuration |
+| `lib/source.ts`               | Content source adapter         |
+| `lib/layout.shared.tsx`       | Shared nav and layout options  |
+| `components/copy-command.tsx` | Terminal widget on homepage    |
+| `components/footer.tsx`       | Site footer                    |
 
 ## Deployment
 
-Docs are automatically deployed to Vercel on push to main.
+Docs deploy automatically to Vercel on push to `main`.
 
 ## Links
 
-- Live Site: https://stackkit.tariqul.dev
-- Fumadocs: https://fumadocs.vercel.app
-- Repository: https://github.com/tariqul420/stackkit
+- [Live site](https://stackkit.tariqul.dev)
+- [Fumadocs](https://fumadocs.vercel.app)
+- [GitHub repository](https://github.com/tariqul420/stackkit)
