@@ -5,7 +5,7 @@
   "description": "Express.js REST API with TypeScript",
   "compatibility": {
     "databases": ["prisma", "mongoose"],
-    "auth": ["better-auth"]
+    "auth": ["better-auth", "local-auth"]
   },
   "files": [
     "src/",
