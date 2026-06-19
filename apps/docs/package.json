@@ -18,7 +18,7 @@
     "lucide-react": "^0.562.0",
     "motion": "^12.38.0",
     "next": "16.1.1",
-    "react": "^19.2.3",
+    "react": "^19.2.7",
     "react-dom": "^19.2.3",
     "tailwind-merge": "^3.4.0"
   },
@@ -26,7 +26,7 @@
     "@tailwindcss/postcss": "^4.1.18",
     "@types/mdx": "^2.0.14",
     "@types/node": "^25.0.8",
-    "@types/react": "^19.2.7",
+    "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "eslint": "^9.39.2",
     "eslint-config-next": "16.1.1",
