@@ -26,8 +26,8 @@ npx stackkit@latest create my-app
 When you run `create` without flags, you'll be guided through the following choices:
 
 1. **Framework** — Next.js, Express.js, or React
-2. **Database** — Prisma, Mongoose, or None
-3. **Database provider** — PostgreSQL, MySQL, SQLite, or MongoDB _(shown when Prisma is selected)_
+2. **Database** — Prisma, Mongoose, or None _(only shown for Express)_
+3. **Database provider** — PostgreSQL, MySQL, SQLite, or MongoDB _(shown when Prisma is selected for Express)_
 4. **Authentication** — Better Auth, or None
 5. **UI library** — Shadcn UI, or None
 6. **Storage** — Cloudinary, or None
@@ -57,7 +57,6 @@ The database ORM or ODM to integrate.
 | ------------------- | --------------------------------------- |
 | `prisma`            | Prisma ORM (prompts for provider)       |
 | `prisma-postgresql` | Prisma with PostgreSQL                  |
-| `prisma-mongodb`    | Prisma with MongoDB                     |
 | `prisma-mysql`      | Prisma with MySQL                       |
 | `prisma-sqlite`     | Prisma with SQLite                      |
 | `mongoose`          | Mongoose ODM for MongoDB (Express only) |

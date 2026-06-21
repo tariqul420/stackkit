@@ -28,25 +28,7 @@ import {
 } from "lucide-react";
 import { Toggle } from "../ui/toggle";
 
-import "@tiptap/extension-blockquote";
-import "@tiptap/extension-bold";
-import "@tiptap/extension-bullet-list";
-import "@tiptap/extension-code";
-import "@tiptap/extension-heading";
-import "@tiptap/extension-highlight";
-import "@tiptap/extension-history";
-import "@tiptap/extension-horizontal-rule";
-import "@tiptap/extension-italic";
-import "@tiptap/extension-link";
-import "@tiptap/extension-list-item";
-import "@tiptap/extension-ordered-list";
-import "@tiptap/extension-strike";
-import "@tiptap/extension-table";
-import "@tiptap/extension-table/cell";
-import "@tiptap/extension-table/header";
-import "@tiptap/extension-table/row";
-import "@tiptap/extension-text-align";
-import "@tiptap/extension-underline";
+
 
 export default function MenuBar({ editor }: { editor: Editor | null }) {
   if (!editor) return null;

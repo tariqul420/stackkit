@@ -46,9 +46,7 @@ export default function RegisterForm() {
         email: values.email,
         password: values.password,
       });
-    } catch {
-      // Error handling is done in the mutation's onError callback
-    }
+    } catch {}
   }
 
   return (

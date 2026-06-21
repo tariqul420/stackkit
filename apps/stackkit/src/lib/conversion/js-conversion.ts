@@ -115,7 +115,7 @@ export async function convertToJavaScript(targetDir: string, framework: string):
             [
               nodeRequire.resolve("@babel/preset-env"),
               {
-                targets: { node: "18" },
+                targets: { node: "20" },
                 modules: false,
               },
             ],

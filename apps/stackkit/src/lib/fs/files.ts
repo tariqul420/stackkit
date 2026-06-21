@@ -9,10 +9,7 @@ export interface PackageJsonConfig {
   scripts?: Record<string, string>;
 }
 
-export async function mergePackageJson(
-  targetDir: string,
-  config: PackageJsonConfig,
-): Promise<void> {
+async function mergePackageJson(targetDir: string, config: PackageJsonConfig): Promise<void> {
   const pkgPath = path.join(targetDir, FILE_NAMES.PACKAGE_JSON);
   if (!(await fs.pathExists(pkgPath))) return;
 
@@ -31,10 +28,7 @@ export async function mergePackageJson(
   await fs.writeJson(pkgPath, pkg, { spaces: 2 });
 }
 
-export async function mergeEnvFile(
-  targetDir: string,
-  envVars: Record<string, string>,
-): Promise<void> {
+async function mergeEnvFile(targetDir: string, envVars: Record<string, string>): Promise<void> {
   const envPath = path.join(targetDir, FILE_NAMES.ENV);
   let content = "";
 

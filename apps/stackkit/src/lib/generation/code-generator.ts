@@ -136,7 +136,7 @@ export class AdvancedCodeGenerator {
             await mergeModuleIntoGeneratorConfig(config, typePath);
             this.generators.set(`${type}:${type}`, config);
           } catch {
-            // skip
+            /* expected: skip unparseable generator config */
           }
           continue; // skip subdir scanning for this type
         }
@@ -571,7 +571,7 @@ export class AdvancedCodeGenerator {
           }
         }
       } catch (error) {
-        void error;
+        /* expected */
       }
       try {
         const templateJsonPath = path.join(templatePath, "template.json");
@@ -605,7 +605,7 @@ export class AdvancedCodeGenerator {
           }
         }
       } catch (error) {
-        void error;
+        /* expected */
       }
 
       try {
@@ -640,7 +640,7 @@ export class AdvancedCodeGenerator {
           }
         }
       } catch (error) {
-        void error;
+        /* expected */
       }
 
       try {
@@ -650,7 +650,7 @@ export class AdvancedCodeGenerator {
           await fs.copy(envExampleDest, envDest);
         }
       } catch (error) {
-        void error;
+        /* expected */
       }
     }
   }
@@ -729,7 +729,7 @@ export class AdvancedCodeGenerator {
         const rel = path.relative(outputPath, destinationPath);
         if (rel && !this.createdFiles.includes(rel)) this.createdFiles.push(rel);
       } catch (error) {
-        void error;
+        /* expected */
       }
       return;
     }
@@ -798,7 +798,7 @@ export class AdvancedCodeGenerator {
           const rel = path.relative(outputPath, destinationPath);
           if (rel && !this.createdFiles.includes(rel)) this.createdFiles.push(rel);
         } catch (error) {
-          void error;
+          /* expected */
         }
       }
 
@@ -819,7 +819,7 @@ export class AdvancedCodeGenerator {
       const rel = path.relative(outputPath, destinationPath);
       if (rel && !this.createdFiles.includes(rel)) this.createdFiles.push(rel);
     } catch (error) {
-      void error;
+      /* expected */
     }
   }
 

@@ -8,20 +8,20 @@ export async function pathExists(filePath: string): Promise<boolean> {
   return fs.pathExists(filePath);
 }
 
-export async function ensureDir(dirPath: string): Promise<void> {
+async function ensureDir(dirPath: string): Promise<void> {
   await fs.ensureDir(dirPath);
 }
 
-export async function readFile(filePath: string): Promise<string> {
+async function readFile(filePath: string): Promise<string> {
   return fs.readFile(filePath, "utf-8");
 }
 
-export async function writeFile(filePath: string, content: string): Promise<void> {
+async function writeFile(filePath: string, content: string): Promise<void> {
   await fs.ensureDir(path.dirname(filePath));
   await fs.writeFile(filePath, content, "utf-8");
 }
 
-export async function copyDir(
+async function copyDir(
   source: string,
   destination: string,
   options?: CopyFilterFunction,
@@ -42,7 +42,7 @@ export async function isDirectory(dirPath: string): Promise<boolean> {
   }
 }
 
-export async function findFilesInDir(
+async function findFilesInDir(
   dirPath: string,
   predicate: (fileName: string) => boolean,
 ): Promise<string[]> {
@@ -53,7 +53,7 @@ export async function findFilesInDir(
   return files.filter((file) => predicate(file));
 }
 
-export async function getEnvFilePath(projectRoot: string): Promise<string | null> {
+async function getEnvFilePath(projectRoot: string): Promise<string | null> {
   for (const envFile of ENV_FILES) {
     const fullPath = path.join(projectRoot, envFile);
     if (await pathExists(fullPath)) {

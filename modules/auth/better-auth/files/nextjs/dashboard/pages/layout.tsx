@@ -27,15 +27,11 @@ export default async function layout({
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
-        {/* Sidebar */}
         {role && <DashboardSidebar menu={sidebar[role]} user={user} />}
 
-        {/* Main area */}
         <div className="flex flex-col flex-1">
-          {/* Header/Navbar */}
           <DashboardHeader role={role} />
 
-          {/* Main content */}
           <main className="flex-1">
             <div className="@container/main min-h-screen w-full px-4 py-4 lg:px-6">
               {children}

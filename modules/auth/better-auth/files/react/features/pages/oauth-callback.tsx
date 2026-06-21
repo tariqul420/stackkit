@@ -1,4 +1,4 @@
-import { AUTH_QUERY_KEYS } from "@/features/auth/queries/auth.querie";
+import { AUTH_QUERY_KEYS } from "@/features/auth/queries/auth.queries";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router";

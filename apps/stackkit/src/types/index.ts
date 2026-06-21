@@ -32,6 +32,8 @@ export interface ModuleMetadata {
   };
   files?: string[];
   scripts?: Record<string, string>;
+  framework?: string;
+  jsScripts?: Record<string, string>;
 }
 
 export interface EnvVar {

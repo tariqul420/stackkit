@@ -48,16 +48,13 @@ export default function LoginForm() {
 
   async function onSubmit(values: ILoginPayload & { redirectPath?: string }) {
     try {
-      const data = await mutation.mutateAsync({
+      await mutation.mutateAsync({
         email: values.email,
         password: values.password,
         redirectPath: values.redirectPath,
       });
 
-      console.log("Login using login form", data);
-    } catch {
-      // Error handling is done in the mutation's onError callback
-    }
+    } catch {}
   }
 
   return (

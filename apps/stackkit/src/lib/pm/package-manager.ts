@@ -4,9 +4,9 @@ import * as path from "path";
 import { LOCK_FILES_ARRAY, PACKAGE_MANAGERS, TIMEOUTS } from "../constants";
 import { logger } from "../ui/logger";
 
-export type PackageManager = "npm" | "yarn" | "pnpm" | "bun";
+type PackageManager = "npm" | "yarn" | "pnpm" | "bun";
 
-export async function detectPackageManager(cwd: string): Promise<PackageManager> {
+async function detectPackageManager(cwd: string): Promise<PackageManager> {
   for (const { file, pm } of LOCK_FILES_ARRAY) {
     if (await fs.pathExists(path.join(cwd, file))) {
       logger.debug(`Detected ${pm} from ${file}`);

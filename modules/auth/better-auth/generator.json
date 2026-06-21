@@ -67,13 +67,14 @@
           "imports": [
             "import { auth } from \"./lib/auth\";",
             "import { toNodeHandler } from \"better-auth/node\";",
+            "import { authLimiter } from \"./config/rate-limit\";",
             "import path from \"path\";"
           ]
         },
         {
           "type": "add-code",
           "after": "// API routes",
-          "code": ["app.use(\"/api/auth\", (req, res) => {", "  return toNodeHandler(auth)(req, res);", "});"]
+          "code": ["app.use(\"/api/auth\", authLimiter, (req, res) => {", "  return toNodeHandler(auth)(req, res);", "});"]
         },
         {
           "type": "add-code",

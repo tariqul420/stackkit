@@ -6,7 +6,7 @@ export function getModulesPath(): string {
   return path.join(getPackageRoot(), DIRECTORY_NAMES.MODULES);
 }
 
-export function getTemplatesPath(): string {
+function getTemplatesPath(): string {
   return path.join(getPackageRoot(), DIRECTORY_NAMES.TEMPLATES);
 }
 
@@ -22,7 +22,7 @@ export function getGeneratorJsonPath(category: string, moduleName: string): stri
   return path.join(getModulePath(category, moduleName), FILE_NAMES.GENERATOR_JSON);
 }
 
-export function getModuleFilesPath(category: string, moduleName: string): string {
+function getModuleFilesPath(category: string, moduleName: string): string {
   return path.join(getModulePath(category, moduleName), DIRECTORY_NAMES.FILES);
 }
 
@@ -38,10 +38,10 @@ export function getAuthModulesPath(): string {
   return path.join(getModulesPath(), MODULE_CATEGORIES.AUTH);
 }
 
-export function getUiModulesPath(): string {
+function getUiModulesPath(): string {
   return path.join(getModulesPath(), MODULE_CATEGORIES.UI);
 }
 
-export function getStorageModulesPath(): string {
+function getStorageModulesPath(): string {
   return path.join(getModulesPath(), MODULE_CATEGORIES.STORAGE);
 }

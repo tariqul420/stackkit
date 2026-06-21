@@ -23,7 +23,12 @@ function processRefreshQueue(error: unknown) {
 }
 
 axiosInstance.interceptors.response.use(
-  (response: AxiosResponse) => response,
+  (response: AxiosResponse) => {
+    if (response.data && typeof response.data === "object" && "data" in response.data) {
+      response.data = response.data.data;
+    }
+    return response;
+  },
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;

@@ -33,9 +33,7 @@ const registerUser = catchAsync(async (req: Request, res: Response) => {
 
   const { accessToken, refreshToken, token, ...rest } = result;
 
-  tokenUtils.setAccessTokenCookie(res, accessToken);
-  tokenUtils.setRefreshTokenCookie(res, refreshToken);
-  tokenUtils.setBetterAuthSessionCookie(res, token as string);
+  tokenUtils.setAuthCookies(res, { accessToken, refreshToken, sessionToken: token as string });
 
   sendResponse(res, {
     status: status.CREATED,
@@ -77,9 +75,7 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
     throw new AppError(status.INTERNAL_SERVER_ERROR, "Auth tokens are missing");
   }
 
-  tokenUtils.setAccessTokenCookie(res, accessToken);
-  tokenUtils.setRefreshTokenCookie(res, refreshToken);
-  tokenUtils.setBetterAuthSessionCookie(res, token);
+  tokenUtils.setAuthCookies(res, { accessToken, refreshToken, sessionToken: token });
 
   sendResponse(res, {
     status: status.OK,
@@ -132,9 +128,7 @@ const getNewToken = catchAsync(
 
         const { accessToken, refreshToken: newRefreshToken, sessionToken } = result;
 
-        tokenUtils.setAccessTokenCookie(res, accessToken);
-        tokenUtils.setRefreshTokenCookie(res, newRefreshToken);
-        tokenUtils.setBetterAuthSessionCookie(res, sessionToken);
+        tokenUtils.setAuthCookies(res, { accessToken, refreshToken: newRefreshToken, sessionToken });
 
         sendResponse(res, {
           status: status.OK,
@@ -158,9 +152,7 @@ const changePassword = catchAsync(
 
         const { accessToken, refreshToken, token } = result;
 
-        tokenUtils.setAccessTokenCookie(res, accessToken);
-        tokenUtils.setRefreshTokenCookie(res, refreshToken);
-        tokenUtils.setBetterAuthSessionCookie(res, token as string);
+        tokenUtils.setAuthCookies(res, { accessToken, refreshToken, sessionToken: token as string });
 
         sendResponse(res, {
           status: status.OK,

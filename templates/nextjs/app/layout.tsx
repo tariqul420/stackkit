@@ -5,7 +5,7 @@ import { Toaster } from "sonner";
 import "./globals.css";
 
 const geist = Geist({
-  variable: "--font-sans",
+  variable: "--font-geist-sans",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800", "900"],
 });
@@ -28,7 +28,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className={`${geist.variable} ${geistMono.variable}`}>
-      <head />
       <body className="font-sans antialiased" suppressHydrationWarning>
         <QueryProviders>{children}</QueryProviders>
         <Toaster theme="system" position="top-right" richColors />

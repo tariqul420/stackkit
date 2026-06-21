@@ -10,7 +10,6 @@ const globalWithMongoose = globalThis as unknown as {
   mongoose: MongooseCache;
 };
 
-// Initialize the cache if not already present
 const cached = globalWithMongoose.mongoose || {
   conn: null,
   promise: null,
@@ -78,11 +77,5 @@ const getMongoDb = () => {
   return db;
 };
 
-export {
-  dbConnect as connectMongoose,
-  getMongoClient,
-  getMongoDb,
-  dbConnect as mongoose,
-  dbConnect,
-};
+export { dbConnect, getMongoClient, getMongoDb };
 

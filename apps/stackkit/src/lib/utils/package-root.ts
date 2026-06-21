@@ -10,7 +10,7 @@ export function getPackageRoot(): string {
       return root;
     }
   } catch {
-    void 0;
+    /* expected: first-probe strategy may fail */
   }
 
   try {
@@ -28,7 +28,7 @@ export function getPackageRoot(): string {
             return current;
           }
         } catch {
-          void 0;
+          /* expected: unparseable package.json walking up */
         }
       }
 
@@ -40,7 +40,7 @@ export function getPackageRoot(): string {
       attempts++;
     }
   } catch {
-    void 0;
+    /* expected: directory walk may fail */
   }
 
   try {
@@ -54,11 +54,11 @@ export function getPackageRoot(): string {
           return fallbackRoot;
         }
       } catch {
-        void 0;
+        /* expected: unparseable fallback package.json */
       }
     }
   } catch {
-    void 0;
+    /* expected: fallback block failed */
   }
 
   const lastResortPath = path.resolve(__dirname, "..", "..", "..");

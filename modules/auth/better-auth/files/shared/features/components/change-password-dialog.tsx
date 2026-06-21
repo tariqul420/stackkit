@@ -48,9 +48,7 @@ export default function ChangePasswordDialog({
       });
       form.reset();
       onOpenChange(false);
-    } catch {
-      // Error handling is done in the mutation's onError callback
-    }
+    } catch {}
   }
 
   return (

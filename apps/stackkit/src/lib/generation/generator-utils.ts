@@ -109,9 +109,3 @@ export function locateOperationSource(
 
   return path.join(moduleBasePath, "files", sourceRel);
 }
-
-export default {
-  mergeModuleIntoGeneratorConfig,
-  mergeGeneratorIntoModuleMetadata,
-  locateOperationSource,
-};

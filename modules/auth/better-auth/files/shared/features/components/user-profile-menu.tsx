@@ -18,7 +18,7 @@ import Link from "next/link";
 import { Link } from "react-router";
 {{/if}}
 import { useLogoutMutation } from "../queries/auth.mutations";
-import { useMeQuery } from "../queries/auth.querie";
+import { useMeQuery } from "../queries/auth.queries";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function UserProfileMenu() {

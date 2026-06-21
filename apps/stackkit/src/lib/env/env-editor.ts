@@ -28,7 +28,7 @@ export async function addEnvVariables(
   logger.success("Environment variables added");
 }
 
-export async function removeEnvVariables(projectRoot: string, keys: string[]): Promise<void> {
+async function removeEnvVariables(projectRoot: string, keys: string[]): Promise<void> {
   const envExamplePath = path.join(projectRoot, FILE_NAMES.ENV_EXAMPLE);
   const envPath = path.join(projectRoot, FILE_NAMES.ENV);
 

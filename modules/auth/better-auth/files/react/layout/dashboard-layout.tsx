@@ -1,7 +1,7 @@
 import DashboardHeader from "@/components/dashboard/dashboard-header";
 import DashboardSidebar from "@/components/dashboard/dashboard-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { useMeQuery } from "@/features/auth/queries/auth.querie";
+import { useMeQuery } from "@/features/auth/queries/auth.queries";
 import { sidebar } from "@/lib/constant/dashboard";
 import { Navigate, Outlet, useLocation } from "react-router";
 

@@ -91,23 +91,6 @@
       "envVars": {
         "DATABASE_URL": "file:./dev.db"
       }
-    },
-    {
-      "type": "add-dependency",
-      "condition": { "prismaProvider": "mongodb" },
-      "dependencies": {
-        "@prisma/client": "^7.8.0"
-      },
-      "devDependencies": {
-        "prisma": "^7.8.0"
-      }
-    },
-    {
-      "type": "add-env",
-      "condition": { "prismaProvider": "mongodb" },
-      "envVars": {
-        "DATABASE_URL": "mongodb://localhost:27017/database_name"
-      }
     }
   ]
 }

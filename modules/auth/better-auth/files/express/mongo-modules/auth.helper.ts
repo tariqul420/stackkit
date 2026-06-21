@@ -1,5 +1,4 @@
 import status from "http-status";
-import { Types } from "mongoose";
 import { getMongoDb, mongoose } from "../../database/mongoose";
 import { AppError } from "../../shared/errors/app-error";
 
@@ -55,7 +54,3 @@ export const getAuthCollections = async () => {
   }
 };
 
-export const deleteAuthUserById = async (id: string) => {
-  const { users } = await getAuthCollections();
-  await users.deleteOne({ _id: new Types.ObjectId(id) });
-};

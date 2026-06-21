@@ -15,7 +15,7 @@ const loadEnvVars = (): EnvVars => {
   }
 
   return {
-    APP_NAME: import.meta.env.VITE_APP_NAME || "StackKit",
+    APP_NAME: import.meta.env.VITE_APP_NAME || "App Name",
     APP_URL: import.meta.env.VITE_APP_URL || "http://localhost:3000",
     API_URL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
     BETTER_AUTH_URL: import.meta.env.VITE_BETTER_AUTH_URL || "http://localhost:5000",

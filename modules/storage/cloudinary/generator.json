@@ -5,7 +5,7 @@
   "operations": [
     {
       "type": "create-file",
-      "source": "express/config/*",
+      "source": "express/config/media.ts",
       "destination": "src/config/*",
       "condition": { "framework": "express" }
     },
@@ -17,12 +17,14 @@
     },
     {
       "type": "add-dependency",
+      "condition": { "framework": "express" },
       "dependencies": {
          "cloudinary": "^2.10.0"
       }
     },
     {
       "type": "add-env",
+      "condition": { "framework": "express" },
       "envVars": {
         "CLOUDINARY_CLOUD_NAME": "your_cloud_name",
         "CLOUDINARY_API_KEY": "your_api_key",

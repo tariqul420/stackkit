@@ -37,9 +37,7 @@ export default function ForgotPasswordForm() {
   async function onSubmit(values: ForgotValues) {
     try {
       await mutation.mutateAsync(values);
-    } catch {
-      // Error handling is done in the mutation's onError callback
-    }
+    } catch {}
   }
 
   return (

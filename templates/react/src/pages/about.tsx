@@ -3,12 +3,12 @@ import { SEO } from "../components/seo";
 export default function About() {
   return (
     <>
-      <SEO title="About" description="About Stackkit - A production-ready React starter template" />
+      <SEO title="About" description="About StackKit - A production-ready React starter template" />
 
       <div className="flex min-h-screen items-center justify-center bg-black">
         <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-black sm:items-start">
           <div className="flex items-center gap-4 mb-8">
-            <div className="text-2xl font-bold text-white">Stackkit</div>
+            <div className="text-2xl font-bold text-white">StackKit</div>
             <span className="text-xl text-zinc-400">+</span>
             <img src="https://react.dev/favicon.ico" alt="React logo" width={32} height={32} />
           </div>
@@ -19,7 +19,7 @@ export default function About() {
                 About this template
               </h1>
               <p className="text-lg leading-8 text-zinc-400 mb-8">
-                Stackkit is a production-ready React starter template that includes all the
+                StackKit is a production-ready React starter template that includes all the
                 essential tools you need to build modern web applications.
               </p>
             </div>
@@ -57,13 +57,13 @@ export default function About() {
 
           <div className="flex flex-col gap-4 text-base font-medium sm:flex-row mt-8">
             <a
-              className="flex h-12 w-full items-center justify-center rounded-full bg-white text-black px-5 transition-colors hover:bg-zinc-200 md:w-39.5"
+              className="flex h-12 w-full items-center justify-center rounded-full bg-white text-black px-5 transition-colors hover:bg-zinc-200 md:w-40"
               href="/"
             >
               Back to Home
             </a>
             <a
-              className="flex h-12 w-full items-center justify-center rounded-full px-5 transition-colors hover:border-transparent bg-zinc-900 md:w-39.5 dark:text-white text-black"
+              className="flex h-12 w-full items-center justify-center rounded-full px-5 transition-colors hover:border-transparent bg-zinc-900 md:w-40 dark:text-white text-black"
               href="https://stackkit.tariqul.dev"
               target="_blank"
               rel="noopener noreferrer"

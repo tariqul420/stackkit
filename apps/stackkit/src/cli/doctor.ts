@@ -270,7 +270,7 @@ function detectProjectType(packageJson: PackageJson): string {
       }
     }
   } catch (error) {
-    void error;
+    /* expected */
   }
 
   if (deps.next) {
@@ -368,7 +368,7 @@ async function checkAuthRoutesExist(projectRoot: string): Promise<boolean> {
       }
     }
   } catch (error) {
-    void error;
+    /* expected */
   }
 
   if (candidates.size === 0) return false;
@@ -430,7 +430,7 @@ async function checkEnvFiles(
       await collectEnvKeys("auth", auth);
     }
   } catch (error) {
-    void error;
+    /* expected */
   }
 
   const envPaths = [".env", ".env.local"];

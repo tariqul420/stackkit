@@ -1,4 +1,4 @@
-import { useMeQuery } from "@/features/auth/queries/auth.querie";
+import { useMeQuery } from "@/features/auth/queries/auth.queries";
 import { Navigate, Outlet, useLocation } from "react-router";
 
 interface ProtectedRouteProps {

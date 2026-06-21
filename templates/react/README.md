@@ -46,64 +46,46 @@ Copy `.env.example` to `.env` and configure local values. Do not commit secrets.
 Example:
 
 ```env
-VITE_API_URL=http://localhost:3000/api
-VITE_APP_NAME=My App
+VITE_API_URL=http://localhost:5000/api
 ```
 
-## Recommended Folder & File Structure
+## Folder Structure
 
 ```text
 react-vite-app/
 ├── src/
-│   ├── app/
-│   │   ├── router.tsx
-│   │   ├── providers.tsx
-│   │   └── layouts/
-│   │       ├── PublicLayout.tsx
-│   │       └── DashboardLayout.tsx
-│
-│   ├── features/
-│   │   ├── auth/
-│   │   │   ├── pages/
-│   │   │   │   ├── LoginPage.tsx
-│   │   │   │   └── SignupPage.tsx
-│   │   │   ├── components/
-│   │   │   ├── api/
-│   │   │   │   └── auth.api.ts
-│   │   │   ├── hooks/
-│   │   │   │   └── useAuth.ts
-│   │   │   ├── schemas/
-│   │   │   ├── types/
-│   │   │   └── index.ts
-│   │   ├── products/
-│   │   └── orders/
-│
-│   ├── shared/
-│   │   ├── ui/
-│   │   ├── components/
-│   │   │   ├── Header.tsx
-│   │   │   └── Sidebar.tsx
-│   │   ├── api/
-│   │   │   ├── http.ts                  # axios/fetch client
-│   │   │   └── endpoints.ts
-│   │   └── lib/
-│   │       ├── env.ts
-│   │       ├── utils.ts
-│   │       └── auth-client.ts           # Auth client helper
-│
+│   ├── components/
+│   │   ├── error-boundary.tsx
+│   │   ├── layout.tsx
+│   │   ├── seo.tsx
+│   │   └── providers/
+│   │       └── query-provider.tsx
+│   ├── lib/
+│   │   └── axios/
+│   │       └── http.ts
+│   ├── pages/
+│   │   ├── about.tsx
+│   │   ├── home.tsx
+│   │   └── not-found.tsx
+│   ├── types/
+│   │   └── api.d.ts
 │   ├── assets/
+│   │   └── favicon.ico
+│   ├── index.css
 │   ├── main.tsx
-│   └── index.css
-│
-├── public/
-├── tests/
-│   ├── unit/
-│   └── e2e/
-├── vite.config.ts
-├── tsconfig.json
-├── package.json
+│   ├── router.tsx
+│   └── vite-env.d.ts
 ├── .env.example
-└── README.md
+├── .gitignore
+├── .prettierrc
+├── .prettierignore
+├── eslint.config.js
+├── index.html
+├── package.json
+├── tsconfig.json
+├── tsconfig.app.json
+├── tsconfig.node.json
+└── vite.config.ts
 ```
 
 ## Deployment

@@ -51,9 +51,7 @@ export default function VerifyEmailForm() {
   async function onSubmit(values: VerifyValues) {
     try {
       await mutation.mutateAsync(values);
-    } catch {
-      // Error handling is done in the mutation's onError callback
-    }
+    } catch {}
   }
 
   const resend = async () => {
@@ -66,9 +64,7 @@ export default function VerifyEmailForm() {
 
     try {
       await resendMutation.mutateAsync({ email });
-    } catch {
-      // Error handling is done in the mutation's onError callback
-    }
+    } catch {}
   };
 
   return (

@@ -13,7 +13,6 @@ import {
   MoreVertical,
   Package,
   Shield,
-  ShoppingCart,
   Tag,
   Users,
 } from "lucide-react";
@@ -25,37 +24,6 @@ import { Link, useLocation } from "react-router";
 {{/if}}
 
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from "@/components/ui/sidebar";
-import { useLogoutMutation } from "@/features/auth/queries/auth.mutations";
-import { cn } from "@/lib/utils";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { Separator } from "../ui/separator";
-
-
-const iconMap = {
-  LayoutDashboard,
-  ShoppingCart,
-  Package,
   Tag,
   Users,
   Shield,
@@ -123,7 +91,6 @@ export function DashboardSidebar({ menu = [], user }: DashboardSidebarProps) {
             StackKit
           </Link>
           {{/if}}
-          {/* Collapser for small screens */}
           <button
             onClick={toggleSidebar}
             className="rounded-md p-1.5 text-muted-foreground hover:bg-muted/60 hover:text-foreground lg:hidden"

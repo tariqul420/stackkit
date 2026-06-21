@@ -3,7 +3,6 @@ import { healthController } from "./health.controller";
 
 const router = Router();
 
-// demo route
 router.get("/", healthController.health);
 
 export const healthRoutes = router;

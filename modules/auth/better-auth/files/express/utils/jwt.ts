@@ -13,22 +13,17 @@ const verifyToken = (token: string, secret: string) => {
             data: decoded
         }
     } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : "Unknown error";
+        const isExpired = error instanceof jwt.TokenExpiredError;
         return {
             success: false,
-            message,
-            error
+            message: isExpired ? "Token has expired" : (error instanceof Error ? error.message : "Unknown error"),
+            error,
+            code: isExpired ? "TOKEN_EXPIRED" : "TOKEN_INVALID"
         }
     }
-}
-
-const decodeToken = (token: string) => {
-    const decoded = jwt.decode(token) as JwtPayload;
-    return decoded;
 }
 
 export const jwtUtils = {
     createToken,
     verifyToken,
-    decodeToken,
 }

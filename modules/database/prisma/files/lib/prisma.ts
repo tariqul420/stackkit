@@ -13,15 +13,11 @@ const connectionString = `${process.env.DATABASE_URL}`
 
 const adapter = new PrismaPg({ connectionString })
 const prisma = new PrismaClient({ adapter })
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 
 export { prisma }
 {{/case}}
-{{#case "mongodb"}}
 
-const prisma = new PrismaClient()
-
-export { prisma }
-{{/case}}
 {{#case "mysql"}}
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 
@@ -33,6 +29,7 @@ const adapter = new PrismaMariaDb({
   connectionLimit: 5
 });
 const prisma = new PrismaClient({ adapter });
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 
 export { prisma }
 {{/case}}
@@ -43,9 +40,8 @@ const connectionString = `${process.env.DATABASE_URL}`;
 
 const adapter = new PrismaBetterSqlite3({ url: connectionString });
 const prisma = new PrismaClient({ adapter });
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 
 export { prisma };
 {{/case}}
 {{/switch}}
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma

@@ -2,30 +2,7 @@ import fs from "fs-extra";
 import path from "path";
 import { getPackageRoot } from "../utils/package-root";
 import { getPrismaProvidersFromGenerator, parseDatabaseOption } from "./shared";
-
-export interface ModuleMetadata {
-  name: string;
-  displayName: string;
-  description: string;
-  category: string;
-  provider?: string;
-  supportedFrameworks?: string[];
-  frameworkConfigs?: Record<string, unknown>;
-  dependencies?: Record<string, unknown>;
-  devDependencies?: Record<string, unknown>;
-  envVars?: Record<string, unknown>;
-  patches?: unknown[];
-  postInstall?: string[];
-  compatibility?: {
-    databases?: string[];
-    auth?: string[];
-    languages?: string[];
-  };
-  framework?: string;
-  files?: string[];
-  scripts?: Record<string, string>;
-  jsScripts?: Record<string, string>;
-}
+import type { ModuleMetadata } from "../../types";
 
 export interface DiscoveredModules {
   frameworks: ModuleMetadata[];
@@ -195,7 +172,7 @@ export function getValidDatabaseOptions(databases: ModuleMetadata[]): string[] {
         options.push("prisma");
       }
     } else {
-      options.push(db.name);
+      options.push(db.name ?? "unknown");
     }
   }
 
@@ -206,7 +183,7 @@ export function getValidAuthOptions(authModules: ModuleMetadata[]): string[] {
   const options: string[] = ["none"];
 
   for (const auth of authModules) {
-    options.push(auth.name);
+    options.push(auth.name ?? "unknown");
   }
 
   return options;
@@ -237,7 +214,7 @@ export function getCompatibleAuthOptions(
       const fw = frameworksMeta.find((f) => f.name === framework);
       if (fw && fw.compatibility) {
         const authList = fw.compatibility.auth;
-        if (Array.isArray(authList) && authList.includes(auth.name)) {
+        if (Array.isArray(authList) && auth.name && authList.includes(auth.name)) {
           explicitlyAllowedByFramework = true;
         }
       }
@@ -246,9 +223,9 @@ export function getCompatibleAuthOptions(
     if (!dbCompatible && !explicitlyAllowedByFramework) continue;
 
     compatible.push({
-      title: auth.displayName,
-      value: auth.name,
-      description: auth.description || "",
+      title: auth.displayName ?? "",
+      value: auth.name ?? "unknown",
+      description: auth.description ?? "",
     });
   }
 
@@ -280,7 +257,7 @@ export function getDatabaseChoices(
         choices.push({ title: "Prisma", value: "prisma" });
       }
     } else {
-      choices.push({ title: db.displayName || db.name, value: db.name });
+      choices.push({ title: (db.displayName || db.name) ?? "", value: db.name ?? "unknown" });
     }
   }
 

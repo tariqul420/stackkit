@@ -63,9 +63,11 @@ export async function createProject(projectName?: string, options?: CliOptions):
 
   const config = await getProjectConfig(projectName, options);
 
-  const targetDir = path.join(process.cwd(), config.projectName);
+  const targetDir = path.isAbsolute(config.projectName)
+    ? config.projectName
+    : path.join(process.cwd(), config.projectName);
   if (await fs.pathExists(targetDir)) {
-    logger.error(`Directory "${config.projectName}" already exists`);
+    logger.error(`Directory "${targetDir}" already exists`);
     logger.log(chalk.gray("Please choose a different name or remove the existing directory.\n"));
     process.exit(1);
   }
@@ -74,7 +76,10 @@ export async function createProject(projectName?: string, options?: CliOptions):
 
   await processGeneratorEnvVars(config, targetDir);
 
-  showNextSteps(config);
+  const displayName = path.isAbsolute(config.projectName)
+    ? path.basename(config.projectName)
+    : config.projectName;
+  showNextSteps({ ...config, projectName: displayName });
 }
 
 async function getProjectConfig(
@@ -95,12 +100,12 @@ async function getProjectConfig(
     if (options && (options.yes || options.y) && !flagsProvided) {
       const defaultFramework =
         discoveredModules.frameworks && discoveredModules.frameworks.length > 0
-          ? discoveredModules.frameworks[0].name
+          ? (discoveredModules.frameworks[0].name ?? "")
           : "";
 
       const defaultDatabase =
         discoveredModules.databases && discoveredModules.databases.length > 0
-          ? discoveredModules.databases[0].name
+          ? (discoveredModules.databases[0].name ?? "none")
           : "none";
 
       const prismaProviders = getPrismaProvidersFromGenerator(getPackageRoot());
@@ -108,7 +113,7 @@ async function getProjectConfig(
 
       const defaultAuth =
         discoveredModules.auth && discoveredModules.auth.length > 0
-          ? discoveredModules.auth[0].name
+          ? (discoveredModules.auth[0].name ?? "none")
           : "none";
 
       return {
@@ -126,7 +131,7 @@ async function getProjectConfig(
     }
     const framework = (options && (options.framework || options.f)) || undefined;
     if (discoveredModules.frameworks && discoveredModules.frameworks.length > 0) {
-      const validFrameworks = discoveredModules.frameworks.map((f) => f.name);
+      const validFrameworks = discoveredModules.frameworks.map((f) => f.name ?? "");
       if (framework && !validFrameworks.includes(framework)) {
         throw new Error(
           `Invalid framework: ${framework}. Valid options: ${validFrameworks.join(", ")}`,
@@ -138,7 +143,7 @@ async function getProjectConfig(
     let allValidDatabases: string[] = [];
     if (discoveredModules.databases && discoveredModules.databases.length > 0) {
       const validDatabases = getValidDatabaseOptions(discoveredModules.databases);
-      const validBaseDatabases = discoveredModules.databases.map((db) => db.name);
+      const validBaseDatabases = discoveredModules.databases.map((db) => db.name ?? "");
       allValidDatabases = [...validDatabases, ...validBaseDatabases];
       if (db && !allValidDatabases.includes(db)) {
         throw new Error(
@@ -252,7 +257,7 @@ async function getProjectConfig(
         return dbs;
       }
     } catch {
-      // fall through to default
+      /* expected: fall through to default */
     }
 
     return [{ title: "None", value: "none" }];
@@ -265,6 +270,15 @@ async function getProjectConfig(
       message: "Project name:",
       initial: projectName || "my-app",
       validate: (input: string) => {
+        if (!input || input.trim().length === 0) {
+          return "Project name is required";
+        }
+        if (path.isAbsolute(input)) {
+          if (fs.existsSync(input)) {
+            return "Directory already exists";
+          }
+          return true;
+        }
         const validation = validateNpmPackageName(input);
         if (!validation.validForNewPackages) {
           return validation.errors?.[0] || "Invalid package name";
@@ -283,7 +297,10 @@ async function getProjectConfig(
   // framework
   const frameworkChoices =
     discoveredModules.frameworks && discoveredModules.frameworks.length > 0
-      ? discoveredModules.frameworks.map((f) => ({ title: f.displayName || f.name, value: f.name }))
+      ? discoveredModules.frameworks.map((f) => ({
+          title: (f.displayName || f.name) ?? "",
+          value: f.name ?? "",
+        }))
       : (() => {
           try {
             const templatesDir = path.join(getPackageRoot(), "templates");
@@ -334,7 +351,7 @@ async function getProjectConfig(
       .filter(
         (u) => !u.supportedFrameworks || u.supportedFrameworks.includes(result.framework || ""),
       )
-      .map((u) => ({ title: u.displayName || u.name, value: u.name }));
+      .map((u) => ({ title: (u.displayName || u.name) ?? "", value: u.name ?? "" }));
 
     if (uiChoices.length === 0) {
       uiChoices.push({ title: "Shadcn (shadcn/ui)", value: "shadcn" });
@@ -363,8 +380,8 @@ async function getProjectConfig(
   // Storage provider (Express)
   if (result.framework === "express") {
     const storageChoices = (discoveredModules.storage || []).map((s) => ({
-      title: s.displayName || s.name,
-      value: s.name,
+      title: (s.displayName || s.name) ?? "",
+      value: s.name ?? "",
     }));
     if (storageChoices.length === 0) {
       storageChoices.push({ title: "Cloudinary", value: "cloudinary" });
@@ -587,7 +604,7 @@ async function composeTemplate(config: ProjectConfig, targetDir: string): Promis
       await fs.writeFile(envPath, envContent);
     }
   } catch (error) {
-    void error;
+    /* expected */
   }
 
   if (config.language === "javascript") {

@@ -17,7 +17,7 @@ export function loadJsonSync<T = unknown>(filePath: string): T | null {
   }
 }
 
-export async function saveJson<T = unknown>(
+async function saveJson<T = unknown>(
   filePath: string,
   data: T,
   options?: { spaces?: number },
@@ -25,7 +25,7 @@ export async function saveJson<T = unknown>(
   await fs.writeJSON(filePath, data, { spaces: options?.spaces ?? 2 });
 }
 
-export async function loadJsonWithDefault<T>(filePath: string, defaultValue: T): Promise<T> {
+async function loadJsonWithDefault<T>(filePath: string, defaultValue: T): Promise<T> {
   const data = await loadJsonAsync<T>(filePath);
   return data ?? defaultValue;
 }

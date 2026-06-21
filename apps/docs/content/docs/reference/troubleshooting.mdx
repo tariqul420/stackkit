@@ -56,20 +56,27 @@ pnpm install
 
 ### Port is already in use
 
-Kill whatever is running on port 3000 (or 5173 for React/Vite):
+Kill whatever is running on the default port for your framework:
 
 ```bash
-# Kill any process on port 3000
+# Next.js on port 3000
 lsof -ti:3000 | xargs kill -9
 
-# For React/Vite on port 5173
+# Express on port 5000
+lsof -ti:5000 | xargs kill -9
+
+# React/Vite on port 5173
 lsof -ti:5173 | xargs kill -9
 ```
 
 Or specify a different port when starting:
 
 ```bash
+# Next.js
 PORT=3001 npm run dev
+
+# Express
+PORT=5001 npm run dev
 ```
 
 ## Module issues
@@ -160,24 +167,16 @@ Then set it in `.env`:
 
 ```bash
 BETTER_AUTH_SECRET="your-generated-secret-here"
-BETTER_AUTH_URL="http://localhost:3000"
+BETTER_AUTH_URL="http://localhost:5000"
 ```
-
-For Express projects, use `http://localhost:5000` instead.
 
 ### Better Auth: Session not persisting
 
 Make sure `BETTER_AUTH_URL` matches the exact URL you're accessing in the browser, including the port.
 
 ```bash
-# Development (Next.js / React)
-BETTER_AUTH_URL="http://localhost:3000"
-
-# Development (Express)
+# Development (all frameworks)
 BETTER_AUTH_URL="http://localhost:5000"
-
-# Production
-BETTER_AUTH_URL="https://yourdomain.com"
 ```
 
 ## Environment variables
@@ -197,10 +196,10 @@ For Next.js, make sure you restart the dev server after changing `.env` — Next
   `.env.local`.
 </Callout>
 
-### Variables Not Loading
+If variables are still missing:
 
-1. Check file is named `.env` (not `.env.txt`)
-2. Restart dev server
+1. Confirm the file is named `.env` (not `.env.txt`)
+2. Restart the dev server
 3. Verify no quotes around values (unless needed)
 
 ## Still stuck?
@@ -226,7 +225,3 @@ A: Prisma for flexibility (supports multiple databases), Mongoose for MongoDB-on
 
 **Q: What if my framework isn't supported?**  
 A: See [Contributing](/docs/community/contributing) to add support.
-
-<Callout type="info">
-  Most issues are resolved by running `stackkit doctor` and following its recommendations.
-</Callout>

@@ -24,15 +24,10 @@ export const authorize = (...authRoles: AuthRole[]) =>
 {{/if}}
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      //Session Token Verification
       const sessionToken = cookieUtils.getCookie(
         req,
         "better-auth.session_token",
       );
-
-      if (!sessionToken) {
-        throw new Error("Unauthorized access! No session token provided.");
-      }
 
       if (sessionToken) {
         {{#if database == "prisma"}}
@@ -83,8 +78,6 @@ export const authorize = (...authRoles: AuthRole[]) =>
             res.setHeader("X-Session-Refresh", "true");
             res.setHeader("X-Session-Expires-At", expiresAt.toISOString());
             res.setHeader("X-Time-Remaining", timeRemaining.toString());
-
-            console.log("Session Expiring Soon!!");
           }
           {{/if}}
           {{#if database == "mongoose"}}
@@ -143,18 +136,8 @@ export const authorize = (...authRoles: AuthRole[]) =>
             role: user.role,
           };
         }
-
-        const accessToken = cookieUtils.getCookie(req, "accessToken");
-
-        if (!accessToken) {
-          throw new AppError(
-            status.UNAUTHORIZED,
-            "Unauthorized access! No access token provided.",
-          );
-        }
       }
 
-      //Access Token Verification
       const accessToken = cookieUtils.getCookie(req, "accessToken");
 
       if (!accessToken) {
@@ -170,10 +153,10 @@ export const authorize = (...authRoles: AuthRole[]) =>
       );
 
       if (!verifiedToken.success) {
-        throw new AppError(
-          status.UNAUTHORIZED,
-          "Unauthorized access! Invalid access token.",
-        );
+        const message = verifiedToken.code === "TOKEN_EXPIRED"
+          ? "Unauthorized access! Access token has expired. Please refresh your token."
+          : "Unauthorized access! Invalid access token.";
+        throw new AppError(status.UNAUTHORIZED, message);
       }
 
       if (

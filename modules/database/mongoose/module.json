@@ -3,7 +3,7 @@
   "displayName": "Mongoose",
   "category": "database",
   "provider": "mongoose",
-  "database": "mongodb",
+  "description": "Database ODM with Mongoose",
   "supportedFrameworks": ["express"],
   "compatibility": {
     "frameworks": ["express"],

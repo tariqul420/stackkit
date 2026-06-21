@@ -62,9 +62,7 @@ export default function ResetPasswordForm() {
         otp: values.otp,
         newPassword: values.newPassword,
       });
-    } catch {
-      // Error handling is done in the mutation's onError callback
-    }
+    } catch {}
   }
 
   return (

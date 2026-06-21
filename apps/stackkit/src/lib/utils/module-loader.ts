@@ -4,7 +4,7 @@ import { isDirectory, pathExists, readDir } from "./fs-helpers";
 import { loadJsonAsync } from "./json-loader";
 import { getGeneratorJsonPath, getModuleJsonPath, getModulesPath } from "./path-resolver";
 
-export async function loadModuleMetadata(
+async function loadModuleMetadata(
   category: string,
   moduleName: string,
 ): Promise<ModuleMetadata | null> {
@@ -12,7 +12,7 @@ export async function loadModuleMetadata(
   return loadJsonAsync<ModuleMetadata>(moduleJsonPath);
 }
 
-export async function loadGeneratorConfig<T = unknown>(
+async function loadGeneratorConfig<T = unknown>(
   category: string,
   moduleName: string,
 ): Promise<T | null> {
@@ -20,7 +20,7 @@ export async function loadGeneratorConfig<T = unknown>(
   return loadJsonAsync<T>(generatorPath);
 }
 
-export async function findModuleByName(
+async function findModuleByName(
   moduleName: string,
   provider?: string,
 ): Promise<{ category: string; metadata: ModuleMetadata } | null> {
@@ -103,7 +103,7 @@ export async function getAllModules(): Promise<ModuleMetadata[]> {
   return modules;
 }
 
-export async function getModulesByCategory(category: string): Promise<ModuleMetadata[]> {
+async function getModulesByCategory(category: string): Promise<ModuleMetadata[]> {
   const categoryPath = path.join(getModulesPath(), category);
 
   if (!(await pathExists(categoryPath))) {

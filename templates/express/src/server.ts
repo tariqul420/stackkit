@@ -14,27 +14,20 @@ const bootstrap = async () => {
   }
 };
 
-process.on("SIGTERM", () => {
-  console.log("SIGTERM signal received: closing HTTP server");
+const shutdown = (signal: string, exitCode: number) => {
+  console.log(`${signal} signal received: closing HTTP server`);
   if (server) {
     server.close(() => {
       console.log("HTTP server closed");
     });
   }
 
-  process.exit(0);
-});
+  process.exit(exitCode);
+};
 
-process.on("SIGINT", () => {
-  console.log("SIGINT signal received: closing HTTP server");
-  if (server) {
-    server.close(() => {
-      console.log("HTTP server closed");
-    });
-  }
+process.on("SIGTERM", () => shutdown("SIGTERM", 0));
 
-  process.exit(0);
-});
+process.on("SIGINT", () => shutdown("SIGINT", 0));
 
 process.on("uncaughtException", (err) => {
   console.error("Uncaught Exception:", err);

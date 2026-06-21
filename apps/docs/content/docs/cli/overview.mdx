@@ -3,7 +3,7 @@ title: CLI Overview
 description: StackKit provides four commands that cover the full lifecycle of project creation and maintenance.
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
+import { Callout } from "fumadocs-ui/components/callout";
 
 StackKit is a command-line tool. You don't need to install it globally — `npx` always fetches the latest version when you need it.
 
@@ -12,17 +12,18 @@ npx stackkit@latest <command>
 ```
 
 <Callout type="info">
-  Using `npx stackkit@latest` ensures you always run the most current version. If you prefer faster startup, you can install it globally with `npm install -g stackkit`.
+  Using `npx stackkit@latest` ensures you always run the most current version. If you prefer faster
+  startup, you can install it globally with `npm install -g stackkit`.
 </Callout>
 
 ## Commands at a glance
 
-| Command | What it does |
-|---------|--------------|
-| [`create`](/docs/cli/create) | Scaffold a brand-new project from a template |
-| [`add`](/docs/cli/add) | Add a module (database, auth, etc.) to an existing project |
-| [`list`](/docs/cli/list) | Show all available frameworks and modules |
-| [`doctor`](/docs/cli/doctor) | Diagnose your project and catch configuration issues |
+| Command                      | What it does                                               |
+| ---------------------------- | ---------------------------------------------------------- |
+| [`create`](/docs/cli/create) | Scaffold a brand-new project from a template               |
+| [`add`](/docs/cli/add)       | Add a module (database, auth, etc.) to an existing project |
+| [`list`](/docs/cli/list)     | Show all available frameworks and modules                  |
+| [`doctor`](/docs/cli/doctor) | Diagnose your project and catch configuration issues       |
 
 ## `create`
 
@@ -88,9 +89,9 @@ npx stackkit doctor
 
 ## Global options
 
-| Flag | Description |
-|------|-------------|
-| `--help` | Print help text for a command |
+| Flag        | Description                          |
+| ----------- | ------------------------------------ |
+| `--help`    | Print help text for a command        |
 | `--version` | Print the installed StackKit version |
 
 ## Common workflows
@@ -105,7 +106,7 @@ cp .env.example .env
 npm run dev
 ```
 
-### Start with defaults (Next.js + Prisma + Better Auth)
+### Start with defaults (Next.js + Better Auth)
 
 ```bash
 npx stackkit@latest create my-app --yes

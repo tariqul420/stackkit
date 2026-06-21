@@ -4,6 +4,7 @@
   "category": "auth",
   "provider": "better-auth",
   "supportedFrameworks": ["express", "react", "nextjs"],
+  "description": "Authentication & authorization module powered by better-auth",
   "compatibility": {
     "frameworks": ["express", "react", "nextjs"],
     "databases": ["prisma", "mongoose"],

@@ -15,7 +15,7 @@ const transporter = nodemailer.createTransport({
   port: Number(envVars.EMAIL_SENDER.SMTP_PORT),
 });
 
-transporter.verify().catch(() => null);
+transporter.verify();
 
 interface SendEmailOptions {
   to: string;

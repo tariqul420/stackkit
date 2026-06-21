@@ -48,9 +48,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
   async function onSubmit(values: IProfilePayload) {
     try {
       await mutation.mutateAsync(values);
-    } catch {
-      // Error handling is done in the mutation's onError callback
-    }
+    } catch {}
   }
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,7 +81,6 @@ export default function ProfileForm({ user }: ProfileFormProps) {
           </p>
         </div>
 
-        {/* Profile Picture */}
         <div className="flex items-center gap-6">
           <div className="relative">
             <Avatar className="h-24 w-24">
@@ -99,7 +96,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
             </Avatar>
             <label
               htmlFor="avatar-upload"
-              className="absolute bottom-0 right-0 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-2 border-background bg-primary text-primary-foreground shadow-lg transition-colors hover:bg-primary/90"
+              className="absolute bottom-0 right-0 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-2 border-background bg-primary text-primary-foreground shadow-md transition-colors hover:bg-primary/90"
             >
               <Camera className="h-4 w-4" />
               <input
@@ -120,7 +117,6 @@ export default function ProfileForm({ user }: ProfileFormProps) {
           </div>
         </div>
 
-        {/* Name Field */}
         <InputField
           name="name"
           label="Full Name"
@@ -128,7 +124,6 @@ export default function ProfileForm({ user }: ProfileFormProps) {
           disabled={mutation.isPending}
         />
 
-        {/* Email Field (read-only) */}
         <div className="space-y-2">
           <InputField
             label="Email Address"
@@ -143,7 +138,6 @@ export default function ProfileForm({ user }: ProfileFormProps) {
 
         <Separator className="my-6" />
 
-        {/* Security Section */}
         <div>
           <h3 className="mb-2 text-lg font-semibold">Security</h3>
           <p className="mb-4 text-sm text-muted-foreground">
@@ -174,7 +168,6 @@ export default function ProfileForm({ user }: ProfileFormProps) {
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div className="flex items-center justify-end gap-3 border-t pt-6">
           <Button
             type="button"

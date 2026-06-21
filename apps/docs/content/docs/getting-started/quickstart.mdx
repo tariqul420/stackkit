@@ -149,7 +149,14 @@ StackKit will detect your framework and show you the modules that are compatible
 **The port is already in use:**
 
 ```bash
+# Next.js
 lsof -ti:3000 | xargs kill -9
+
+# Express
+lsof -ti:5000 | xargs kill -9
+
+# React (Vite)
+lsof -ti:5173 | xargs kill -9
 ```
 
 **Something looks broken after adding a module:**
@@ -163,8 +170,6 @@ npx stackkit doctor
 ```bash
 rm -rf node_modules && npm install
 ```
-
-For more issues, see the [Troubleshooting guide](/docs/reference/troubleshooting).
 
 ## Further Reading
 

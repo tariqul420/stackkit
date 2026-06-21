@@ -4,7 +4,7 @@ Production-ready Express (TypeScript) starter for building REST APIs, generated 
 
 ## Requirements
 
-- Node.js 18+ (LTS recommended)
+- Node.js >=20 (LTS recommended)
 - pnpm or npm
 
 ## Quick Start
@@ -40,77 +40,32 @@ express-api/
 ├── src/
 │   ├── app.ts
 │   ├── server.ts
-│
 │   ├── config/
-│   │   ├── env.ts
 │   │   ├── cors.ts
-│   │   ├── rateLimit.ts
-│   │   └── logger.ts                    # (optional)
-│
-│   ├── database/
-│   │   └── prisma.ts                     # PrismaClient singleton
-│
-│   ├── lib/
-│       └── auth.ts                   # Auth server config
-│
-│   ├── shared/
-│   │   ├── middlewares/
-│   │   │   ├── authorize.middleware.ts        # reads session + attaches req.user
-│   │   │   ├── error.middleware.ts
-│   │   │   └── notFound.middleware.ts
-│   │   ├── errors/
-│   │   │   ├── ApiError.ts
-│   │   │   └── errorCodes.ts
-│   │   ├── utils/
-│   │   │   ├── catchAsync.ts
-│   │   │   ├── sendResponse.ts
-│   │   │   └── pagination.ts
-│   │   └── logger/
-│   │       └── logger.ts
-│
+│   │   ├── env.ts
+│   │   ├── logger.ts
+│   │   └── rate-limit.ts
 │   ├── modules/
-│   │   ├── auth/
-│   │   │   ├── auth.routes.ts
-│   │   │   ├── auth.controller.ts
-│   │   │   ├── auth.service.ts
-│   │   │   ├── auth.validator.ts
-│   │   │   └── auth.types.ts
-│   │   ├── users/
-│   │   │   ├── users.routes.ts
-│   │   │   ├── users.controller.ts
-│   │   │   ├── users.service.ts
-│   │   │   ├── users.repository.ts
-│   │   │   ├── users.validator.ts
-│   │   │   └── users.types.ts
-│   │   └── products/
-│   │       ├── products.routes.ts
-│   │       ├── products.controller.ts
-│   │       ├── products.service.ts
-│   │       ├── products.repository.ts
-│   │       ├── products.validator.ts
-│   │       └── products.types.ts
-│
+│   │   └── health/
+│   │       ├── health.controller.ts
+│   │       └── health.route.ts
 │   ├── routes/
-│   │   └── index.ts                      # mounts all module routes
-│   │
-│   └── types/
-│       └── express.d.ts                  # Request typing (req.user)
-│
-├── prisma/
-│   ├── schema.prisma
-│   ├── migrations/
-│   └── seed.ts
-│
-├── tests/
-│   ├── unit/
-│   └── integration/
-│
-├── Dockerfile
-├── docker-compose.yml
+│   │   └── index.ts
+│   └── shared/
+│       ├── errors/
+│       │   └── app-error.ts
+│       ├── middlewares/
+│       │   ├── error.middleware.ts
+│       │   └── not-found.middleware.ts
+│       └── utils/
+│           ├── catch-async.ts
+│           ├── pagination.ts
+│           └── send-response.ts
+├── .env.example
+├── .gitignore
+├── eslint.config.mjs
 ├── package.json
 ├── tsconfig.json
-├── eslint.config.js
-├── .env.example
 └── README.md
 ```
 

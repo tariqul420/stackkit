@@ -10,7 +10,7 @@ export interface FrameworkConfig {
   };
 }
 
-export interface ModuleConfig {
+interface ModuleConfig {
   name: string;
   displayName: string;
   type: "database" | "auth";

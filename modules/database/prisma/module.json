@@ -4,6 +4,7 @@
   "category": "database",
   "provider": "prisma",
   "supportedFrameworks": ["express"],
+  "description": "Database ORM with Prisma",
   "compatibility": {
     "frameworks": ["express"],
     "databases": ["prisma"],

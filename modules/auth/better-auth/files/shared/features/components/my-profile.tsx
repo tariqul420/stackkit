@@ -1,7 +1,7 @@
 "use client";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { useMeQuery } from "@/features/auth/queries/auth.querie";
+import { useMeQuery } from "@/features/auth/queries/auth.queries";
 import ProfileForm from "./profile-form";
 
 export default function MyProfile() {

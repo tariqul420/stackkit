@@ -70,13 +70,11 @@ export default function Navbar() {
             {{/if}}
           </div>
 
-          {/* Desktop actions */}
           <div className="hidden md:flex items-center gap-4 ml-4">
             <UserProfile />
             <ModeToggle />
           </div>
 
-          {/* Mobile sheet (shadcn) */}
           <div className="md:hidden ml-2">
             <Sheet>
               <SheetTrigger

@@ -37,105 +37,49 @@ npm run dev
 | `pnpm start` | Start production server  |
 | `pnpm lint`  | Run ESLint               |
 
-## Recommended Folder & File Structure
+## Folder Structure
 
 ```text
 next-app/
-├── src/
-│   ├── app/
-│   │   ├── (public)/
-│   │   │   ├── layout.tsx
-│   │   │   ├── page.tsx
-│   │   │   └── pricing/page.tsx
-│   │   ├── (dashboard)/
-│   │   │   ├── layout.tsx
-│   │   │   ├── dashboard/page.tsx
-│   │   │   ├── products/page.tsx
-│   │   │   └── orders/page.tsx
-│   │   ├── api/
-│   │   │   ├── health/route.ts
-│   │   │   └── auth/route.ts              # (optional) if you expose auth endpoints
-│   │   ├── layout.tsx
-│   │   ├── globals.css
-│   │   ├── error.tsx
-│   │   └── not-found.tsx
-│   │
-│   ├── features/
-│   │   ├── auth/
-│   │   │   ├── components/
-│   │   │   ├── actions/
-│   │   │   ├── schemas/
-│   │   │   ├── types/
-│   │   │   └── index.ts
-│   │   ├── products/
-│   │   │   ├── components/
-│   │   │   ├── actions/
-│   │   │   ├── queries/
-│   │   │   ├── schemas/
-│   │   │   ├── types/
-│   │   │   └── index.ts
-│   │   └── orders/
-│   │       ├── components/
-│   │       ├── actions/
-│   │       ├── queries/
-│   │       ├── schemas/
-│   │       ├── types/
-│   │       └── index.ts
-│   │
-│   ├── components/
-│   │   ├── ui/                            # shadcn/ui only
-│   │   └── shared/
-│   │       ├── Header.tsx
-│   │       ├── Footer.tsx
-│   │       └── Sidebar.tsx
-│   │
-│   ├── server/                            # server-only boundary
-│   │   ├── auth/
-│   │   │   ├── auth.ts                    # Auth (server config)
-│   │   │   └── guards.ts
-│   │   ├── db/
-│   │   │   └── prisma.ts                  # PrismaClient singleton
-│   │   ├── repositories/
-│   │   │   ├── product.repo.ts
-│   │   │   └── order.repo.ts
-│   │   └── services/
-│   │       ├── email.service.ts
-│   │       └── storage.service.ts
-│   │
-│   ├── lib/
-│   │   ├── env.ts
-│   │   ├── utils.ts
-│   │   ├── logger.ts
-│   │   └── auth/
-│   │       └── auth-client.ts             # Auth (client helper)
-│   │
-│   ├── hooks/
-│   │   └── useDebounce.ts
-│   │
-│   └── types/
-│       └── global.d.ts
-│
-├── prisma/
-│   ├── schema.prisma
-│   ├── migrations/
-│   └── seed.ts
-│
-├── public/
-├── tests/
-│   ├── unit/
-│   └── e2e/
-│
-├── middleware.ts
-├── next.config.js
-├── package.json
-├── tsconfig.json
 ├── .env.example
-└── README.md
+├── .gitignore
+├── eslint.config.mjs
+├── next.config.ts
+├── package.json
+├── postcss.config.mjs
+├── template.json
+├── tsconfig.json
+├── app/
+│   ├── favicon.ico
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── (public)/
+│       └── (root)/
+│           └── page.tsx
+├── components/
+│   └── providers/
+│       └── query-provider.tsx
+├── lib/
+│   ├── axios/
+│   │   └── http.ts
+│   └── env.ts
+└── public/
+    ├── file.svg
+    ├── globe.svg
+    ├── next.svg
+    ├── vercel.svg
+    └── window.svg
 ```
 
 ## Environment Variables
 
-Create a `.env.local` (Next.js) file for local environment variables. Keep secrets out of the repository.
+Copy the example env file and edit it with your values:
+
+```bash
+cp .env.example .env.local
+```
+
+Keep secrets out of the repository.
 
 ## Deployment
 

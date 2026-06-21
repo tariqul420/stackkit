@@ -21,6 +21,24 @@ import {
   type NeedsVerification,
 } from "./auth.type";
 
+const buildTokenPayload = (user: {
+  id: string;
+  role: string;
+  name: string | null;
+  email: string;
+  status: string | null;
+  isDeleted: boolean | null;
+  emailVerified: boolean | null;
+}) => ({
+  userId: user.id,
+  role: user.role,
+  name: user.name,
+  email: user.email,
+  status: user.status,
+  isDeleted: user.isDeleted,
+  emailVerified: user.emailVerified,
+});
+
 const registerUser = async (payload: IRegisterUserPayload) => {
     const { name, email, password } = payload;
 
@@ -55,25 +73,9 @@ const registerUser = async (payload: IRegisterUserPayload) => {
     }
 
     try {
-      const accessToken = tokenUtils.getAccessToken({
-        userId: data.user.id,
-        role: data.user.role,
-        name: data.user.name,
-        email: data.user.email,
-        status: data.user.status,
-        isDeleted: data.user.isDeleted,
-        emailVerified: data.user.emailVerified,
-      });
-
-      const refreshToken = tokenUtils.getRefreshToken({
-        userId: data.user.id,
-        role: data.user.role,
-        name: data.user.name,
-        email: data.user.email,
-        status: data.user.status,
-        isDeleted: data.user.isDeleted,
-        emailVerified: data.user.emailVerified,
-      });
+      const payload = buildTokenPayload(data.user);
+      const accessToken = tokenUtils.getAccessToken(payload);
+      const refreshToken = tokenUtils.getRefreshToken(payload);
 
       return {
         ...data,
@@ -140,25 +142,9 @@ const loginUser = async (payload: ILoginUserPayload) => {
       throw new AppError(status.NOT_FOUND, "User is deleted");
     }
 
-    const accessToken = tokenUtils.getAccessToken({
-        userId: data.user.id,
-        role: data.user.role,
-        name: data.user.name,
-        email: data.user.email,
-        status: data.user.status,
-        isDeleted: data.user.isDeleted,
-        emailVerified: data.user.emailVerified,
-    });
-
-    const refreshToken = tokenUtils.getRefreshToken({
-        userId: data.user.id,
-        role: data.user.role,
-        name: data.user.name,
-        email: data.user.email,
-        status: data.user.status,
-        isDeleted: data.user.isDeleted,
-        emailVerified: data.user.emailVerified,
-    });
+    const payload = buildTokenPayload(data.user);
+    const accessToken = tokenUtils.getAccessToken(payload);
+    const refreshToken = tokenUtils.getRefreshToken(payload);
 
     return {
       ...data,
@@ -334,25 +320,9 @@ const getNewToken = async (refreshToken : string, sessionToken : string) => {
 
     const data = verifiedRefreshToken.data as JwtPayload;
 
-    const newAccessToken = tokenUtils.getAccessToken({
-        userId: data.userId,
-        role: data.role,
-        name: data.name,
-        email: data.email,
-        status: data.status,
-        isDeleted: data.isDeleted,
-        emailVerified: data.emailVerified,
-    });
-
-    const newRefreshToken = tokenUtils.getRefreshToken({
-        userId: data.userId,
-        role: data.role,
-        name: data.name,
-        email: data.email,
-        status: data.status,
-        isDeleted: data.isDeleted,
-        emailVerified: data.emailVerified,
-    });
+    const payload = buildTokenPayload(data as unknown as Parameters<typeof buildTokenPayload>[0]);
+    const newAccessToken = tokenUtils.getAccessToken(payload);
+    const newRefreshToken = tokenUtils.getRefreshToken(payload);
 
     {{#if database == "prisma"}}
     const { token } = await prisma.session.update({
@@ -361,7 +331,7 @@ const getNewToken = async (refreshToken : string, sessionToken : string) => {
       },
       data: {
         token: sessionToken,
-        expiresAt: new Date(Date.now() + 60 * 60 * 60 * 24 * 1000),
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
         updatedAt: new Date(),
       },
     });
@@ -371,7 +341,7 @@ const getNewToken = async (refreshToken : string, sessionToken : string) => {
       { token: sessionToken },
       {
         $set: {
-          expiresAt: new Date(Date.now() + 60 * 60 * 60 * 24 * 1000),
+          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
           updatedAt: new Date(),
         },
       }
@@ -430,25 +400,9 @@ const changePassword = async (payload : IChangePasswordPayload, sessionToken : s
       {{/if}}
     }
 
-    const accessToken = tokenUtils.getAccessToken({
-        userId: session.user.id,
-        role: session.user.role,
-        name: session.user.name,
-        email: session.user.email,
-        status: session.user.status,
-        isDeleted: session.user.isDeleted,
-        emailVerified: session.user.emailVerified,
-    });
-
-    const refreshToken = tokenUtils.getRefreshToken({
-        userId: session.user.id,
-        role: session.user.role,
-        name: session.user.name,
-        email: session.user.email,
-        status: session.user.status,
-        isDeleted: session.user.isDeleted,
-        emailVerified: session.user.emailVerified,
-    });
+    const payload = buildTokenPayload(session.user);
+    const accessToken = tokenUtils.getAccessToken(payload);
+    const refreshToken = tokenUtils.getRefreshToken(payload);
     
 
     return {
@@ -620,31 +574,11 @@ const socialLoginSuccess = async (session: ISocialLoginSession) => {
     throw new AppError(status.FORBIDDEN, "Your account has been deleted.");
   }
 
-  const accessToken = tokenUtils.getAccessToken({
-    userId: user.id,
-    role: user.role,
-    name: user.name,
-    email: user.email,
-    status: user.status,
-    isDeleted: user.isDeleted,
-    emailVerified: user.emailVerified,
-  });
-
-  const refreshToken = tokenUtils.getRefreshToken({
-    userId: user.id,
-    role: user.role,
-    name: user.name,
-    email: user.email,
-    status: user.status,
-    isDeleted: user.isDeleted,
-    emailVerified: user.emailVerified,
-  });
+  const payload = buildTokenPayload(user);
+  const accessToken = tokenUtils.getAccessToken(payload);
+  const refreshToken = tokenUtils.getRefreshToken(payload);
 
   return { accessToken, refreshToken };
-};
-
-const googleLoginSuccess = async (session: ISocialLoginSession) => {
-  return socialLoginSuccess(session);
 };
 
 export const authService = {
@@ -660,5 +594,4 @@ export const authService = {
   forgetPassword,
   resetPassword,
   socialLoginSuccess,
-  googleLoginSuccess,
 };

@@ -1,8 +1,4 @@
-{{#if prismaProvider == "mongodb"}}
-{{#var defaultId = @default(auto()) @map("_id") @db.ObjectId}}
-{{else}}
 {{#var defaultId = @default(cuid())}}
-{{/if}}
 model User {
     id                 String     @id {{defaultId}}
     name               String
@@ -31,7 +27,7 @@ model Session {
     updatedAt DateTime @updatedAt
     ipAddress String?
     userAgent String?
-    userId    String   {{#if prismaProvider == "mongodb"}} @db.ObjectId{{/if}}
+    userId    String
     user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@index([userId])
@@ -42,7 +38,7 @@ model Account {
     id                    String    @id {{defaultId}}
     accountId             String
     providerId            String
-    userId                String    {{#if prismaProvider == "mongodb"}} @db.ObjectId{{/if}}
+    userId                String
     user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
     accessToken           String?
     refreshToken          String?
