@@ -1,53 +1,11 @@
 import fs from "fs-extra";
 import path from "path";
-import { FILE_NAMES } from "../constants";
 import { logger } from "../ui/logger";
 
 export interface PackageJsonConfig {
   dependencies?: Record<string, string>;
   devDependencies?: Record<string, string>;
   scripts?: Record<string, string>;
-}
-
-async function mergePackageJson(targetDir: string, config: PackageJsonConfig): Promise<void> {
-  const pkgPath = path.join(targetDir, FILE_NAMES.PACKAGE_JSON);
-  if (!(await fs.pathExists(pkgPath))) return;
-
-  const pkg = await fs.readJson(pkgPath);
-
-  if (config.dependencies) {
-    pkg.dependencies = { ...pkg.dependencies, ...config.dependencies };
-  }
-  if (config.devDependencies) {
-    pkg.devDependencies = { ...pkg.devDependencies, ...config.devDependencies };
-  }
-  if (config.scripts) {
-    pkg.scripts = { ...pkg.scripts, ...config.scripts };
-  }
-
-  await fs.writeJson(pkgPath, pkg, { spaces: 2 });
-}
-
-async function mergeEnvFile(targetDir: string, envVars: Record<string, string>): Promise<void> {
-  const envPath = path.join(targetDir, FILE_NAMES.ENV);
-  let content = "";
-
-  if (await fs.pathExists(envPath)) {
-    content = await fs.readFile(envPath, "utf-8");
-  }
-
-  const lines = content.split("\n").filter((line) => line.trim() !== "");
-
-  for (const [key, value] of Object.entries(envVars)) {
-    const existingIndex = lines.findIndex((line) => line.startsWith(`${key}=`));
-    if (existingIndex !== -1) {
-      lines[existingIndex] = `${key}=${value}`;
-    } else {
-      lines.push(`${key}=${value}`);
-    }
-  }
-
-  await fs.writeFile(envPath, lines.join("\n") + "\n", "utf-8");
 }
 
 export async function createFile(

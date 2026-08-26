@@ -1,22 +1,10 @@
 import { execa, ExecaError } from "execa";
 import * as fs from "fs-extra";
 import * as path from "path";
-import { LOCK_FILES_ARRAY, PACKAGE_MANAGERS, TIMEOUTS } from "../constants";
+import { TIMEOUTS } from "../constants";
 import { logger } from "../ui/logger";
 
 type PackageManager = "npm" | "yarn" | "pnpm" | "bun";
-
-async function detectPackageManager(cwd: string): Promise<PackageManager> {
-  for (const { file, pm } of LOCK_FILES_ARRAY) {
-    if (await fs.pathExists(path.join(cwd, file))) {
-      logger.debug(`Detected ${pm} from ${file}`);
-      return pm;
-    }
-  }
-
-  logger.debug(`No lockfile found, defaulting to npm`);
-  return PACKAGE_MANAGERS.NPM;
-}
 
 export async function installDependencies(
   cwd: string,

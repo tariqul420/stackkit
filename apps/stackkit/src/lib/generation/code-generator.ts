@@ -570,9 +570,7 @@ export class AdvancedCodeGenerator {
             break;
           }
         }
-      } catch (error) {
-        /* expected */
-      }
+      } catch {}
       try {
         const templateJsonPath = path.join(templatePath, "template.json");
         if (await fs.pathExists(templateJsonPath)) {
@@ -604,9 +602,7 @@ export class AdvancedCodeGenerator {
             }
           }
         }
-      } catch (error) {
-        /* expected */
-      }
+      } catch {}
 
       try {
         const templateJsonPath2 = path.join(templatePath, "template.json");
@@ -639,9 +635,7 @@ export class AdvancedCodeGenerator {
             }
           }
         }
-      } catch (error) {
-        /* expected */
-      }
+      } catch {}
 
       try {
         const envExampleDest = path.join(outputPath, ".env.example");
@@ -649,9 +643,7 @@ export class AdvancedCodeGenerator {
         if ((await fs.pathExists(envExampleDest)) && !(await fs.pathExists(envDest))) {
           await fs.copy(envExampleDest, envDest);
         }
-      } catch (error) {
-        /* expected */
-      }
+      } catch {}
     }
   }
 
@@ -728,9 +720,7 @@ export class AdvancedCodeGenerator {
       try {
         const rel = path.relative(outputPath, destinationPath);
         if (rel && !this.createdFiles.includes(rel)) this.createdFiles.push(rel);
-      } catch (error) {
-        /* expected */
-      }
+      } catch {}
       return;
     }
 
@@ -797,9 +787,7 @@ export class AdvancedCodeGenerator {
         try {
           const rel = path.relative(outputPath, destinationPath);
           if (rel && !this.createdFiles.includes(rel)) this.createdFiles.push(rel);
-        } catch (error) {
-          /* expected */
-        }
+        } catch {}
       }
 
       return;
@@ -818,9 +806,7 @@ export class AdvancedCodeGenerator {
     try {
       const rel = path.relative(outputPath, destinationPath);
       if (rel && !this.createdFiles.includes(rel)) this.createdFiles.push(rel);
-    } catch (error) {
-      /* expected */
-    }
+    } catch {}
   }
 
   private parsePathPattern(inputPath: string): {
