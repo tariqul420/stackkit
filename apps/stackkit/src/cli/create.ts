@@ -603,7 +603,9 @@ async function composeTemplate(config: ProjectConfig, targetDir: string): Promis
       const envContent = await fs.readFile(envExamplePath, "utf-8");
       await fs.writeFile(envPath, envContent);
     }
-  } catch {}
+  } catch (_error) {
+    /* expected */
+  }
 
   if (config.language === "javascript") {
     await convertToJavaScript(targetDir, config.framework);

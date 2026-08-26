@@ -506,7 +506,9 @@ async function addModuleToProject(
       } else if (deps["mongoose"]) {
         selectedModules.database = "mongoose";
       }
-    } catch {}
+    } catch (_error) {
+      /* expected */
+    }
 
     if (config.module === "database" && config.provider) {
       const parsed = parseDatabaseOption(config.provider);
@@ -568,7 +570,9 @@ async function addModuleToProject(
       | undefined;
     if (shared && shared.dependencies) Object.assign(mergedDeps, shared.dependencies);
     if (shared && shared.devDependencies) Object.assign(mergedDevDeps, shared.devDependencies);
-  } catch {}
+  } catch (_error) {
+    /* expected */
+  }
 
   const variables: Record<string, string> = {};
 

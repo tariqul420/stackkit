@@ -570,7 +570,9 @@ export class AdvancedCodeGenerator {
             break;
           }
         }
-      } catch {}
+      } catch (_error) {
+        /* expected */
+      }
       try {
         const templateJsonPath = path.join(templatePath, "template.json");
         if (await fs.pathExists(templateJsonPath)) {
@@ -602,7 +604,9 @@ export class AdvancedCodeGenerator {
             }
           }
         }
-      } catch {}
+      } catch (_error) {
+        /* expected */
+      }
 
       try {
         const templateJsonPath2 = path.join(templatePath, "template.json");
@@ -635,7 +639,9 @@ export class AdvancedCodeGenerator {
             }
           }
         }
-      } catch {}
+      } catch (_error) {
+        /* expected */
+      }
 
       try {
         const envExampleDest = path.join(outputPath, ".env.example");
@@ -643,7 +649,9 @@ export class AdvancedCodeGenerator {
         if ((await fs.pathExists(envExampleDest)) && !(await fs.pathExists(envDest))) {
           await fs.copy(envExampleDest, envDest);
         }
-      } catch {}
+      } catch (_error) {
+        /* expected */
+      }
     }
   }
 
@@ -720,7 +728,9 @@ export class AdvancedCodeGenerator {
       try {
         const rel = path.relative(outputPath, destinationPath);
         if (rel && !this.createdFiles.includes(rel)) this.createdFiles.push(rel);
-      } catch {}
+      } catch (_error) {
+        /* expected */
+      }
       return;
     }
 
@@ -787,7 +797,9 @@ export class AdvancedCodeGenerator {
         try {
           const rel = path.relative(outputPath, destinationPath);
           if (rel && !this.createdFiles.includes(rel)) this.createdFiles.push(rel);
-        } catch {}
+        } catch (_error) {
+          /* expected */
+        }
       }
 
       return;
@@ -806,7 +818,9 @@ export class AdvancedCodeGenerator {
     try {
       const rel = path.relative(outputPath, destinationPath);
       if (rel && !this.createdFiles.includes(rel)) this.createdFiles.push(rel);
-    } catch {}
+    } catch (_error) {
+      /* expected */
+    }
   }
 
   private parsePathPattern(inputPath: string): {

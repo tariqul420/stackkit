@@ -269,7 +269,9 @@ function detectProjectType(packageJson: PackageJson): string {
         }
       }
     }
-  } catch {}
+  } catch (_error) {
+    /* expected */
+  }
 
   if (deps.next) {
     return "nextjs";
@@ -365,7 +367,9 @@ async function checkAuthRoutesExist(projectRoot: string): Promise<boolean> {
         }
       }
     }
-  } catch {}
+  } catch (_error) {
+    /* expected */
+  }
 
   if (candidates.size === 0) return false;
 
@@ -425,7 +429,9 @@ async function checkEnvFiles(
     for (const auth of authModules) {
       await collectEnvKeys("auth", auth);
     }
-  } catch {}
+  } catch (_error) {
+    /* expected */
+  }
 
   const envPaths = [".env", ".env.local"];
   let envContent = "";
