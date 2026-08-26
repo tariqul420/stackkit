@@ -1,0 +1,13 @@
+{
+  "name": "local-auth",
+  "displayName": "Local Auth",
+  "category": "auth",
+  "provider": "local",
+  "supportedFrameworks": ["express", "react", "nextjs"],
+  "compatibility": {
+    "frameworks": ["express", "react", "nextjs"],
+    "databases": ["mongoose", "none"],
+    "languages": ["typescript", "javascript"],
+    "packageManagers": ["npm", "yarn", "pnpm", "bun"]
+  }
+}

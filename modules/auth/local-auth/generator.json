@@ -1,0 +1,42 @@
+{
+  "name": "local-auth",
+  "type": "auth",
+  "priority": 10,
+  "operations": [
+    {
+      "type": "create-file",
+      "source": "express/modules/auth/*",
+      "destination": "src/modules/auth/*",
+      "condition": { "framework": "express" }
+    },
+    {
+      "type": "patch-file",
+      "destination": "src/routes/index.ts",
+      "condition": { "framework": "express" },
+      "operations": [
+        {
+          "type": "add-import",
+          "imports": ["import { authRoutes } from \"../modules/auth/auth.route\";"]
+        },
+        {
+          "type": "add-code",
+          "after": "router.use(\"/health\", healthRoutes);",
+          "code": ["router.use(\"/auth\", authRoutes);"]
+        }
+      ]
+    },
+    {
+      "type": "add-dependency",
+      "condition": { "framework": "express" },
+      "dependencies": {
+        "bcrypt": "^5.1.1",
+        "cookie-parser": "^1.4.7",
+        "http-status": "^2.1.0"
+      },
+      "devDependencies": {
+        "@types/bcrypt": "^5.0.2",
+        "@types/cookie-parser": "^1.4.7"
+      }
+    }
+  ]
+}
