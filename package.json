@@ -24,6 +24,8 @@
   ],
   "scripts": {
     "build": "pnpm --filter \"./apps/**\" build",
+    "build:cli": "pnpm --filter stackkit build",
+    "build:docs": "pnpm --filter docs build",
     "dev": "pnpm --filter stackkit dev",
     "clean": "pnpm --filter \"./apps/**\" clean && rm -rf node_modules",
     "typecheck": "pnpm --filter \"./apps/**\" typecheck",
@@ -32,7 +34,9 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "test": "pnpm --filter stackkit test",
     "test:ci": "pnpm --filter stackkit test:ci",
-    "test:docs": "cd apps/docs && pnpm run types:check"
+    "test:docs": "cd apps/docs && pnpm run types:check",
+    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm test:docs",
+    "ci:verify": "pnpm check && pnpm build:cli"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

@@ -23,11 +23,8 @@ pnpm install && pnpm build
 ## Testing your changes
 
 ```bash
-# Run unit tests
-pnpm test
-
-# Run tests with verbose output
-pnpm test:ci
+# Run the full local CI verification
+pnpm ci:verify
 
 # Test project creation
 cd apps/stackkit && npm run build
@@ -43,6 +40,7 @@ Unit tests use [Vitest](https://vitest.dev) and live in `*.test.ts` files alongs
 ## Code style
 
 - Use TypeScript
+- Follow [ARCHITECTURE.md](ARCHITECTURE.md) role/group/feature boundaries
 - Follow existing patterns in the codebase
 - Add error handling where appropriate
 - Test before submitting
