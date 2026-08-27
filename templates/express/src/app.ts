@@ -1,6 +1,7 @@
 import cookieParser from "cookie-parser";
 import express, { Application, Request, Response } from "express";
 import helmet from "helmet";
+import compression from "compression";
 import qs from "qs";
 import { cors } from "./config/cors";
 import { httpLogger } from "./config/logger";
@@ -15,6 +16,7 @@ app.set("query parser", (str: string) => qs.parse(str));
 
 app.use(express.json());
 app.use(helmet());
+app.use(compression());
 app.use(httpLogger);
 app.use(cors);
 app.use(globalLimiter);

@@ -1,7 +1,7 @@
 import createCors from "cors";
 import { envVars } from "./env";
 
-const origin = [envVars.FRONTEND_URL];
+const origin = envVars.FRONTEND_URL.split(",").map((url) => url.trim());
 
 const cors = createCors({
   origin,

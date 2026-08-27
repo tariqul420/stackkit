@@ -11,12 +11,15 @@
     "src/",
     ".env.example",
     ".gitignore",
+    ".dockerignore",
     "eslint.config.mjs",
     "package.json",
     "README.md",
     "tsconfig.json",
     "DESIGN.md",
-    "AGENT.md"
+    "AGENT.md",
+    "SECURITY.md",
+    "Dockerfile"
   ],
   "scripts": {
     "dev": "tsx watch src/server.ts",

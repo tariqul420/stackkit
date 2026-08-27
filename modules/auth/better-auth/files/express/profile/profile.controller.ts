@@ -2,8 +2,8 @@ import { Request, Response } from "express";
 import status from "http-status";
 import { catchAsync } from "../../shared/utils/catch-async";
 import { sendResponse } from "../../shared/utils/send-response";
-import { profileService } from "./profile.service";
 import { IUpdateProfilePayload } from "./profile.schema";
+import { profileService } from "./profile.service";
 
 const getMe = catchAsync(async (req: Request, res: Response) => {
   const user = req.user;

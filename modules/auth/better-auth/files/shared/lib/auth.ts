@@ -22,6 +22,8 @@ const db = getMongoDb();
 const usersCollection = db.collection("user");
 {{/if}}
 
+const frontendUrls = envVars.FRONTEND_URL.split(",").map((url) => url.trim());
+
 export const auth = betterAuth({
 {{#if database == "prisma"}}
   database: prismaAdapter(prisma, {
@@ -33,12 +35,7 @@ export const auth = betterAuth({
 {{/if}}
   baseURL: envVars.BETTER_AUTH_URL,
   secret: envVars.BETTER_AUTH_SECRET,
-  trustedOrigins: [
-    envVars.APP_URL!,
-    envVars.FRONTEND_URL!,
-     envVars.BETTER_AUTH_URL!,
-    "http://localhost:3000",
-  ],
+  trustedOrigins: [envVars.APP_URL!, envVars.BETTER_AUTH_URL!, ...frontendUrls],
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
@@ -170,7 +167,7 @@ export const auth = betterAuth({
     },
   },
   redirectURLs: {
-    signIn: `${envVars.FRONTEND_URL}/dashboard`,
+    signIn: `${frontendUrls[0]}/dashboard`,
   },
   advanced: {
     useSecureCookies: envVars.NODE_ENV === "production",
