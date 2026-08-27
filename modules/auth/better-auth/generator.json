@@ -6,7 +6,7 @@
     {
       "type": "create-file",
       "source": "shared/lib/auth.ts",
-      "destination": "src/lib/auth.ts",
+      "destination": "src/lib/auth/index.ts",
       "condition": { "framework": "express" }
     },
     {
@@ -29,14 +29,14 @@
     },
     {
       "type": "create-file",
-      "source": "express/modules/*",
-      "destination": "src/modules/auth/*",
+      "source": "express/profile/*",
+      "destination": "src/modules/profile/*",
       "condition": { "framework": "express" }
     },
     {
       "type": "create-file",
-      "source": "express/mongo-modules/*",
-      "destination": "src/modules/auth/*",
+      "source": "express/lib/auth/*",
+      "destination": "src/lib/auth/*",
       "condition": { "framework": "express", "database": "mongoose" }
     },
     {
@@ -97,12 +97,12 @@
       "operations": [
         {
           "type": "add-import",
-          "imports": ["import { authRoutes } from \"../modules/auth\";"]
+          "imports": ["import { profileRoutes } from \"../modules/profile\";"]
         },
         {
           "type": "add-code",
           "after": "router.use(\"/health\", healthRoutes);",
-          "code": ["router.use(\"/auth\", authRoutes);"]
+          "code": ["router.use(\"/profile\", profileRoutes);"]
         }
       ]
     },

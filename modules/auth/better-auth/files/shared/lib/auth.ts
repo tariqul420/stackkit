@@ -2,16 +2,16 @@ import { betterAuth } from "better-auth";
 import { bearer, emailOTP } from "better-auth/plugins";
 {{#if combo == "prisma:express"}}
 import { Role, UserStatus } from "@prisma/client";
-import { envVars } from "../config/env";
-import { sendEmail } from "../shared/utils/email";
-import { prisma } from "../database/prisma";
+import { envVars } from "../../config/env";
+import { sendEmail } from "../../shared/utils/email";
+import { prisma } from "../../database/prisma";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 {{/if}}
 {{#if combo == "mongoose:express"}}
-import { envVars } from "../config/env";
-import { Role, UserStatus } from "../modules/auth/auth.constants";
-import { sendEmail } from "../shared/utils/email";
-import { dbConnect, getMongoClient, getMongoDb } from "../database/mongoose";
+import { envVars } from "../../config/env";
+import { Role, UserStatus } from "./auth.constants";
+import { sendEmail } from "../../shared/utils/email";
+import { dbConnect, getMongoClient, getMongoDb } from "../../database/mongoose";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 {{/if}}
 

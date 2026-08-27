@@ -14,7 +14,9 @@
     "eslint.config.mjs",
     "package.json",
     "README.md",
-    "tsconfig.json"
+    "tsconfig.json",
+    "DESIGN.md",
+    "AGENT.md"
   ],
   "scripts": {
     "dev": "tsx watch src/server.ts",

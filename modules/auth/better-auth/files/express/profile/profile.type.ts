@@ -2,7 +2,7 @@
 import { Role } from "@prisma/client";
 {{/if}}
 {{#if database == "mongoose"}}
-import { Role } from "./auth.constants";
+import { Role } from "../../lib/auth/auth.constants";
 type MongooseRole = (typeof Role)[keyof typeof Role];
 {{/if}}
 

@@ -2,22 +2,22 @@
 import { Role } from "@prisma/client";
 {{/if}}
 {{#if database == "mongoose"}}
-import { Role } from "./auth.constants";
+import { Role } from "../../lib/auth/auth.constants";
 {{/if}}
 import { Router } from "express";
 import { authorize } from "../../shared/middlewares/authorize.middleware";
 import { validate } from "../../shared/middlewares/validate.middleware";
-import { authController } from "./auth.controller";
-import { updateProfileSchema } from "./auth.schema";
+import { profileController } from "./profile.controller";
+import { updateProfileSchema } from "./profile.schema";
 
 const router = Router();
 
-router.get("/me", authorize(Role.ADMIN, Role.USER), authController.getMe);
+router.get("/me", authorize(Role.ADMIN, Role.USER), profileController.getMe);
 router.patch(
-  "/profile",
+  "/",
   authorize(Role.ADMIN, Role.USER),
   validate(updateProfileSchema),
-  authController.updateProfile,
+  profileController.updateProfile,
 );
 
-export const authRoutes = router;
+export const profileRoutes = router;

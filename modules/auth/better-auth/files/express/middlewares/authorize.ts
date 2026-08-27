@@ -7,8 +7,8 @@ import { prisma } from "../../database/prisma";
 {{/if}}
 {{#if database == "mongoose"}}
 import { Types } from "mongoose";
-import { Role, UserStatus } from "../../modules/auth/auth.constants";
-import { getAuthCollections } from "../../modules/auth/auth.helper";
+import { Role, UserStatus } from "../../lib/auth/auth.constants";
+import { getAuthCollections } from "../../lib/auth/auth.helper";
 {{/if}}
 
 {{#if database == "prisma"}}

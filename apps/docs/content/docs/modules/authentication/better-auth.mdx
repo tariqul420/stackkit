@@ -67,9 +67,9 @@ StackKit writes all the files Better Auth needs — you don't have to touch any 
 - `app/api/auth/[...all]/route.ts` — API handler that mounts Better Auth
 
 **Express:**
-- `src/lib/auth.ts` — Auth instance with database adapter
-- `src/modules/auth/index.ts` — Express router for auth endpoints
-- `src/modules/auth/auth.schema.ts` — Zod schemas for request validation
+- `src/lib/auth/index.ts` — Auth instance with database adapter (all auth endpoints are served by Better Auth itself at `/api/auth/*`)
+- `src/modules/profile/index.ts` — Express router for the `/profile` and `/me` endpoints (built on top of the Better Auth session, no custom auth logic)
+- `src/modules/profile/profile.schema.ts` — Zod schemas for request validation
 
 **React:**
 - `src/lib/auth-client.ts` — Client configured for your backend URL
@@ -152,7 +152,7 @@ npm run dev
 
 ## Customizing your auth setup
 
-The generated `lib/auth.ts` (or `src/lib/auth.ts` for Express) is where you configure Better Auth. You can add social providers, enable 2FA, set session duration, and more — all by editing this single file.
+The generated `lib/auth.ts` (or `src/lib/auth/index.ts` for Express) is where you configure Better Auth. You can add social providers, enable 2FA, set session duration, and more — all by editing this single file.
 
 For example, to add Google OAuth:
 

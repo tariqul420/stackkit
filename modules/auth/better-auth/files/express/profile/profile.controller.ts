@@ -2,12 +2,12 @@ import { Request, Response } from "express";
 import status from "http-status";
 import { catchAsync } from "../../shared/utils/catch-async";
 import { sendResponse } from "../../shared/utils/send-response";
-import { authService } from "./auth.service";
-import { IUpdateProfilePayload } from "./auth.schema";
+import { profileService } from "./profile.service";
+import { IUpdateProfilePayload } from "./profile.schema";
 
 const getMe = catchAsync(async (req: Request, res: Response) => {
   const user = req.user;
-  const result = await authService.getMe(user);
+  const result = await profileService.getMe(user);
   sendResponse(res, {
     status: status.OK,
     success: true,
@@ -20,7 +20,7 @@ const updateProfile = catchAsync(async (req: Request, res: Response) => {
   const payload = req.body as IUpdateProfilePayload;
   const user = req.user;
 
-  const result = await authService.updateProfile(user, payload);
+  const result = await profileService.updateProfile(user, payload);
 
   sendResponse(res, {
     status: status.OK,
@@ -30,7 +30,7 @@ const updateProfile = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-export const authController = {
+export const profileController = {
   getMe,
   updateProfile,
 };

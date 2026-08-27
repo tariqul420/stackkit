@@ -3,11 +3,11 @@ import { prisma } from "../../database/prisma";
 {{/if}}
 {{#if database == "mongoose"}}
 import { Types } from "mongoose";
-import { getAuthCollections } from "./auth.helper";
+import { getAuthCollections } from "../../lib/auth/auth.helper";
 {{/if}}
 import status from "http-status";
 import { AppError } from "../../shared/errors/app-error";
-import type { IRequestUser } from "./auth.type";
+import type { IRequestUser } from "./profile.type";
 
 const getMe = async (user: IRequestUser) => {
   {{#if database == "prisma"}}
@@ -76,7 +76,7 @@ const updateProfile = async (
   return updated;
 };
 
-export const authService = {
+export const profileService = {
   getMe,
   updateProfile,
 };
