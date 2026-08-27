@@ -11,12 +11,12 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { envVars } from "../config/env";
 import { Role, UserStatus } from "../modules/auth/auth.constants";
 import { sendEmail } from "../shared/utils/email";
-import { getMongoClient, getMongoDb, mongoose } from "../database/mongoose";
+import { dbConnect, getMongoClient, getMongoDb } from "../database/mongoose";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 {{/if}}
 
 {{#if database == "mongoose"}}
-await mongoose();
+await dbConnect();
 const client = getMongoClient();
 const db = getMongoDb();
 const usersCollection = db.collection("user");

@@ -1,24 +1,25 @@
 import { Server } from "http";
 import { app } from "./app";
 import { envVars } from "./config/env";
+import { logger } from "./config/logger";
 
 let server: Server | null = null;
 
 const bootstrap = async () => {
   try {
     server = app.listen(envVars.PORT, () => {
-      console.log(`Server is running on http://localhost:${envVars.PORT}`);
+      logger.info(`Server is running on http://localhost:${envVars.PORT}`);
     });
   } catch (error) {
-    console.error("Failed to start server:", error);
+    logger.error("Failed to start server:", error);
   }
 };
 
 const shutdown = (signal: string, exitCode: number) => {
-  console.log(`${signal} signal received: closing HTTP server`);
+  logger.info(`${signal} signal received: closing HTTP server`);
   if (server) {
     server.close(() => {
-      console.log("HTTP server closed");
+      logger.info("HTTP server closed");
     });
   }
 
@@ -30,11 +31,11 @@ process.on("SIGTERM", () => shutdown("SIGTERM", 0));
 process.on("SIGINT", () => shutdown("SIGINT", 0));
 
 process.on("uncaughtException", (err) => {
-  console.error("Uncaught Exception:", err);
+  logger.error("Uncaught Exception:", err);
 
   if (server) {
     server.close(() => {
-      console.log("HTTP server closed due to uncaught exception");
+      logger.info("HTTP server closed due to uncaught exception");
     });
   }
 
@@ -42,11 +43,11 @@ process.on("uncaughtException", (err) => {
 });
 
 process.on("unhandledRejection", (reason, promise) => {
-  console.error("Unhandled Rejection at:", promise, "reason:", reason);
+  logger.error("Unhandled Rejection at:", promise, "reason:", reason);
 
   if (server) {
     server.close(() => {
-      console.log("HTTP server closed due to unhandled rejection");
+      logger.info("HTTP server closed due to unhandled rejection");
     });
   }
 

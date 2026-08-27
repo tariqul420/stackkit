@@ -9,7 +9,7 @@
     "types": ["node"],
     "esModuleInterop": true,
     "module": "ESNext",
-    "moduleResolution": "nodenext",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true
   }
 }

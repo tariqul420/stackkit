@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
-import { envVars } from "../config/env";
-import "dotenv/config"
+import { logger } from "../config/logger";
 
 type MongooseCache = {
   conn: typeof mongoose | null;
@@ -27,6 +26,10 @@ async function dbConnect(): Promise<typeof mongoose> {
 
   const uri = process.env.DATABASE_URL;
 
+  if (!uri) {
+    throw new Error("DATABASE_URL is not set");
+  }
+
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
@@ -37,15 +40,15 @@ async function dbConnect(): Promise<typeof mongoose> {
     cached.promise = mongoose
       .connect(uri, opts)
       .then(async (mongooseInstance: typeof mongoose) => {
-        console.info("MongoDB connected successfully");
+        logger.info("MongoDB connected successfully");
         if (mongoose.connection.db) {
           await mongoose.connection.db.admin().command({ ping: 1 });
-          console.info("Pinged your deployment. You successfully connected to MongoDB!");
+          logger.info("Pinged your deployment. You successfully connected to MongoDB!");
         }
         return mongooseInstance;
       })
       .catch((error: Error) => {
-        console.error("MongoDB connection failed", { error });
+        logger.error("MongoDB connection failed", error);
         throw error;
       });
   }

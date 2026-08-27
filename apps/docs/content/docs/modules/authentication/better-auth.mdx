@@ -68,7 +68,8 @@ StackKit writes all the files Better Auth needs — you don't have to touch any 
 
 **Express:**
 - `src/lib/auth.ts` — Auth instance with database adapter
-- `src/routes/auth.routes.ts` — Express router for auth endpoints
+- `src/modules/auth/index.ts` — Express router for auth endpoints
+- `src/modules/auth/auth.schema.ts` — Zod schemas for request validation
 
 **React:**
 - `src/lib/auth-client.ts` — Client configured for your backend URL

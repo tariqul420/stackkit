@@ -22,12 +22,12 @@
       "operations": [
         {
           "type": "add-import",
-          "imports": ["import { mongoose } from \"./database/mongoose\";"]
+          "imports": ["import { dbConnect } from \"./database/mongoose\";"]
         },
         {
           "type": "add-code",
           "after": "try {",
-          "code": "await mongoose();"
+          "code": "await dbConnect();"
         }
       ]
     },

@@ -1,5 +1,5 @@
 import status from "http-status";
-import { getMongoDb, mongoose } from "../../database/mongoose";
+import { dbConnect, getMongoDb } from "../../database/mongoose";
 import { AppError } from "../../shared/errors/app-error";
 
 export type AuthUser = {
@@ -7,6 +7,7 @@ export type AuthUser = {
   role: string;
   name: string;
   email: string;
+  image?: string;
   status?: string;
   isDeleted?: boolean;
   emailVerified?: boolean;
@@ -36,7 +37,7 @@ export type AuthVerificationDocument = {
 };
 
 export const getAuthCollections = async () => {
-  await mongoose();
+  await dbConnect();
 
   try {
     const db = getMongoDb();

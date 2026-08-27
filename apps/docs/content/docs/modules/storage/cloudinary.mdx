@@ -31,7 +31,8 @@ npx stackkit@latest add
 
 - `src/config/cloudinary.ts` — Cloudinary SDK configuration using your credentials from environment variables.
 - `src/modules/media/media.controller.ts` — Controller with an upload handler that accepts a file and returns the Cloudinary URL.
-- `src/modules/media/media.routes.ts` — Express routes for the media upload endpoint (`POST /api/media/upload`).
+- `src/modules/media/media.schema.ts` — Zod schemas for request validation.
+- `src/modules/media/index.ts` — Express router for the media upload endpoints, mounted at `/api/v1/media`.
 
 ## Setup
 
