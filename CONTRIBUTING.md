@@ -26,6 +26,9 @@ pnpm install && pnpm build
 # Run the full local CI verification
 pnpm ci:verify
 
+# Run metadata schema/integrity checks only
+pnpm check:metadata
+
 # Test project creation
 cd apps/stackkit && npm run build
 node bin/stackkit.js my-test-app

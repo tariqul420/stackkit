@@ -30,12 +30,13 @@
     "clean": "pnpm --filter \"./apps/**\" clean && rm -rf node_modules",
     "typecheck": "pnpm --filter \"./apps/**\" typecheck",
     "lint": "pnpm --filter \"./apps/**\" lint",
+    "check:metadata": "pnpm --filter stackkit validate:metadata",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "test": "pnpm --filter stackkit test",
     "test:ci": "pnpm --filter stackkit test:ci",
     "test:docs": "cd apps/docs && pnpm run types:check",
-    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm test:docs",
+    "check": "pnpm check:metadata && pnpm lint && pnpm typecheck && pnpm test && pnpm test:docs",
     "ci:verify": "pnpm check && pnpm build:cli"
   },
   "devDependencies": {

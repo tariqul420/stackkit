@@ -28,6 +28,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm check:metadata
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
