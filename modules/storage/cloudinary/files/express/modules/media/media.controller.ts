@@ -2,23 +2,14 @@ import { Request, Response } from "express";
 import status from "http-status";
 import { catchAsync } from "../../shared/utils/catch-async";
 import { sendResponse } from "../../shared/utils/send-response";
+import { MediaUploadDeleteInput, MediaUploadPresignInput } from "./media.schema";
 import { mediaService } from "./media.service";
-import {
-  MediaSignInput,
-  mediaSignSchema,
-  mediaUploadDeleteSchema,
-  mediaUploadPresignSchema,
-} from "./media.type";
 
 const signMedia = catchAsync(async (req: Request, res: Response) => {
   const publicId = req.params.publicId as string;
-  const transformation = (req.query.transformation as string) || undefined;
+  const transformation = req.query.transformation as string | undefined;
 
-  const payload = mediaSignSchema.parse({
-    publicId,
-    transformation,
-  }) as MediaSignInput;
-  const result = await mediaService.signMedia(payload);
+  const result = await mediaService.signMedia({ publicId, transformation });
 
   sendResponse(res, {
     status: status.OK,
@@ -29,7 +20,7 @@ const signMedia = catchAsync(async (req: Request, res: Response) => {
 });
 
 const createPresign = catchAsync(async (req: Request, res: Response) => {
-  const payload = mediaUploadPresignSchema.parse(req.body);
+  const payload = req.body as MediaUploadPresignInput;
   const result = await mediaService.createMediaPresign(payload);
 
   sendResponse(res, {
@@ -41,7 +32,7 @@ const createPresign = catchAsync(async (req: Request, res: Response) => {
 });
 
 const deleteUploads = catchAsync(async (req: Request, res: Response) => {
-  const payload = mediaUploadDeleteSchema.parse(req.body);
+  const payload = req.body as MediaUploadDeleteInput;
   const result = await mediaService.deleteMediaUploads(payload);
 
   sendResponse(res, {

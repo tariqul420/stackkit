@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import status from "http-status";
-import { AppError } from "../../shared/errors/app-error";
 import { catchAsync } from "../../shared/utils/catch-async";
 import { sendResponse } from "../../shared/utils/send-response";
 import { authService } from "./auth.service";
+import { IUpdateProfilePayload } from "./auth.schema";
 
 const getMe = catchAsync(async (req: Request, res: Response) => {
   const user = req.user;
@@ -17,10 +17,10 @@ const getMe = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateProfile = catchAsync(async (req: Request, res: Response) => {
-  const { name, image } = req.body as { name?: string; image?: string };
+  const payload = req.body as IUpdateProfilePayload;
   const user = req.user;
 
-  const result = await authService.updateProfile(user, { name, image });
+  const result = await authService.updateProfile(user, payload);
 
   sendResponse(res, {
     status: status.OK,

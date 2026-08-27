@@ -23,6 +23,12 @@
     },
     {
       "type": "create-file",
+      "source": "express/middlewares/validate.ts",
+      "destination": "src/shared/middlewares/validate.middleware.ts",
+      "condition": { "framework": "express" }
+    },
+    {
+      "type": "create-file",
       "source": "express/modules/*",
       "destination": "src/modules/auth/*",
       "condition": { "framework": "express" }
@@ -91,7 +97,7 @@
       "operations": [
         {
           "type": "add-import",
-          "imports": ["import { authRoutes } from \"../modules/auth/auth.route\";"]
+          "imports": ["import { authRoutes } from \"../modules/auth\";"]
         },
         {
           "type": "add-code",
@@ -106,7 +112,8 @@
       "dependencies": {
         "ejs": "^6.0.1",
         "better-auth": "^1.6.19",
-        "nodemailer": "^9.0.1"
+        "nodemailer": "^9.0.1",
+        "zod": "^4.4.3"
       },
       "devDependencies": {
         "@types/ejs": "^3.1.5",

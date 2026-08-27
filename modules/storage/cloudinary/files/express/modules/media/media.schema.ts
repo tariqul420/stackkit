@@ -24,6 +24,14 @@ export const mediaUploadDeleteSchema = z
     message: "keys or urls required",
   });
 
+export const mediaSignParamsSchema = z.object({
+  publicId: z.string().min(1),
+});
+
+export const mediaSignQuerySchema = z.object({
+  transformation: z.string().min(1).optional(),
+});
+
 export type MediaSignInput = z.infer<typeof mediaSignSchema>;
 export type MediaUploadPresignInput = z.infer<typeof mediaUploadPresignSchema>;
 export type MediaUploadDeleteInput = z.infer<typeof mediaUploadDeleteSchema>;

@@ -11,15 +11,38 @@
     },
     {
       "type": "create-file",
+      "source": "express/middlewares/validate.ts",
+      "destination": "src/shared/middlewares/validate.middleware.ts",
+      "condition": { "framework": "express" }
+    },
+    {
+      "type": "create-file",
       "source": "express/modules/media/*",
       "destination": "src/modules/media/*",
       "condition": { "framework": "express" }
     },
     {
+      "type": "patch-file",
+      "destination": "src/routes/index.ts",
+      "condition": { "framework": "express" },
+      "operations": [
+        {
+          "type": "add-import",
+          "imports": ["import { mediaRoutes } from \"../modules/media\";"]
+        },
+        {
+          "type": "add-code",
+          "after": "router.use(\"/health\", healthRoutes);",
+          "code": ["router.use(\"/media\", mediaRoutes);"]
+        }
+      ]
+    },
+    {
       "type": "add-dependency",
       "condition": { "framework": "express" },
       "dependencies": {
-        "cloudinary": "^2.10.0"
+        "cloudinary": "^2.10.0",
+        "zod": "^4.4.3"
       }
     },
     {

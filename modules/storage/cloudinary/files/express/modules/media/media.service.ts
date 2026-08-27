@@ -1,6 +1,6 @@
 import { envVars } from "../../config/env";
 import { cloudinaryUpload, deleteFileFromCloudinary } from "../../config/media";
-import { MediaSignInput, MediaUploadDeleteInput, MediaUploadPresignInput } from "./media.type";
+import { MediaSignInput, MediaUploadDeleteInput, MediaUploadPresignInput } from "./media.schema";
 
 const signMedia = async (payload: MediaSignInput) => {
   const { publicId, transformation } = payload;
