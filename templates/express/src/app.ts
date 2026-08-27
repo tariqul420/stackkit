@@ -1,7 +1,7 @@
+import compression from "compression";
 import cookieParser from "cookie-parser";
 import express, { Application, Request, Response } from "express";
 import helmet from "helmet";
-import compression from "compression";
 import qs from "qs";
 import { cors } from "./config/cors";
 import { httpLogger } from "./config/logger";

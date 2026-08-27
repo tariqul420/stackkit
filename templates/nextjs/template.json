@@ -18,7 +18,9 @@
     "package.json",
     "postcss.config.mjs",
     "README.md",
-    "tsconfig.json"
+    "tsconfig.json",
+    "DESIGN.md",
+    "AGENT.md"
   ],
   "scripts": {
     "dev": "next dev",
