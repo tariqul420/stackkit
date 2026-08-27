@@ -2,6 +2,7 @@
   "name": "cloudinary",
   "displayName": "Cloudinary Storage",
   "category": "storage",
+  "provider": "cloudinary",
   "description": "Cloudinary provider for uploads",
   "supportedFrameworks": ["express"],
   "compatibility": {

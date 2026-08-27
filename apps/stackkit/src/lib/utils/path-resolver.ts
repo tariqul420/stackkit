@@ -22,10 +22,6 @@ export function getGeneratorJsonPath(category: string, moduleName: string): stri
   return path.join(getModulePath(category, moduleName), FILE_NAMES.GENERATOR_JSON);
 }
 
-function getModuleFilesPath(category: string, moduleName: string): string {
-  return path.join(getModulePath(category, moduleName), DIRECTORY_NAMES.FILES);
-}
-
 export function getTemplateJsonPath(frameworkName: string): string {
   return path.join(getTemplatesPath(), frameworkName, FILE_NAMES.TEMPLATE_JSON);
 }
@@ -36,12 +32,4 @@ export function getDatabaseModulesPath(): string {
 
 export function getAuthModulesPath(): string {
   return path.join(getModulesPath(), MODULE_CATEGORIES.AUTH);
-}
-
-function getUiModulesPath(): string {
-  return path.join(getModulesPath(), MODULE_CATEGORIES.UI);
-}
-
-function getStorageModulesPath(): string {
-  return path.join(getModulesPath(), MODULE_CATEGORIES.STORAGE);
 }

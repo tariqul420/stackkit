@@ -506,7 +506,7 @@ async function addModuleToProject(
       } else if (deps["mongoose"]) {
         selectedModules.database = "mongoose";
       }
-    } catch (error) {
+    } catch (_error) {
       /* expected */
     }
 
@@ -570,7 +570,7 @@ async function addModuleToProject(
       | undefined;
     if (shared && shared.dependencies) Object.assign(mergedDeps, shared.dependencies);
     if (shared && shared.devDependencies) Object.assign(mergedDevDeps, shared.devDependencies);
-  } catch (error) {
+  } catch (_error) {
     /* expected */
   }
 

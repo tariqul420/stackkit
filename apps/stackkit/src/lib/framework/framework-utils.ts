@@ -10,16 +10,6 @@ export interface FrameworkConfig {
   };
 }
 
-interface ModuleConfig {
-  name: string;
-  displayName: string;
-  type: "database" | "auth";
-  compatibility?: {
-    frameworks?: string[];
-    databases?: string[];
-  };
-}
-
 const frameworkConfigs: Map<string, FrameworkConfig> = new Map();
 
 async function collectModuleNames(baseDir: string): Promise<string[]> {

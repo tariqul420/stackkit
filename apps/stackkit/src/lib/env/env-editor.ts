@@ -28,16 +28,6 @@ export async function addEnvVariables(
   logger.success("Environment variables added");
 }
 
-async function removeEnvVariables(projectRoot: string, keys: string[]): Promise<void> {
-  const envExamplePath = path.join(projectRoot, FILE_NAMES.ENV_EXAMPLE);
-  const envPath = path.join(projectRoot, FILE_NAMES.ENV);
-
-  await removeFromEnvFile(envExamplePath, keys);
-  if (await fs.pathExists(envPath)) {
-    await removeFromEnvFile(envPath, keys);
-  }
-}
-
 function validateEnvVariables(variables: EnvVariable[]): void {
   for (const variable of variables) {
     if (!ENV_PATTERNS.KEY.test(variable.key)) {

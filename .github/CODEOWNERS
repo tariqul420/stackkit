@@ -1,0 +1,12 @@
+# Core maintainers
+* @tariqul420
+
+# Docs and site content
+/apps/docs/ @tariqul420
+
+# CLI runtime and generation engine
+/apps/stackkit/ @tariqul420
+
+# Modules and templates
+/modules/ @tariqul420
+/templates/ @tariqul420

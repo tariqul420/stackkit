@@ -269,7 +269,7 @@ function detectProjectType(packageJson: PackageJson): string {
         }
       }
     }
-  } catch (error) {
+  } catch (_error) {
     /* expected */
   }
 
@@ -367,7 +367,7 @@ async function checkAuthRoutesExist(projectRoot: string): Promise<boolean> {
         }
       }
     }
-  } catch (error) {
+  } catch (_error) {
     /* expected */
   }
 
@@ -429,7 +429,7 @@ async function checkEnvFiles(
     for (const auth of authModules) {
       await collectEnvKeys("auth", auth);
     }
-  } catch (error) {
+  } catch (_error) {
     /* expected */
   }
 

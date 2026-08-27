@@ -570,7 +570,7 @@ export class AdvancedCodeGenerator {
             break;
           }
         }
-      } catch (error) {
+      } catch (_error) {
         /* expected */
       }
       try {
@@ -604,7 +604,7 @@ export class AdvancedCodeGenerator {
             }
           }
         }
-      } catch (error) {
+      } catch (_error) {
         /* expected */
       }
 
@@ -639,7 +639,7 @@ export class AdvancedCodeGenerator {
             }
           }
         }
-      } catch (error) {
+      } catch (_error) {
         /* expected */
       }
 
@@ -649,7 +649,7 @@ export class AdvancedCodeGenerator {
         if ((await fs.pathExists(envExampleDest)) && !(await fs.pathExists(envDest))) {
           await fs.copy(envExampleDest, envDest);
         }
-      } catch (error) {
+      } catch (_error) {
         /* expected */
       }
     }
@@ -728,7 +728,7 @@ export class AdvancedCodeGenerator {
       try {
         const rel = path.relative(outputPath, destinationPath);
         if (rel && !this.createdFiles.includes(rel)) this.createdFiles.push(rel);
-      } catch (error) {
+      } catch (_error) {
         /* expected */
       }
       return;
@@ -797,7 +797,7 @@ export class AdvancedCodeGenerator {
         try {
           const rel = path.relative(outputPath, destinationPath);
           if (rel && !this.createdFiles.includes(rel)) this.createdFiles.push(rel);
-        } catch (error) {
+        } catch (_error) {
           /* expected */
         }
       }
@@ -818,7 +818,7 @@ export class AdvancedCodeGenerator {
     try {
       const rel = path.relative(outputPath, destinationPath);
       if (rel && !this.createdFiles.includes(rel)) this.createdFiles.push(rel);
-    } catch (error) {
+    } catch (_error) {
       /* expected */
     }
   }

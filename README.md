@@ -121,8 +121,15 @@ Full docs at **[stackkit.tariqul.dev](https://stackkit.tariqul.dev)**
 git clone https://github.com/tariqul420/stackkit.git
 cd stackkit
 pnpm install
-pnpm build
+pnpm ci:verify
 ```
+
+## Engineering standards
+
+- Architecture: see [ARCHITECTURE.md](ARCHITECTURE.md) for role/group/feature conventions
+- Security reporting: see [SECURITY.md](SECURITY.md)
+- Local verification before PR: `pnpm ci:verify`
+- Metadata integrity check: `pnpm check:metadata` (validates all `module.json`, `generator.json`, `template.json`)
 
 ## Contributing
 

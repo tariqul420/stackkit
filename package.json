@@ -24,24 +24,29 @@
   ],
   "scripts": {
     "build": "pnpm --filter \"./apps/**\" build",
+    "build:cli": "pnpm --filter stackkit build",
+    "build:docs": "pnpm --filter docs build",
     "dev": "pnpm --filter stackkit dev",
     "clean": "pnpm --filter \"./apps/**\" clean && rm -rf node_modules",
     "typecheck": "pnpm --filter \"./apps/**\" typecheck",
     "lint": "pnpm --filter \"./apps/**\" lint",
+    "check:metadata": "pnpm --filter stackkit validate:metadata",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "test": "pnpm --filter stackkit test",
     "test:ci": "pnpm --filter stackkit test:ci",
-    "test:docs": "cd apps/docs && pnpm run types:check"
+    "test:docs": "cd apps/docs && pnpm run types:check",
+    "check": "pnpm check:metadata && pnpm lint && pnpm typecheck && pnpm test && pnpm test:docs",
+    "ci:verify": "pnpm check && pnpm build:cli"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
-    "@types/node": "^25.9.3",
+    "@types/node": "^26.0.1",
     "eslint": "^9.39.4",
     "prettier": "^3.8.4",
     "turbo": "^2.5.2",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.61.1"
+    "typescript-eslint": "^8.62.0"
   },
   "engines": {
     "node": ">=20.0.0",
