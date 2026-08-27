@@ -4,7 +4,7 @@
   "framework": "nextjs",
   "description": "Next.js 16 App Router with TypeScript",
   "compatibility": {
-    "auth": ["better-auth", "local-auth"]
+    "auth": ["better-auth"]
   },
   "files": [
     "app/",
