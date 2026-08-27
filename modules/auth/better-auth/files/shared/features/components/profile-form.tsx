@@ -111,9 +111,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
           </div>
           <div className="space-y-1">
             <p className="text-sm font-medium">Profile Picture</p>
-            <p className="text-xs text-muted-foreground">
-              JPG, PNG or GIF. Max size 2MB.
-            </p>
+            <p className="text-xs text-muted-foreground">JPG, PNG or GIF. Max size 2MB.</p>
           </div>
         </div>
 
@@ -151,9 +149,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
               </div>
               <div>
                 <p className="font-medium">Password</p>
-                <p className="text-sm text-muted-foreground">
-                  Last changed recently
-                </p>
+                <p className="text-sm text-muted-foreground">Last changed recently</p>
               </div>
             </div>
             <Button
@@ -181,17 +177,12 @@ export default function ProfileForm({ user }: ProfileFormProps) {
             Cancel
           </Button>
           <Button type="submit" disabled={mutation.isPending}>
-            {mutation.isPending && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            )}
+            {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Save Changes
           </Button>
         </div>
 
-        <ChangePasswordDialog
-          open={showPasswordDialog}
-          onOpenChange={setShowPasswordDialog}
-        />
+        <ChangePasswordDialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog} />
       </form>
     </FormProvider>
   );

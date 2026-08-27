@@ -1,8 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/auth/auth-client";
 import * as React from "react";
-import { useSocialLoginMutation } from "../queries/auth.mutations";
 
 function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -28,13 +28,30 @@ function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
 }
 
 export default function SocialLoginButtons() {
-  const { mutate: socialLogin, isPending } = useSocialLoginMutation();
+  const [isPending, setIsPending] = React.useState(false);
+
+  const handleGoogleLogin = async () => {
+    setIsPending(true);
+    try {
+      const data = await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/dashboard",
+      });
+      if (data?.error) {
+        console.error("Social login error:", data.error);
+      }
+    } catch (error) {
+      console.error("Social login failed:", error);
+    } finally {
+      setIsPending(false);
+    }
+  };
 
   return (
     <Button
       variant="outline"
       size="lg"
-      onClick={() => socialLogin("google")}
+      onClick={handleGoogleLogin}
       disabled={isPending}
       className="w-full bg-background text-accent-foreground"
     >

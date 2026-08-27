@@ -170,7 +170,7 @@ export const auth = betterAuth({
     },
   },
   redirectURLs: {
-    signIn: `${envVars.BETTER_AUTH_URL}/api/v1/auth/google/success`,
+    signIn: `${envVars.FRONTEND_URL}/dashboard`,
   },
   advanced: {
     useSecureCookies: envVars.NODE_ENV === "production",

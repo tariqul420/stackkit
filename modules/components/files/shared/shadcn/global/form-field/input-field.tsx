@@ -9,11 +9,7 @@ import {
   FieldError,
   FieldLabel,
 } from "@/components/ui/field";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@/components/ui/input-group";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { CloudUpload, Eye, EyeOff, type LucideIcon } from "lucide-react";
 import type { ChangeEvent, HTMLInputTypeAttribute } from "react";
 import * as React from "react";
@@ -21,13 +17,7 @@ import type { FieldPath, FieldValues } from "react-hook-form";
 import { Controller } from "react-hook-form";
 
 // Types
-type ButtonVariant =
-  | "default"
-  | "outline"
-  | "destructive"
-  | "secondary"
-  | "ghost"
-  | "link";
+type ButtonVariant = "default" | "outline" | "destructive" | "secondary" | "ghost" | "link";
 type ButtonSize = "default" | "sm" | "lg" | "icon";
 
 /** Base props shared across standalone & RHF modes */
@@ -77,9 +67,7 @@ function toTextInputValue(v: unknown): string | number {
   return "";
 }
 
-function makeSyntheticCheckboxChange(
-  checked: boolean,
-): React.ChangeEvent<HTMLInputElement> {
+function makeSyntheticCheckboxChange(checked: boolean): React.ChangeEvent<HTMLInputElement> {
   const input = document.createElement("input");
   input.type = "checkbox";
   input.checked = checked;
@@ -126,24 +114,19 @@ export default function InputField<
   const isFile = type === "file";
   const isCheckbox = type === "checkbox";
   const shouldParseNumber = !isCheckbox && (parseNumber ?? type === "number");
-  const shouldPreventWheel =
-    !isCheckbox && (preventWheelChange ?? shouldParseNumber);
+  const shouldPreventWheel = !isCheckbox && (preventWheelChange ?? shouldParseNumber);
   const labelContent = labelNode ?? label;
 
   const hiddenFileRef = React.useRef<HTMLInputElement | null>(null);
-  const chooseFile = React.useCallback(
-    () => hiddenFileRef.current?.click(),
-    [],
-  );
+  const chooseFile = React.useCallback(() => hiddenFileRef.current?.click(), []);
 
-  const [internal, setInternal] = React.useState<
-    string | number | boolean | undefined
-  >(defaultValue);
+  const [internal, setInternal] = React.useState<string | number | boolean | undefined>(
+    defaultValue,
+  );
 
   const [showPassword, setShowPassword] = React.useState(false);
   const isPassword = type === "password";
-  const effectiveType =
-    isPassword && showPassword ? ("text" as HTMLInputTypeAttribute) : type;
+  const effectiveType = isPassword && showPassword ? ("text" as HTMLInputTypeAttribute) : type;
 
   const inFormMode = Boolean(name);
 
@@ -169,9 +152,7 @@ export default function InputField<
             onFilesChange?.(fl ? Array.from(fl) : null);
           };
 
-          const handleChangeTextOrNumber = (
-            e: ChangeEvent<HTMLInputElement>,
-          ) => {
+          const handleChangeTextOrNumber = (e: ChangeEvent<HTMLInputElement>) => {
             const raw = e.target.value;
             const val = toNumberIfNeeded(raw);
             field.onChange(val);
@@ -191,19 +172,14 @@ export default function InputField<
           return (
             <Field className={className} data-invalid={fieldState.invalid}>
               {!isCheckbox && labelContent ? (
-                <FieldLabel
-                  className="mb-2 inline-flex items-center gap-2"
-                  htmlFor={inputId}
-                >
+                <FieldLabel className="mb-2 inline-flex items-center gap-2" htmlFor={inputId}>
                   {LabelIcon ? (
                     <LabelIcon className="h-4 w-4" />
                   ) : LabelIconEffective ? (
                     <LabelIconEffective className="h-4 w-4" />
                   ) : null}
                   {labelContent}
-                  {requiredMark ? (
-                    <span className="ml-0.5 text-destructive">*</span>
-                  ) : null}
+                  {requiredMark ? <span className="ml-0.5 text-destructive">*</span> : null}
                 </FieldLabel>
               ) : null}
 
@@ -242,14 +218,9 @@ export default function InputField<
                       disabled={effectiveDisabled}
                     />
                     {labelContent ? (
-                      <FieldLabel
-                        htmlFor={inputId}
-                        className="cursor-pointer select-none"
-                      >
+                      <FieldLabel htmlFor={inputId} className="cursor-pointer select-none">
                         {labelContent}
-                        {requiredMark ? (
-                          <span className="ml-0.5 text-destructive">*</span>
-                        ) : null}
+                        {requiredMark ? <span className="ml-0.5 text-destructive">*</span> : null}
                       </FieldLabel>
                     ) : null}
                   </div>
@@ -308,22 +279,16 @@ export default function InputField<
 
   const inputId =
     id ??
-    (typeof label === "string"
-      ? `input-${label.toLowerCase().replace(/\s+/g, "-")}`
-      : undefined);
+    (typeof label === "string" ? `input-${label.toLowerCase().replace(/\s+/g, "-")}` : undefined);
 
-  const handleStandaloneChange: React.ChangeEventHandler<HTMLInputElement> = (
-    e,
-  ) => {
+  const handleStandaloneChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     const raw = e.target.value;
     const val = toNumberIfNeeded(raw);
     if (!isControlled) setInternal(val);
     onChange?.(e);
   };
 
-  const handleStandaloneFileChange: React.ChangeEventHandler<
-    HTMLInputElement
-  > = (e) => {
+  const handleStandaloneFileChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     const fl = e.target.files;
     onFilesChange?.(fl ? Array.from(fl) : null);
     onChange?.(e);
@@ -337,15 +302,10 @@ export default function InputField<
   return (
     <div className={className}>
       {!isCheckbox && labelContent ? (
-        <FieldLabel
-          className="mb-2 inline-flex items-center gap-2"
-          htmlFor={inputId}
-        >
+        <FieldLabel className="mb-2 inline-flex items-center gap-2" htmlFor={inputId}>
           {LabelIcon ? <LabelIcon className="h-4 w-4" /> : null}
           {labelContent}
-          {requiredMark ? (
-            <span className="ml-0.5 text-destructive">*</span>
-          ) : null}
+          {requiredMark ? <span className="ml-0.5 text-destructive">*</span> : null}
         </FieldLabel>
       ) : null}
 
@@ -383,14 +343,9 @@ export default function InputField<
             disabled={effectiveDisabled}
           />
           {labelContent ? (
-            <FieldLabel
-              htmlFor={inputId}
-              className="cursor-pointer select-none"
-            >
+            <FieldLabel htmlFor={inputId} className="cursor-pointer select-none">
               {labelContent}
-              {requiredMark ? (
-                <span className="ml-0.5 text-destructive">*</span>
-              ) : null}
+              {requiredMark ? <span className="ml-0.5 text-destructive">*</span> : null}
             </FieldLabel>
           ) : null}
         </div>
@@ -404,9 +359,7 @@ export default function InputField<
             value={toTextInputValue(currentValue)}
             onChange={handleStandaloneChange}
             onWheel={
-              shouldPreventWheel
-                ? (e) => (e.currentTarget as HTMLInputElement).blur()
-                : undefined
+              shouldPreventWheel ? (e) => (e.currentTarget as HTMLInputElement).blur() : undefined
             }
             className={inputClassName}
             {...rest}
@@ -421,20 +374,14 @@ export default function InputField<
                 onClick={() => setShowPassword(!showPassword)}
                 disabled={effectiveDisabled}
               >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </Button>
             </InputGroupAddon>
           ) : null}
         </InputGroup>
       )}
 
-      {hint ? (
-        <p className="mt-1 text-xs text-muted-foreground">{hint}</p>
-      ) : null}
+      {hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}
     </div>
   );
 }

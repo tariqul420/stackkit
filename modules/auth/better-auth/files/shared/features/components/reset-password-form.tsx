@@ -11,15 +11,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useResetPasswordMutation } from "@/features/auth/queries/auth.mutations";
+import { authClient } from "@/lib/auth/auth-client";
 import { resetZodSchema } from "@/features/auth/validators/reset.validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 {{#if framework == "nextjs"}}
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 {{else}}
-import { useSearchParams } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 {{/if}}
 import { FormProvider, useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 type ResetValues = {
   email: string;
@@ -29,15 +30,16 @@ type ResetValues = {
 };
 
 export default function ResetPasswordForm() {
-  {{#if framework == "nextjs"}}
+{{#if framework == "nextjs"}}
+  const router = useRouter();
+  const navigate = (path: string) => router.push(path);
   const params = useSearchParams();
   const prefillEmail = params?.get("email") || "";
-  {{else}}
+{{else}}
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const prefillEmail = searchParams.get("email") || "";
-  {{/if}}
-
-  const mutation = useResetPasswordMutation();
+{{/if}}
 
   const form = useForm<ResetValues>({
     mode: "onTouched",
@@ -57,12 +59,22 @@ export default function ResetPasswordForm() {
     }
 
     try {
-      await mutation.mutateAsync({
+      const { error } = await authClient.resetPassword({
         email: values.email,
         otp: values.otp,
-        newPassword: values.newPassword,
+        password: values.newPassword,
       });
-    } catch {}
+
+      if (error) {
+        toast.error(error.message || "Failed to reset password. Please check your details and try again.");
+        return;
+      }
+
+      toast.success("Password reset successful! Please log in with your new password.");
+      navigate("/login");
+    } catch {
+      toast.error("An unexpected error occurred. Please try again.");
+    }
   }
 
   return (

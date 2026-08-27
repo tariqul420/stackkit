@@ -3,7 +3,6 @@ import { catchAsync } from "../../shared/utils/catch-async";
 import { sendResponse } from "../../shared/utils/send-response";
 
 const health = catchAsync(async (_req: Request, res: Response) => {
-
   sendResponse(res, {
     status: 200,
     success: true,

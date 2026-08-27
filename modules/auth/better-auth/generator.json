@@ -47,12 +47,6 @@
     },
     {
       "type": "create-file",
-      "source": "express/utils/*",
-      "destination": "src/shared/utils/*",
-      "condition": { "framework": "express" }
-    },
-    {
-      "type": "create-file",
       "source": "shared/utils/email.ts",
       "destination": "src/shared/utils/email.ts",
       "condition": { "framework": "express" }
@@ -74,7 +68,11 @@
         {
           "type": "add-code",
           "after": "// API routes",
-          "code": ["app.use(\"/api/auth\", authLimiter, (req, res) => {", "  return toNodeHandler(auth)(req, res);", "});"]
+          "code": [
+            "app.use(\"/api/auth\", authLimiter, (req, res) => {",
+            "  return toNodeHandler(auth)(req, res);",
+            "});"
+          ]
         },
         {
           "type": "add-code",
@@ -107,13 +105,11 @@
       "condition": { "framework": "express" },
       "dependencies": {
         "ejs": "^6.0.1",
-        "jsonwebtoken": "^9.0.3",
         "better-auth": "^1.6.19",
         "nodemailer": "^9.0.1"
       },
       "devDependencies": {
         "@types/ejs": "^3.1.5",
-        "@types/jsonwebtoken": "^9.0.10",
         "@types/nodemailer": "^8.0.1"
       }
     },
@@ -126,13 +122,8 @@
         "BETTER_AUTH_SECRET": "your_better_auth_secret",
         "BETTER_AUTH_SESSION_TOKEN_EXPIRES_IN": "1d",
         "BETTER_AUTH_SESSION_TOKEN_UPDATE_AGE": "1d",
-        "ACCESS_TOKEN_SECRET": "your_access_token_secret",
-        "ACCESS_TOKEN_EXPIRES_IN": "1d",
-        "REFRESH_TOKEN_SECRET": "your_refresh_token_secret",
-        "REFRESH_TOKEN_EXPIRES_IN": "7d",
         "GOOGLE_CLIENT_ID": "your_google_client_id",
         "GOOGLE_CLIENT_SECRET": "your_google_client_secret",
-        "GOOGLE_CALLBACK_URL": "http://localhost:5000/api/auth/callback/google",
         "EMAIL_SENDER_SMTP_USER": "your_email@gmail.com",
         "EMAIL_SENDER_SMTP_PASS": "your_email_password",
         "EMAIL_SENDER_SMTP_HOST": "smtp.gmail.com",
@@ -172,18 +163,6 @@
     },
     {
       "type": "create-file",
-      "source": "nextjs/api-route.ts",
-      "destination": "app/api/auth/callback/[provider]/route.ts",
-      "condition": { "framework": "nextjs" }
-    },
-    {
-      "type": "create-file",
-      "source": "nextjs/types/**",
-      "destination": "types/**",
-      "condition": { "framework": "nextjs" }
-    },
-    {
-      "type": "create-file",
       "source": "nextjs/theme/**",
       "destination": "components/**",
       "condition": { "framework": "nextjs", "ui": "shadcn" }
@@ -206,12 +185,14 @@
         {
           "type": "add-code",
           "after": "<body className=\"font-sans antialiased\" suppressHydrationWarning>",
-          "code": ["<ThemeProvider",
-          "  attribute=\"class\"",
-          "  defaultTheme=\"system\"",
-          "  enableSystem",
-          "  disableTransitionOnChange",
-          ">"]
+          "code": [
+            "<ThemeProvider",
+            "  attribute=\"class\"",
+            "  defaultTheme=\"system\"",
+            "  enableSystem",
+            "  disableTransitionOnChange",
+            ">"
+          ]
         },
         {
           "type": "add-code",
@@ -224,8 +205,7 @@
       "type": "add-env",
       "condition": { "framework": "nextjs" },
       "envVars": {
-        "NEXT_PUBLIC_BETTER_AUTH_URL": "http://localhost:5000",
-        "JWT_ACCESS_SECRET": "your_jwt_access_secret"
+        "NEXT_PUBLIC_BETTER_AUTH_URL": "http://localhost:5000"
       }
     },
     {
@@ -256,13 +236,13 @@
       "type": "create-file",
       "source": "shared/lib/constant/**",
       "destination": "{{framework=='nextjs' ? 'lib/constant/**' : 'src/lib/constant/**'}}",
-      "condition": { "framework": ["react", "nextjs"]}
+      "condition": { "framework": ["react", "nextjs"] }
     },
     {
       "type": "create-file",
       "source": "shared/features/**",
       "destination": "{{framework=='nextjs' ? 'features/auth/**' : 'src/features/auth/**'}}",
-      "condition": { "framework": ["react", "nextjs"]}
+      "condition": { "framework": ["react", "nextjs"] }
     },
     {
       "type": "create-file",
@@ -335,7 +315,7 @@
     },
     {
       "type": "add-dependency",
-       "condition": { "framework": ["react", "nextjs"] },
+      "condition": { "framework": ["react", "nextjs"] },
       "dependencies": {
         "better-auth": "^1.6.19",
         "zod": "^4.4.3",
@@ -346,11 +326,7 @@
     {
       "type": "add-dependency",
       "dependencies": {
-        "jsonwebtoken": "^9.0.3",
         "next-themes": "^0.4.6"
-      },
-      "devDependencies": {
-        "@types/jsonwebtoken": "^9.0.10"
       },
       "condition": { "framework": "nextjs" }
     },

@@ -53,8 +53,7 @@ export default function TiptapEditor({
       TableRow,
       TableHeader.configure({
         HTMLAttributes: {
-          class:
-            "border border-border bg-muted text-foreground font-semibold px-2 py-1",
+          class: "border border-border bg-muted text-foreground font-semibold px-2 py-1",
         },
       }),
       TableCell.configure({
@@ -81,10 +80,7 @@ export default function TiptapEditor({
     ],
     editorProps: {
       attributes: {
-        class: cn(
-          "prose dark:prose-invert max-w-none focus:outline-none min-h-[200px]",
-          className,
-        ),
+        class: cn("prose dark:prose-invert max-w-none focus:outline-none min-h-[200px]", className),
       },
     },
     onUpdate({ editor }) {

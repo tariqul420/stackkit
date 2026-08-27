@@ -5,7 +5,6 @@ import { AdminRoute, AuthenticatedRoute, UserRoute } from "./components/route-gu
 import ForgotPasswordPage from "./features/auth/pages/forgot-password";
 import LoginPage from "./features/auth/pages/login";
 import MyProfilePage from "./features/auth/pages/my-profile";
-import OAuthCallbackPage from "./features/auth/pages/oauth-callback";
 import RegisterPage from "./features/auth/pages/register";
 import ResetPasswordPage from "./features/auth/pages/reset-password";
 import VerifyEmailPage from "./features/auth/pages/verify-email";
@@ -66,7 +65,6 @@ export const router = createBrowserRouter([
       },
     ],
   },
-  { path: "api/auth/callback/:provider", Component: OAuthCallbackPage },
   { path: "*", Component: NotFound },
 ]);
 

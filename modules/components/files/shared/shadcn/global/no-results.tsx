@@ -27,12 +27,8 @@ export default function NoResults({
 
           {/* Text content */}
           <div className="text-center">
-            <h3 className="text-foreground mb-3 text-2xl font-semibold">
-              {title}
-            </h3>
-            <p className="text-muted-foreground mx-auto max-w-md text-base">
-              {description}
-            </p>
+            <h3 className="text-foreground mb-3 text-2xl font-semibold">{title}</h3>
+            <p className="text-muted-foreground mx-auto max-w-md text-base">{description}</p>
           </div>
         </div>
       </CardContent>

@@ -14,10 +14,7 @@ export const uploadFileToCloudinary = async (
   fileName: string,
 ): Promise<UploadApiResponse> => {
   if (!buffer || !fileName) {
-    throw new AppError(
-      status.BAD_REQUEST,
-      "File buffer and file name are required for upload",
-    );
+    throw new AppError(status.BAD_REQUEST, "File buffer and file name are required for upload");
   }
 
   const extension = fileName.split(".").pop()?.toLocaleLowerCase();
@@ -32,14 +29,9 @@ export const uploadFileToCloudinary = async (
     .replace(/[^a-z0-9\-]/g, "");
 
   const uniqueName =
-    Math.random().toString(36).substring(2) +
-    "-" +
-    Date.now() +
-    "-" +
-    fileNameWithoutExtension;
+    Math.random().toString(36).substring(2) + "-" + Date.now() + "-" + fileNameWithoutExtension;
 
-  const folder =
-    extension === "pdf" ? "pdfs" : extension === "mp4" ? "videos" : "images";
+  const folder = extension === "pdf" ? "pdfs" : extension === "mp4" ? "videos" : "images";
 
   return new Promise((resolve, reject) => {
     cloudinary.uploader
@@ -52,10 +44,7 @@ export const uploadFileToCloudinary = async (
         (error, result) => {
           if (error) {
             return reject(
-              new AppError(
-                status.INTERNAL_SERVER_ERROR,
-                "Failed to upload file to Cloudinary",
-              ),
+              new AppError(status.INTERNAL_SERVER_ERROR, "Failed to upload file to Cloudinary"),
             );
           }
           resolve(result as UploadApiResponse);
@@ -75,11 +64,7 @@ export const deleteFileFromCloudinary = async (url: string) => {
       const publicId = match[1];
 
       // try several resource types to ensure deletion for image/video/raw
-      const tryTypes: Array<"image" | "video" | "raw"> = [
-        "image",
-        "video",
-        "raw",
-      ];
+      const tryTypes: Array<"image" | "video" | "raw"> = ["image", "video", "raw"];
 
       for (const t of tryTypes) {
         try {
@@ -93,10 +78,7 @@ export const deleteFileFromCloudinary = async (url: string) => {
     }
   } catch (error) {
     console.error("Error deleting file from Cloudinary:", error);
-    throw new AppError(
-      status.INTERNAL_SERVER_ERROR,
-      "Failed to delete file from Cloudinary",
-    );
+    throw new AppError(status.INTERNAL_SERVER_ERROR, "Failed to delete file from Cloudinary");
   }
 };
 

@@ -37,10 +37,7 @@ export const sendEmail = async ({
   attachments,
 }: SendEmailOptions) => {
   try {
-     const templatePath = path.resolve(
-      process.cwd(),
-      `src/templates/${templateName}.ejs`,
-    );
+    const templatePath = path.resolve(process.cwd(), `src/templates/${templateName}.ejs`);
 
     const td = templateData as Record<string, unknown>;
     const expiresVal =

@@ -1,18 +1,18 @@
 "use client";
 
 import {
-    Field,
-    FieldContent,
-    FieldDescription,
-    FieldError,
-    FieldLabel,
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
 } from "@/components/ui/field";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
@@ -102,9 +102,7 @@ export default function SelectField<
   const autoId = React.useId();
   const triggerId = id ?? autoId;
 
-  const [internal, setInternal] = React.useState<string | number | undefined>(
-    defaultValue,
-  );
+  const [internal, setInternal] = React.useState<string | number | undefined>(defaultValue);
 
   // Renderers
   const renderStandalone = () => {
@@ -128,22 +126,13 @@ export default function SelectField<
         ) : null}
 
         <div className="overflow-hidden rounded-md dark:bg-transparent">
-          <Select
-            value={selectValue}
-            onValueChange={handleChange}
-            disabled={disabled}
-          >
-            <SelectTrigger
-              id={triggerId}
-              className={cn("w-full", triggerClassName)}
-            >
+          <Select value={selectValue} onValueChange={handleChange} disabled={disabled}>
+            <SelectTrigger id={triggerId} className={cn("w-full", triggerClassName)}>
               <SelectValue placeholder={placeholder} />
             </SelectTrigger>
 
             <SelectContent className={contentClassName}>
-              {allowClear && (
-                <SelectItem value={CLEAR_TOKEN}>{clearLabel}</SelectItem>
-              )}
+              {allowClear && <SelectItem value={CLEAR_TOKEN}>{clearLabel}</SelectItem>}
               {options.map((opt) => {
                 const IconComp = opt.icon;
                 return (
@@ -163,12 +152,8 @@ export default function SelectField<
           </Select>
         </div>
 
-        {description ? (
-          <FieldDescription>{description}</FieldDescription>
-        ) : null}
-        {error ? (
-          <p className="text-[0.8rem] font-medium text-destructive">{error}</p>
-        ) : null}
+        {description ? <FieldDescription>{description}</FieldDescription> : null}
+        {error ? <p className="text-[0.8rem] font-medium text-destructive">{error}</p> : null}
       </div>
     );
   };
@@ -207,17 +192,12 @@ export default function SelectField<
                   onValueChange={handleChange}
                   disabled={effectiveDisabled}
                 >
-                  <SelectTrigger
-                    id={triggerId}
-                    className={cn("w-full", triggerClassName)}
-                  >
+                  <SelectTrigger id={triggerId} className={cn("w-full", triggerClassName)}>
                     <SelectValue placeholder={placeholder} />
                   </SelectTrigger>
 
                   <SelectContent className={contentClassName}>
-                    {allowClear && (
-                      <SelectItem value={CLEAR_TOKEN}>{clearLabel}</SelectItem>
-                    )}
+                    {allowClear && <SelectItem value={CLEAR_TOKEN}>{clearLabel}</SelectItem>}
                     {options.map((opt) => (
                       <SelectItem
                         key={String(opt.value)}
@@ -232,9 +212,7 @@ export default function SelectField<
               </div>
             </FieldContent>
 
-            {description ? (
-              <FieldDescription>{description}</FieldDescription>
-            ) : null}
+            {description ? <FieldDescription>{description}</FieldDescription> : null}
             {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
           </Field>
         );

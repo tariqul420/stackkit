@@ -121,15 +121,12 @@ export const useFileUpload = (
     [accept, maxSize],
   );
 
-  const createPreview = useCallback(
-    (file: File | FileMetadata): string | undefined => {
-      if (file instanceof File) {
-        return URL.createObjectURL(file);
-      }
-      return file.url;
-    },
-    [],
-  );
+  const createPreview = useCallback((file: File | FileMetadata): string | undefined => {
+    if (file instanceof File) {
+      return URL.createObjectURL(file);
+    }
+    return file.url;
+  }, []);
 
   const generateUniqueId = useCallback((file: File | FileMetadata): string => {
     if (file instanceof File) {
@@ -142,11 +139,7 @@ export const useFileUpload = (
     setState((prev) => {
       // Clean up object URLs
       prev.files.forEach((file) => {
-        if (
-          file.preview &&
-          file.file instanceof File &&
-          file.file.type.startsWith("image/")
-        ) {
+        if (file.preview && file.file instanceof File && file.file.type.startsWith("image/")) {
           URL.revokeObjectURL(file.preview);
         }
       });
@@ -199,8 +192,7 @@ export const useFileUpload = (
         if (multiple) {
           const isDuplicate = state.files.some(
             (existingFile) =>
-              existingFile.file.name === file.name &&
-              existingFile.file.size === file.size,
+              existingFile.file.name === file.name && existingFile.file.size === file.size,
           );
 
           // Skip duplicate files silently
@@ -237,9 +229,7 @@ export const useFileUpload = (
         onFilesAdded?.(validFiles);
 
         setState((prev) => {
-          const newFiles = !multiple
-            ? validFiles
-            : [...prev.files, ...validFiles];
+          const newFiles = !multiple ? validFiles : [...prev.files, ...validFiles];
           onFilesChange?.(newFiles);
           return {
             ...prev,

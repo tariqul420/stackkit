@@ -1,10 +1,5 @@
 import TiptapEditor from "@/components/tiptap-editor/tiptap-editor";
-import {
-    Field,
-    FieldContent,
-    FieldError,
-    FieldLabel,
-} from "@/components/ui/field";
+import { Field, FieldContent, FieldError, FieldLabel } from "@/components/ui/field";
 import { Controller } from "react-hook-form";
 
 interface Props {

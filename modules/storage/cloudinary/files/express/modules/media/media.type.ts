@@ -20,12 +20,9 @@ export const mediaUploadDeleteSchema = z
     keys: z.array(z.string().min(1)).optional(),
     urls: z.array(z.string().min(1)).optional(),
   })
-  .refine(
-    (value) => (value.keys?.length ?? 0) > 0 || (value.urls?.length ?? 0) > 0,
-    {
-      message: "keys or urls required",
-    },
-  );
+  .refine((value) => (value.keys?.length ?? 0) > 0 || (value.urls?.length ?? 0) > 0, {
+    message: "keys or urls required",
+  });
 
 export type MediaSignInput = z.infer<typeof mediaSignSchema>;
 export type MediaUploadPresignInput = z.infer<typeof mediaUploadPresignSchema>;

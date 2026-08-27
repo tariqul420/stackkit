@@ -12,41 +12,57 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useRegisterMutation } from "@/features/auth/queries/auth.mutations";
+import { authClient } from "@/lib/auth/auth-client";
 import { registerZodSchema } from "@/features/auth/validators/register.validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 {{#if framework == "nextjs"}}
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 {{else}}
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 {{/if}}
 import { FormProvider, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import SocialLoginButtons from "./social-login-buttons";
 
 type RegisterFormValues = {
   name: string;
   email: string;
   password: string;
-  confirmPassword?: string;
 };
 
 export default function RegisterForm() {
-  const mutation = useRegisterMutation();
+{{#if framework == "nextjs"}}
+  const router = useRouter();
+  const navigate = (path: string) => router.push(path);
+{{else}}
+  const navigate = useNavigate();
+{{/if}}
 
   const form = useForm<RegisterFormValues>({
     mode: "onTouched",
     resolver: zodResolver(registerZodSchema),
-    defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
+    defaultValues: { name: "", email: "", password: "" },
   });
 
   async function onSubmit(values: RegisterFormValues) {
     try {
-      await mutation.mutateAsync({
+      const { error } = await authClient.signUp.email({
         name: values.name,
         email: values.email,
         password: values.password,
       });
-    } catch {}
+
+      if (error) {
+        toast.error(error.message || "Registration failed. Please check your details and try again.");
+        return;
+      }
+
+      navigate(`/verify-email?email=${encodeURIComponent(values.email)}`);
+      toast.success("Registration successful! Please verify your email.");
+    } catch {
+      toast.error("An unexpected error occurred. Please try again.");
+    }
   }
 
   return (
@@ -87,7 +103,6 @@ export default function RegisterForm() {
                     : "Create account"}
                 </Button>
               </div>
-
               <SocialLoginButtons />
             </CardFooter>
           </FormProvider>

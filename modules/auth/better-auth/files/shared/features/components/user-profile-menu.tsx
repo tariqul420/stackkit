@@ -11,19 +11,34 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { authClient } from "@/lib/auth/auth-client";
 import { LayoutDashboard, LogOut, User } from "lucide-react";
 {{#if framework == "nextjs"}}
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 {{else}}
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 {{/if}}
-import { useLogoutMutation } from "../queries/auth.mutations";
 import { useMeQuery } from "../queries/auth.queries";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useQueryClient } from "@tanstack/react-query";
+import { AUTH_QUERY_KEYS } from "../queries/auth.queries";
 
 export default function UserProfileMenu() {
   const { data: user, isLoading } = useMeQuery();
-  const { mutate: logout, isPending } = useLogoutMutation();
+  const queryClient = useQueryClient();
+{{#if framework == "nextjs"}}
+  const router = useRouter();
+  const navigate = (path: string) => router.push(path);
+{{else}}
+  const navigate = useNavigate();
+{{/if}}
+
+  const handleLogout = async () => {
+    await authClient.signOut();
+    queryClient.clear();
+    navigate("/login");
+  };
 
   if (isLoading) {
     return <Skeleton className="h-8 w-8 rounded-full" />;
@@ -64,7 +79,6 @@ export default function UserProfileMenu() {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-60">
-        {/* User info header */}
         <div className="flex items-center gap-3 px-2 py-2.5">
           <Avatar size="lg">
             <AvatarImage src={user.image || ""} alt={user.name} referrerPolicy="no-referrer" />
@@ -93,12 +107,10 @@ export default function UserProfileMenu() {
 
         <DropdownMenuItem
           variant="destructive"
-          disabled={isPending}
-          onClick={() => logout()}
+          onClick={handleLogout}
           className="gap-2"
         >
-          <LogOut className="size-4" />
-          {isPending ? "Signing out…" : "Sign out"}
+          <LogOut className="size-4" /> Sign out
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

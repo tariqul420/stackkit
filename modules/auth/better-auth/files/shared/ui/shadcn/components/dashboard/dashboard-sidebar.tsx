@@ -22,17 +22,46 @@ import { usePathname } from "next/navigation";
 {{else}}
 import { Link, useLocation } from "react-router";
 {{/if}}
-
+import { authClient } from "@/lib/auth/auth-client";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  Tag,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarHeader,
+  useSidebar,
+} from "@/components/ui/sidebar";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
+
+const iconMap = {
+  LayoutDashboard,
   Users,
-  Shield,
-  LifeBuoy,
+  Package,
   List,
-  Heart,
+  Tag,
+  Shield,
   Image,
+  Heart,
+  LifeBuoy,
   Clapperboard,
 } as const;
+
 export type IconMapKey = keyof typeof iconMap;
 
 export interface DashboardSidebarMenuItem {
@@ -64,7 +93,6 @@ export function DashboardSidebar({ menu = [], user }: DashboardSidebarProps) {
   const { pathname } = useLocation();
   {{/if}}
   const { toggleSidebar } = useSidebar();
-  const { mutate: logout, isPending } = useLogoutMutation();
 
   const isActive = (url: string) =>
     url === "/dashboard" ||
@@ -77,6 +105,11 @@ export function DashboardSidebar({ menu = [], user }: DashboardSidebarProps) {
       ? (menu as DashboardSidebarMenuGroup[])
       : [{ label: "Navigation", items: menu as DashboardSidebarMenuItem[] }]
   ).filter((group) => group.items.length > 0);
+
+  const handleLogout = async () => {
+    await authClient.signOut();
+    window.location.href = "/login";
+  };
 
   return (
     <Sidebar className="bg-linear-to-b from-background to-muted/30 backdrop-blur supports-backdrop-filter:bg-background/80">
@@ -209,7 +242,7 @@ export function DashboardSidebar({ menu = [], user }: DashboardSidebarProps) {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem disabled={isPending} onClick={() => logout()}>
+            <DropdownMenuItem onClick={handleLogout}>
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>

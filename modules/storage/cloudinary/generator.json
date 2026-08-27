@@ -19,7 +19,7 @@
       "type": "add-dependency",
       "condition": { "framework": "express" },
       "dependencies": {
-         "cloudinary": "^2.10.0"
+        "cloudinary": "^2.10.0"
       }
     },
     {

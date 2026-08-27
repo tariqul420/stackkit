@@ -1,10 +1,6 @@
 import { envVars } from "../../config/env";
 import { cloudinaryUpload, deleteFileFromCloudinary } from "../../config/media";
-import {
-  MediaSignInput,
-  MediaUploadDeleteInput,
-  MediaUploadPresignInput,
-} from "./media.type";
+import { MediaSignInput, MediaUploadDeleteInput, MediaUploadPresignInput } from "./media.type";
 
 const signMedia = async (payload: MediaSignInput) => {
   const { publicId, transformation } = payload;
@@ -29,8 +25,7 @@ const createMediaPresign = async (payload: MediaUploadPresignInput) => {
 
   // Unsigned flow: return upload_preset if configured
   if (payload.unsigned) {
-    const upload_preset =
-      envVars.CLOUDINARY.CLOUDINARY_UPLOAD_PRESET ?? undefined;
+    const upload_preset = envVars.CLOUDINARY.CLOUDINARY_UPLOAD_PRESET ?? undefined;
     const uploadUrl = `https://api.cloudinary.com/v1_1/${envVars.CLOUDINARY.CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`;
 
     return {
@@ -72,11 +67,7 @@ const deleteMediaUploads = async (payload: MediaUploadDeleteInput) => {
   for (const key of keys) {
     try {
       // try destroy across possible types
-      const tryTypes: Array<"image" | "video" | "raw"> = [
-        "image",
-        "video",
-        "raw",
-      ];
+      const tryTypes: Array<"image" | "video" | "raw"> = ["image", "video", "raw"];
       let ok = false;
       for (const t of tryTypes) {
         try {

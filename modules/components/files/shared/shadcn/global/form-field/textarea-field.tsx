@@ -1,11 +1,11 @@
 "use client";
 
 import {
-    Field,
-    FieldContent,
-    FieldDescription,
-    FieldError,
-    FieldLabel,
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
 } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -44,7 +44,7 @@ type BaseProps = {
 
 export type TextareaFieldProps<
   TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > = BaseProps & { name?: TName };
 
 const TextareaField = React.forwardRef<
@@ -84,11 +84,9 @@ const TextareaField = React.forwardRef<
     (el: HTMLTextAreaElement | null) => {
       innerRef.current = el;
       if (typeof ref === "function") ref(el);
-      else if (ref)
-        (ref as React.MutableRefObject<HTMLTextAreaElement | null>).current =
-          el;
+      else if (ref) (ref as React.MutableRefObject<HTMLTextAreaElement | null>).current = el;
     },
-    [ref]
+    [ref],
   );
 
   const autoId = React.useId();
@@ -140,12 +138,7 @@ const TextareaField = React.forwardRef<
           </FieldLabel>
         ) : null}
 
-        <div
-          className={cn(
-            "overflow-hidden rounded-md dark:bg-transparent",
-            wrapperClassName
-          )}
-        >
+        <div className={cn("overflow-hidden rounded-md dark:bg-transparent", wrapperClassName)}>
           <Textarea
             ref={setMergedRef}
             id={textareaId}
@@ -164,17 +157,13 @@ const TextareaField = React.forwardRef<
           />
         </div>
 
-        {description ? (
-          <FieldDescription>{description}</FieldDescription>
-        ) : null}
+        {description ? <FieldDescription>{description}</FieldDescription> : null}
 
         {showCount && (
           <div
             className={cn(
               "mt-1 text-right text-xs",
-              maxLength && count >= maxLength * 0.95
-                ? "text-destructive"
-                : "text-muted-foreground"
+              maxLength && count >= maxLength * 0.95 ? "text-destructive" : "text-muted-foreground",
             )}
           >
             {count}
@@ -182,9 +171,7 @@ const TextareaField = React.forwardRef<
           </div>
         )}
 
-        {error ? (
-          <p className="text-[0.8rem] font-medium text-destructive">{error}</p>
-        ) : null}
+        {error ? <p className="text-[0.8rem] font-medium text-destructive">{error}</p> : null}
       </div>
     );
   }
@@ -210,7 +197,7 @@ const TextareaField = React.forwardRef<
               <div
                 className={cn(
                   "overflow-hidden rounded-md bg-light dark:bg-transparent",
-                  wrapperClassName
+                  wrapperClassName,
                 )}
               >
                 <Textarea
@@ -247,9 +234,7 @@ const TextareaField = React.forwardRef<
               </div>
             </FieldContent>
 
-            {description ? (
-              <FieldDescription>{description}</FieldDescription>
-            ) : null}
+            {description ? <FieldDescription>{description}</FieldDescription> : null}
 
             {showCount && (
               <div
@@ -257,7 +242,7 @@ const TextareaField = React.forwardRef<
                   "mt-1 text-right text-xs",
                   maxLength && count >= maxLength * 0.95
                     ? "text-destructive"
-                    : "text-muted-foreground"
+                    : "text-muted-foreground",
                 )}
               >
                 {count}

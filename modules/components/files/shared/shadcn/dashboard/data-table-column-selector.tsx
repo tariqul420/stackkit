@@ -3,10 +3,10 @@ import type { Table } from "@tanstack/react-table";
 import { Columns3Icon } from "lucide-react";
 import { Button } from "../ui/button";
 import {
-    DropdownMenu,
-    DropdownMenuCheckboxItem,
-    DropdownMenuContent,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import type { BaseRecord } from "./data-table";
 
@@ -30,10 +30,7 @@ export default function DataTableColumnSelector<TData extends BaseRecord>({
       <DropdownMenuContent align="end" className="w-56">
         {table
           .getAllColumns()
-          .filter(
-            (column) =>
-              typeof column.accessorFn !== "undefined" && column.getCanHide(),
-          )
+          .filter((column) => typeof column.accessorFn !== "undefined" && column.getCanHide())
           .map((column) => {
             return (
               <DropdownMenuCheckboxItem

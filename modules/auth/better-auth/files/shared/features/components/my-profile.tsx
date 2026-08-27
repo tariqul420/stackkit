@@ -71,9 +71,7 @@ export default function MyProfile() {
     <div className="flex flex-col gap-6 p-4 md:p-6 lg:p-8">
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-bold tracking-tight">Profile</h1>
-        <p className="text-muted-foreground">
-          Manage your account information and preferences
-        </p>
+        <p className="text-muted-foreground">Manage your account information and preferences</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -136,8 +134,8 @@ export default function MyProfile() {
 
           <div className="rounded-lg border border-muted bg-muted/20 p-4">
             <p className="text-xs text-muted-foreground">
-              💡 <span className="font-medium">Tip:</span> Keep your profile
-              information up to date for better security and communication.
+              💡 <span className="font-medium">Tip:</span> Keep your profile information up to date
+              for better security and communication.
             </p>
           </div>
         </div>

@@ -30,4 +30,3 @@ export function removeKeysFromQuery({
   const qs = s.toString();
   return qs ? `${base}?${qs}` : base;
 }
-

@@ -11,22 +11,29 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useForgotPasswordMutation } from "@/features/auth/queries/auth.mutations";
+import { authClient } from "@/lib/auth/auth-client";
 import { forgotZodSchema } from "@/features/auth/validators/forgot.validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 {{#if framework == "nextjs"}}
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 {{else}}
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 {{/if}}
 import { FormProvider, useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 type ForgotValues = {
   email: string;
 };
 
 export default function ForgotPasswordForm() {
-  const mutation = useForgotPasswordMutation();
+{{#if framework == "nextjs"}}
+  const router = useRouter();
+  const navigate = (path: string) => router.push(path);
+{{else}}
+  const navigate = useNavigate();
+{{/if}}
 
   const form = useForm<ForgotValues>({
     mode: "onTouched",
@@ -36,8 +43,20 @@ export default function ForgotPasswordForm() {
 
   async function onSubmit(values: ForgotValues) {
     try {
-      await mutation.mutateAsync(values);
-    } catch {}
+      const { error } = await authClient.forgetPassword({
+        email: values.email,
+      });
+
+      if (error) {
+        toast.error(error.message || "Failed to send password reset email. Please check the email and try again.");
+        return;
+      }
+
+      toast.success("Password reset OTP sent to your email!");
+      navigate(`/reset-password?email=${encodeURIComponent(values.email)}`);
+    } catch {
+      toast.error("An unexpected error occurred. Please try again.");
+    }
   }
 
   return (

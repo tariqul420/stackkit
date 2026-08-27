@@ -31,7 +31,7 @@
         }
       ]
     },
-    
+
     {
       "type": "add-dependency",
       "dependencies": {

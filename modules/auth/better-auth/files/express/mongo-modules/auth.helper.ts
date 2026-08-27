@@ -47,10 +47,6 @@ export const getAuthCollections = async () => {
       verifications: db.collection<AuthVerificationDocument>("verification"),
     };
   } catch {
-    throw new AppError(
-      status.INTERNAL_SERVER_ERROR,
-      "Auth database is not initialized",
-    );
+    throw new AppError(status.INTERNAL_SERVER_ERROR, "Auth database is not initialized");
   }
 };
-

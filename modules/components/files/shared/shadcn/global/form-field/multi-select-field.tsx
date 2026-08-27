@@ -4,24 +4,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
 } from "@/components/ui/command";
-import {
-    Field,
-    FieldContent,
-    FieldError,
-    FieldLabel,
-} from "@/components/ui/field";
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover";
+import { Field, FieldContent, FieldError, FieldLabel } from "@/components/ui/field";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import clsx from "clsx";
 import { Check, ChevronsUpDown } from "lucide-react";
@@ -38,10 +29,7 @@ type Props = {
   disabled?: boolean;
   className?: string;
   renderCreate?: React.ReactNode;
-  summaryFormatter?: (
-    selected: string[],
-    all: MultiOption[],
-  ) => React.ReactNode;
+  summaryFormatter?: (selected: string[], all: MultiOption[]) => React.ReactNode;
   listMaxHeight?: number;
   showChips?: boolean;
 };
@@ -79,12 +67,10 @@ export default function MultiSelectField({
         const clearAll = () => field.onChange([]);
         const selectAll = () => field.onChange(options.map((o) => o.value));
 
-        const allSelected =
-          options.length > 0 && value.length === options.length;
+        const allSelected = options.length > 0 && value.length === options.length;
 
         const defaultSummary = () => {
-          if (!value.length)
-            return <span className="text-muted-foreground">{placeholder}</span>;
+          if (!value.length) return <span className="text-muted-foreground">{placeholder}</span>;
 
           const labels = value
             .map((v) => options.find((o) => o.value === v)?.label || v)
@@ -92,11 +78,7 @@ export default function MultiSelectField({
 
           if (!showChips) {
             return (
-              <span>
-                {labels.length > 2
-                  ? `${labels.length} selected`
-                  : labels.join(", ")}
-              </span>
+              <span>{labels.length > 2 ? `${labels.length} selected` : labels.join(", ")}</span>
             );
           }
           return (
@@ -142,18 +124,14 @@ export default function MultiSelectField({
                     className="w-full justify-between"
                     disabled={disabled}
                   >
-                    {summaryFormatter
-                      ? summaryFormatter(value, options)
-                      : defaultSummary()}
+                    {summaryFormatter ? summaryFormatter(value, options) : defaultSummary()}
                     <ChevronsUpDown className="h-4 w-4 opacity-50" />
                   </Button>
                 </PopoverTrigger>
 
                 {/* Use width override here since you can't change the Popover wrapper */}
                 <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                  {renderCreate ? (
-                    <div className="border-b p-2">{renderCreate}</div>
-                  ) : null}
+                  {renderCreate ? <div className="border-b p-2">{renderCreate}</div> : null}
 
                   <Command>
                     {/* MUST live inside <Command> */}

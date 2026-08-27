@@ -2,33 +2,31 @@
 
 import type { Editor } from "@tiptap/core";
 import {
-    AlignCenter,
-    AlignLeft,
-    AlignRight,
-    Bold as BoldIcon,
-    Columns,
-    Columns3,
-    Heading1,
-    Heading2,
-    Heading3,
-    Highlighter,
-    Italic as ItalicIcon,
-    Link as LinkIcon,
-    List,
-    ListOrdered,
-    ListPlus,
-    ListX,
-    Quote,
-    Redo,
-    Strikethrough as StrikeIcon,
-    Table as TableIcon,
-    Type,
-    Underline as UnderlineIcon,
-    Undo,
+  AlignCenter,
+  AlignLeft,
+  AlignRight,
+  Bold as BoldIcon,
+  Columns,
+  Columns3,
+  Heading1,
+  Heading2,
+  Heading3,
+  Highlighter,
+  Italic as ItalicIcon,
+  Link as LinkIcon,
+  List,
+  ListOrdered,
+  ListPlus,
+  ListX,
+  Quote,
+  Redo,
+  Strikethrough as StrikeIcon,
+  Table as TableIcon,
+  Type,
+  Underline as UnderlineIcon,
+  Undo,
 } from "lucide-react";
 import { Toggle } from "../ui/toggle";
-
-
 
 export default function MenuBar({ editor }: { editor: Editor | null }) {
   if (!editor) return null;
@@ -86,8 +84,7 @@ export default function MenuBar({ editor }: { editor: Editor | null }) {
           editor.chain().focus().unsetLink().run();
           return;
         }
-        const url =
-          typeof window !== "undefined" ? window.prompt("Enter URL") : null;
+        const url = typeof window !== "undefined" ? window.prompt("Enter URL") : null;
         if (url) editor.chain().focus().setLink({ href: url }).run();
       },
       pressed: editor.isActive("link"),
@@ -140,11 +137,7 @@ export default function MenuBar({ editor }: { editor: Editor | null }) {
       action: () =>
         editor.isActive("table")
           ? editor.chain().focus().deleteTable().run()
-          : editor
-              .chain()
-              .focus()
-              .insertTable({ rows: 3, cols: 2, withHeaderRow: true })
-              .run(),
+          : editor.chain().focus().insertTable({ rows: 3, cols: 2, withHeaderRow: true }).run(),
       pressed: editor.isActive("table"),
     },
     {

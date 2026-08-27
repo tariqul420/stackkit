@@ -13,16 +13,20 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { FieldGroup } from "@/components/ui/field";
-import { useLoginMutation } from "@/features/auth/queries/auth.mutations";
+import { authClient } from "@/lib/auth/auth-client";
 import type { ILoginPayload } from "@/features/auth/validators/login.validator";
 import { loginZodSchema } from "@/features/auth/validators/login.validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 {{#if framework == "nextjs"}}
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 {{else}}
-import { Link, useSearchParams } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 {{/if}}
+import { useQueryClient } from "@tanstack/react-query";
 import { FormProvider, useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { AUTH_QUERY_KEYS } from "../queries/auth.queries";
 import SocialLoginButtons from "./social-login-buttons";
 
 {{#if framework == "nextjs"}}
@@ -31,30 +35,47 @@ export default function LoginForm({
 }: {
   searchParams?: { redirect?: string };
 }) {
-  const mutation = useLoginMutation();
+  const router = useRouter();
+  const navigate = (path: string) => router.push(path);
   const redirectPath = searchParams?.redirect || "";
 {{else}}
 export default function LoginForm() {
-  const mutation = useLoginMutation();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirectPath = searchParams.get("redirect") || "";
 {{/if}}
+  const queryClient = useQueryClient();
 
-  const form = useForm<ILoginPayload & { redirectPath?: string }>({
+  const form = useForm<ILoginPayload>({
     mode: "onTouched",
     resolver: zodResolver(loginZodSchema),
-    defaultValues: { email: "", password: "", redirectPath },
+    defaultValues: { email: "", password: "" },
   });
 
-  async function onSubmit(values: ILoginPayload & { redirectPath?: string }) {
+  async function onSubmit(values: ILoginPayload) {
     try {
-      await mutation.mutateAsync({
+      const { data, error } = await authClient.signIn.email({
         email: values.email,
         password: values.password,
-        redirectPath: values.redirectPath,
       });
 
-    } catch {}
+      if (error) {
+        if (error.message?.toLowerCase().includes("email not verified")) {
+          navigate(`/verify-email?email=${encodeURIComponent(values.email)}`);
+          return;
+        }
+        toast.error(error.message || "Login failed. Please check your credentials and try again.");
+        return;
+      }
+
+      toast.success("Login successful!");
+      await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEYS.me });
+      const role = data?.user?.role;
+      const defaultRoute = role === "ADMIN" ? "/dashboard/admin" : "/dashboard";
+      navigate(redirectPath || defaultRoute);
+    } catch {
+      toast.error("An unexpected error occurred. Please try again.");
+    }
   }
 
   return (
@@ -91,11 +112,11 @@ export default function LoginForm() {
                 <div className="text-sm flex flex-col gap-1">
                   {{#if framework == "nextjs"}}
                   <Link href="/register" className="text-muted-foreground underline">
-                    Don't have an account? Create one
+                    Don&apos;t have an account? Create one
                   </Link>
                   {{else}}
                   <Link to="/register" className="text-muted-foreground underline">
-                    Don't have an account? Create one
+                    Don&apos;t have an account? Create one
                   </Link>
                   {{/if}}
                 </div>

@@ -8,9 +8,7 @@ import { ModeToggle } from "../mode-toggle";
 import { Badge } from "../ui/badge";
 
 export default function DashboardHeader({ role }: { role: "USER" | "ADMIN" | undefined }) {
-  const [isOnline, setIsOnline] = useState(
-    typeof window !== "undefined" ? navigator.onLine : true,
-  );
+  const [isOnline, setIsOnline] = useState(typeof window !== "undefined" ? navigator.onLine : true);
 
   useEffect(() => {
     const on = () => setIsOnline(true);
@@ -61,10 +59,7 @@ export default function DashboardHeader({ role }: { role: "USER" | "ADMIN" | und
               </span>
 
               <span className="tracking-wide">
-                System{" "}
-                <span className="font-bold">
-                  {isOnline ? "Online" : "Offline"}
-                </span>
+                System <span className="font-bold">{isOnline ? "Online" : "Offline"}</span>
               </span>
             </Badge>
           )}
