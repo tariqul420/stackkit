@@ -59,7 +59,7 @@ export default function ResetPasswordForm() {
     }
 
     try {
-      const { error } = await authClient.resetPassword({
+      const { error } = await authClient.emailOtp.resetPassword({
         email: values.email,
         otp: values.otp,
         password: values.newPassword,

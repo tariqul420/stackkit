@@ -43,7 +43,7 @@ export default function ForgotPasswordForm() {
 
   async function onSubmit(values: ForgotValues) {
     try {
-      const { error } = await authClient.forgetPassword({
+      const { error } = await authClient.forgetPassword.emailOtp({
         email: values.email,
       });
 

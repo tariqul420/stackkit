@@ -2,7 +2,7 @@
 "use server";
 {{/if}}
 import type { IUserResponse } from "../types/auth.type";
-import { api } from "@/lib/axios/http";
+import { api } from "@/lib/ofetch/http";
 
 export async function updateProfile(payload: {
   name: string;

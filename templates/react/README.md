@@ -61,7 +61,7 @@ react-vite-app/
 │   │   └── providers/
 │   │       └── query-provider.tsx
 │   ├── lib/
-│   │   └── axios/
+│   │   └── ofetch/
 │   │       └── http.ts
 │   ├── pages/
 │   │   ├── about.tsx

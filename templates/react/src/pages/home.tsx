@@ -17,7 +17,7 @@ export default function Home() {
               To get started, edit the Home.tsx file.
             </h1>
             <p className="max-w-md text-lg leading-8 text-zinc-400">
-              This template includes React Router, TanStack Query, Axios, and Tailwind CSS. Check
+              This template includes React Router, TanStack Query, ofetch, and Tailwind CSS. Check
               out the{" "}
               <a href="/about" className="font-medium text-zinc-50 hover:underline">
                 About

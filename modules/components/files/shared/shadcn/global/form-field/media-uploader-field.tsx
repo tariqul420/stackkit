@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Field, FieldContent, FieldError, FieldLabel } from "@/components/ui/field";
 import { type FileWithPreview, useFileUpload } from "@/hooks/use-file-upload";
-import { api } from "@/lib/axios/http";
+import { api } from "@/lib/ofetch/http";
 import { cn } from "@/lib/utils";
 import {
   closestCenter,

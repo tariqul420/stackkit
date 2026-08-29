@@ -111,7 +111,7 @@
       "condition": { "framework": "express" },
       "dependencies": {
         "ejs": "^6.0.1",
-        "better-auth": "^1.6.19",
+        "better-auth": "~1.7.0",
         "nodemailer": "^9.0.1",
         "zod": "^4.4.3"
       },
@@ -252,6 +252,17 @@
       "condition": { "framework": ["react", "nextjs"] }
     },
     {
+      "type": "patch-file",
+      "destination": "{{framework=='nextjs' ? 'lib/query-keys.ts' : 'src/lib/query-keys.ts'}}",
+      "condition": { "framework": ["react", "nextjs"] },
+      "operations": [
+        {
+          "type": "add-to-bottom",
+          "content": "export { AUTH_QUERY_KEYS } from \"@/features/auth/queries/auth.queries\";"
+        }
+      ]
+    },
+    {
       "type": "create-file",
       "source": "react/theme/**",
       "destination": "src/**",
@@ -324,7 +335,7 @@
       "type": "add-dependency",
       "condition": { "framework": ["react", "nextjs"] },
       "dependencies": {
-        "better-auth": "^1.6.19",
+        "better-auth": "~1.7.0",
         "zod": "^4.4.3",
         "@hookform/resolvers": "^5.4.0",
         "react-hook-form": "^7.79.0"

@@ -44,8 +44,8 @@ export default function About() {
                   <div className="text-sm">Data fetching and caching</div>
                 </div>
                 <div className="p-4 border border-zinc-800 rounded-lg">
-                  <div className="font-medium text-zinc-50 mb-1">Axios</div>
-                  <div className="text-sm">HTTP client with interceptors</div>
+                  <div className="font-medium text-zinc-50 mb-1">ofetch</div>
+                  <div className="text-sm">Lightweight fetch-based HTTP client</div>
                 </div>
                 <div className="p-4 border border-zinc-800 rounded-lg">
                   <div className="font-medium text-zinc-50 mb-1">Tailwind CSS</div>

@@ -62,7 +62,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   } catch (error) {
     console.error("Error in proxy middleware:", error);
-    const loginUrl = new URL("/login", request.nextUrl.url);
+    const loginUrl = new URL("/login", request.url);
     return NextResponse.redirect(loginUrl);
   }
 }

@@ -11,7 +11,7 @@
 | Routing | `react-router` v7 |
 | Styling | Tailwind CSS (+ shadcn/ui, if selected) |
 | Data fetching | `@tanstack/react-query` v5 |
-| HTTP client | `axios` (single shared instance in `src/lib/axios/http.ts`) |
+| HTTP client | `ofetch` (single shared instance in `src/lib/ofetch/http.ts`) |
 | Auth | Better Auth (session cookie shared with the backend), if selected |
 
 ## Architectural Doctrine: Feature-First, Layered by Scope
@@ -38,7 +38,7 @@ src/
 │       ├── queries/             ← TanStack Query hooks (`*.query.ts`, `*.mutations.ts`)
 │       └── types/                ← Feature-specific types/schemas
 ├── lib/
-│   ├── axios/http.ts        ← Single shared HTTP client instance
+│   ├── ofetch/http.ts        ← Single shared HTTP client instance
 │   └── utils.ts              ← `cn()` and small shared helpers
 └── types/                  ← Global shared types
 ```
@@ -53,7 +53,7 @@ src/
 
 ## Data Fetching Conventions
 
-- All HTTP calls go through the shared `api` instance in `lib/axios/http.ts`. Never instantiate a second axios client.
+- All HTTP calls go through the shared `api` instance in `lib/ofetch/http.ts`. Never instantiate a second HTTP client.
 - Reads/writes are wrapped in TanStack Query hooks colocated with their feature (`features/<feature>/queries/<feature>.query.ts`, `*.mutations.ts`), not called ad-hoc inside components.
 - Query keys are defined once per feature and exported for reuse.
 

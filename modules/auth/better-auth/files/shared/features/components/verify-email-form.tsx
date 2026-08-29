@@ -47,7 +47,7 @@ export default function VerifyEmailForm() {
 
   async function onSubmit(values: VerifyValues) {
     try {
-      const { error } = await authClient.emailOtp.verify({
+      const { error } = await authClient.emailOtp.verifyEmail({
         email: values.email,
         otp: values.otp,
       });
@@ -73,7 +73,7 @@ export default function VerifyEmailForm() {
     }
 
     try {
-      const { error } = await authClient.emailOtp.sendVerificationOTP({
+      const { error } = await authClient.emailOtp.sendVerificationOtp({
         email,
         type: "email-verification",
       });

@@ -60,7 +60,7 @@ next-app/
 │   └── providers/
 │       └── query-provider.tsx
 ├── lib/
-│   ├── axios/
+│   ├── ofetch/
 │   │   └── http.ts
 │   └── env.ts
 └── public/

@@ -6,11 +6,11 @@
 ## 1. Hard Constraints
 
 ### 1.1 `app/` stays thin
-- No direct `axios`/`fetch` calls, no business logic in `app/**` files.
+- No direct `ofetch`/`fetch` calls, no business logic in `app/**` files.
 - Pages fetch/mutate through feature query hooks and render feature/global components.
 
 ### 1.2 One HTTP client
-- All requests go through `lib/axios/http.ts`. Never create a second axios instance or call `fetch` directly in a feature or component.
+- All requests go through `lib/ofetch/http.ts`. Never create a second HTTP client instance or call `fetch`/`ofetch` directly in a feature or component.
 
 ### 1.3 Component placement
 - `components/ui` — shadcn primitives only, never feature-aware.
@@ -39,7 +39,7 @@ pnpm lint       # eslint
 
 ## 4. Deliverable Checklist
 
-- [ ] No direct `axios`/`fetch` outside `lib/axios/http.ts`
+- [ ] No direct `ofetch`/`fetch` outside `lib/ofetch/http.ts`
 - [ ] Components placed in the correct scope (`ui` / `global` / feature)
 - [ ] Client components correctly marked with `"use client"`
 - [ ] No custom auth logic added — Better Auth remains the only auth provider

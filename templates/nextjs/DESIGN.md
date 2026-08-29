@@ -10,7 +10,7 @@
 | Language | TypeScript (strict) |
 | Styling | Tailwind CSS (+ shadcn/ui, if selected) |
 | Data fetching | `@tanstack/react-query` v5 |
-| HTTP client | `axios` (single shared instance in `lib/axios/http.ts`) |
+| HTTP client | `ofetch` (single shared instance in `lib/ofetch/http.ts`) |
 | Auth | Better Auth (session cookie shared with the backend), if selected |
 
 ## Architectural Doctrine: Feature-First, Layered by Scope
@@ -39,7 +39,7 @@ features/                ← One capsule per domain feature (added by modules, e
     types/                  ← Feature-specific types/schemas
 
 lib/
-  axios/http.ts           ← Single shared HTTP client instance — never call axios/fetch directly elsewhere
+  ofetch/http.ts           ← Single shared HTTP client instance — never call ofetch/fetch directly elsewhere
   env.ts                  ← Public env validation (`NEXT_PUBLIC_*`)
   utils.ts                ← `cn()` and small shared helpers
 ```
@@ -58,7 +58,7 @@ lib/
 |---|---|---|
 | Page layout, metadata | Server | `app/**/page.tsx` |
 | Data mutation/query hooks | Client | `features/*/queries/*` (file must start with `"use client"` if it uses hooks) |
-| HTTP transport | Either | `lib/axios/http.ts` — the only place that imports `axios` |
+| HTTP transport | Either | `lib/ofetch/http.ts` — the only place that imports `ofetch` |
 
 Rules:
 - Any file using React hooks must start with `"use client"`.
@@ -66,7 +66,7 @@ Rules:
 
 ## Data Fetching Conventions
 
-- All HTTP calls go through the shared `api` instance in `lib/axios/http.ts`. Never instantiate a second axios client.
+- All HTTP calls go through the shared `api` instance in `lib/ofetch/http.ts`. Never instantiate a second HTTP client.
 - Reads/writes are wrapped in TanStack Query hooks colocated with their feature (`features/<feature>/queries/<feature>.query.ts`, `*.mutations.ts`), not called ad-hoc inside components.
 - Query keys are defined once per feature and exported for reuse — do not inline ad-hoc key arrays across multiple call sites.
 
