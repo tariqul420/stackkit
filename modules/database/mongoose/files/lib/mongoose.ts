@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { envVars } from "../config/env";
+import "dotenv/config"
 
 type MongooseCache = {
   conn: typeof mongoose | null;
@@ -24,7 +25,7 @@ async function dbConnect(): Promise<typeof mongoose> {
     return cached.conn;
   }
 
-  const uri = envVars.DATABASE_URL;
+  const uri = process.env.DATABASE_URL;
 
   if (!cached.promise) {
     const opts = {
